@@ -1,0 +1,48 @@
+# dependencies
+node_modules/
+
+# next.js
+.next/
+out/
+build/
+
+# env files (NEVER push these)
+.env
+.env.*
+!.env.example
+
+# prisma
+generated/
+prisma.config.ts
+
+# build
+dist/
+*.tsbuildinfo
+.turbo/
+
+# os
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+
+# ide
+.vscode/
+.idea/
+
+# vercel
+.vercel
+
+# expo
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# misc
+coverage/
