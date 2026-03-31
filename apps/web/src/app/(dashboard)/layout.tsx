@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { AppInstallPrompt } from "@/components/app-install-prompt";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -32,6 +33,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Topbar onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
+
+      {/* PWA / App Install Prompt — shows on mobile after 5 seconds */}
+      <AppInstallPrompt />
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default function HomePage() {
           </Link>
           <div className="hidden items-center gap-8 md:flex">
             <Link href="#features" className="text-sm text-gray-600 hover:text-gray-900">Features</Link>
-            <Link href="#pricing" className="text-sm text-gray-600 hover:text-gray-900">Pricing</Link>
+            <Link href="/download" className="text-sm text-gray-600 hover:text-gray-900">Download App</Link>
             <Link href="#centres" className="text-sm text-gray-600 hover:text-gray-900">For Centres</Link>
           </div>
           <div className="flex items-center gap-3">
@@ -130,16 +130,59 @@ export default function HomePage() {
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-            <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-600">
-                <Globe className="h-4 w-4 text-white" />
+          <div className="grid gap-8 sm:grid-cols-3">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-2">
+                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-indigo-600">
+                  <Globe className="h-4 w-4 text-white" />
+                </div>
+                <span className="text-lg font-bold text-gray-900">PTE Master</span>
               </div>
-              <span className="text-lg font-bold text-gray-900">PTE Master</span>
+              <p className="mt-3 text-sm text-gray-500">
+                AI-powered PTE practice platform. Made in India for students who dream of going abroad.
+              </p>
             </div>
-            <p className="text-sm text-gray-500">
-              Made in India. Trusted by coaching centres across the country.
-            </p>
+
+            {/* Quick Links */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900">Platform</h4>
+              <ul className="mt-3 space-y-2">
+                <li><Link href="/register" className="text-sm text-gray-500 hover:text-gray-900">Sign Up Free</Link></li>
+                <li><Link href="/login" className="text-sm text-gray-500 hover:text-gray-900">Log In</Link></li>
+                <li><Link href="/download" className="text-sm text-gray-500 hover:text-gray-900">Download App</Link></li>
+                <li><Link href="/register?role=centre" className="text-sm text-gray-500 hover:text-gray-900">Register Centre</Link></li>
+              </ul>
+            </div>
+
+            {/* Get the App */}
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900">Get the App</h4>
+              <ul className="mt-3 space-y-2">
+                <li>
+                  <Link href="/download" className="flex items-center gap-2 text-sm text-gray-500 hover:text-gray-900">
+                    <span className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 text-xs">🌐</span>
+                    Web App (PWA)
+                  </Link>
+                </li>
+                <li>
+                  <span className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 text-xs">📱</span>
+                    Android — Coming Soon
+                  </span>
+                </li>
+                <li>
+                  <span className="flex items-center gap-2 text-sm text-gray-400">
+                    <span className="flex h-6 w-6 items-center justify-center rounded bg-gray-100 text-xs">🍎</span>
+                    iOS — Coming Soon
+                  </span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-gray-100 pt-8 text-center text-xs text-gray-400">
+            &copy; {new Date().getFullYear()} PTE Master. All rights reserved. Free during beta period.
           </div>
         </div>
       </footer>
