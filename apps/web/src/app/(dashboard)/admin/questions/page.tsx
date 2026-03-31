@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { QuestionForm } from "@/components/admin/question-form";
 import {
   Database, Plus, Search, Upload, Trash2, Edit2,
   Mic, PenTool, BookOpen, Headphones, Star,
@@ -49,8 +50,12 @@ export default function QuestionsPage() {
   const [search, setSearch] = useState("");
   const [section, setSection] = useState("");
   const [page, setPage] = useState(1);
-  // TODO: Add modal will be implemented with a form component
+  const [showForm, setShowForm] = useState(false);
 
+  const refreshQuestions = () => {
+    setPage(1);
+    setLoading(true);
+  };
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -84,11 +89,11 @@ export default function QuestionsPage() {
           <p className="text-gray-500">{total} questions available</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
+          <Button variant="outline" className="gap-2" onClick={() => setShowForm(true)}>
             <Upload className="h-4 w-4" />
             Bulk Upload
           </Button>
-          <Button className="gap-2">
+          <Button className="gap-2" onClick={() => setShowForm(true)}>
             <Plus className="h-4 w-4" />
             Add Question
           </Button>
@@ -208,6 +213,11 @@ export default function QuestionsPage() {
             </Button>
           </div>
         </div>
+      )}
+
+      {/* Question Form Modal */}
+      {showForm && (
+        <QuestionForm onClose={() => setShowForm(false)} onSave={refreshQuestions} />
       )}
     </div>
   );
