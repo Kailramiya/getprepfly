@@ -12,10 +12,10 @@ const features = [
 ];
 
 const stats = [
-  { value: "500+", label: "Coaching Centres" },
-  { value: "50,000+", label: "Students" },
-  { value: "20,000+", label: "Practice Questions" },
-  { value: "95%", label: "Score Improvement" },
+  { value: "20+", label: "Question Types" },
+  { value: "4", label: "PTE Sections" },
+  { value: "AI", label: "Powered Scoring" },
+  { value: "Free", label: "During Beta" },
 ];
 
 export default function HomePage() {
@@ -59,7 +59,7 @@ export default function HomePage() {
             </h1>
             <p className="mt-6 text-lg text-gray-600 sm:text-xl">
               Practice all 20+ PTE question types with instant AI scoring.
-              Trusted by 500+ coaching centres and 50,000+ students across India.
+              Practice all 20+ PTE question types with instant AI feedback. Free during beta.
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
               <Link href="/register">

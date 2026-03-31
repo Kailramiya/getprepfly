@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     template: "%s | PTE Master",
   },
   description:
-    "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Used by 500+ coaching centres across India.",
+    "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Free during beta.",
   keywords: ["PTE", "PTE Academic", "PTE practice", "PTE mock test", "PTE preparation", "PTE India"],
   manifest: "/manifest.json",
 };

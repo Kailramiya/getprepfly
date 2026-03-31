@@ -19,7 +19,7 @@ const platforms = [
     badge: "Recommended",
     color: "from-indigo-500 to-indigo-600",
     steps: [
-      "Open ptemaster.in in Chrome or Edge",
+      "Open the website in Chrome or Edge",
       "Click the install icon in the address bar (or menu > Install App)",
       "The app icon will appear on your home screen",
     ],

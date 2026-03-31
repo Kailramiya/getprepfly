@@ -19,7 +19,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           </h1>
           <p className="mt-4 text-lg text-white/80">
             AI-powered practice for Speaking, Writing, Reading & Listening.
-            Trusted by 500+ coaching centres across India.
+            Free during beta — all features unlocked.
           </p>
 
           <div className="mt-10 grid grid-cols-2 gap-4">
