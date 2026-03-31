@@ -25,7 +25,8 @@ export function useAuth() {
     isTeacher: session?.user?.role === "TEACHER",
     isCentreAdmin: session?.user?.role === "CENTRE_ADMIN",
     isSuperAdmin: session?.user?.role === "SUPER_ADMIN",
-    isPremium: session?.user?.planType !== "FREE",
+    // Year 1: Everything free for all users
+    isPremium: true,
     updateSession: update,
   };
 }

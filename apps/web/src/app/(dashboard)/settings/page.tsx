@@ -1,52 +1,41 @@
 "use client";
 
-import { useState } from "react";
+// import { useState } from "react"; // UNCOMMENT when re-enabling payments
 import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+// import { Input } from "@/components/ui/input"; // UNCOMMENT when re-enabling payments
 import { Badge } from "@/components/ui/badge";
-import { Crown, Check, Zap, LogOut } from "lucide-react";
+import { Crown, LogOut } from "lucide-react";
+// import { Check, Zap } from "lucide-react"; // UNCOMMENT when re-enabling payments
 
+/*
+=====================================================================
+COMMENTED OUT: Payment plans & upgrade logic — Uncomment after beta
+=====================================================================
 const PLANS = [
-  {
-    id: "VIP_30",
-    name: "VIP 30 Days",
-    price: 499,
-    priceLabel: "₹499",
-    period: "30 days",
-    features: ["Unlimited practice", "AI scoring (Speaking + Writing)", "Full mock tests", "Weekly predictions"],
-    popular: false,
-  },
-  {
-    id: "VIP_90",
-    name: "VIP 90 Days",
-    price: 999,
-    priceLabel: "₹999",
-    period: "90 days",
-    features: ["Everything in VIP 30", "Priority support", "Templates library", "Score trend analysis"],
-    popular: true,
-  },
-  {
-    id: "VIP_180",
-    name: "VIP 180 Days",
-    price: 1499,
-    priceLabel: "₹1,499",
-    period: "180 days",
-    features: ["Everything in VIP 90", "Vocabulary builder", "Best value — save 50%", "Download practice PDFs"],
-    popular: false,
-  },
+  { id: "VIP_30", name: "VIP 30 Days", price: 499, priceLabel: "₹499", period: "30 days",
+    features: ["Unlimited practice", "AI scoring", "Full mock tests", "Weekly predictions"], popular: false },
+  { id: "VIP_90", name: "VIP 90 Days", price: 999, priceLabel: "₹999", period: "90 days",
+    features: ["Everything in VIP 30", "Priority support", "Templates library", "Score trend analysis"], popular: true },
+  { id: "VIP_180", name: "VIP 180 Days", price: 1499, priceLabel: "₹1,499", period: "180 days",
+    features: ["Everything in VIP 90", "Vocabulary builder", "Best value", "Download practice PDFs"], popular: false },
 ];
+=====================================================================
+*/
 
 export default function SettingsPage() {
-  const { user, isPremium } = useAuth();
-  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
-  const [coupon, setCoupon] = useState("");
+  const { user } = useAuth();
+  // const [loadingPlan, setLoadingPlan] = useState<string | null>(null); // UNCOMMENT for payments
+  // const [coupon, setCoupon] = useState(""); // UNCOMMENT for payments
 
+  /*
+  =====================================================================
+  COMMENTED OUT: Razorpay upgrade handler — Uncomment after beta
+  =====================================================================
   const handleUpgrade = async (planType: string) => {
     setLoadingPlan(planType);
-
     try {
       const res = await fetch("/api/payments/create-order", {
         method: "POST",
@@ -54,128 +43,50 @@ export default function SettingsPage() {
         body: JSON.stringify({ planType, couponCode: coupon || undefined }),
       });
       const data = await res.json();
-
-      if (!data.success) {
-        alert(data.error || "Failed to create order");
-        return;
-      }
-
-      // Open Razorpay checkout
+      if (!data.success) { alert(data.error); return; }
       const options = {
-        key: data.data.keyId,
-        amount: data.data.amount,
-        currency: data.data.currency,
-        name: "PTE Master",
-        description: data.data.planLabel,
-        order_id: data.data.orderId,
-        prefill: {
-          name: data.data.userName,
-          email: data.data.userEmail,
-        },
+        key: data.data.keyId, amount: data.data.amount, currency: data.data.currency,
+        name: "PTE Master", description: data.data.planLabel, order_id: data.data.orderId,
+        prefill: { name: data.data.userName, email: data.data.userEmail },
         theme: { color: "#4F46E5" },
         handler: async (response: any) => {
-          // Verify payment
           const verifyRes = await fetch("/api/payments/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
+            method: "POST", headers: { "Content-Type": "application/json" },
             body: JSON.stringify(response),
           });
           const verifyData = await verifyRes.json();
-          if (verifyData.success) {
-            alert("Payment successful! Your VIP plan is now active.");
-            window.location.reload();
-          } else {
-            alert("Payment verification failed. Please contact support.");
-          }
+          if (verifyData.success) { alert("Payment successful!"); window.location.reload(); }
+          else { alert("Payment verification failed."); }
         },
       };
-
       const razorpay = new (window as any).Razorpay(options);
       razorpay.open();
-    } catch {
-      alert("Something went wrong. Please try again.");
-    } finally {
-      setLoadingPlan(null);
-    }
+    } catch { alert("Something went wrong."); }
+    finally { setLoadingPlan(null); }
   };
+  =====================================================================
+  */
 
   return (
     <div className="space-y-8">
       <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
 
-      {/* Current Plan */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Crown className="h-5 w-5 text-amber-500" />
-            Your Plan
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center gap-3">
-            <Badge variant={isPremium ? "success" : "secondary"} className="text-sm">
-              {user?.planType || "FREE"}
-            </Badge>
-            {isPremium && <span className="text-sm text-green-600">Active</span>}
+      {/* Free Beta Banner */}
+      <Card className="border-teal-200 bg-gradient-to-r from-teal-50 to-indigo-50">
+        <CardContent className="flex items-center gap-4 p-6">
+          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100">
+            <Crown className="h-6 w-6 text-teal-600" />
           </div>
+          <div>
+            <h3 className="font-semibold text-gray-900">Free Beta Access</h3>
+            <p className="mt-1 text-sm text-gray-600">
+              All features are <strong>completely free</strong> during our beta period.
+              Practice speaking, writing, reading, listening — everything unlocked!
+            </p>
+          </div>
+          <Badge className="shrink-0 bg-teal-600 text-white">FREE</Badge>
         </CardContent>
       </Card>
-
-      {/* Upgrade Plans */}
-      {!isPremium && (
-        <div>
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Upgrade to VIP</h2>
-
-          {/* Coupon */}
-          <div className="mb-6 flex max-w-sm items-center gap-2">
-            <Input
-              placeholder="Coupon code"
-              value={coupon}
-              onChange={(e) => setCoupon(e.target.value)}
-            />
-            <Button variant="outline" size="sm">Apply</Button>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            {PLANS.map((plan) => (
-              <Card
-                key={plan.id}
-                className={`relative ${plan.popular ? "border-2 border-indigo-500 shadow-lg" : ""}`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-indigo-600 text-white">Most Popular</Badge>
-                  </div>
-                )}
-                <CardContent className="p-6">
-                  <h3 className="text-lg font-semibold text-gray-900">{plan.name}</h3>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-3xl font-bold text-gray-900">{plan.priceLabel}</span>
-                    <span className="text-sm text-gray-500">/ {plan.period}</span>
-                  </div>
-                  <ul className="mt-4 space-y-2">
-                    {plan.features.map((f) => (
-                      <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
-                        {f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button
-                    className={`mt-6 w-full gap-2 ${plan.popular ? "" : ""}`}
-                    variant={plan.popular ? "default" : "outline"}
-                    onClick={() => handleUpgrade(plan.id)}
-                    loading={loadingPlan === plan.id}
-                  >
-                    <Zap className="h-4 w-4" />
-                    Upgrade Now
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Account */}
       <Card>
