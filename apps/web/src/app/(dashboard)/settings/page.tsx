@@ -1,121 +1,310 @@
 "use client";
 
-// import { useState } from "react"; // UNCOMMENT when re-enabling payments
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input"; // UNCOMMENT when re-enabling payments
+import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Crown, LogOut } from "lucide-react";
-// import { Check, Zap } from "lucide-react"; // UNCOMMENT when re-enabling payments
-
-/*
-=====================================================================
-COMMENTED OUT: Payment plans & upgrade logic — Uncomment after beta
-=====================================================================
-const PLANS = [
-  { id: "VIP_30", name: "VIP 30 Days", price: 499, priceLabel: "₹499", period: "30 days",
-    features: ["Unlimited practice", "AI scoring", "Full mock tests", "Weekly predictions"], popular: false },
-  { id: "VIP_90", name: "VIP 90 Days", price: 999, priceLabel: "₹999", period: "90 days",
-    features: ["Everything in VIP 30", "Priority support", "Templates library", "Score trend analysis"], popular: true },
-  { id: "VIP_180", name: "VIP 180 Days", price: 1499, priceLabel: "₹1,499", period: "180 days",
-    features: ["Everything in VIP 90", "Vocabulary builder", "Best value", "Download practice PDFs"], popular: false },
-];
-=====================================================================
-*/
+import {
+  Crown, LogOut, User, Save, Lock, Building2,
+  Palette, Globe, Phone, Mail, MapPin, Check,
+} from "lucide-react";
 
 export default function SettingsPage() {
-  const { user } = useAuth();
-  // const [loadingPlan, setLoadingPlan] = useState<string | null>(null); // UNCOMMENT for payments
-  // const [coupon, setCoupon] = useState(""); // UNCOMMENT for payments
+  const { user, isCentreAdmin } = useAuth();
 
-  /*
-  =====================================================================
-  COMMENTED OUT: Razorpay upgrade handler — Uncomment after beta
-  =====================================================================
-  const handleUpgrade = async (planType: string) => {
-    setLoadingPlan(planType);
-    try {
-      const res = await fetch("/api/payments/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planType, couponCode: coupon || undefined }),
-      });
-      const data = await res.json();
-      if (!data.success) { alert(data.error); return; }
-      const options = {
-        key: data.data.keyId, amount: data.data.amount, currency: data.data.currency,
-        name: "Prepfly", description: data.data.planLabel, order_id: data.data.orderId,
-        prefill: { name: data.data.userName, email: data.data.userEmail },
-        theme: { color: "#4F46E5" },
-        handler: async (response: any) => {
-          const verifyRes = await fetch("/api/payments/verify", {
-            method: "POST", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(response),
+  // Profile state
+  const [profile, setProfile] = useState({ name: "", phone: "", language: "EN" });
+  const [savingProfile, setSavingProfile] = useState(false);
+  const [profileSaved, setProfileSaved] = useState(false);
+
+  // Password state
+  const [passwords, setPasswords] = useState({ currentPassword: "", newPassword: "", confirmPassword: "" });
+  const [savingPassword, setSavingPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSaved, setPasswordSaved] = useState(false);
+
+  // Centre branding state
+  const [centre, setCentre] = useState({
+    name: "", phone: "", email: "", city: "", state: "",
+    address: "", primaryColor: "#0D9488", website: "",
+  });
+  const [savingCentre, setSavingCentre] = useState(false);
+  const [centreSaved, setCentreSaved] = useState(false);
+
+  // Load profile
+  useEffect(() => {
+    fetch("/api/users/profile")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.data) {
+          setProfile({
+            name: data.data.name || "",
+            phone: data.data.phone || "",
+            language: data.data.language || "EN",
           });
-          const verifyData = await verifyRes.json();
-          if (verifyData.success) { alert("Payment successful!"); window.location.reload(); }
-          else { alert("Payment verification failed."); }
-        },
-      };
-      const razorpay = new (window as any).Razorpay(options);
-      razorpay.open();
-    } catch { alert("Something went wrong."); }
-    finally { setLoadingPlan(null); }
+          if (data.data.centre) {
+            setCentre({
+              name: data.data.centre.name || "",
+              phone: data.data.centre.phone || "",
+              email: data.data.centre.email || "",
+              city: data.data.centre.city || "",
+              state: data.data.centre.state || "",
+              address: data.data.centre.address || "",
+              primaryColor: data.data.centre.primaryColor || "#0D9488",
+              website: data.data.centre.website || "",
+            });
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const saveProfile = async () => {
+    setSavingProfile(true);
+    setProfileSaved(false);
+    const res = await fetch("/api/users/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(profile),
+    });
+    const data = await res.json();
+    if (data.success) setProfileSaved(true);
+    else alert(data.error || "Failed to save");
+    setSavingProfile(false);
+    setTimeout(() => setProfileSaved(false), 3000);
   };
-  =====================================================================
-  */
+
+  const changePassword = async () => {
+    setPasswordError("");
+    setPasswordSaved(false);
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      setPasswordError("Passwords do not match");
+      return;
+    }
+    if (passwords.newPassword.length < 6) {
+      setPasswordError("New password must be at least 6 characters");
+      return;
+    }
+    setSavingPassword(true);
+    const res = await fetch("/api/users/profile", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentPassword: passwords.currentPassword, newPassword: passwords.newPassword }),
+    });
+    const data = await res.json();
+    if (data.success) {
+      setPasswordSaved(true);
+      setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
+    } else {
+      setPasswordError(data.error || "Failed to change password");
+    }
+    setSavingPassword(false);
+    setTimeout(() => setPasswordSaved(false), 3000);
+  };
+
+  const saveCentreBranding = async () => {
+    setSavingCentre(true);
+    setCentreSaved(false);
+    const res = await fetch("/api/centres/branding", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(centre),
+    });
+    const data = await res.json();
+    if (data.success) setCentreSaved(true);
+    else alert(data.error || "Failed to save");
+    setSavingCentre(false);
+    setTimeout(() => setCentreSaved(false), 3000);
+  };
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
 
-      {/* Free Beta Banner */}
+      {/* Free Beta */}
       <Card className="border-teal-200 bg-gradient-to-r from-teal-50 to-indigo-50">
-        <CardContent className="flex items-center gap-4 p-6">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-100">
-            <Crown className="h-6 w-6 text-teal-600" />
-          </div>
+        <CardContent className="flex items-center gap-4 p-5">
+          <Crown className="h-6 w-6 shrink-0 text-teal-600" />
           <div>
-            <h3 className="font-semibold text-gray-900">Free Beta Access</h3>
-            <p className="mt-1 text-sm text-gray-600">
-              All features are <strong>completely free</strong> during our beta period.
-              Practice speaking, writing, reading, listening — everything unlocked!
-            </p>
+            <p className="text-sm font-medium text-gray-900">Free Beta Access</p>
+            <p className="text-xs text-gray-600">All features unlocked during beta</p>
           </div>
-          <Badge className="shrink-0 bg-teal-600 text-white">FREE</Badge>
+          <Badge className="ml-auto shrink-0 bg-teal-600 text-white">FREE</Badge>
         </CardContent>
       </Card>
 
-      {/* Account */}
+      {/* Profile */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Account</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <User className="h-5 w-5 text-gray-400" />
+            Profile
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          <Input
+            label="Full Name"
+            value={profile.name}
+            onChange={(e) => setProfile({ ...profile, name: e.target.value })}
+            placeholder="Your full name"
+          />
           <div>
-            <p className="text-sm text-gray-500">Name</p>
-            <p className="font-medium text-gray-900">{user?.name}</p>
+            <p className="mb-1.5 text-sm font-medium text-gray-700">Email</p>
+            <p className="flex h-10 items-center rounded-lg bg-gray-50 px-3 text-sm text-gray-500">{user?.email}</p>
+            <p className="mt-1 text-xs text-gray-400">Email cannot be changed</p>
           </div>
+          <Input
+            label="Phone Number"
+            value={profile.phone}
+            onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
+            placeholder="+91 9876543210"
+            type="tel"
+          />
           <div>
-            <p className="text-sm text-gray-500">Email</p>
-            <p className="font-medium text-gray-900">{user?.email}</p>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700">Language</label>
+            <select
+              className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+              value={profile.language}
+              onChange={(e) => setProfile({ ...profile, language: e.target.value })}
+            >
+              <option value="EN">English</option>
+              <option value="HI">Hindi</option>
+              <option value="PA">Punjabi</option>
+            </select>
           </div>
           {user?.centreName && (
             <div>
-              <p className="text-sm text-gray-500">Coaching Centre</p>
-              <p className="font-medium text-gray-900">{user.centreName}</p>
+              <p className="mb-1.5 text-sm font-medium text-gray-700">Coaching Centre</p>
+              <p className="flex h-10 items-center gap-2 rounded-lg bg-gray-50 px-3 text-sm text-gray-700">
+                <Building2 className="h-4 w-4 text-gray-400" />{user.centreName}
+              </p>
             </div>
           )}
-          <Button
-            variant="destructive"
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Log Out
+          <Button onClick={saveProfile} loading={savingProfile} className="gap-2">
+            {profileSaved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+            {profileSaved ? "Saved!" : "Save Profile"}
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* Change Password */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Lock className="h-5 w-5 text-gray-400" />
+            Change Password
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {passwordError && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{passwordError}</div>}
+          {passwordSaved && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">Password changed!</div>}
+          <Input label="Current Password" type="password" value={passwords.currentPassword}
+            onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })} placeholder="Enter current password" />
+          <Input label="New Password" type="password" value={passwords.newPassword}
+            onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} placeholder="Min 6 characters" />
+          <Input label="Confirm New Password" type="password" value={passwords.confirmPassword}
+            onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })} placeholder="Re-enter new password" />
+          <Button onClick={changePassword} loading={savingPassword} variant="outline" className="gap-2"
+            disabled={!passwords.currentPassword || !passwords.newPassword}>
+            {passwordSaved ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+            {passwordSaved ? "Changed!" : "Change Password"}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Centre Branding (Centre Admin Only) */}
+      {isCentreAdmin && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Palette className="h-5 w-5 text-gray-400" />
+              Centre Branding
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-xs text-gray-500">
+              Customize how your centre appears to students. Only your students will see this branding.
+            </p>
+            <Input label="Centre Name" value={centre.name}
+              onChange={(e) => setCentre({ ...centre, name: e.target.value })} placeholder="Your coaching centre name" />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="relative">
+                <Phone className="absolute left-3 top-[38px] h-4 w-4 text-gray-400" />
+                <Input label="Phone" value={centre.phone}
+                  onChange={(e) => setCentre({ ...centre, phone: e.target.value })} placeholder="+91 98765..." className="pl-10" />
+              </div>
+              <div className="relative">
+                <Mail className="absolute left-3 top-[38px] h-4 w-4 text-gray-400" />
+                <Input label="Email" value={centre.email}
+                  onChange={(e) => setCentre({ ...centre, email: e.target.value })} placeholder="info@..." className="pl-10" />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="City" value={centre.city} onChange={(e) => setCentre({ ...centre, city: e.target.value })} placeholder="Kaithal" />
+              <Input label="State" value={centre.state} onChange={(e) => setCentre({ ...centre, state: e.target.value })} placeholder="Haryana" />
+            </div>
+            <div className="relative">
+              <MapPin className="absolute left-3 top-[38px] h-4 w-4 text-gray-400" />
+              <Input label="Address" value={centre.address}
+                onChange={(e) => setCentre({ ...centre, address: e.target.value })} placeholder="Full address" className="pl-10" />
+            </div>
+            <div className="relative">
+              <Globe className="absolute left-3 top-[38px] h-4 w-4 text-gray-400" />
+              <Input label="Website (optional)" value={centre.website}
+                onChange={(e) => setCentre({ ...centre, website: e.target.value })} placeholder="https://..." className="pl-10" />
+            </div>
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700">Brand Color</label>
+              <div className="flex items-center gap-3">
+                <input type="color" value={centre.primaryColor}
+                  onChange={(e) => setCentre({ ...centre, primaryColor: e.target.value })}
+                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-300" />
+                <span className="text-sm text-gray-500">{centre.primaryColor}</span>
+                <div className="ml-2 flex gap-2">
+                  {["#0D9488", "#4F46E5", "#2563EB", "#DC2626", "#D97706", "#059669"].map((c) => (
+                    <button key={c} onClick={() => setCentre({ ...centre, primaryColor: c })}
+                      className={`h-8 w-8 rounded-full border-2 transition ${centre.primaryColor === c ? "border-gray-900 scale-110" : "border-transparent"}`}
+                      style={{ backgroundColor: c }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+            <Button onClick={saveCentreBranding} loading={savingCentre} className="gap-2">
+              {centreSaved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
+              {centreSaved ? "Saved!" : "Save Centre Branding"}
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Account Info */}
+      <Card>
+        <CardHeader><CardTitle className="text-base">Account</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+            <div>
+              <p className="text-sm font-medium text-gray-900">Role</p>
+              <p className="text-xs text-gray-500">{user?.role?.replace(/_/g, " ")}</p>
+            </div>
+            <Badge variant="secondary">{user?.role?.replace(/_/g, " ")}</Badge>
+          </div>
+          {user?.centreSlug && (
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+              <div>
+                <p className="text-sm font-medium text-gray-900">Centre Code</p>
+                <p className="text-xs text-gray-500">Share with students to register under your centre</p>
+              </div>
+              <code className="rounded border border-teal-200 bg-white px-2 py-1 font-mono text-sm text-teal-700">{user.centreSlug}</code>
+            </div>
+          )}
+          <div className="pt-2">
+            <Button variant="destructive" onClick={() => signOut({ callbackUrl: "/login" })} className="gap-2">
+              <LogOut className="h-4 w-4" /> Log Out
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
