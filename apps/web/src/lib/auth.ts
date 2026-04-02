@@ -79,7 +79,11 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!existingUser) {
-          // Create new user from Google
+          // Google login only — no auto-signup
+          // User must register first via /register, then can use Google to login
+          throw new Error("No account found with this email. Please register first.");
+
+          /* UNCOMMENT to enable Google auto-signup later:
           const newUser = await db.user.create({
             data: {
               email: user.email!.toLowerCase().trim(),
@@ -103,6 +107,7 @@ export const authOptions: NextAuthOptions = {
           (user as any).id = newUser.id;
           (user as any).role = newUser.role;
           (user as any).planType = "FREE";
+          */
         } else {
           // Link Google account if not linked
           const existingOAuth = await db.oAuthAccount.findUnique({
