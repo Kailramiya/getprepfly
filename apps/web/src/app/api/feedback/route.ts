@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
+import { sendEmail, feedbackEmailTemplate } from "@/lib/email";
 
-// POST /api/feedback — submit user feedback
-// Stored as announcements with isGlobal=false for now
-// TODO: Create a dedicated Feedback model when needed
+// POST /api/feedback — submit user feedback + email notification
 export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
@@ -19,15 +18,33 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Store feedback as an announcement (reusing existing model)
-  // Title format: [FEEDBACK:category] from userName
+  const feedbackUserName = userName || user!.name || "Unknown";
+  const feedbackUserEmail = userEmail || user!.email || "Unknown";
+  const feedbackCentreName = centreName || "None";
+
+  // Save to database
   await db.announcement.create({
     data: {
-      title: `[FEEDBACK:${category || "general"}] from ${userName || user!.email} ${rating ? `(${rating}/5)` : ""}`,
-      message: `${message}\n\n---\nUser: ${userName || "Unknown"}\nEmail: ${userEmail || user!.email}\nCentre: ${centreName || "None"}\nRating: ${rating || "Not rated"}\nDate: ${new Date().toISOString()}`,
-      isGlobal: true, // visible to super admin
+      title: `[FEEDBACK:${category || "general"}] from ${feedbackUserName} ${rating ? `(${rating}/5)` : ""}`,
+      message: `${message}\n\n---\nUser: ${feedbackUserName}\nEmail: ${feedbackUserEmail}\nCentre: ${feedbackCentreName}\nRating: ${rating || "Not rated"}\nDate: ${new Date().toISOString()}`,
+      isGlobal: true,
       centreId: user!.centreId || null,
     },
+  });
+
+  // Send email notification (non-blocking — don't fail if email fails)
+  sendEmail({
+    subject: `[Prepfly Feedback] ${category || "general"} — from ${feedbackUserName}`,
+    html: feedbackEmailTemplate({
+      category: category || "general",
+      message,
+      rating: rating || 0,
+      userName: feedbackUserName,
+      userEmail: feedbackUserEmail,
+      centreName: feedbackCentreName,
+    }),
+  }).catch(() => {
+    // Silent fail — feedback is saved even if email fails
   });
 
   return NextResponse.json(
