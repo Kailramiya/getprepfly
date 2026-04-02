@@ -1,11 +1,11 @@
 {
-  "name": "PTE Master — AI-Powered PTE Practice",
-  "short_name": "PTE Master",
+  "name": "Prepfly — AI-Powered PTE Practice",
+  "short_name": "Prepfly",
   "description": "Practice PTE Academic with AI scoring. Speaking, Writing, Reading & Listening.",
   "start_url": "/dashboard",
   "display": "standalone",
   "background_color": "#F9FAFB",
-  "theme_color": "#4F46E5",
+  "theme_color": "#14B8A6",
   "orientation": "portrait-primary",
   "icons": [
     {

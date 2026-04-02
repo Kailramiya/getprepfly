@@ -4,7 +4,8 @@ import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Globe, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -60,11 +61,8 @@ function LoginForm() {
   return (
     <div>
       {/* Mobile logo */}
-      <div className="mb-8 flex items-center gap-2 lg:hidden">
-        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-600">
-          <Globe className="h-5 w-5 text-white" />
-        </div>
-        <span className="text-xl font-bold text-gray-900">PTE Master</span>
+      <div className="mb-8 lg:hidden">
+        <Logo size="sm" />
       </div>
 
       <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>

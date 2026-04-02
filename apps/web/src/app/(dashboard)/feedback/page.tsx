@@ -67,14 +67,14 @@ export default function FeedbackPage() {
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Send Feedback</h1>
-        <p className="text-gray-500">Help us improve PTE Master. Your feedback matters!</p>
+        <p className="text-gray-500">Help us improve Prepfly. Your feedback matters!</p>
       </div>
 
       <Card className="border-teal-200 bg-teal-50">
         <CardContent className="flex items-center gap-3 p-4">
           <MessageSquare className="h-5 w-5 text-teal-600" />
           <p className="text-sm text-teal-800">
-            PTE Master is currently in <strong>free beta</strong>. We are collecting feedback to make the platform better before the paid launch. Everything is free during this period.
+            Prepfly is currently in <strong>free beta</strong>. We are collecting feedback to make the platform better before the paid launch. Everything is free during this period.
           </p>
         </CardContent>
       </Card>

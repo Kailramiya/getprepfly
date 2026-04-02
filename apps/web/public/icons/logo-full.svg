@@ -1,0 +1,17 @@
+<svg width="240" height="60" viewBox="0 0 240 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon -->
+  <defs>
+    <linearGradient id="iconGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#14B8A6"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="6" width="48" height="48" rx="12" fill="url(#iconGrad)"/>
+  <path d="M40.2 18.2a1.2 1.2 0 00-1.28-.27l-21.6 8.4a1.2 1.2 0 00.09 2.25l9.63 3.21 3.21 9.63a1.2 1.2 0 002.25.09l8.4-21.6a1.2 1.2 0 00-.27-1.28zM35.5 22.5l-9.45 9.45-6.32-2.11L35.5 22.5zM28.17 37.16l-2.1-6.32 9.44-9.45-7.34 15.77z" fill="white"/>
+  <circle cx="41.5" cy="16.5" r="2.5" fill="#FBBF24"/>
+
+  <!-- Wordmark -->
+  <text x="62" y="42" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="800" font-size="32" letter-spacing="-0.5">
+    <tspan fill="#0D9488">Prep</tspan><tspan fill="#4F46E5">fly</tspan>
+  </text>
+</svg>

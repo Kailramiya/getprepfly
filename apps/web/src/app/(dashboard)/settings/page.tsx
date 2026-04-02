@@ -46,7 +46,7 @@ export default function SettingsPage() {
       if (!data.success) { alert(data.error); return; }
       const options = {
         key: data.data.keyId, amount: data.data.amount, currency: data.data.currency,
-        name: "PTE Master", description: data.data.planLabel, order_id: data.data.orderId,
+        name: "Prepfly", description: data.data.planLabel, order_id: data.data.orderId,
         prefill: { name: data.data.userName, email: data.data.userEmail },
         theme: { color: "#4F46E5" },
         handler: async (response: any) => {

@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";
+import { Logo } from "@/components/logo";
 import {
-  Globe,
   LayoutDashboard,
   Mic,
   PenTool,
@@ -79,13 +79,8 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
-        <Link href="/dashboard" className="flex items-center gap-2.5 overflow-hidden">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-indigo-600">
-            <Globe className="h-5 w-5 text-white" />
-          </div>
-          {!collapsed && (
-            <span className="text-lg font-bold text-gray-900">PTE Master</span>
-          )}
+        <Link href="/dashboard" className="overflow-hidden">
+          <Logo size="sm" showText={!collapsed} />
         </Link>
         <button
           onClick={() => setCollapsed(!collapsed)}

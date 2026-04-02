@@ -79,7 +79,7 @@ export function AppInstallPrompt() {
           <Download className="h-6 w-6 text-white" />
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900">Get PTE Master App</h3>
+          <h3 className="font-semibold text-gray-900">Get Prepfly App</h3>
           <p className="mt-0.5 text-xs text-gray-500">
             {isIOS
               ? "Add to your home screen for the best experience"

@@ -2,7 +2,7 @@
 // App-wide constants — configurable via .env or update here
 // ============================================================================
 
-export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "PTE Master";
+export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "Prepfly";
 export const APP_TAGLINE = "AI-Powered PTE Practice Platform";
 
 // Store links — set in .env when apps are published

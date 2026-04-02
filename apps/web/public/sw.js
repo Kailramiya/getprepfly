@@ -1,4 +1,4 @@
-const CACHE_NAME = "pte-master-v1";
+const CACHE_NAME = "prepfly-v1";
 const STATIC_ASSETS = [
   "/",
   "/dashboard",

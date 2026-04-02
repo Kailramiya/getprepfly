@@ -1,11 +1,12 @@
 import Link from "next/link";
-import { Globe, Smartphone, Monitor, Download, CheckCircle2, ArrowRight } from "lucide-react";
+import { Smartphone, Monitor, Download, CheckCircle2, ArrowRight } from "lucide-react";
+import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export const metadata = {
-  title: "Download PTE Master App",
-  description: "Get PTE Master on Android, iOS, or install the web app. Practice PTE anywhere.",
+  title: "Download Prepfly App",
+  description: "Get Prepfly on Android, iOS, or install the web app. Practice PTE anywhere.",
 };
 
 const platforms = [
@@ -35,7 +36,7 @@ const platforms = [
     badge: "Coming Soon",
     color: "from-green-500 to-green-600",
     steps: [
-      "Search 'PTE Master' on Google Play Store",
+      "Search 'Prepfly' on Google Play Store",
       "Tap Install",
       "Open and sign in with your account",
     ],
@@ -51,7 +52,7 @@ const platforms = [
     badge: "Coming Soon",
     color: "from-gray-700 to-gray-900",
     steps: [
-      "Search 'PTE Master' on App Store",
+      "Search 'Prepfly' on App Store",
       "Tap Get / Install",
       "Open and sign in with your account",
     ],
@@ -64,11 +65,8 @@ export default function DownloadPage() {
       {/* Navbar */}
       <nav className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-indigo-600">
-              <Globe className="h-5 w-5 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">PTE Master</span>
+          <Link href="/">
+            <Logo size="sm" />
           </Link>
           <Link href="/login">
             <Button variant="outline" size="sm">Log in</Button>
@@ -82,7 +80,7 @@ export default function DownloadPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600">
             <Download className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Get PTE Master</h1>
+          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Get Prepfly</h1>
           <p className="mt-3 text-lg text-gray-600">
             Available on Web, Android, and iOS. One account works everywhere.
           </p>

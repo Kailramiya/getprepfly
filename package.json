@@ -14,5 +14,8 @@
     "db:push": "cd apps/web && npx prisma db push",
     "db:seed": "cd apps/web && npx tsx prisma/seed.ts",
     "db:studio": "cd apps/web && npx prisma studio"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }
