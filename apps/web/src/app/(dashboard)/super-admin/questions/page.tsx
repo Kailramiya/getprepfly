@@ -38,6 +38,15 @@ interface Question {
   _count: { attempts: number };
 }
 
+interface QuestionDetail {
+  id: string;
+  content: any;
+  explanation: string | null;
+  modelAnswer: string | null;
+  audioUrl: string | null;
+  imageUrl: string | null;
+}
+
 export default function SuperAdminQuestionsPage() {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [total, setTotal] = useState(0);
@@ -46,6 +55,31 @@ export default function SuperAdminQuestionsPage() {
   const [section, setSection] = useState("");
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [details, setDetails] = useState<Record<string, QuestionDetail>>({});
+  const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
+
+  const toggleExpand = async (questionId: string) => {
+    if (expandedId === questionId) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(questionId);
+    if (!details[questionId]) {
+      setLoadingDetail(questionId);
+      try {
+        const res = await fetch(`/api/questions/${questionId}`);
+        const data = await res.json();
+        if (data.success) {
+          setDetails((prev) => ({ ...prev, [questionId]: data.data }));
+        }
+      } catch {
+        // ignore
+      } finally {
+        setLoadingDetail(null);
+      }
+    }
+  };
 
   const fetchQuestions = () => {
     setLoading(true);
@@ -134,34 +168,144 @@ export default function SuperAdminQuestionsPage() {
             <div className="divide-y divide-gray-100">
               {questions.map((q) => {
                 const SectionIcon = SECTION_ICONS[q.section] || Database;
+                const isExpanded = expandedId === q.id;
+                const detail = details[q.id];
                 return (
-                  <div key={q.id} className="flex items-center justify-between p-4 hover:bg-gray-50">
-                    <div className="flex items-center gap-4">
-                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${SECTION_COLORS[q.section] || "bg-gray-100"}`}>
-                        <SectionIcon className="h-5 w-5" />
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-gray-900">{q.title}</p>
-                          {q.isPrediction && (
-                            <Badge variant="warning" className="gap-1">
-                              <Star className="h-3 w-3" /> Prediction
-                            </Badge>
-                          )}
-                        </div>
-                        <div className="mt-1 flex items-center gap-2">
-                          <Badge variant="secondary" className="text-xs">{formatType(q.type)}</Badge>
-                          <Badge className={`text-xs ${DIFFICULTY_COLORS[q.difficulty]}`}>{q.difficulty}</Badge>
-                          <span className="text-xs text-gray-400">{q._count.attempts} attempts</span>
-                        </div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => deleteQuestion(q.id)}
-                      className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+                  <div key={q.id}>
+                    <div
+                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50"
+                      onClick={() => toggleExpand(q.id)}
                     >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                      <div className="flex items-center gap-4">
+                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${SECTION_COLORS[q.section] || "bg-gray-100"}`}>
+                          <SectionIcon className="h-5 w-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-gray-900">{q.title}</p>
+                            {q.isPrediction && (
+                              <Badge variant="warning" className="gap-1">
+                                <Star className="h-3 w-3" /> Prediction
+                              </Badge>
+                            )}
+                          </div>
+                          <div className="mt-1 flex items-center gap-2">
+                            <Badge variant="secondary" className="text-xs">{formatType(q.type)}</Badge>
+                            <Badge className={`text-xs ${DIFFICULTY_COLORS[q.difficulty]}`}>{q.difficulty}</Badge>
+                            <span className="text-xs text-gray-400">{q._count.attempts} attempts</span>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
+                        className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    {isExpanded && (
+                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-4">
+                        {loadingDetail === q.id ? (
+                          <div className="flex items-center gap-2 py-4 pl-14">
+                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+                            <span className="text-sm text-gray-500">Loading...</span>
+                          </div>
+                        ) : detail ? (
+                          <div className="space-y-4 pl-14">
+                            <div>
+                              <h4 className="text-xs font-semibold uppercase text-gray-400">Question Content</h4>
+                              <div className="mt-1 rounded-lg bg-white p-3 text-sm text-gray-700 shadow-sm">
+                                {typeof detail.content === "string" ? (
+                                  <p>{detail.content}</p>
+                                ) : (
+                                  <div className="space-y-2">
+                                    {detail.content?.text && (
+                                      <p><span className="font-medium text-gray-500">Text:</span> {detail.content.text}</p>
+                                    )}
+                                    {detail.content?.prompt && (
+                                      <p><span className="font-medium text-gray-500">Prompt:</span> {detail.content.prompt}</p>
+                                    )}
+                                    {detail.content?.passage && (
+                                      <p><span className="font-medium text-gray-500">Passage:</span> {detail.content.passage}</p>
+                                    )}
+                                    {detail.content?.options && (
+                                      <div>
+                                        <span className="font-medium text-gray-500">Options:</span>
+                                        <ol className="ml-4 mt-1 list-decimal space-y-1">
+                                          {detail.content.options.map((opt: string, i: number) => (
+                                            <li key={i} className={detail.content?.correctAnswer === i || (Array.isArray(detail.content?.correctAnswers) && detail.content.correctAnswers.includes(i)) ? "font-semibold text-green-700" : ""}>
+                                              {opt}
+                                              {(detail.content?.correctAnswer === i || (Array.isArray(detail.content?.correctAnswers) && detail.content.correctAnswers.includes(i))) && " ✓"}
+                                            </li>
+                                          ))}
+                                        </ol>
+                                      </div>
+                                    )}
+                                    {detail.content?.paragraphs && (
+                                      <div>
+                                        <span className="font-medium text-gray-500">Paragraphs:</span>
+                                        <ol className="ml-4 mt-1 list-decimal space-y-1">
+                                          {detail.content.paragraphs.map((p: string, i: number) => (
+                                            <li key={i} className="text-sm">{p}</li>
+                                          ))}
+                                        </ol>
+                                        {detail.content.correctOrder && (
+                                          <p className="mt-1 text-xs text-green-600">Correct order: {detail.content.correctOrder.join(" → ")}</p>
+                                        )}
+                                      </div>
+                                    )}
+                                    {detail.content?.blanks && (
+                                      <div>
+                                        <span className="font-medium text-gray-500">Blanks:</span>
+                                        <ul className="ml-4 mt-1 list-disc">
+                                          {detail.content.blanks.map((b: any, i: number) => (
+                                            <li key={i} className="text-sm">{typeof b === "string" ? b : JSON.stringify(b)}</li>
+                                          ))}
+                                        </ul>
+                                      </div>
+                                    )}
+                                    {detail.content?.minWords && (
+                                      <p className="text-xs text-gray-500">Word limit: {detail.content.minWords}–{detail.content.maxWords} words</p>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+
+                            {(detail.imageUrl || detail.content?.imageUrl) && (
+                              <div>
+                                <h4 className="text-xs font-semibold uppercase text-gray-400">Image</h4>
+                                <img src={detail.imageUrl || detail.content.imageUrl} alt="Question" className="mt-1 max-h-64 rounded-lg border shadow-sm" />
+                              </div>
+                            )}
+
+                            {(detail.audioUrl || detail.content?.audioUrl) && (
+                              <div>
+                                <h4 className="text-xs font-semibold uppercase text-gray-400">Audio</h4>
+                                <audio controls className="mt-1" src={detail.audioUrl || detail.content.audioUrl} />
+                              </div>
+                            )}
+
+                            {detail.modelAnswer && (
+                              <div>
+                                <h4 className="text-xs font-semibold uppercase text-gray-400">Model Answer</h4>
+                                <div className="mt-1 rounded-lg bg-green-50 p-3 text-sm text-green-800 shadow-sm">{detail.modelAnswer}</div>
+                              </div>
+                            )}
+
+                            {detail.explanation && (
+                              <div>
+                                <h4 className="text-xs font-semibold uppercase text-gray-400">Explanation</h4>
+                                <div className="mt-1 rounded-lg bg-blue-50 p-3 text-sm text-blue-800 shadow-sm">{detail.explanation}</div>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <p className="py-4 pl-14 text-sm text-gray-500">Failed to load details.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
                 );
               })}
