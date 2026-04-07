@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, Users, Copy, CheckCheck } from "lucide-react";
+import { Search, UserPlus, Users, Copy, CheckCheck, Trash2 } from "lucide-react";
 
 interface Student {
   id: string;
@@ -25,6 +25,27 @@ export default function StudentsPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const handleDelete = async (studentId: string, studentName: string) => {
+    if (!confirm(`Are you sure you want to delete "${studentName}"? This will remove all their data and cannot be undone.`)) {
+      return;
+    }
+    setDeleting(studentId);
+    try {
+      const res = await fetch(`/api/users/${studentId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        setStudents((prev) => prev.filter((s) => s.id !== studentId));
+      } else {
+        alert(data.error || "Failed to delete student");
+      }
+    } catch {
+      alert("Failed to delete student. Please try again.");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const centreCode = user?.centreSlug || "";
   const inviteLink = `${typeof window !== "undefined" ? window.location.origin : ""}/register?centre=${centreCode}`;
@@ -122,6 +143,7 @@ export default function StudentsPage() {
                     <th className="pb-3 text-left font-medium text-gray-500">Plan</th>
                     <th className="pb-3 text-left font-medium text-gray-500">Practice</th>
                     <th className="pb-3 text-left font-medium text-gray-500">Mock Tests</th>
+                    <th className="pb-3 text-right font-medium text-gray-500">Action</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -148,6 +170,21 @@ export default function StudentsPage() {
                       </td>
                       <td className="py-3 text-gray-600">{student._count.attempts} attempts</td>
                       <td className="py-3 text-gray-600">{student._count.mockTests} tests</td>
+                      <td className="py-3 text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(student.id, student.name)}
+                          disabled={deleting === student.id}
+                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                        >
+                          {deleting === student.id ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

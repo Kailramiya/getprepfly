@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Users, Search, Shield, Building2, GraduationCap } from "lucide-react";
+import { Users, Search, Shield, Building2, GraduationCap, Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface UserItem {
   id: string;
@@ -27,6 +28,27 @@ export default function SuperAdminUsersPage() {
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const handleDelete = async (userId: string, userName: string) => {
+    if (!confirm(`Are you sure you want to delete "${userName}"? This will remove all their data (attempts, mock tests, etc.) and cannot be undone.`)) {
+      return;
+    }
+    setDeleting(userId);
+    try {
+      const res = await fetch(`/api/users/${userId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        setUsers((prev) => prev.filter((u) => u.id !== userId));
+      } else {
+        alert(data.error || "Failed to delete user");
+      }
+    } catch {
+      alert("Failed to delete user. Please try again.");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -87,6 +109,21 @@ export default function SuperAdminUsersPage() {
                         <RoleIcon className="mr-1 h-3 w-3" />
                         {u.role}
                       </Badge>
+                      {u.role !== "SUPER_ADMIN" && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(u.id, u.name)}
+                          disabled={deleting === u.id}
+                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                        >
+                          {deleting === u.id ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      )}
                     </div>
                   </div>
                 );
