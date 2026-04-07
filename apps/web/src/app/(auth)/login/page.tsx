@@ -2,7 +2,7 @@
 
 import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { Logo } from "@/components/logo";
@@ -18,7 +18,6 @@ export default function LoginPage() {
 }
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const registered = searchParams.get("registered");
@@ -53,7 +52,6 @@ function LoginForm() {
     setLoading(true);
 
     try {
-      // First verify credentials without redirect
       const result = await signIn("credentials", {
         email,
         password,
@@ -62,20 +60,12 @@ function LoginForm() {
 
       if (result?.error) {
         setError(result.error);
-        setLoading(false);
-        return;
+      } else {
+        window.location.href = callbackUrl;
       }
-
-      // Credentials valid — now do a full redirect sign-in
-      // This ensures NextAuth sets persistent cookies (not session-only)
-      await signIn("credentials", {
-        email,
-        password,
-        callbackUrl,
-        redirect: true,
-      });
     } catch {
       setError("Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
     }
   };
