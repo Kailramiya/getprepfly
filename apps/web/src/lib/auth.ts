@@ -9,39 +9,6 @@ export const authOptions: NextAuthOptions = {
     strategy: "jwt",
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
-  cookies: {
-    sessionToken: {
-      name: "__Secure-next-auth.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: true,
-        domain: ".getprepfly.com",
-        maxAge: 30 * 24 * 60 * 60,
-      },
-    },
-    callbackUrl: {
-      name: "__Secure-next-auth.callback-url",
-      options: {
-        httpOnly: false,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: true,
-        domain: ".getprepfly.com",
-        maxAge: 30 * 24 * 60 * 60,
-      },
-    },
-    csrfToken: {
-      name: "__Host-next-auth.csrf-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax" as const,
-        path: "/",
-        secure: true,
-      },
-    },
-  },
   pages: {
     signIn: "/login",
     newUser: "/register",
