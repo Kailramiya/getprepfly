@@ -27,15 +27,24 @@ function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState(
-    authError === "AccessDenied"
-      ? "No account found with this email. Please register first, then use Google to login."
-      : authError === "OAuthAccountNotLinked"
-        ? "This email is already registered with a different method. Try logging in with email and password."
-        : authError
-          ? "Something went wrong. Please try again."
-          : ""
-  );
+  const getAuthErrorMessage = (err: string | null) => {
+    if (!err) return "";
+    switch (err) {
+      case "AccessDenied":
+      case "Callback":
+        return "No account found with this email. Please register first, then use Google to login.";
+      case "OAuthAccountNotLinked":
+        return "This email is already registered with a different method. Try logging in with email and password.";
+      case "OAuthSignin":
+      case "OAuthCallback":
+        return "Google login failed. Please try again or use email and password.";
+      case "CredentialsSignin":
+        return "Invalid email or password.";
+      default:
+        return "No account found with this email. Please register first, then use Google to login.";
+    }
+  };
+  const [error, setError] = useState(getAuthErrorMessage(authError));
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
