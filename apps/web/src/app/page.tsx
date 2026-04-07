@@ -1,7 +1,9 @@
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { BookOpen, Mic, Headphones, PenTool, BarChart3, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
+import { getCurrentUser } from "@/lib/auth-utils";
 
 const features = [
   { icon: Mic, title: "Speaking Practice", desc: "AI-powered pronunciation and fluency scoring for all 6 speaking question types" },
@@ -19,7 +21,9 @@ const stats = [
   { value: "Free", label: "During Beta" },
 ];
 
-export default function HomePage() {
+export default async function HomePage() {
+  const user = await getCurrentUser();
+  if (user) redirect("/dashboard");
   return (
     <div className="min-h-screen">
       {/* Navbar */}
