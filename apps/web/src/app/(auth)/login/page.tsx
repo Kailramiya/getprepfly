@@ -22,11 +22,20 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const registered = searchParams.get("registered");
+  const authError = searchParams.get("error");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState(
+    authError === "AccessDenied"
+      ? "No account found with this email. Please register first, then use Google to login."
+      : authError === "OAuthAccountNotLinked"
+        ? "This email is already registered with a different method. Try logging in with email and password."
+        : authError
+          ? "Something went wrong. Please try again."
+          : ""
+  );
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
