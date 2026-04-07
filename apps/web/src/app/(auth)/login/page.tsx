@@ -44,6 +44,7 @@ function LoginForm() {
     setLoading(true);
 
     try {
+      // First verify credentials without redirect
       const result = await signIn("credentials", {
         email,
         password,
@@ -52,13 +53,20 @@ function LoginForm() {
 
       if (result?.error) {
         setError(result.error);
-      } else {
-        router.push(callbackUrl);
-        router.refresh();
+        setLoading(false);
+        return;
       }
+
+      // Credentials valid — now do a full redirect sign-in
+      // This ensures NextAuth sets persistent cookies (not session-only)
+      await signIn("credentials", {
+        email,
+        password,
+        callbackUrl,
+        redirect: true,
+      });
     } catch {
       setError("Something went wrong. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
