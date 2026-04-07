@@ -16,23 +16,28 @@ export async function GET(req: NextRequest) {
   const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
   const search = url.searchParams.get("search") || "";
 
+  const conditions: any[] = [
+    { centreId: null },
+    ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
+  ];
+
   const where: any = {
     isActive: true,
-    // Show global questions + centre-specific questions for the user's centre
-    OR: [
-      { centreId: null },
-      ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
+    AND: [
+      { OR: conditions },
+      ...(search
+        ? [{
+            OR: [
+              { title: { contains: search, mode: "insensitive" } },
+              { tags: { hasSome: [search.toLowerCase()] } },
+            ],
+          }]
+        : []),
     ],
     ...(section && { section }),
     ...(type && { type }),
     ...(difficulty && { difficulty }),
     ...(prediction === "true" && { isPrediction: true }),
-    ...(search && {
-      OR: [
-        { title: { contains: search, mode: "insensitive" } },
-        { tags: { hasSome: [search.toLowerCase()] } },
-      ],
-    }),
   };
 
   const [questions, total] = await Promise.all([
