@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, UserPlus, Users, Copy, CheckCheck, Trash2, Share2, MessageCircle, Mail } from "lucide-react";
+import { Search, Users, Copy, CheckCheck, Trash2, Share2, MessageCircle, Mail } from "lucide-react";
 
 interface Student {
   id: string;
