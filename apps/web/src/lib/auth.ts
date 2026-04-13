@@ -129,9 +129,22 @@ export const authOptions: NextAuthOptions = {
               },
             });
           }
-          (user as any).id = existingUser.id;
-          (user as any).role = existingUser.role;
-          (user as any).centreId = existingUser.centreId;
+
+          // Fetch full user with centre + plan
+          const fullUser = await db.user.findUnique({
+            where: { id: existingUser.id },
+            include: {
+              centre: { select: { id: true, name: true, slug: true } },
+              studentPlan: { select: { planType: true } },
+            },
+          });
+
+          (user as any).id = fullUser!.id;
+          (user as any).role = fullUser!.role;
+          (user as any).centreId = fullUser!.centreId || undefined;
+          (user as any).centreName = fullUser!.centre?.name;
+          (user as any).centreSlug = fullUser!.centre?.slug;
+          (user as any).planType = fullUser!.studentPlan?.planType || "FREE";
         }
       }
       return true;
@@ -145,6 +158,19 @@ export const authOptions: NextAuthOptions = {
         token.centreName = (user as any).centreName;
         token.centreSlug = (user as any).centreSlug;
         token.planType = (user as any).planType || "FREE";
+      }
+
+      // Backfill missing centre info for existing sessions
+      // (covers users who logged in before centreSlug/centreName were stored)
+      if (token.id && token.centreId && (!token.centreSlug || !token.centreName)) {
+        const centre = await db.centre.findUnique({
+          where: { id: token.centreId as string },
+          select: { name: true, slug: true },
+        });
+        if (centre) {
+          token.centreName = centre.name;
+          token.centreSlug = centre.slug;
+        }
       }
 
       // Handle session update (e.g., after plan upgrade)
