@@ -29,13 +29,51 @@ function RegisterForm() {
     password: "",
     confirmPassword: "",
     centreSlug: centreSlug,
+    centreName: "",
+    centreReferralCode: "",
+    slugManuallyEdited: false,
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const slugify = (text: string) =>
+    text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 30);
+
   const updateForm = (field: string, value: string) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const next = { ...prev, [field]: value };
+
+      // Auto-suggest referral code from centre name (only if user hasn't manually edited it)
+      if (field === "centreName" && !prev.slugManuallyEdited) {
+        next.centreReferralCode = slugify(value);
+      }
+
+      // Fallback: if centre name empty but email provided, suggest from email
+      if (
+        isCentreRegistration &&
+        field === "email" &&
+        !prev.centreName &&
+        !prev.slugManuallyEdited
+      ) {
+        const emailPrefix = value.split("@")[0] || "";
+        next.centreReferralCode = slugify(emailPrefix);
+      }
+
+      // Track manual edits to the referral code
+      if (field === "centreReferralCode") {
+        next.slugManuallyEdited = value.length > 0;
+      }
+
+      return next;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -52,6 +90,21 @@ function RegisterForm() {
       return;
     }
 
+    if (isCentreRegistration) {
+      if (!form.centreName.trim()) {
+        setError("Centre name is required");
+        return;
+      }
+      if (!form.centreReferralCode.trim()) {
+        setError("Referral code is required");
+        return;
+      }
+      if (form.centreReferralCode.length < 3) {
+        setError("Referral code must be at least 3 characters");
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -65,6 +118,8 @@ function RegisterForm() {
           password: form.password,
           centreSlug: form.centreSlug || undefined,
           role: isCentreRegistration ? "centre" : "student",
+          centreName: isCentreRegistration ? form.centreName : undefined,
+          centreReferralCode: isCentreRegistration ? form.centreReferralCode : undefined,
         }),
       });
 
@@ -152,6 +207,44 @@ function RegisterForm() {
               className="pl-10"
             />
           </div>
+        )}
+
+        {isCentreRegistration && (
+          <>
+            <div className="relative">
+              <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Coaching centre name"
+                value={form.centreName}
+                onChange={(e) => updateForm("centreName", e.target.value)}
+                className="pl-10"
+                required
+              />
+            </div>
+
+            <div>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">#</span>
+                <Input
+                  type="text"
+                  placeholder="Referral code (auto-generated)"
+                  value={form.centreReferralCode}
+                  onChange={(e) =>
+                    updateForm(
+                      "centreReferralCode",
+                      e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")
+                    )
+                  }
+                  className="pl-10"
+                  required
+                />
+              </div>
+              <p className="mt-1 pl-1 text-xs text-gray-500">
+                This code will be used by students to join your centre. Only lowercase letters, numbers, and hyphens.
+              </p>
+            </div>
+          </>
         )}
 
         <div className="relative">
