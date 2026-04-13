@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Users, Search, Shield, Building2, GraduationCap, Trash2 } from "lucide-react";
+import { Users, Search, Shield, Building2, GraduationCap, Trash2, Hash, Copy, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface UserItem {
@@ -29,6 +29,13 @@ export default function SuperAdminUsersPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
+  const copySlug = (slug: string) => {
+    navigator.clipboard.writeText(slug);
+    setCopiedSlug(slug);
+    setTimeout(() => setCopiedSlug(null), 2000);
+  };
 
   const handleDelete = async (userId: string, userName: string) => {
     if (!confirm(`Are you sure you want to delete "${userName}"? This will remove all their data (attempts, mock tests, etc.) and cannot be undone.`)) {
@@ -90,8 +97,14 @@ export default function SuperAdminUsersPage() {
               {users.map((u) => {
                 const roleConfig = ROLE_CONFIG[u.role] || ROLE_CONFIG.STUDENT;
                 const RoleIcon = roleConfig.icon;
+                const referralLabel =
+                  u.role === "CENTRE_ADMIN"
+                    ? "Their centre's referral code"
+                    : u.role === "STUDENT"
+                      ? "Enrolled via"
+                      : "Centre";
                 return (
-                  <div key={u.id} className="flex items-center justify-between p-4 hover:bg-gray-50">
+                  <div key={u.id} className="flex flex-col gap-3 p-4 hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
                         {u.name.charAt(0).toUpperCase()}
@@ -101,10 +114,32 @@ export default function SuperAdminUsersPage() {
                         <p className="text-xs text-gray-500">{u.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3">
-                      {u.centre && (
-                        <span className="text-xs text-gray-400">{u.centre.name}</span>
-                      )}
+                    <div className="flex flex-wrap items-center gap-3">
+                      {u.centre ? (
+                        <div className="flex items-center gap-2">
+                          <div className="flex flex-col items-end">
+                            <span className="text-[10px] uppercase tracking-wide text-gray-400">
+                              {referralLabel}
+                            </span>
+                            <span className="text-xs font-medium text-gray-600">{u.centre.name}</span>
+                          </div>
+                          <button
+                            onClick={() => copySlug(u.centre!.slug)}
+                            className="group flex items-center gap-1 rounded-md border border-teal-200 bg-teal-50 px-2 py-1 font-mono text-xs text-teal-700 hover:bg-teal-100"
+                            title="Click to copy referral code"
+                          >
+                            <Hash className="h-3 w-3" />
+                            {u.centre.slug}
+                            {copiedSlug === u.centre.slug ? (
+                              <CheckCheck className="h-3 w-3 text-green-600" />
+                            ) : (
+                              <Copy className="h-3 w-3 opacity-0 transition group-hover:opacity-100" />
+                            )}
+                          </button>
+                        </div>
+                      ) : u.role === "STUDENT" ? (
+                        <span className="text-xs italic text-gray-400">Not enrolled in any centre</span>
+                      ) : null}
                       <Badge className={roleConfig.color}>
                         <RoleIcon className="mr-1 h-3 w-3" />
                         {u.role}
