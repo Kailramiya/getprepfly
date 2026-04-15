@@ -20,12 +20,14 @@ interface Student {
 }
 
 export default function StudentsPage() {
-  const { user } = useAuth();
+  const { user, updateSession } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [backfilledSlug, setBackfilledSlug] = useState<string>("");
+  const [backfilledName, setBackfilledName] = useState<string>("");
 
   const handleDelete = async (studentId: string, studentName: string) => {
     if (!confirm(`Are you sure you want to delete "${studentName}"? This will remove all their data and cannot be undone.`)) {
@@ -48,8 +50,41 @@ export default function StudentsPage() {
   };
 
   const [codeCopied, setCodeCopied] = useState(false);
-  const centreCode = user?.centreSlug || "";
-  const centreName = user?.centreName || "our coaching centre";
+  const [ensuringSlug, setEnsuringSlug] = useState(false);
+  const [ensureFailed, setEnsureFailed] = useState(false);
+  const centreCode = user?.centreSlug || backfilledSlug || "";
+  const centreName = user?.centreName || backfilledName || "our coaching centre";
+
+  // Auto-backfill referral code if missing — also handles centre admins with no centre at all
+  useEffect(() => {
+    if (!user) return;
+    if (user.centreSlug) return; // already has one
+    if (backfilledSlug) return; // already backfilled
+    if (ensureFailed) return; // don't retry on failure
+
+    const ensureSlug = async () => {
+      setEnsuringSlug(true);
+      try {
+        const res = await fetch("/api/centres/ensure-slug", { method: "POST" });
+        const data = await res.json();
+        if (data.success && data.data?.slug) {
+          setBackfilledSlug(data.data.slug);
+          setBackfilledName(data.data.name || "");
+          if (updateSession) {
+            await updateSession();
+          }
+        } else {
+          setEnsureFailed(true);
+        }
+      } catch (err) {
+        console.error("Failed to ensure slug:", err);
+        setEnsureFailed(true);
+      } finally {
+        setEnsuringSlug(false);
+      }
+    };
+    ensureSlug();
+  }, [user, backfilledSlug, updateSession, ensureFailed]);
   const inviteLink = `${typeof window !== "undefined" ? window.location.origin : ""}/register?centre=${centreCode}`;
   const shareMessage = `Join ${centreName} on PrepFly for AI-powered PTE practice! Use my referral link to auto-enroll: ${inviteLink}`;
   const whatsappLink = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`;
@@ -62,8 +97,18 @@ export default function StudentsPage() {
   };
 
   useEffect(() => {
-    if (!user?.centreId) return;
+    if (!user) return;
+
+    // If user has no centreId AND we've finished trying to backfill, stop loading
+    if (!user.centreId) {
+      if (!ensuringSlug && (backfilledSlug || ensureFailed)) {
+        setLoading(false);
+      }
+      return;
+    }
+
     const fetchStudents = async () => {
+      setLoading(true);
       try {
         const params = new URLSearchParams({ search, page: "1", pageSize: "50" });
         const res = await fetch(`/api/centres/${user.centreId}/students?${params}`);
@@ -76,7 +121,7 @@ export default function StudentsPage() {
       }
     };
     fetchStudents();
-  }, [user?.centreId, search]);
+  }, [user, search, ensuringSlug, backfilledSlug, ensureFailed]);
 
   const copyInviteLink = () => {
     navigator.clipboard.writeText(inviteLink);
@@ -112,9 +157,17 @@ export default function StudentsPage() {
                   <label className="text-xs font-semibold uppercase text-gray-500">Referral Code</label>
                   <div className="mt-1 flex items-center gap-2">
                     <div className="flex-1 rounded-lg border border-teal-300 bg-white px-4 py-2.5 font-mono text-lg font-bold tracking-wider text-teal-700">
-                      {centreCode || "Loading..."}
+                      {centreCode ? (
+                        centreCode
+                      ) : ensuringSlug ? (
+                        <span className="text-sm font-normal text-gray-400">Setting up your referral code...</span>
+                      ) : ensureFailed ? (
+                        <span className="text-sm font-normal text-red-500">Could not generate code. Refresh the page.</span>
+                      ) : (
+                        <span className="text-sm font-normal text-gray-400">Not set</span>
+                      )}
                     </div>
-                    <Button variant="outline" size="sm" onClick={copyCode} className="gap-1.5">
+                    <Button variant="outline" size="sm" onClick={copyCode} className="gap-1.5" disabled={!centreCode}>
                       {codeCopied ? <CheckCheck className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                       {codeCopied ? "Copied!" : "Copy"}
                     </Button>
@@ -180,7 +233,9 @@ export default function StudentsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-gray-400" />
-            Students Enrolled via Your Referral ({students.length})
+            {students.length === 0
+              ? "0 Students Enrolled Yet"
+              : `Students Enrolled via Your Referral (${students.length})`}
           </CardTitle>
         </CardHeader>
         <CardContent>
