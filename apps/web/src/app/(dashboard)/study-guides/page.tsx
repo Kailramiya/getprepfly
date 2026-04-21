@@ -481,15 +481,13 @@ ABBREVIATIONS:
 STRUCTURE YOUR NOTES:
 Use a T-chart or mind map:
 
-```
-MAIN TOPIC
-├── Point 1
-│   ├── Example
-│   └── Data
-├── Point 2
-│   └── Example
-└── Conclusion
-```
+  MAIN TOPIC
+  ├── Point 1
+  │   ├── Example
+  │   └── Data
+  ├── Point 2
+  │   └── Example
+  └── Conclusion
 
 SPEED TIPS:
 • Don't write full sentences — just keywords
