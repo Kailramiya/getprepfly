@@ -304,6 +304,9 @@ function QuestionRenderer({
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
+        questionId={question.id}
+        questionType={type}
+        expectedText={content.text || ""}
       >
         <div className="rounded-lg bg-amber-50 p-4 text-lg leading-relaxed text-gray-800">
           {content.text}
@@ -322,6 +325,9 @@ function QuestionRenderer({
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
+        questionId={question.id}
+        questionType={type}
+        expectedText={content.text || ""}
       >
         {(content.audioUrl || question.audioUrl) ? (
           <div className="rounded-lg bg-gray-50 p-4">
@@ -349,6 +355,9 @@ function QuestionRenderer({
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
+        questionId={question.id}
+        questionType={type}
+        expectedText={content.text || ""}
       >
         {(content.imageUrl || question.imageUrl) && (
           <div className="relative mx-auto h-80 w-full">
@@ -380,6 +389,9 @@ function QuestionRenderer({
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
+        questionId={question.id}
+        questionType={type}
+        expectedText={content.text || ""}
       >
         {(content.audioUrl || question.audioUrl) && (
           <div className="rounded-lg bg-gray-50 p-4">
@@ -403,6 +415,9 @@ function QuestionRenderer({
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
+        questionId={question.id}
+        questionType={type}
+        expectedText={content.text || ""}
       >
         {(content.audioUrl || question.audioUrl) && (
           <div className="rounded-lg bg-gray-50 p-4">
@@ -432,6 +447,9 @@ function QuestionRenderer({
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
+        questionId={question.id}
+        questionType={type}
+        expectedText={content.text || ""}
       >
         <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
           {content.text}
@@ -1079,7 +1097,8 @@ function ScoreSummary({ result }: { result: ScoreResult }) {
 // ============================================================================
 
 function SpeakingQuestion({
-  children, instructionText, prepTime, maxDuration, submitted, onSubmit, totalMarks = 1,
+  children, instructionText, prepTime, maxDuration, submitted, onSubmit,
+  totalMarks = 1, questionId, questionType, expectedText = "",
 }: {
   children: React.ReactNode;
   instructionText: string;
@@ -1088,30 +1107,106 @@ function SpeakingQuestion({
   submitted: boolean;
   onSubmit: (response: any) => void;
   totalMarks?: number;
+  questionId?: string;
+  questionType?: string;
+  expectedText?: string;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [scoring, setScoring] = useState(false);
 
   const handleRecordingComplete = (blob: Blob, url: string) => {
     setAudioBlob(blob);
     setAudioUrl(url);
   };
 
-  const handleSubmit = () => {
+  const blobToBase64 = (blob: Blob): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        // Strip the "data:audio/webm;base64," prefix
+        const base64 = result.includes(",") ? result.split(",")[1] : result;
+        resolve(base64);
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+
+  const handleSubmit = async () => {
     if (!audioBlob) return;
+
+    // Default pending result
+    let scoreResult: ScoreResult = {
+      marksEarned: 0,
+      marksTotal: totalMarks,
+      correct: 0,
+      total: 1,
+      mistakes: [],
+      pending: true,
+      message: "Recording submitted. Your teacher will review soon.",
+    };
+
+    // Try AI scoring if we have the required info
+    if (questionId && questionType && expectedText) {
+      setScoring(true);
+      try {
+        const audioBase64 = await blobToBase64(audioBlob);
+        const res = await fetch("/api/ai/score-speaking", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            questionId,
+            audioBase64,
+            expectedText,
+            questionType,
+          }),
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          const { transcription, scores } = data.data;
+
+          // Build mistakes by comparing word-by-word (for READ_ALOUD + REPEAT_SENTENCE)
+          const mistakes: ScoreResult["mistakes"] = [];
+          if (questionType === "READ_ALOUD" || questionType === "REPEAT_SENTENCE") {
+            const studentWords = transcription.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
+            const expectedWords = expectedText.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
+            expectedWords.forEach((w: string, i: number) => {
+              if (!studentWords[i] || studentWords[i] !== w) {
+                mistakes.push({
+                  position: i + 1,
+                  yourAnswer: studentWords[i] || "(missed)",
+                  correctAnswer: w,
+                });
+              }
+            });
+          }
+
+          const overall = scores.overall || 0;
+          scoreResult = {
+            marksEarned: Math.round((overall / 90) * totalMarks * 10) / 10,
+            marksTotal: totalMarks,
+            correct: mistakes.length === 0 ? 1 : 0,
+            total: 1,
+            mistakes,
+            message: `${scores.feedback || ""} | Transcribed: "${transcription}"`,
+          };
+        } else {
+          scoreResult.message = data.error || scoreResult.message;
+        }
+      } catch {
+        scoreResult.message = "AI scoring failed. Recording saved — teacher will review.";
+      } finally {
+        setScoring(false);
+      }
+    }
+
     onSubmit({
       type: "audio",
       audioBlob,
       audioUrl,
-      scoreResult: {
-        marksEarned: 0,
-        marksTotal: totalMarks,
-        correct: 0,
-        total: 1,
-        mistakes: [],
-        pending: true,
-        message: "Recording submitted. AI scoring will be available soon. Your teacher will also review.",
-      } as ScoreResult,
+      scoreResult,
     });
   };
 
@@ -1145,10 +1240,11 @@ function SpeakingQuestion({
       {!submitted && (
         <Button
           onClick={handleSubmit}
-          disabled={!audioBlob}
+          disabled={!audioBlob || scoring}
+          loading={scoring}
           className="gap-2"
         >
-          Submit Recording
+          {scoring ? "AI is scoring your answer..." : "Submit Recording"}
         </Button>
       )}
 
