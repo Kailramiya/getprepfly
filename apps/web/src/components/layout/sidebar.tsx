@@ -49,6 +49,7 @@ const centreAdminNav: NavItem[] = [
   { label: "Students", href: "/admin/students", icon: Users },
   { label: "Batches", href: "/admin/batches", icon: Building2 },
   { label: "Questions", href: "/admin/questions", icon: Database },
+  { label: "Templates", href: "/admin/templates", icon: BookOpen },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Billing", href: "/admin/settings", icon: CreditCard },
 ];

@@ -1,10 +1,21 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Mic, PenTool, BookOpen, Headphones,
-  ArrowRight, Lightbulb,
+  ArrowRight, Lightbulb, FileText, Star, ChevronDown, ChevronUp,
 } from "lucide-react";
+
+interface Template {
+  id: string;
+  title: string;
+  questionType: string;
+  content: string;
+  language: string;
+  isPremium: boolean;
+}
 
 const guides = [
   {
@@ -56,6 +67,20 @@ const guides = [
 ];
 
 export default function StudyGuidesPage() {
+  const [templates, setTemplates] = useState<Template[]>([]);
+  const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch("/api/templates")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) setTemplates(data.data || []);
+      })
+      .catch(() => { /* ignore */ });
+  }, []);
+
+  const formatType = (t: string) => t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
   return (
     <div className="space-y-8">
       <div>
@@ -76,6 +101,67 @@ export default function StudyGuidesPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Templates Section */}
+      {templates.length > 0 && (
+        <div>
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
+              <FileText className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">Ready-to-use Templates</h2>
+              <p className="text-xs text-gray-500">Adapt these templates for faster, higher-scoring answers</p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {templates.map((t) => {
+              const isExpanded = expandedTemplateId === t.id;
+              return (
+                <Card key={t.id} className="transition">
+                  <CardContent className="p-0">
+                    <button
+                      onClick={() => setExpandedTemplateId(isExpanded ? null : t.id)}
+                      className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100">
+                          <FileText className="h-4 w-4 text-indigo-600" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-gray-900">{t.title}</h3>
+                            {t.isPremium && (
+                              <Badge variant="warning" className="gap-1">
+                                <Star className="h-3 w-3" /> Premium
+                              </Badge>
+                            )}
+                          </div>
+                          <Badge variant="secondary" className="mt-1 text-xs">
+                            {formatType(t.questionType)}
+                          </Badge>
+                        </div>
+                      </div>
+                      {isExpanded ? (
+                        <ChevronUp className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                    {isExpanded && (
+                      <div className="border-t border-gray-100 bg-gray-50 p-4">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+                          {t.content}
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Section-wise Guides */}
       {guides.map((section) => (

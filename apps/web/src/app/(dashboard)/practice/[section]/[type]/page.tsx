@@ -6,9 +6,10 @@ import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { AudioRecorder } from "@/components/practice/audio-recorder";
 import {
   ChevronLeft, ChevronRight, RotateCcw,
-  CheckCircle2, XCircle, Loader2,
+  CheckCircle2, XCircle, Loader2, Volume2,
 } from "lucide-react";
 
 interface QuestionData {
@@ -235,26 +236,56 @@ function QuestionRenderer({
   // ---- READ ALOUD ----
   if (type === "READ_ALOUD") {
     return (
-      <div className="space-y-4">
+      <SpeakingQuestion
+        instructionText="Read the text above aloud, clearly and naturally."
+        prepTime={30}
+        maxDuration={40}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      >
         <div className="rounded-lg bg-amber-50 p-4 text-lg leading-relaxed text-gray-800">
           {content.text}
         </div>
-        <p className="text-sm text-gray-500">
-          Read the text above aloud. You have 30 seconds to prepare and 40 seconds to record.
-        </p>
-        {!submitted && (
-          <Button onClick={() => onSubmit({ type: "audio" })} className="gap-2">
-            Submit (Audio recording coming in Speaking module)
-          </Button>
+      </SpeakingQuestion>
+    );
+  }
+
+  // ---- REPEAT SENTENCE ----
+  if (type === "REPEAT_SENTENCE") {
+    return (
+      <SpeakingQuestion
+        instructionText="Listen to the sentence, then repeat it exactly as you heard it."
+        prepTime={0}
+        maxDuration={15}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      >
+        {(content.audioUrl || question.audioUrl) ? (
+          <div className="rounded-lg bg-gray-50 p-4">
+            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Volume2 className="h-4 w-4" /> Listen carefully
+            </p>
+            <audio controls className="w-full" src={content.audioUrl || question.audioUrl} />
+          </div>
+        ) : (
+          <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
+            {content.text}
+          </div>
         )}
-      </div>
+      </SpeakingQuestion>
     );
   }
 
   // ---- DESCRIBE IMAGE ----
   if (type === "DESCRIBE_IMAGE") {
     return (
-      <div className="space-y-4">
+      <SpeakingQuestion
+        instructionText="Look at the image carefully and describe it in detail. Mention the main elements, trends, or key data."
+        prepTime={25}
+        maxDuration={40}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      >
         {(content.imageUrl || question.imageUrl) && (
           <div className="relative mx-auto h-80 w-full">
             <Image
@@ -266,15 +297,79 @@ function QuestionRenderer({
             />
           </div>
         )}
-        <p className="text-sm text-gray-500">
-          Describe the image in detail. You have 25 seconds to prepare and 40 seconds to speak.
-        </p>
-        {!submitted && (
-          <Button onClick={() => onSubmit({ type: "audio" })}>
-            Submit
-          </Button>
+        {content.text && (
+          <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
+            <span className="font-medium">Reference points: </span>{content.text}
+          </div>
         )}
-      </div>
+      </SpeakingQuestion>
+    );
+  }
+
+  // ---- RETELL LECTURE ----
+  if (type === "RETELL_LECTURE") {
+    return (
+      <SpeakingQuestion
+        instructionText="Listen to the lecture, then retell the main points in your own words."
+        prepTime={10}
+        maxDuration={40}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      >
+        {(content.audioUrl || question.audioUrl) && (
+          <div className="rounded-lg bg-gray-50 p-4">
+            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Volume2 className="h-4 w-4" /> Listen to the lecture
+            </p>
+            <audio controls className="w-full" src={content.audioUrl || question.audioUrl} />
+          </div>
+        )}
+      </SpeakingQuestion>
+    );
+  }
+
+  // ---- ANSWER SHORT QUESTION ----
+  if (type === "ANSWER_SHORT_QUESTION") {
+    return (
+      <SpeakingQuestion
+        instructionText="Answer the question in one or two words."
+        prepTime={3}
+        maxDuration={10}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      >
+        {(content.audioUrl || question.audioUrl) && (
+          <div className="rounded-lg bg-gray-50 p-4">
+            <audio controls className="w-full" src={content.audioUrl || question.audioUrl} />
+          </div>
+        )}
+        <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
+          {content.text}
+        </div>
+        {submitted && content.correctText && (
+          <div className="rounded-lg border border-green-200 bg-green-50 p-3">
+            <p className="text-xs font-medium text-green-700">Correct answer:</p>
+            <p className="text-sm text-green-900">{content.correctText}</p>
+          </div>
+        )}
+      </SpeakingQuestion>
+    );
+  }
+
+  // ---- RESPOND TO SITUATION ----
+  if (type === "RESPOND_TO_SITUATION") {
+    return (
+      <SpeakingQuestion
+        instructionText="Read the scenario carefully and respond appropriately in 30-40 seconds."
+        prepTime={20}
+        maxDuration={40}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      >
+        <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
+          {content.text}
+        </div>
+      </SpeakingQuestion>
     );
   }
 
@@ -492,6 +587,51 @@ function QuestionRenderer({
     );
   }
 
+  // ---- READING FILL BLANKS (DRAG) ----
+  if (type === "READING_FILL_BLANKS_DRAG") {
+    return (
+      <FillBlanksDrag
+        passage={content.passage || ""}
+        blanks={content.blanks || []}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      />
+    );
+  }
+
+  // ---- READING FILL BLANKS (DROPDOWN) ----
+  if (type === "READING_FILL_BLANKS_DROPDOWN") {
+    return (
+      <FillBlanksDropdown
+        passage={content.passage || ""}
+        blanks={content.blanks || []}
+        options={content.options || content.blanks || []}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      />
+    );
+  }
+
+  // ---- LISTENING FILL BLANKS ----
+  if (type === "LISTENING_FILL_BLANKS") {
+    return (
+      <div className="space-y-4">
+        {(content.audioUrl || question.audioUrl) && (
+          <audio controls className="w-full" src={content.audioUrl || question.audioUrl}>
+            Your browser does not support audio.
+          </audio>
+        )}
+        <p className="text-sm text-gray-500">Listen to the audio and fill in the blanks below:</p>
+        <FillBlanksText
+          passage={content.passage || ""}
+          blanks={content.blanks || []}
+          submitted={submitted}
+          onSubmit={onSubmit}
+        />
+      </div>
+    );
+  }
+
   // ---- WRITE FROM DICTATION ----
   if (type === "WRITE_FROM_DICTATION") {
     return (
@@ -537,6 +677,493 @@ function QuestionRenderer({
       </p>
       {!submitted && (
         <Button onClick={() => onSubmit({ raw: true })}>Mark as Attempted</Button>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// SPEAKING QUESTION WRAPPER
+// ============================================================================
+
+function SpeakingQuestion({
+  children, instructionText, prepTime, maxDuration, submitted, onSubmit,
+}: {
+  children: React.ReactNode;
+  instructionText: string;
+  prepTime: number;
+  maxDuration: number;
+  submitted: boolean;
+  onSubmit: (response: any) => void;
+}) {
+  const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+
+  const handleRecordingComplete = (blob: Blob, url: string) => {
+    setAudioBlob(blob);
+    setAudioUrl(url);
+  };
+
+  const handleSubmit = () => {
+    if (!audioBlob) return;
+    onSubmit({ type: "audio", audioBlob, audioUrl });
+  };
+
+  return (
+    <div className="space-y-4">
+      {children}
+
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+        <p className="text-xs font-medium text-amber-800">
+          📌 {instructionText}
+          {prepTime > 0 && ` You have ${prepTime}s to prepare.`}
+          {` Maximum recording time: ${maxDuration}s.`}
+        </p>
+      </div>
+
+      {!submitted && (
+        <AudioRecorder
+          maxDuration={maxDuration}
+          prepTime={prepTime}
+          onRecordingComplete={handleRecordingComplete}
+        />
+      )}
+
+      {submitted && audioUrl && (
+        <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3">
+          <p className="mb-2 text-xs font-medium text-indigo-800">Your recording:</p>
+          <audio controls src={audioUrl} className="w-full" />
+        </div>
+      )}
+
+      {!submitted && (
+        <Button
+          onClick={handleSubmit}
+          disabled={!audioBlob}
+          className="gap-2"
+        >
+          Submit Recording
+        </Button>
+      )}
+
+      {!submitted && !audioBlob && (
+        <p className="text-xs text-gray-500">
+          Please record your answer first. Click &ldquo;Start Recording&rdquo; above.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
+// FILL BLANKS HELPERS
+// ============================================================================
+
+// Split a passage into text segments and blank placeholders.
+// Blanks can be marked as: _____, ___, [blank], or {{BLANK}}
+function splitPassage(passage: string): string[] {
+  return passage
+    .split(/(_{3,}|\[blank\]|\{\{\s*blank\s*\}\})/gi)
+    .filter((s) => s !== undefined);
+}
+
+const BLANK_MARKER_REGEX = /^(_{3,}|\[blank\]|\{\{\s*blank\s*\}\})$/i;
+
+// Normalize a blank entry to { options, correctAnswer }
+// Supports both formats:
+//   - simple: "word" (string)
+//   - rich: { index, options, correctAnswer }
+type BlankEntry = { correctAnswer: string; options: string[] };
+
+function normalizeBlank(b: any, fallbackOptions: string[]): BlankEntry {
+  if (typeof b === "string") {
+    return { correctAnswer: b, options: fallbackOptions };
+  }
+  if (b && typeof b === "object") {
+    return {
+      correctAnswer: b.correctAnswer || b.answer || "",
+      options: Array.isArray(b.options) && b.options.length > 0 ? b.options : fallbackOptions,
+    };
+  }
+  return { correctAnswer: "", options: fallbackOptions };
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// -------------------- DRAG-AND-DROP FILL BLANKS --------------------
+function FillBlanksDrag({
+  passage, blanks, submitted, onSubmit,
+}: {
+  passage: string;
+  blanks: any[]; // string[] or { index, options, correctAnswer }[]
+  submitted: boolean;
+  onSubmit: (response: any) => void;
+}) {
+  const segments = splitPassage(passage);
+  const normalizedBlanks = blanks.map((b) => normalizeBlank(b, []));
+  const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
+
+  // Build the word bank: if blanks have per-blank options, merge all options; else use correctAnswers
+  const wordBank = (() => {
+    const hasPerBlankOptions = normalizedBlanks.some((b) => b.options && b.options.length > 0);
+    if (hasPerBlankOptions) {
+      const allOpts = new Set<string>();
+      normalizedBlanks.forEach((b) => b.options.forEach((o) => allOpts.add(o)));
+      return Array.from(allOpts);
+    }
+    return normalizedBlanks.map((b) => b.correctAnswer).filter(Boolean);
+  })();
+
+  const [filled, setFilled] = useState<(string | null)[]>(
+    Array(Math.max(blankCount, normalizedBlanks.length)).fill(null)
+  );
+  const [bank, setBank] = useState<string[]>(() => shuffle(wordBank));
+  const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [draggedWord, setDraggedWord] = useState<string | null>(null);
+
+  const placeWord = (word: string, blankIndex: number) => {
+    // Remove word from bank
+    setBank((prev) => prev.filter((w) => w !== word));
+    // If the blank already has a word, send it back to bank
+    setFilled((prev) => {
+      const next = [...prev];
+      if (next[blankIndex]) {
+        setBank((b) => [...b, next[blankIndex]!]);
+      }
+      next[blankIndex] = word;
+      return next;
+    });
+    setSelectedWord(null);
+  };
+
+  const removeFromBlank = (blankIndex: number) => {
+    if (submitted) return;
+    const word = filled[blankIndex];
+    if (!word) return;
+    setFilled((prev) => {
+      const next = [...prev];
+      next[blankIndex] = null;
+      return next;
+    });
+    setBank((prev) => [...prev, word]);
+  };
+
+  const handleBlankClick = (blankIndex: number) => {
+    if (submitted) return;
+    if (filled[blankIndex]) {
+      removeFromBlank(blankIndex);
+    } else if (selectedWord) {
+      placeWord(selectedWord, blankIndex);
+    }
+  };
+
+  const handleBankClick = (word: string) => {
+    if (submitted) return;
+    setSelectedWord(selectedWord === word ? null : word);
+  };
+
+  const handleDragStart = (word: string) => setDraggedWord(word);
+  const handleDragOver = (e: React.DragEvent) => e.preventDefault();
+  const handleDrop = (e: React.DragEvent, blankIndex: number) => {
+    e.preventDefault();
+    if (submitted || !draggedWord) return;
+    placeWord(draggedWord, blankIndex);
+    setDraggedWord(null);
+  };
+
+  const allFilled = filled.every((f) => f !== null);
+  let blankIdx = -1;
+
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-gray-500">
+        {submitted
+          ? "Correct answers are shown in green. Wrong answers in red."
+          : "Drag a word from the bank into a blank, or tap a word then tap a blank to place it."}
+      </p>
+
+      {/* Passage with blanks */}
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800">
+        {segments.map((seg, i) => {
+          if (BLANK_MARKER_REGEX.test(seg)) {
+            blankIdx++;
+            const thisIndex = blankIdx;
+            const word = filled[thisIndex];
+            const correct = normalizedBlanks[thisIndex]?.correctAnswer;
+            const isCorrect =
+              submitted && word && correct && word.toLowerCase() === correct.toLowerCase();
+            const isWrong = submitted && (!word || (correct && word.toLowerCase() !== correct.toLowerCase()));
+
+            return (
+              <button
+                key={`blank-${i}`}
+                onClick={() => handleBlankClick(thisIndex)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, thisIndex)}
+                disabled={submitted}
+                className={`mx-1 inline-flex min-w-[100px] items-center justify-center rounded-md border-2 border-dashed px-3 py-1 text-sm font-medium transition ${
+                  submitted
+                    ? isCorrect
+                      ? "border-green-500 bg-green-100 text-green-800"
+                      : "border-red-400 bg-red-50 text-red-700"
+                    : word
+                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                      : "border-gray-300 bg-white text-gray-400 hover:border-indigo-300 hover:bg-indigo-50"
+                }`}
+                title={word ? "Tap to remove" : "Tap to place selected word here"}
+              >
+                {word || "___"}
+                {submitted && isCorrect && <CheckCircle2 className="ml-1.5 h-3.5 w-3.5" />}
+                {submitted && isWrong && <XCircle className="ml-1.5 h-3.5 w-3.5" />}
+              </button>
+            );
+          }
+          return (
+            <span key={`text-${i}`} className="whitespace-pre-wrap">
+              {seg}
+            </span>
+          );
+        })}
+      </div>
+
+      {/* Word Bank */}
+      {!submitted && (
+        <div>
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Word Bank</p>
+          <div className="flex flex-wrap gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white p-4 min-h-[60px]">
+            {bank.length === 0 ? (
+              <p className="text-sm italic text-gray-400">All words placed. Click a blank to take a word back.</p>
+            ) : (
+              bank.map((word, i) => (
+                <button
+                  key={`${word}-${i}`}
+                  draggable={!submitted}
+                  onDragStart={() => handleDragStart(word)}
+                  onClick={() => handleBankClick(word)}
+                  className={`cursor-grab rounded-lg border-2 px-3 py-1.5 text-sm font-medium transition active:cursor-grabbing ${
+                    selectedWord === word
+                      ? "border-indigo-500 bg-indigo-600 text-white"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50"
+                  }`}
+                >
+                  {word}
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Correct Answers (after submit) */}
+      {submitted && (
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+          <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {normalizedBlanks.map((b, i) => (
+              <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200">
+                <span className="mr-1 text-xs text-green-500">#{i + 1}</span>
+                {b.correctAnswer}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!submitted && (
+        <Button
+          onClick={() => onSubmit({ answers: filled })}
+          disabled={!allFilled}
+        >
+          Check Answers
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// -------------------- DROPDOWN FILL BLANKS --------------------
+function FillBlanksDropdown({
+  passage, blanks, options, submitted, onSubmit,
+}: {
+  passage: string;
+  blanks: any[]; // can be string[] or { index, options, correctAnswer }[]
+  options: string[];
+  submitted: boolean;
+  onSubmit: (response: any) => void;
+}) {
+  const segments = splitPassage(passage);
+  const normalizedBlanks = blanks.map((b) => normalizeBlank(b, options));
+  const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
+  const [answers, setAnswers] = useState<string[]>(
+    Array(Math.max(blankCount, normalizedBlanks.length)).fill("")
+  );
+
+  let blankIdx = -1;
+  const allFilled = answers.every((a) => a);
+
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-gray-500">
+        Pick the correct word from the dropdown for each blank.
+      </p>
+
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800">
+        {segments.map((seg, i) => {
+          if (BLANK_MARKER_REGEX.test(seg)) {
+            blankIdx++;
+            const thisIndex = blankIdx;
+            const value = answers[thisIndex];
+            const blank = normalizedBlanks[thisIndex] || { correctAnswer: "", options: [] };
+            const isCorrect =
+              submitted && value && blank.correctAnswer &&
+              value.toLowerCase() === blank.correctAnswer.toLowerCase();
+
+            return (
+              <select
+                key={`blank-${i}`}
+                value={value}
+                onChange={(e) => {
+                  const next = [...answers];
+                  next[thisIndex] = e.target.value;
+                  setAnswers(next);
+                }}
+                disabled={submitted}
+                className={`mx-1 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
+                  submitted
+                    ? isCorrect
+                      ? "border-green-500 bg-green-100 text-green-800"
+                      : "border-red-400 bg-red-50 text-red-700"
+                    : value
+                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                      : "border-gray-300 bg-white text-gray-500"
+                }`}
+              >
+                <option value="">— choose —</option>
+                {(blank.options || []).map((opt, j) => (
+                  <option key={j} value={opt}>{opt}</option>
+                ))}
+              </select>
+            );
+          }
+          return (
+            <span key={`text-${i}`} className="whitespace-pre-wrap">
+              {seg}
+            </span>
+          );
+        })}
+      </div>
+
+      {submitted && (
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+          <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {normalizedBlanks.map((b, i) => (
+              <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200">
+                <span className="mr-1 text-xs text-green-500">#{i + 1}</span>
+                {b.correctAnswer}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!submitted && (
+        <Button onClick={() => onSubmit({ answers })} disabled={!allFilled}>
+          Check Answers
+        </Button>
+      )}
+    </div>
+  );
+}
+
+// -------------------- TEXT INPUT FILL BLANKS (for Listening) --------------------
+function FillBlanksText({
+  passage, blanks, submitted, onSubmit,
+}: {
+  passage: string;
+  blanks: any[];
+  submitted: boolean;
+  onSubmit: (response: any) => void;
+}) {
+  const segments = splitPassage(passage);
+  const normalizedBlanks = blanks.map((b) => normalizeBlank(b, []));
+  const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
+  const [answers, setAnswers] = useState<string[]>(
+    Array(Math.max(blankCount, normalizedBlanks.length)).fill("")
+  );
+
+  let blankIdx = -1;
+  const allFilled = answers.every((a) => a.trim());
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800">
+        {segments.map((seg, i) => {
+          if (BLANK_MARKER_REGEX.test(seg)) {
+            blankIdx++;
+            const thisIndex = blankIdx;
+            const value = answers[thisIndex];
+            const correct = normalizedBlanks[thisIndex]?.correctAnswer;
+            const isCorrect =
+              submitted && value && correct && value.trim().toLowerCase() === correct.toLowerCase();
+
+            return (
+              <input
+                key={`blank-${i}`}
+                type="text"
+                value={value}
+                onChange={(e) => {
+                  const next = [...answers];
+                  next[thisIndex] = e.target.value;
+                  setAnswers(next);
+                }}
+                disabled={submitted}
+                placeholder="..."
+                className={`mx-1 inline-block w-32 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
+                  submitted
+                    ? isCorrect
+                      ? "border-green-500 bg-green-100 text-green-800"
+                      : "border-red-400 bg-red-50 text-red-700"
+                    : value
+                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                      : "border-gray-300 bg-white text-gray-700"
+                }`}
+              />
+            );
+          }
+          return (
+            <span key={`text-${i}`} className="whitespace-pre-wrap">
+              {seg}
+            </span>
+          );
+        })}
+      </div>
+
+      {submitted && (
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
+          <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {normalizedBlanks.map((b, i) => (
+              <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200">
+                <span className="mr-1 text-xs text-green-500">#{i + 1}</span>
+                {b.correctAnswer}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {!submitted && (
+        <Button onClick={() => onSubmit({ answers })} disabled={!allFilled}>
+          Check Answers
+        </Button>
       )}
     </div>
   );
