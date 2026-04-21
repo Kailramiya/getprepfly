@@ -267,7 +267,9 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion }: Que
   const [difficulty, setDifficulty] = useState(editingQuestion?.difficulty || "MEDIUM");
   const [isPrediction, setIsPrediction] = useState(!!editingQuestion?.isPrediction);
   const [marks, setMarks] = useState<number>(editingQuestion?.marks ?? 1);
-  const [tags, setTags] = useState((editingQuestion?.tags || []).join(", "));
+  const [tags, setTags] = useState<string>(
+    Array.isArray(editingQuestion?.tags) ? editingQuestion.tags.join(", ") : ""
+  );
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -438,7 +440,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion }: Que
           imageUrl: imageUrl.trim() || undefined,
           isPrediction,
           marks: marks > 0 ? marks : 1,
-          tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
+          tags: tags.split(",").map((t: string) => t.trim()).filter(Boolean),
         }),
       });
       const data = await res.json();
