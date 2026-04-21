@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth, requireRole } from "@/lib/auth-utils";
+import { getUserAccess, PTESection } from "@/lib/access";
 
-// GET /api/questions — list questions with filters
+// GET /api/questions — list questions with filters (respects user's module access)
 export async function GET(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
@@ -16,15 +17,40 @@ export async function GET(req: NextRequest) {
   const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
   const search = url.searchParams.get("search") || "";
 
-  const conditions: any[] = [
-    { centreId: null },
-    ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
-  ];
+  // Build access-based visibility conditions:
+  //   1. Public questions (isPublic=true) - visible to everyone
+  //   2. Centre-specific questions - visible only to that centre's users
+  //   3. Premium questions - visible only to users who purchased that module
+  const isAdmin = user!.role === "SUPER_ADMIN" || user!.role === "CENTRE_ADMIN" || user!.role === "TEACHER";
+
+  let visibilityConditions: any[] = [];
+
+  if (isAdmin) {
+    // Admins see all questions they have rights to
+    visibilityConditions = [
+      { centreId: null },
+      ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
+    ];
+  } else {
+    // Students: see public + centre-specific + purchased modules
+    const access = await getUserAccess(user!.id);
+    const accessibleSections: PTESection[] = access.hasAllAccess
+      ? ["SPEAKING", "WRITING", "READING", "LISTENING"]
+      : Array.from(access.modules);
+
+    visibilityConditions = [
+      { isPublic: true }, // public questions are free for all
+      ...(user!.centreId ? [{ centreId: user!.centreId }] : []), // own centre's questions
+      ...(accessibleSections.length > 0
+        ? [{ centreId: null, section: { in: accessibleSections } }]
+        : []),
+    ];
+  }
 
   const where: any = {
     isActive: true,
     AND: [
-      { OR: conditions },
+      { OR: visibilityConditions },
       ...(search
         ? [{
             OR: [
@@ -50,6 +76,7 @@ export async function GET(req: NextRequest) {
         difficulty: true,
         title: true,
         isPrediction: true,
+        isPublic: true,
         tags: true,
         imageUrl: true,
         audioUrl: true,
@@ -84,7 +111,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     section, type, difficulty, title, content, explanation,
-    modelAnswer, audioUrl, imageUrl, tags, isPrediction, marks,
+    modelAnswer, audioUrl, imageUrl, tags, isPrediction, marks, isPublic,
   } = body;
 
   if (!section || !type || !title || !content) {
@@ -108,6 +135,8 @@ export async function POST(req: NextRequest) {
       tags: tags || [],
       isPrediction: isPrediction || false,
       marks: typeof marks === "number" && marks > 0 ? marks : 1,
+      // Only super admin can mark questions as public
+      isPublic: user!.role === "SUPER_ADMIN" ? !!isPublic : false,
       // Centre-specific if centre admin, global if super admin
       centreId: user!.role === "SUPER_ADMIN" ? null : user!.centreId || null,
     },

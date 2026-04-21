@@ -36,7 +36,7 @@ export async function PATCH(
   const {
     title, content, difficulty, explanation, modelAnswer,
     audioUrl, imageUrl, tags, isPrediction, isActive, marks,
-    section, type,
+    section, type, isPublic,
   } = body;
 
   // Centre admin can only edit their own questions
@@ -69,6 +69,8 @@ export async function PATCH(
       ...(section !== undefined && { section }),
       ...(type !== undefined && { type }),
       ...(typeof marks === "number" && marks > 0 && { marks }),
+      // Only super admin can toggle isPublic
+      ...(isPublic !== undefined && user!.role === "SUPER_ADMIN" && { isPublic: !!isPublic }),
     },
   });
 

@@ -33,6 +33,7 @@ interface Question {
   difficulty: string;
   title: string;
   isPrediction: boolean;
+  isPublic?: boolean;
   tags: string[];
   createdAt: string;
   marks?: number;
@@ -207,6 +208,11 @@ export default function SuperAdminQuestionsPage() {
                                 <Star className="h-3 w-3" /> Prediction
                               </Badge>
                             )}
+                            {q.isPublic && (
+                              <Badge className="gap-1 bg-green-100 text-green-700">
+                                🌍 Public
+                              </Badge>
+                            )}
                           </div>
                           <div className="mt-1 flex items-center gap-2">
                             <Badge variant="secondary" className="text-xs">{formatType(q.type)}</Badge>
@@ -368,6 +374,7 @@ export default function SuperAdminQuestionsPage() {
       {showForm && (
         <QuestionForm
           question={editingQuestion}
+          isSuperAdmin={true}
           onClose={() => { setShowForm(false); setEditingQuestion(null); }}
           onSave={() => {
             if (editingQuestion?.id) {

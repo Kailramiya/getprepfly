@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
+import { MODULE_PRICING } from "@/lib/access";
 
-// POST /api/payments/create-order — create Razorpay order
+// POST /api/payments/create-order — create Razorpay order for a module purchase
 export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
@@ -10,33 +11,37 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { planType, couponCode } = body;
 
-  const PLANS: Record<string, { price: number; days: number; label: string }> = {
-    VIP_30: { price: 49900, days: 30, label: "VIP 30 Days" },
-    VIP_90: { price: 99900, days: 90, label: "VIP 90 Days" },
-    VIP_180: { price: 149900, days: 180, label: "VIP 180 Days" },
-  };
-
-  const plan = PLANS[planType];
+  const plan = MODULE_PRICING[planType];
   if (!plan) {
-    return NextResponse.json({ success: false, error: "Invalid plan" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Invalid plan. Use MODULE_SPEAKING, MODULE_WRITING, MODULE_READING, MODULE_LISTENING, or ALL_MODULES" },
+      { status: 400 }
+    );
   }
 
-  let finalPrice = plan.price;
+  let finalPrice = plan.amount;
 
-  // Apply coupon
+  // Apply coupon if provided
   if (couponCode) {
     const coupon = await db.coupon.findUnique({ where: { code: couponCode.toUpperCase() } });
-    if (coupon && coupon.isActive && coupon.usedCount < coupon.maxUses && new Date() < coupon.validUntil) {
-      finalPrice = Math.round(plan.price * (1 - coupon.discountPercent / 100));
+    if (
+      coupon &&
+      coupon.isActive &&
+      coupon.usedCount < coupon.maxUses &&
+      new Date() < coupon.validUntil
+    ) {
+      finalPrice = Math.round(plan.amount * (1 - coupon.discountPercent / 100));
     }
   }
 
-  // Create Razorpay order
   const keyId = process.env.RAZORPAY_KEY_ID;
   const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
   if (!keyId || !keySecret) {
-    return NextResponse.json({ success: false, error: "Payment gateway not configured" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Payment gateway not configured. Contact support." },
+      { status: 500 }
+    );
   }
 
   try {
@@ -49,7 +54,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         amount: finalPrice,
         currency: "INR",
-        receipt: `pte_${user!.id}_${Date.now()}`,
+        receipt: `pf_${user!.id.slice(0, 8)}_${Date.now().toString().slice(-6)}`,
         notes: {
           userId: user!.id,
           planType,
@@ -61,21 +66,22 @@ export async function POST(req: NextRequest) {
     const order = await razorpayRes.json();
 
     if (!razorpayRes.ok) {
-      throw new Error(order.error?.description || "Failed to create order");
+      console.error("Razorpay order error:", order);
+      return NextResponse.json(
+        { success: false, error: order.error?.description || "Failed to create order" },
+        { status: 500 }
+      );
     }
 
-    // Save payment record
-    const studentPlan = await db.studentPlan.findUnique({ where: { userId: user!.id } });
-    if (studentPlan) {
-      await db.payment.create({
-        data: {
-          amount: finalPrice,
-          status: "PENDING",
-          razorpayOrderId: order.id,
-          studentPlanId: studentPlan.id,
-        },
-      });
-    }
+    // Save pending payment record
+    await db.payment.create({
+      data: {
+        amount: finalPrice,
+        status: "PENDING",
+        razorpayOrderId: order.id,
+        planType,
+      },
+    });
 
     return NextResponse.json({
       success: true,
@@ -84,6 +90,7 @@ export async function POST(req: NextRequest) {
         amount: finalPrice,
         currency: "INR",
         keyId,
+        planType,
         planLabel: plan.label,
         userName: user!.name,
         userEmail: user!.email,
@@ -92,7 +99,7 @@ export async function POST(req: NextRequest) {
   } catch (err: any) {
     console.error("Razorpay order error:", err);
     return NextResponse.json(
-      { success: false, error: "Payment creation failed" },
+      { success: false, error: "Payment creation failed. Please try again." },
       { status: 500 }
     );
   }

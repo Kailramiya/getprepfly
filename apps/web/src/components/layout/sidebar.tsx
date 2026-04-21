@@ -42,6 +42,7 @@ const studentNav: NavItem[] = [
   { label: "Progress", href: "/progress", icon: BarChart3 },
   { label: "Study Guides", href: "/study-guides", icon: GraduationCap },
   { label: "Vocabulary", href: "/vocabulary", icon: BookMarked },
+  { label: "Upgrade", href: "/pricing", icon: CreditCard },
 ];
 
 const centreAdminNav: NavItem[] = [

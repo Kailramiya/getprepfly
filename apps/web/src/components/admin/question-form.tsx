@@ -255,11 +255,13 @@ interface QuestionFormProps {
   onClose: () => void;
   onSave: () => void;
   question?: any; // existing question for edit mode
+  isSuperAdmin?: boolean;
 }
 
-export function QuestionForm({ onClose, onSave, question: editingQuestion }: QuestionFormProps) {
+export function QuestionForm({ onClose, onSave, question: editingQuestion, isSuperAdmin }: QuestionFormProps) {
   const isEditing = !!editingQuestion?.id;
   const initialContent = editingQuestion?.content || {};
+  const [isPublic, setIsPublic] = useState<boolean>(!!editingQuestion?.isPublic);
 
   const [section, setSection] = useState<string>(editingQuestion?.section || "SPEAKING");
   const [typeValue, setTypeValue] = useState<string>(editingQuestion?.type || "READ_ALOUD");
@@ -440,6 +442,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion }: Que
           imageUrl: imageUrl.trim() || undefined,
           isPrediction,
           marks: marks > 0 ? marks : 1,
+          isPublic: isSuperAdmin ? isPublic : undefined,
           tags: tags.split(",").map((t: string) => t.trim()).filter(Boolean),
         }),
       });
@@ -600,7 +603,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion }: Que
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="checkbox"
@@ -613,6 +616,20 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion }: Que
                       Mark as Prediction (high priority)
                     </span>
                   </label>
+
+                  {isSuperAdmin && (
+                    <label className="flex items-center gap-2 cursor-pointer rounded-md border border-green-200 bg-green-50 px-3 py-1.5">
+                      <input
+                        type="checkbox"
+                        checked={isPublic}
+                        onChange={(e) => setIsPublic(e.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300 text-green-600"
+                      />
+                      <span className="text-sm font-medium text-green-700">
+                        🌍 Public (free for all students)
+                      </span>
+                    </label>
+                  )}
                 </div>
 
                 <div>

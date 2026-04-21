@@ -149,10 +149,37 @@ model User {
   vocabProgress    VocabProgress[]
   oauthAccounts    OAuthAccount[]
   batchMemberships BatchMember[]
+  moduleAccess     ModuleAccess[]
 
   @@index([email])
   @@index([centreId])
   @@index([role])
+}
+
+// ============================================================================
+// MODULE ACCESS — per-section purchases (Speaking, Writing, Reading, Listening)
+// ============================================================================
+model ModuleAccess {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // null section = all modules (full access plan)
+  section   QuestionSection?
+
+  startedAt DateTime @default(now())
+  expiresAt DateTime // 90 days from purchase
+  isActive  Boolean  @default(true)
+
+  // Link to payment that granted this access
+  paymentId String?
+  payment   Payment? @relation(fields: [paymentId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, section])
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model OAuthAccount {
@@ -245,6 +272,10 @@ model Payment {
   studentPlan         StudentPlan?       @relation(fields: [studentPlanId], references: [id])
   centreSubscriptionId String?
   centreSubscription  CentreSubscription? @relation(fields: [centreSubscriptionId], references: [id])
+  moduleAccesses       ModuleAccess[]
+
+  // What was purchased (for module purchases)
+  planType             String?       // "MODULE_SPEAKING", "MODULE_WRITING", etc., or "ALL_MODULES"
 
   @@index([razorpayOrderId])
 }
@@ -275,6 +306,7 @@ model Question {
   isActive      Boolean         @default(true)
   order         Int             @default(0) // for ordering in mock tests
   marks         Int             @default(1) // total marks for this question
+  isPublic      Boolean         @default(false) // free for all users (set by super admin)
   tags          String[]        // ["transport", "science", "graph"]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
