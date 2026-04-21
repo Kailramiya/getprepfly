@@ -20,6 +20,10 @@ interface AccessData {
   hasAllAccess: boolean;
   modules: string[];
   expiresAt: Record<string, string>;
+  isTrial?: boolean;
+  trialEndsAt?: string | null;
+  trialExpired?: boolean;
+  freeSpeakingScoringsRemaining?: number | null;
 }
 
 const PLANS = [
@@ -195,10 +199,22 @@ export default function PricingPage() {
         <p className="mt-2 text-gray-600">
           Unlock premium practice questions with AI-powered scoring
         </p>
-        {access?.hasAllAccess && (
+        {access?.isTrial && (
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700">
+            <Sparkles className="h-4 w-4" />
+            Free Trial — full access until {formatExpiry("ALL_MODULES")}
+          </div>
+        )}
+        {access?.hasAllAccess && !access?.isTrial && (
           <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
             <Check className="h-4 w-4" />
             You have full access until {formatExpiry("ALL_MODULES")}
+          </div>
+        )}
+        {access?.trialExpired && (
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+            <Lock className="h-4 w-4" />
+            Trial expired. Unlock modules to continue.
           </div>
         )}
       </div>

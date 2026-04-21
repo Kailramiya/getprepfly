@@ -1164,7 +1164,17 @@ function SpeakingQuestion({
         });
         const data = await res.json();
 
-        if (data.success) {
+        if (res.status === 403 && data.limitReached) {
+          scoreResult = {
+            marksEarned: 0,
+            marksTotal: totalMarks,
+            correct: 0,
+            total: 1,
+            mistakes: [],
+            pending: true,
+            message: data.error || "Daily AI scoring limit reached. Upgrade to unlock unlimited scoring.",
+          };
+        } else if (data.success) {
           const { transcription, scores } = data.data;
 
           // Build mistakes by comparing word-by-word (for READ_ALOUD + REPEAT_SENTENCE)

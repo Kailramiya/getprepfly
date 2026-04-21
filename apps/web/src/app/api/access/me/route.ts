@@ -16,6 +16,15 @@ export async function GET() {
       modules: Array.from(access.modules),
       expiresAt: access.expiresAt,
       centreId: user!.centreId || null,
+      isTrial: access.isTrial,
+      trialEndsAt: access.trialEndsAt,
+      trialExpired: access.trialExpired,
+      canPracticeSpeaking: access.canPracticeSpeaking,
+      freeSpeakingScoringsUsedToday: access.freeSpeakingScoringsUsedToday,
+      freeSpeakingScoringsRemaining: isFinite(access.freeSpeakingScoringsRemaining)
+        ? access.freeSpeakingScoringsRemaining
+        : null, // null = unlimited
+      reason: access.reason,
     },
   });
 }

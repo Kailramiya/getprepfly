@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { TrialBanner } from "@/components/layout/trial-banner";
 import { AppInstallPrompt } from "@/components/app-install-prompt";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -31,6 +32,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Main content */}
       <div className="lg:pl-64">
         <Topbar onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
+        <TrialBanner />
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
 

@@ -32,17 +32,22 @@ export async function GET(req: NextRequest) {
       ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
     ];
   } else {
-    // Students: see public + centre-specific + purchased modules
+    // Students: see public + centre-specific + purchased modules + SPEAKING (free practice)
     const access = await getUserAccess(user!.id);
     const accessibleSections: PTESection[] = access.hasAllAccess
       ? ["SPEAKING", "WRITING", "READING", "LISTENING"]
       : Array.from(access.modules);
 
+    // Speaking is always accessible for practice (even without purchase after trial)
+    if (access.canPracticeSpeaking && !accessibleSections.includes("SPEAKING")) {
+      accessibleSections.push("SPEAKING");
+    }
+
     visibilityConditions = [
       { isPublic: true }, // public questions are free for all
       ...(user!.centreId ? [{ centreId: user!.centreId }] : []), // own centre's questions
       ...(accessibleSections.length > 0
-        ? [{ centreId: null, section: { in: accessibleSections } }]
+        ? [{ section: { in: accessibleSections } }]
         : []),
     ];
   }

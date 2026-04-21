@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
+import { getUserAccess, FREE_DAILY_SPEAKING_SCORINGS } from "@/lib/access";
 
 // POST /api/ai/score-speaking — AI scoring for speaking responses
 // Accepts: audio blob (as base64 or URL) + expected text
@@ -16,6 +17,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { success: false, error: "questionId and audioBase64 are required" },
       { status: 400 }
+    );
+  }
+
+  // Enforce daily AI scoring limit for non-premium, post-trial users
+  const access = await getUserAccess(user!.id);
+  const hasUnlimitedScoring = access.hasAllAccess || access.isTrial;
+  if (!hasUnlimitedScoring && access.freeSpeakingScoringsRemaining <= 0) {
+    return NextResponse.json(
+      {
+        success: false,
+        error: `Daily limit reached. You get ${FREE_DAILY_SPEAKING_SCORINGS} free AI scorings per day. Upgrade to unlock unlimited scoring.`,
+        limitReached: true,
+        limit: FREE_DAILY_SPEAKING_SCORINGS,
+      },
+      { status: 403 }
     );
   }
 
