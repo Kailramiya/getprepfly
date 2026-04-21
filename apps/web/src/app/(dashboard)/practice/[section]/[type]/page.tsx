@@ -23,6 +23,17 @@ interface QuestionData {
   audioUrl: string | null;
   imageUrl: string | null;
   isPrediction: boolean;
+  marks?: number;
+}
+
+interface ScoreResult {
+  marksEarned: number;
+  marksTotal: number;
+  correct: number;
+  total: number;
+  mistakes: Array<{ position: number; yourAnswer: string; correctAnswer: string }>;
+  pending?: boolean; // for speaking/writing awaiting AI scoring
+  message?: string;
 }
 
 export default function PracticeQuestionPage() {
@@ -34,8 +45,33 @@ export default function PracticeQuestionPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [score, setScore] = useState<any>(null);
+  const [score, setScore] = useState<ScoreResult | null>(null);
   const currentQuestion = questions[currentIndex];
+
+  const saveAttempt = async (q: QuestionData, result: ScoreResult, response: any) => {
+    try {
+      await fetch("/api/attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: q.id,
+          responseText: typeof response?.text === "string" ? response.text : null,
+          scores: {
+            correct: result.correct,
+            total: result.total,
+            marksEarned: result.marksEarned,
+            marksTotal: result.marksTotal,
+            mistakes: result.mistakes,
+          },
+          overallScore: result.marksTotal > 0
+            ? Math.round((result.marksEarned / result.marksTotal) * 90)
+            : 0,
+        }),
+      });
+    } catch {
+      // ignore — non-blocking
+    }
+  };
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -148,21 +184,23 @@ export default function PracticeQuestionPage() {
           <QuestionRenderer
             question={currentQuestion}
             submitted={submitted}
-            onSubmit={(_response: any) => {
+            onSubmit={(response: any) => {
               setSubmitted(true);
-              // For objective questions, calculate score locally
-              if (["READING_MCQ_SINGLE", "READING_MCQ_MULTIPLE", "REORDER_PARAGRAPHS",
-                   "READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN",
-                   "LISTENING_MCQ_SINGLE", "LISTENING_MCQ_MULTIPLE",
-                   "HIGHLIGHT_CORRECT_SUMMARY", "SELECT_MISSING_WORD",
-                   "WRITE_FROM_DICTATION", "LISTENING_FILL_BLANKS",
-                   "ANSWER_SHORT_QUESTION"].includes(type)) {
-                // Local scoring for objective questions
-                setScore({ local: true });
+              const result = response?.scoreResult as ScoreResult | undefined;
+              if (result) {
+                setScore(result);
+                saveAttempt(currentQuestion, result, response);
               }
             }}
             score={score}
           />
+
+          {/* Score Summary (shown after submission) */}
+          {submitted && score && (
+            <div className="mt-6">
+              <ScoreSummary result={score} />
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -232,6 +270,7 @@ function QuestionRenderer({
   if (!question || !content) return null;
 
   const type = question.type;
+  const totalMarks = question.marks && question.marks > 0 ? question.marks : 1;
 
   // ---- READ ALOUD ----
   if (type === "READ_ALOUD") {
@@ -242,6 +281,7 @@ function QuestionRenderer({
         maxDuration={40}
         submitted={submitted}
         onSubmit={onSubmit}
+        totalMarks={totalMarks}
       >
         <div className="rounded-lg bg-amber-50 p-4 text-lg leading-relaxed text-gray-800">
           {content.text}
@@ -259,6 +299,7 @@ function QuestionRenderer({
         maxDuration={15}
         submitted={submitted}
         onSubmit={onSubmit}
+        totalMarks={totalMarks}
       >
         {(content.audioUrl || question.audioUrl) ? (
           <div className="rounded-lg bg-gray-50 p-4">
@@ -285,6 +326,7 @@ function QuestionRenderer({
         maxDuration={40}
         submitted={submitted}
         onSubmit={onSubmit}
+        totalMarks={totalMarks}
       >
         {(content.imageUrl || question.imageUrl) && (
           <div className="relative mx-auto h-80 w-full">
@@ -315,6 +357,7 @@ function QuestionRenderer({
         maxDuration={40}
         submitted={submitted}
         onSubmit={onSubmit}
+        totalMarks={totalMarks}
       >
         {(content.audioUrl || question.audioUrl) && (
           <div className="rounded-lg bg-gray-50 p-4">
@@ -337,6 +380,7 @@ function QuestionRenderer({
         maxDuration={10}
         submitted={submitted}
         onSubmit={onSubmit}
+        totalMarks={totalMarks}
       >
         {(content.audioUrl || question.audioUrl) && (
           <div className="rounded-lg bg-gray-50 p-4">
@@ -365,6 +409,7 @@ function QuestionRenderer({
         maxDuration={40}
         submitted={submitted}
         onSubmit={onSubmit}
+        totalMarks={totalMarks}
       >
         <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
           {content.text}
@@ -375,6 +420,9 @@ function QuestionRenderer({
 
   // ---- WRITE ESSAY ----
   if (type === "WRITE_ESSAY") {
+    const minW = content.minWords || 200;
+    const maxW = content.maxWords || 300;
+    const currentWords = (response || "").trim().split(/\s+/).filter(Boolean).length;
     return (
       <div className="space-y-4">
         <div className="rounded-lg bg-gray-50 p-4">
@@ -382,17 +430,49 @@ function QuestionRenderer({
         </div>
         <textarea
           className="min-h-[200px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-          placeholder={`Write your essay here (${content.minWords || 200}-${content.maxWords || 300} words)...`}
+          placeholder={`Write your essay here (${minW}-${maxW} words)...`}
           value={response || ""}
           onChange={(e) => setResponse(e.target.value)}
           disabled={submitted}
         />
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-500">
-            Words: {(response || "").trim().split(/\s+/).filter(Boolean).length}
+            Words: {currentWords}
           </span>
           {!submitted && (
-            <Button onClick={() => onSubmit({ text: response })} disabled={!response?.trim()}>
+            <Button onClick={() => {
+              // Simple local scoring: word count within range
+              const withinRange = currentWords >= minW && currentWords <= maxW;
+              const mistakes: ScoreResult["mistakes"] = [];
+              if (currentWords < minW) {
+                mistakes.push({
+                  position: 0,
+                  yourAnswer: `${currentWords} words`,
+                  correctAnswer: `At least ${minW} words required`,
+                });
+              }
+              if (currentWords > maxW) {
+                mistakes.push({
+                  position: 0,
+                  yourAnswer: `${currentWords} words`,
+                  correctAnswer: `Maximum ${maxW} words allowed`,
+                });
+              }
+              onSubmit({
+                text: response,
+                scoreResult: {
+                  marksEarned: 0,
+                  marksTotal: totalMarks,
+                  correct: 0,
+                  total: 1,
+                  mistakes,
+                  pending: true,
+                  message: withinRange
+                    ? "Essay submitted. AI scoring pending. Your teacher will review soon."
+                    : "Essay submitted, but word count is outside range. This will reduce your score.",
+                } as ScoreResult,
+              });
+            }} disabled={!response?.trim()}>
               Submit Essay
             </Button>
           )}
@@ -403,6 +483,7 @@ function QuestionRenderer({
 
   // ---- SUMMARIZE WRITTEN TEXT ----
   if (type === "SUMMARIZE_WRITTEN_TEXT") {
+    const currentWords = (response || "").trim().split(/\s+/).filter(Boolean).length;
     return (
       <div className="space-y-4">
         <div className="max-h-64 overflow-y-auto rounded-lg bg-gray-50 p-4">
@@ -417,10 +498,41 @@ function QuestionRenderer({
         />
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-500">
-            Words: {(response || "").trim().split(/\s+/).filter(Boolean).length} / 75
+            Words: {currentWords} / 75
           </span>
           {!submitted && (
-            <Button onClick={() => onSubmit({ text: response })} disabled={!response?.trim()}>
+            <Button onClick={() => {
+              const mistakes: ScoreResult["mistakes"] = [];
+              const isSingleSentence = (response || "").trim().split(/[.!?]+/).filter((s: string) => s.trim()).length <= 1;
+              if (!isSingleSentence) {
+                mistakes.push({
+                  position: 0,
+                  yourAnswer: "Multiple sentences",
+                  correctAnswer: "Should be ONE sentence only",
+                });
+              }
+              if (currentWords < 5 || currentWords > 75) {
+                mistakes.push({
+                  position: 0,
+                  yourAnswer: `${currentWords} words`,
+                  correctAnswer: "Between 5–75 words",
+                });
+              }
+              onSubmit({
+                text: response,
+                scoreResult: {
+                  marksEarned: 0,
+                  marksTotal: totalMarks,
+                  correct: 0,
+                  total: 1,
+                  mistakes,
+                  pending: true,
+                  message: mistakes.length === 0
+                    ? "Summary submitted. AI scoring pending. Your teacher will review soon."
+                    : "Summary submitted with format issues. See mistakes below.",
+                } as ScoreResult,
+              });
+            }} disabled={!response?.trim()}>
               Submit Summary
             </Button>
           )}
@@ -470,7 +582,27 @@ function QuestionRenderer({
           })}
         </div>
         {!submitted && (
-          <Button onClick={() => onSubmit({ answer: response })} disabled={response === null}>
+          <Button
+            onClick={() => {
+              const correctIdx = content.correctAnswer ?? content.correctAnswers?.[0];
+              const isCorrect = response === correctIdx;
+              onSubmit({
+                answer: response,
+                scoreResult: {
+                  marksEarned: isCorrect ? totalMarks : 0,
+                  marksTotal: totalMarks,
+                  correct: isCorrect ? 1 : 0,
+                  total: 1,
+                  mistakes: isCorrect ? [] : [{
+                    position: 1,
+                    yourAnswer: content.options?.[response] ?? "—",
+                    correctAnswer: content.options?.[correctIdx] ?? "",
+                  }],
+                } as ScoreResult,
+              });
+            }}
+            disabled={response === null}
+          >
             Check Answer
           </Button>
         )}
@@ -524,7 +656,40 @@ function QuestionRenderer({
           })}
         </div>
         {!submitted && (
-          <Button onClick={() => onSubmit({ answers: selected })} disabled={selected.length === 0}>
+          <Button
+            onClick={() => {
+              const correct: number[] = content.correctAnswers || [];
+              const correctSet = new Set(correct);
+              const selectedSet = new Set<number>(selected);
+              const correctCount = selected.filter((i: number) => correctSet.has(i)).length;
+              const wrongSelected = selected.filter((i: number) => !correctSet.has(i));
+              const missed = correct.filter((i) => !selectedSet.has(i));
+              const fullyCorrect = wrongSelected.length === 0 && missed.length === 0;
+              const partialRatio = correct.length > 0 ? correctCount / correct.length : 0;
+              onSubmit({
+                answers: selected,
+                scoreResult: {
+                  marksEarned: fullyCorrect ? totalMarks : Math.round(totalMarks * partialRatio * 10) / 10,
+                  marksTotal: totalMarks,
+                  correct: correctCount,
+                  total: correct.length,
+                  mistakes: [
+                    ...wrongSelected.map((i: number) => ({
+                      position: i + 1,
+                      yourAnswer: content.options?.[i] ?? "—",
+                      correctAnswer: "(Should not have selected this)",
+                    })),
+                    ...missed.map((i) => ({
+                      position: i + 1,
+                      yourAnswer: "(Missed)",
+                      correctAnswer: content.options?.[i] ?? "",
+                    })),
+                  ],
+                } as ScoreResult,
+              });
+            }}
+            disabled={selected.length === 0}
+          >
             Check Answers
           </Button>
         )}
@@ -581,7 +746,33 @@ function QuestionRenderer({
           })}
         </div>
         {!submitted && (
-          <Button onClick={() => onSubmit({ order })}>Check Order</Button>
+          <Button onClick={() => {
+            const correctOrder: number[] = content.correctOrder || paragraphs.map((_: string, i: number) => i);
+            const mistakes: ScoreResult["mistakes"] = [];
+            let correctCount = 0;
+            order.forEach((paraIdx, pos) => {
+              if (correctOrder[pos] === paraIdx) {
+                correctCount++;
+              } else {
+                mistakes.push({
+                  position: pos + 1,
+                  yourAnswer: `Paragraph ${paraIdx + 1} placed at position ${pos + 1}`,
+                  correctAnswer: `Paragraph ${correctOrder[pos] + 1} should be at position ${pos + 1}`,
+                });
+              }
+            });
+            const ratio = correctOrder.length > 0 ? correctCount / correctOrder.length : 0;
+            onSubmit({
+              order,
+              scoreResult: {
+                marksEarned: Math.round(totalMarks * ratio * 10) / 10,
+                marksTotal: totalMarks,
+                correct: correctCount,
+                total: correctOrder.length,
+                mistakes,
+              } as ScoreResult,
+            });
+          }}>Check Order</Button>
         )}
       </div>
     );
@@ -593,6 +784,7 @@ function QuestionRenderer({
       <FillBlanksDrag
         passage={content.passage || ""}
         blanks={content.blanks || []}
+        totalMarks={totalMarks}
         submitted={submitted}
         onSubmit={onSubmit}
       />
@@ -606,6 +798,7 @@ function QuestionRenderer({
         passage={content.passage || ""}
         blanks={content.blanks || []}
         options={content.options || content.blanks || []}
+        totalMarks={totalMarks}
         submitted={submitted}
         onSubmit={onSubmit}
       />
@@ -625,6 +818,7 @@ function QuestionRenderer({
         <FillBlanksText
           passage={content.passage || ""}
           blanks={content.blanks || []}
+          totalMarks={totalMarks}
           submitted={submitted}
           onSubmit={onSubmit}
         />
@@ -656,7 +850,49 @@ function QuestionRenderer({
           </div>
         )}
         {!submitted && (
-          <Button onClick={() => onSubmit({ text: response })} disabled={!response?.trim()}>
+          <Button onClick={() => {
+            const studentWords = (response || "").trim().toLowerCase().split(/\s+/);
+            const correctWords = (content.correctText || "").trim().toLowerCase().split(/\s+/);
+            const mistakes: ScoreResult["mistakes"] = [];
+            let matched = 0;
+            correctWords.forEach((w: string, i: number) => {
+              if (studentWords[i] === w) {
+                matched++;
+              } else if (studentWords[i]) {
+                mistakes.push({
+                  position: i + 1,
+                  yourAnswer: studentWords[i],
+                  correctAnswer: w,
+                });
+              } else {
+                mistakes.push({
+                  position: i + 1,
+                  yourAnswer: "(missing)",
+                  correctAnswer: w,
+                });
+              }
+            });
+            studentWords.forEach((w: string, i: number) => {
+              if (i >= correctWords.length && w) {
+                mistakes.push({
+                  position: i + 1,
+                  yourAnswer: w,
+                  correctAnswer: "(extra word)",
+                });
+              }
+            });
+            const ratio = correctWords.length > 0 ? matched / correctWords.length : 0;
+            onSubmit({
+              text: response,
+              scoreResult: {
+                marksEarned: Math.round(totalMarks * ratio * 10) / 10,
+                marksTotal: totalMarks,
+                correct: matched,
+                total: correctWords.length,
+                mistakes,
+              } as ScoreResult,
+            });
+          }} disabled={!response?.trim()}>
             Check Answer
           </Button>
         )}
@@ -683,11 +919,145 @@ function QuestionRenderer({
 }
 
 // ============================================================================
+// SCORE SUMMARY CARD (shown after every submission)
+// ============================================================================
+
+function ScoreSummary({ result }: { result: ScoreResult }) {
+  const percent = result.marksTotal > 0 ? (result.marksEarned / result.marksTotal) * 100 : 0;
+  const isPerfect = result.marksEarned === result.marksTotal && result.marksTotal > 0;
+  const isFailed = result.marksEarned === 0 && !result.pending;
+
+  const bgColor = result.pending
+    ? "border-blue-200 bg-blue-50"
+    : isPerfect
+      ? "border-green-200 bg-green-50"
+      : isFailed
+        ? "border-red-200 bg-red-50"
+        : "border-amber-200 bg-amber-50";
+
+  const iconBg = result.pending
+    ? "bg-blue-100 text-blue-600"
+    : isPerfect
+      ? "bg-green-100 text-green-600"
+      : isFailed
+        ? "bg-red-100 text-red-600"
+        : "bg-amber-100 text-amber-600";
+
+  return (
+    <div className={`rounded-xl border-2 p-5 ${bgColor}`}>
+      {/* Header */}
+      <div className="flex items-start gap-4">
+        <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
+          {result.pending ? (
+            <Loader2 className="h-7 w-7 animate-spin" />
+          ) : isPerfect ? (
+            <CheckCircle2 className="h-7 w-7" />
+          ) : isFailed ? (
+            <XCircle className="h-7 w-7" />
+          ) : (
+            <CheckCircle2 className="h-7 w-7" />
+          )}
+        </div>
+        <div className="flex-1">
+          <h3 className="text-lg font-bold text-gray-900">
+            {result.pending
+              ? "Submitted — awaiting review"
+              : isPerfect
+                ? "Perfect score! 🎉"
+                : isFailed
+                  ? "No marks earned"
+                  : "Partial credit"}
+          </h3>
+          {!result.pending && (
+            <div className="mt-1 flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-gray-900">
+                {result.marksEarned}
+              </span>
+              <span className="text-sm text-gray-500">/ {result.marksTotal} marks</span>
+              <span className="ml-2 text-sm font-medium text-gray-600">
+                ({Math.round(percent)}%)
+              </span>
+            </div>
+          )}
+          {result.pending && result.message && (
+            <p className="mt-1 text-sm text-blue-800">{result.message}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Progress bar */}
+      {!result.pending && (
+        <div className="mt-4 h-2 w-full rounded-full bg-white">
+          <div
+            className={`h-full rounded-full transition-all ${
+              isPerfect ? "bg-green-500" : isFailed ? "bg-red-500" : "bg-amber-500"
+            }`}
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+      )}
+
+      {/* Correct count */}
+      {!result.pending && result.total > 0 && (
+        <div className="mt-3 flex items-center gap-2 text-sm">
+          <CheckCircle2 className="h-4 w-4 text-green-600" />
+          <span className="text-gray-700">
+            {result.correct} of {result.total} correct
+          </span>
+        </div>
+      )}
+
+      {/* Mistakes */}
+      {result.mistakes.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-600">
+            Mistakes to review ({result.mistakes.length})
+          </p>
+          <div className="space-y-2">
+            {result.mistakes.map((m, i) => (
+              <div
+                key={i}
+                className="rounded-lg border border-red-200 bg-white p-3 text-sm"
+              >
+                {m.position > 0 && (
+                  <p className="mb-1 text-xs font-medium text-gray-500">
+                    Position #{m.position}
+                  </p>
+                )}
+                <div className="flex items-start gap-2">
+                  <XCircle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+                  <div>
+                    <p className="text-red-700">
+                      <span className="font-medium">Your answer:</span>{" "}
+                      <span className="line-through">{m.yourAnswer}</span>
+                    </p>
+                    <p className="mt-1 text-green-700">
+                      <span className="font-medium">Correct:</span> {m.correctAnswer}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Message at bottom if any */}
+      {!result.pending && result.message && (
+        <p className="mt-3 rounded-md bg-white/70 p-2 text-xs text-gray-700">
+          💡 {result.message}
+        </p>
+      )}
+    </div>
+  );
+}
+
+// ============================================================================
 // SPEAKING QUESTION WRAPPER
 // ============================================================================
 
 function SpeakingQuestion({
-  children, instructionText, prepTime, maxDuration, submitted, onSubmit,
+  children, instructionText, prepTime, maxDuration, submitted, onSubmit, totalMarks = 1,
 }: {
   children: React.ReactNode;
   instructionText: string;
@@ -695,6 +1065,7 @@ function SpeakingQuestion({
   maxDuration: number;
   submitted: boolean;
   onSubmit: (response: any) => void;
+  totalMarks?: number;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -706,7 +1077,20 @@ function SpeakingQuestion({
 
   const handleSubmit = () => {
     if (!audioBlob) return;
-    onSubmit({ type: "audio", audioBlob, audioUrl });
+    onSubmit({
+      type: "audio",
+      audioBlob,
+      audioUrl,
+      scoreResult: {
+        marksEarned: 0,
+        marksTotal: totalMarks,
+        correct: 0,
+        total: 1,
+        mistakes: [],
+        pending: true,
+        message: "Recording submitted. AI scoring will be available soon. Your teacher will also review.",
+      } as ScoreResult,
+    });
   };
 
   return (
@@ -799,10 +1183,11 @@ function shuffle<T>(arr: T[]): T[] {
 
 // -------------------- DRAG-AND-DROP FILL BLANKS --------------------
 function FillBlanksDrag({
-  passage, blanks, submitted, onSubmit,
+  passage, blanks, submitted, onSubmit, totalMarks,
 }: {
   passage: string;
-  blanks: any[]; // string[] or { index, options, correctAnswer }[]
+  blanks: any[];
+  totalMarks: number;
   submitted: boolean;
   onSubmit: (response: any) => void;
 }) {
@@ -978,7 +1363,34 @@ function FillBlanksDrag({
 
       {!submitted && (
         <Button
-          onClick={() => onSubmit({ answers: filled })}
+          onClick={() => {
+            const mistakes: ScoreResult["mistakes"] = [];
+            let correctCount = 0;
+            normalizedBlanks.forEach((b, i) => {
+              const given = filled[i] || "";
+              if (given.toLowerCase() === (b.correctAnswer || "").toLowerCase()) {
+                correctCount++;
+              } else {
+                mistakes.push({
+                  position: i + 1,
+                  yourAnswer: given || "(empty)",
+                  correctAnswer: b.correctAnswer,
+                });
+              }
+            });
+            const total = normalizedBlanks.length || 1;
+            const ratio = correctCount / total;
+            onSubmit({
+              answers: filled,
+              scoreResult: {
+                marksEarned: Math.round(totalMarks * ratio * 10) / 10,
+                marksTotal: totalMarks,
+                correct: correctCount,
+                total,
+                mistakes,
+              } as ScoreResult,
+            });
+          }}
           disabled={!allFilled}
         >
           Check Answers
@@ -990,11 +1402,12 @@ function FillBlanksDrag({
 
 // -------------------- DROPDOWN FILL BLANKS --------------------
 function FillBlanksDropdown({
-  passage, blanks, options, submitted, onSubmit,
+  passage, blanks, options, submitted, onSubmit, totalMarks,
 }: {
   passage: string;
-  blanks: any[]; // can be string[] or { index, options, correctAnswer }[]
+  blanks: any[];
   options: string[];
+  totalMarks: number;
   submitted: boolean;
   onSubmit: (response: any) => void;
 }) {
@@ -1075,7 +1488,34 @@ function FillBlanksDropdown({
       )}
 
       {!submitted && (
-        <Button onClick={() => onSubmit({ answers })} disabled={!allFilled}>
+        <Button onClick={() => {
+          const mistakes: ScoreResult["mistakes"] = [];
+          let correctCount = 0;
+          normalizedBlanks.forEach((b, i) => {
+            const given = (answers[i] || "").trim();
+            if (given.toLowerCase() === (b.correctAnswer || "").toLowerCase()) {
+              correctCount++;
+            } else {
+              mistakes.push({
+                position: i + 1,
+                yourAnswer: given || "(empty)",
+                correctAnswer: b.correctAnswer,
+              });
+            }
+          });
+          const total = normalizedBlanks.length || 1;
+          const ratio = correctCount / total;
+          onSubmit({
+            answers,
+            scoreResult: {
+              marksEarned: Math.round(totalMarks * ratio * 10) / 10,
+              marksTotal: totalMarks,
+              correct: correctCount,
+              total,
+              mistakes,
+            } as ScoreResult,
+          });
+        }} disabled={!allFilled}>
           Check Answers
         </Button>
       )}
@@ -1085,10 +1525,11 @@ function FillBlanksDropdown({
 
 // -------------------- TEXT INPUT FILL BLANKS (for Listening) --------------------
 function FillBlanksText({
-  passage, blanks, submitted, onSubmit,
+  passage, blanks, submitted, onSubmit, totalMarks,
 }: {
   passage: string;
   blanks: any[];
+  totalMarks: number;
   submitted: boolean;
   onSubmit: (response: any) => void;
 }) {
@@ -1161,7 +1602,34 @@ function FillBlanksText({
       )}
 
       {!submitted && (
-        <Button onClick={() => onSubmit({ answers })} disabled={!allFilled}>
+        <Button onClick={() => {
+          const mistakes: ScoreResult["mistakes"] = [];
+          let correctCount = 0;
+          normalizedBlanks.forEach((b, i) => {
+            const given = (answers[i] || "").trim();
+            if (given.toLowerCase() === (b.correctAnswer || "").toLowerCase()) {
+              correctCount++;
+            } else {
+              mistakes.push({
+                position: i + 1,
+                yourAnswer: given || "(empty)",
+                correctAnswer: b.correctAnswer,
+              });
+            }
+          });
+          const total = normalizedBlanks.length || 1;
+          const ratio = correctCount / total;
+          onSubmit({
+            answers,
+            scoreResult: {
+              marksEarned: Math.round(totalMarks * ratio * 10) / 10,
+              marksTotal: totalMarks,
+              correct: correctCount,
+              total,
+              mistakes,
+            } as ScoreResult,
+          });
+        }} disabled={!allFilled}>
           Check Answers
         </Button>
       )}
