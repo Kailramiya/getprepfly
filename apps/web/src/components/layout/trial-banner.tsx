@@ -15,7 +15,7 @@ interface AccessInfo {
 
 export function TrialBanner() {
   const [access, setAccess] = useState<AccessInfo | null>(null);
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed] = useState(false);
 
   useEffect(() => {
     fetch("/api/access/me")
