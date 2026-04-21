@@ -42,6 +42,7 @@ interface Question {
   createdAt: string;
   imageUrl: string | null;
   audioUrl: string | null;
+  marks?: number;
   _count: { attempts: number };
 }
 
@@ -62,9 +63,46 @@ export default function QuestionsPage() {
   const [section, setSection] = useState("");
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<any>(null);
+  const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, QuestionDetail>>({});
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
+
+  const openEditForm = async (questionId: string) => {
+    setLoadingEdit(questionId);
+    try {
+      const res = await fetch(`/api/questions/${questionId}`);
+      const data = await res.json();
+      if (data.success) {
+        setEditingQuestion(data.data);
+        setShowForm(true);
+      }
+    } catch {
+      alert("Failed to load question for editing");
+    } finally {
+      setLoadingEdit(null);
+    }
+  };
+
+  const handleDelete = async (questionId: string, title: string) => {
+    if (!confirm(`Delete question "${title}"? This cannot be undone.`)) return;
+    setDeleting(questionId);
+    try {
+      const res = await fetch(`/api/questions/${questionId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        setQuestions((prev) => prev.filter((q) => q.id !== questionId));
+      } else {
+        alert(data.error || "Failed to delete question");
+      }
+    } catch {
+      alert("Failed to delete question");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   const toggleExpand = async (questionId: string) => {
     if (expandedId === questionId) {
@@ -125,11 +163,11 @@ export default function QuestionsPage() {
           <p className="text-gray-500">{total} questions available</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => setShowForm(true)}>
+          <Button variant="outline" className="gap-2" onClick={() => { setEditingQuestion(null); setShowForm(true); }}>
             <Upload className="h-4 w-4" />
             Bulk Upload
           </Button>
-          <Button className="gap-2" onClick={() => setShowForm(true)}>
+          <Button className="gap-2" onClick={() => { setEditingQuestion(null); setShowForm(true); }}>
             <Plus className="h-4 w-4" />
             Add Question
           </Button>
@@ -215,17 +253,34 @@ export default function QuestionsPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
+                        {typeof q.marks === "number" && (
+                          <span className="mr-2 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700">
+                            {q.marks} {q.marks === 1 ? "mark" : "marks"}
+                          </span>
+                        )}
                         <button
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600"
-                          onClick={(e) => { e.stopPropagation(); setShowForm(true); }}
+                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50"
+                          onClick={(e) => { e.stopPropagation(); openEditForm(q.id); }}
+                          disabled={loadingEdit === q.id}
+                          title="Edit question"
                         >
-                          <Edit2 className="h-4 w-4" />
+                          {loadingEdit === q.id ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+                          ) : (
+                            <Edit2 className="h-4 w-4" />
+                          )}
                         </button>
                         <button
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
-                          onClick={(e) => e.stopPropagation()}
+                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 disabled:opacity-50"
+                          onClick={(e) => { e.stopPropagation(); handleDelete(q.id, q.title); }}
+                          disabled={deleting === q.id}
+                          title="Delete question"
                         >
-                          <Trash2 className="h-4 w-4" />
+                          {deleting === q.id ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
                         </button>
                       </div>
                     </div>
@@ -385,7 +440,22 @@ export default function QuestionsPage() {
 
       {/* Question Form Modal */}
       {showForm && (
-        <QuestionForm onClose={() => setShowForm(false)} onSave={refreshQuestions} />
+        <QuestionForm
+          question={editingQuestion}
+          onClose={() => { setShowForm(false); setEditingQuestion(null); }}
+          onSave={() => {
+            // Clear cached detail so it refetches updated content
+            if (editingQuestion?.id) {
+              setDetails((prev) => {
+                const next = { ...prev };
+                delete next[editingQuestion.id];
+                return next;
+              });
+            }
+            setEditingQuestion(null);
+            refreshQuestions();
+          }}
+        />
       )}
     </div>
   );

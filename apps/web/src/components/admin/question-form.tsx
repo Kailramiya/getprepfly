@@ -254,38 +254,64 @@ const DIFFICULTIES = [
 interface QuestionFormProps {
   onClose: () => void;
   onSave: () => void;
+  question?: any; // existing question for edit mode
 }
 
-export function QuestionForm({ onClose, onSave }: QuestionFormProps) {
-  const [section, setSection] = useState<string>("SPEAKING");
-  const [typeValue, setTypeValue] = useState<string>("READ_ALOUD");
-  const [title, setTitle] = useState("");
-  const [difficulty, setDifficulty] = useState("MEDIUM");
-  const [isPrediction, setIsPrediction] = useState(false);
-  const [tags, setTags] = useState("");
+export function QuestionForm({ onClose, onSave, question: editingQuestion }: QuestionFormProps) {
+  const isEditing = !!editingQuestion?.id;
+  const initialContent = editingQuestion?.content || {};
+
+  const [section, setSection] = useState<string>(editingQuestion?.section || "SPEAKING");
+  const [typeValue, setTypeValue] = useState<string>(editingQuestion?.type || "READ_ALOUD");
+  const [title, setTitle] = useState(editingQuestion?.title || "");
+  const [difficulty, setDifficulty] = useState(editingQuestion?.difficulty || "MEDIUM");
+  const [isPrediction, setIsPrediction] = useState(!!editingQuestion?.isPrediction);
+  const [marks, setMarks] = useState<number>(editingQuestion?.marks ?? 1);
+  const [tags, setTags] = useState((editingQuestion?.tags || []).join(", "));
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  // Content fields
-  const [text, setText] = useState("");
-  const [passage, setPassage] = useState("");
-  const [prompt, setPrompt] = useState("");
-  const [question, setQuestionText] = useState("");
-  const [options, setOptions] = useState(["", "", "", ""]);
-  const [correctAnswer, setCorrectAnswer] = useState(0);
-  const [correctAnswers, setCorrectAnswers] = useState<number[]>([]);
-  const [correctText, setCorrectText] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [audioUrl, setAudioUrl] = useState("");
-  const [minWords, setMinWords] = useState(200);
-  const [maxWords, setMaxWords] = useState(300);
-  const [paragraphs, setParagraphs] = useState<string[]>(["", "", "", ""]);
-  const [fillBlanksPassage, setFillBlanksPassage] = useState("");
-  const [fillBlanksAnswers, setFillBlanksAnswers] = useState<string[]>([""]);
+  // Content fields — pre-fill from existing question
+  const [text, setText] = useState(initialContent.text || "");
+  const [passage, setPassage] = useState(initialContent.passage || "");
+  const [prompt, setPrompt] = useState(initialContent.prompt || "");
+  const [question, setQuestionText] = useState(initialContent.question || "");
+  const [options, setOptions] = useState<string[]>(
+    Array.isArray(initialContent.options) && initialContent.options.length > 0
+      ? initialContent.options
+      : ["", "", "", ""]
+  );
+  const [correctAnswer, setCorrectAnswer] = useState<number>(
+    typeof initialContent.correctAnswer === "number" ? initialContent.correctAnswer : 0
+  );
+  const [correctAnswers, setCorrectAnswers] = useState<number[]>(
+    Array.isArray(initialContent.correctAnswers) ? initialContent.correctAnswers : []
+  );
+  const [correctText, setCorrectText] = useState(initialContent.correctText || "");
+  const [imageUrl, setImageUrl] = useState(editingQuestion?.imageUrl || initialContent.imageUrl || "");
+  const [audioUrl, setAudioUrl] = useState(editingQuestion?.audioUrl || initialContent.audioUrl || "");
+  const [minWords, setMinWords] = useState<number>(initialContent.minWords || 200);
+  const [maxWords, setMaxWords] = useState<number>(initialContent.maxWords || 300);
+  const [paragraphs, setParagraphs] = useState<string[]>(
+    Array.isArray(initialContent.paragraphs) && initialContent.paragraphs.length > 0
+      ? initialContent.paragraphs
+      : ["", "", "", ""]
+  );
+  const [fillBlanksPassage, setFillBlanksPassage] = useState(
+    initialContent.passage && (typeValue || "").includes("FILL_BLANKS") ? initialContent.passage : ""
+  );
+  const [fillBlanksAnswers, setFillBlanksAnswers] = useState<string[]>(() => {
+    if (Array.isArray(initialContent.blanks) && initialContent.blanks.length > 0) {
+      return initialContent.blanks.map((b: any) =>
+        typeof b === "string" ? b : b?.correctAnswer || b?.answer || ""
+      );
+    }
+    return [""];
+  });
 
   // Extra
-  const [modelAnswer, setModelAnswer] = useState("");
-  const [explanation, setExplanation] = useState("");
+  const [modelAnswer, setModelAnswer] = useState(editingQuestion?.modelAnswer || "");
+  const [explanation, setExplanation] = useState(editingQuestion?.explanation || "");
 
   const currentType = QUESTION_TYPES[section].find((t) => t.value === typeValue) || QUESTION_TYPES[section][0];
   const fields = new Set(currentType.fields);
@@ -395,8 +421,10 @@ export function QuestionForm({ onClose, onSave }: QuestionFormProps) {
 
     setSaving(true);
     try {
-      const res = await fetch("/api/questions", {
-        method: "POST",
+      const url = isEditing ? `/api/questions/${editingQuestion.id}` : "/api/questions";
+      const method = isEditing ? "PATCH" : "POST";
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           section,
@@ -409,6 +437,7 @@ export function QuestionForm({ onClose, onSave }: QuestionFormProps) {
           audioUrl: audioUrl.trim() || undefined,
           imageUrl: imageUrl.trim() || undefined,
           isPrediction,
+          marks: marks > 0 ? marks : 1,
           tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
         }),
       });
@@ -435,8 +464,14 @@ export function QuestionForm({ onClose, onSave }: QuestionFormProps) {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-teal-50 to-indigo-50 px-6 py-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">Add New Question</h2>
-            <p className="mt-0.5 text-sm text-gray-500">Fill in the details below to add a question to your centre</p>
+            <h2 className="text-xl font-bold text-gray-900">
+              {isEditing ? "Edit Question" : "Add New Question"}
+            </h2>
+            <p className="mt-0.5 text-sm text-gray-500">
+              {isEditing
+                ? "Update the question details below"
+                : "Fill in the details below to add a question to your centre"}
+            </p>
           </div>
           <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-white hover:text-gray-600">
             <X className="h-5 w-5" />
@@ -532,20 +567,34 @@ export function QuestionForm({ onClose, onSave }: QuestionFormProps) {
                   <p className="mt-1 text-xs text-gray-500">Short name so you can identify this question later</p>
                 </div>
 
-                <div>
-                  <Label>Difficulty Level</Label>
-                  <div className="mt-1 grid grid-cols-3 gap-2">
-                    {DIFFICULTIES.map((d) => (
-                      <button
-                        key={d.value}
-                        onClick={() => setDifficulty(d.value)}
-                        className={`rounded-lg border-2 px-3 py-2 text-sm font-medium transition ${
-                          difficulty === d.value ? d.color : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
-                        }`}
-                      >
-                        {d.label}
-                      </button>
-                    ))}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="col-span-2">
+                    <Label>Difficulty Level</Label>
+                    <div className="mt-1 grid grid-cols-3 gap-2">
+                      {DIFFICULTIES.map((d) => (
+                        <button
+                          key={d.value}
+                          onClick={() => setDifficulty(d.value)}
+                          className={`rounded-lg border-2 px-3 py-2 text-sm font-medium transition ${
+                            difficulty === d.value ? d.color : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
+                          }`}
+                        >
+                          {d.label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <Label required>Marks</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={100}
+                      value={marks}
+                      onChange={(e) => setMarks(parseInt(e.target.value) || 1)}
+                      placeholder="1"
+                    />
+                    <p className="mt-1 text-xs text-gray-500">Points for this question</p>
                   </div>
                 </div>
 
@@ -953,7 +1002,7 @@ export function QuestionForm({ onClose, onSave }: QuestionFormProps) {
           <div className="flex gap-3">
             <Button variant="outline" onClick={onClose}>Cancel</Button>
             <Button onClick={handleSave} loading={saving}>
-              Save Question
+              {isEditing ? "Update Question" : "Save Question"}
             </Button>
           </div>
         </div>

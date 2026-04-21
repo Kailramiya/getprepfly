@@ -35,7 +35,8 @@ export async function PATCH(
   const body = await req.json();
   const {
     title, content, difficulty, explanation, modelAnswer,
-    audioUrl, imageUrl, tags, isPrediction, isActive,
+    audioUrl, imageUrl, tags, isPrediction, isActive, marks,
+    section, type,
   } = body;
 
   // Centre admin can only edit their own questions
@@ -55,7 +56,7 @@ export async function PATCH(
   const updated = await db.question.update({
     where: { id: params.questionId },
     data: {
-      ...(title !== undefined && { title }),
+      ...(title !== undefined && { title: title.trim() }),
       ...(content !== undefined && { content }),
       ...(difficulty !== undefined && { difficulty }),
       ...(explanation !== undefined && { explanation }),
@@ -65,6 +66,9 @@ export async function PATCH(
       ...(tags !== undefined && { tags }),
       ...(isPrediction !== undefined && { isPrediction }),
       ...(isActive !== undefined && { isActive }),
+      ...(section !== undefined && { section }),
+      ...(type !== undefined && { type }),
+      ...(typeof marks === "number" && marks > 0 && { marks }),
     },
   });
 

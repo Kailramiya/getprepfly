@@ -53,6 +53,7 @@ export async function GET(req: NextRequest) {
         tags: true,
         imageUrl: true,
         audioUrl: true,
+        marks: true,
         createdAt: true,
         _count: { select: { attempts: true } },
       },
@@ -83,7 +84,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     section, type, difficulty, title, content, explanation,
-    modelAnswer, audioUrl, imageUrl, tags, isPrediction,
+    modelAnswer, audioUrl, imageUrl, tags, isPrediction, marks,
   } = body;
 
   if (!section || !type || !title || !content) {
@@ -106,6 +107,7 @@ export async function POST(req: NextRequest) {
       imageUrl: imageUrl || null,
       tags: tags || [],
       isPrediction: isPrediction || false,
+      marks: typeof marks === "number" && marks > 0 ? marks : 1,
       // Centre-specific if centre admin, global if super admin
       centreId: user!.role === "SUPER_ADMIN" ? null : user!.centreId || null,
     },

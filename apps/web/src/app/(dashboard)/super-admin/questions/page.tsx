@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { QuestionForm } from "@/components/admin/question-form";
 import {
-  Database, Plus, Search, Trash2,
+  Database, Plus, Search, Trash2, Edit2,
   Mic, PenTool, BookOpen, Headphones, Star,
 } from "lucide-react";
 
@@ -35,6 +35,7 @@ interface Question {
   isPrediction: boolean;
   tags: string[];
   createdAt: string;
+  marks?: number;
   _count: { attempts: number };
 }
 
@@ -55,9 +56,27 @@ export default function SuperAdminQuestionsPage() {
   const [section, setSection] = useState("");
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  const [editingQuestion, setEditingQuestion] = useState<any>(null);
+  const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, QuestionDetail>>({});
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
+
+  const openEditForm = async (questionId: string) => {
+    setLoadingEdit(questionId);
+    try {
+      const res = await fetch(`/api/questions/${questionId}`);
+      const data = await res.json();
+      if (data.success) {
+        setEditingQuestion(data.data);
+        setShowForm(true);
+      }
+    } catch {
+      alert("Failed to load question for editing");
+    } finally {
+      setLoadingEdit(null);
+    }
+  };
 
   const toggleExpand = async (questionId: string) => {
     if (expandedId === questionId) {
@@ -119,7 +138,7 @@ export default function SuperAdminQuestionsPage() {
           <h1 className="text-2xl font-bold text-gray-900">Global Question Bank</h1>
           <p className="text-gray-500">{total} questions (visible to all centres)</p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="gap-2">
+        <Button onClick={() => { setEditingQuestion(null); setShowForm(true); }} className="gap-2">
           <Plus className="h-4 w-4" /> Add Question
         </Button>
       </div>
@@ -196,12 +215,32 @@ export default function SuperAdminQuestionsPage() {
                           </div>
                         </div>
                       </div>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
-                        className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-1">
+                        {typeof q.marks === "number" && (
+                          <span className="mr-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700">
+                            {q.marks} {q.marks === 1 ? "mark" : "marks"}
+                          </span>
+                        )}
+                        <button
+                          onClick={(e) => { e.stopPropagation(); openEditForm(q.id); }}
+                          disabled={loadingEdit === q.id}
+                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50"
+                          title="Edit question"
+                        >
+                          {loadingEdit === q.id ? (
+                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+                          ) : (
+                            <Edit2 className="h-4 w-4" />
+                          )}
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
+                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+                          title="Delete question"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </div>
                     </div>
 
                     {isExpanded && (
@@ -327,7 +366,21 @@ export default function SuperAdminQuestionsPage() {
 
       {/* Add Question Modal */}
       {showForm && (
-        <QuestionForm onClose={() => setShowForm(false)} onSave={fetchQuestions} />
+        <QuestionForm
+          question={editingQuestion}
+          onClose={() => { setShowForm(false); setEditingQuestion(null); }}
+          onSave={() => {
+            if (editingQuestion?.id) {
+              setDetails((prev) => {
+                const next = { ...prev };
+                delete next[editingQuestion.id];
+                return next;
+              });
+            }
+            setEditingQuestion(null);
+            fetchQuestions();
+          }}
+        />
       )}
     </div>
   );
