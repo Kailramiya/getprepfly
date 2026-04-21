@@ -110,6 +110,10 @@ model Centre {
   email       String?
   website     String?
   isActive    Boolean  @default(true)
+  // Premium centre = all students get full access (all modules free)
+  // Only super admin can set this
+  isPremiumCentre Boolean @default(false)
+  premiumUntil    DateTime? // optional expiry for premium status
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
