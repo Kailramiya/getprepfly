@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  await grantModuleAccess(user!.id, plan.section as PTESection | null, updatedPayment.id, 90);
+  await grantModuleAccess(user!.id, plan.section as PTESection | null, updatedPayment.id, 30);
 
   return NextResponse.json({
     success: true,
@@ -91,7 +91,7 @@ export async function POST(req: NextRequest) {
     data: {
       planType,
       label: plan.label,
-      daysGranted: 90,
+      daysGranted: 30,
     },
   });
 }

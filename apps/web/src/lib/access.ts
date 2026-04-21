@@ -171,13 +171,13 @@ export async function hasModuleAccess(userId: string, section: PTESection): Prom
 
 /**
  * Grant module access after successful payment.
- * Creates or extends existing ModuleAccess by 90 days.
+ * Creates or extends existing ModuleAccess by 30 days.
  */
 export async function grantModuleAccess(
   userId: string,
   section: PTESection | null, // null = all modules
   paymentId: string,
-  days: number = 90
+  days: number = 30
 ): Promise<void> {
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + days);

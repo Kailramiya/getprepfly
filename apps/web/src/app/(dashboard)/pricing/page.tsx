@@ -39,7 +39,7 @@ const PLANS = [
       "Retell Lecture, Answer Short Question",
       "Respond to Situation",
       "Audio recording + AI scoring",
-      "90 days access",
+      "30 days access",
     ],
   },
   {
@@ -53,7 +53,7 @@ const PLANS = [
       "Write Essay + Summarize Written Text",
       "AI grammar + vocabulary feedback",
       "Model answers + templates",
-      "90 days access",
+      "30 days access",
     ],
   },
   {
@@ -67,7 +67,7 @@ const PLANS = [
       "MCQ Single & Multiple",
       "Reorder Paragraphs",
       "Fill in the Blanks (Drag + Dropdown)",
-      "90 days access",
+      "30 days access",
     ],
   },
   {
@@ -81,7 +81,7 @@ const PLANS = [
       "Write from Dictation, Summarize Spoken Text",
       "Fill Blanks + MCQ + Highlight Summary",
       "Unlimited audio replays",
-      "90 days access",
+      "30 days access",
     ],
   },
 ];
@@ -241,7 +241,7 @@ export default function PricingPage() {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900">All Modules Bundle</h3>
-                  <p className="text-sm text-gray-600">Everything unlocked — 90 days access</p>
+                  <p className="text-sm text-gray-600">Everything unlocked — 30 days access</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-2 text-sm text-gray-700 sm:grid-cols-2">
@@ -264,7 +264,7 @@ export default function PricingPage() {
               <div className="mb-1 text-xs font-medium text-gray-500 line-through">₹396 separately</div>
               <div className="flex items-baseline justify-center gap-1 lg:justify-end">
                 <span className="text-4xl font-bold text-gray-900">₹299</span>
-                <span className="text-sm text-gray-500">/ 90 days</span>
+                <span className="text-sm text-gray-500">/ 30 days</span>
               </div>
               <p className="mt-1 text-xs text-green-600 font-medium">Save ₹97</p>
               {hasAccess("ALL_MODULES") ? (
@@ -312,7 +312,7 @@ export default function PricingPage() {
                   <h3 className="mt-3 text-lg font-bold text-gray-900">{plan.title}</h3>
                   <div className="mt-2 flex items-baseline gap-1">
                     <span className="text-2xl font-bold text-gray-900">₹{plan.price}</span>
-                    <span className="text-xs text-gray-500">/ 90 days</span>
+                    <span className="text-xs text-gray-500">/ 30 days</span>
                   </div>
 
                   <ul className="mt-4 space-y-1.5 text-xs text-gray-600">
