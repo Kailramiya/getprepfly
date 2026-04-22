@@ -22,6 +22,7 @@ function LoginForm() {
   const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
   const registered = searchParams.get("registered");
   const authError = searchParams.get("error");
+  const kicked = searchParams.get("kicked");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -89,6 +90,12 @@ function LoginForm() {
       {registered && (
         <div className="mt-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">
           Account created successfully! Please log in.
+        </div>
+      )}
+
+      {kicked && (
+        <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+          Your account was used to log in on another device. Please log in again to continue.
         </div>
       )}
 

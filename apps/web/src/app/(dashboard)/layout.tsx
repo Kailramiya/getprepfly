@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
 import { TrialBanner } from "@/components/layout/trial-banner";
 import { AppInstallPrompt } from "@/components/app-install-prompt";
+import { SessionWatcher } from "@/components/session-watcher";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,6 +39,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* PWA / App Install Prompt — shows on mobile after 5 seconds */}
       <AppInstallPrompt />
+
+      {/* Watch for session invalidation from another device login */}
+      <SessionWatcher />
     </div>
   );
 }

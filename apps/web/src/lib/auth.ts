@@ -2,7 +2,19 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { db } from "./db";
+
+// Generate a new session ID and save it to the user record.
+// This invalidates any existing sessions on other devices.
+async function rotateSessionId(userId: string): Promise<string> {
+  const sessionId = crypto.randomUUID();
+  await db.user.update({
+    where: { id: userId },
+    data: { activeSessionId: sessionId },
+  });
+  return sessionId;
+}
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -56,6 +68,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid password");
         }
 
+        // Rotate session ID - kicks out any other active session
+        const sessionId = await rotateSessionId(user.id);
+
         return {
           id: user.id,
           name: user.name,
@@ -66,6 +81,7 @@ export const authOptions: NextAuthOptions = {
           centreName: user.centre?.name,
           centreSlug: user.centre?.slug,
           planType: user.studentPlan?.planType || "FREE",
+          activeSessionId: sessionId,
         } as any;
       },
     }),
@@ -139,12 +155,16 @@ export const authOptions: NextAuthOptions = {
             },
           });
 
+          // Rotate session ID — kicks out any other active session
+          const sessionId = await rotateSessionId(fullUser!.id);
+
           (user as any).id = fullUser!.id;
           (user as any).role = fullUser!.role;
           (user as any).centreId = fullUser!.centreId || undefined;
           (user as any).centreName = fullUser!.centre?.name;
           (user as any).centreSlug = fullUser!.centre?.slug;
           (user as any).planType = fullUser!.studentPlan?.planType || "FREE";
+          (user as any).activeSessionId = sessionId;
         }
       }
       return true;
@@ -152,16 +172,32 @@ export const authOptions: NextAuthOptions = {
 
     async jwt({ token, user, trigger, session }) {
       if (user) {
+        // Initial sign-in — capture everything including sessionId
         token.id = user.id;
         token.role = (user as any).role;
         token.centreId = (user as any).centreId;
         token.centreName = (user as any).centreName;
         token.centreSlug = (user as any).centreSlug;
         token.planType = (user as any).planType || "FREE";
+        token.activeSessionId = (user as any).activeSessionId;
+      } else if (token.id) {
+        // Subsequent request — validate this token still matches DB
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { activeSessionId: true, centreId: true },
+        });
+
+        // Session invalidated — user logged in from another device
+        if (
+          !dbUser ||
+          (dbUser.activeSessionId && dbUser.activeSessionId !== token.activeSessionId)
+        ) {
+          // Mark token invalid — session callback will clear session
+          (token as any).sessionInvalid = true;
+        }
       }
 
       // Backfill missing centre info for existing sessions
-      // (covers users who logged in before centreSlug/centreName were stored)
       if (token.id && token.centreId && (!token.centreSlug || !token.centreName)) {
         const centre = await db.centre.findUnique({
           where: { id: token.centreId as string },
@@ -183,6 +219,10 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
+      // Session was invalidated by login on another device
+      if ((token as any).sessionInvalid) {
+        return { ...session, user: undefined as any, expires: "1970-01-01T00:00:00.000Z" };
+      }
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;

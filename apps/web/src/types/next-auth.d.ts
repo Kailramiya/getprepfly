@@ -30,5 +30,7 @@ declare module "next-auth/jwt" {
     centreName?: string;
     centreSlug?: string;
     planType: "FREE" | "VIP_30" | "VIP_90" | "VIP_180";
+    activeSessionId?: string;
+    sessionInvalid?: boolean;
   }
 }
