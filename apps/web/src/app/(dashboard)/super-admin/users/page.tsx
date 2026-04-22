@@ -137,6 +137,10 @@ export default function SuperAdminUsersPage() {
                             )}
                           </button>
                         </div>
+                      ) : u.role === "CENTRE_ADMIN" ? (
+                        <Badge className="bg-amber-100 text-amber-700">
+                          ⚠ No centre — will auto-create on next login
+                        </Badge>
                       ) : u.role === "STUDENT" ? (
                         <span className="text-xs italic text-gray-400">Not enrolled in any centre</span>
                       ) : null}

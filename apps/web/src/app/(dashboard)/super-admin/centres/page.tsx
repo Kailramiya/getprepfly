@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Users, Plus, Globe } from "lucide-react";
+import { Building2, Users, Plus, Globe, Hash, Copy, CheckCheck, Crown, Calendar } from "lucide-react";
 
 interface Centre {
   id: string;
@@ -14,6 +14,8 @@ interface Centre {
   state: string | null;
   email: string | null;
   isActive: boolean;
+  isPremiumCentre?: boolean;
+  premiumUntil?: string | null;
   createdAt: string;
   _count: { users: number };
 }
@@ -21,6 +23,55 @@ interface Centre {
 export default function SuperAdminCentresPage() {
   const [centres, setCentres] = useState<Centre[]>([]);
   const [loading, setLoading] = useState(true);
+  const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+  const [togglingId, setTogglingId] = useState<string | null>(null);
+
+  const copySlug = (slug: string) => {
+    navigator.clipboard.writeText(slug);
+    setCopiedSlug(slug);
+    setTimeout(() => setCopiedSlug(null), 2000);
+  };
+
+  const togglePremium = async (centre: Centre) => {
+    const newStatus = !centre.isPremiumCentre;
+    const action = newStatus ? "grant FREE premium access" : "remove premium access";
+    if (!confirm(`Are you sure you want to ${action} for "${centre.name}"?`)) return;
+
+    let premiumUntil: string | null = null;
+    if (newStatus) {
+      const durationStr = prompt("How long? Enter number of days (leave empty for lifetime):", "365");
+      if (durationStr && !isNaN(parseInt(durationStr))) {
+        const days = parseInt(durationStr);
+        premiumUntil = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+      }
+    }
+
+    setTogglingId(centre.id);
+    try {
+      const res = await fetch(`/api/centres/${centre.id}/premium`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ isPremiumCentre: newStatus, premiumUntil }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCentres((prev) =>
+          prev.map((c) =>
+            c.id === centre.id
+              ? { ...c, isPremiumCentre: newStatus, premiumUntil }
+              : c
+          )
+        );
+        alert(data.message);
+      } else {
+        alert(data.error || "Failed to update premium status");
+      }
+    } catch {
+      alert("Network error. Please try again.");
+    } finally {
+      setTogglingId(null);
+    }
+  };
 
   useEffect(() => {
     const fetchCentres = async () => {
@@ -65,7 +116,9 @@ export default function SuperAdminCentresPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{centre.name}</h3>
-                      <p className="text-xs text-gray-500">{centre.city}, {centre.state}</p>
+                      <p className="text-xs text-gray-500">
+                        {centre.city || centre.state ? `${centre.city || ""}${centre.city && centre.state ? ", " : ""}${centre.state || ""}` : "Location not set"}
+                      </p>
                     </div>
                   </div>
                   <Badge variant={centre.isActive ? "success" : "destructive"}>
@@ -73,16 +126,92 @@ export default function SuperAdminCentresPage() {
                   </Badge>
                 </div>
 
-                <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
+                {/* Referral Code */}
+                <div className="mt-4 rounded-lg border border-teal-200 bg-teal-50 p-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-teal-600">
+                        Referral Code
+                      </p>
+                      <p className="mt-0.5 flex items-center gap-1 font-mono text-sm font-bold text-teal-800">
+                        <Hash className="h-3.5 w-3.5" />
+                        {centre.slug || "not-set"}
+                      </p>
+                    </div>
+                    {centre.slug && (
+                      <button
+                        onClick={() => copySlug(centre.slug)}
+                        className="flex items-center gap-1 rounded-md border border-teal-300 bg-white px-2 py-1 text-xs text-teal-700 hover:bg-teal-100"
+                      >
+                        {copiedSlug === centre.slug ? (
+                          <>
+                            <CheckCheck className="h-3 w-3" /> Copied
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="h-3 w-3" /> Copy
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 flex items-center gap-4 text-sm text-gray-500">
                   <span className="flex items-center gap-1">
                     <Users className="h-3.5 w-3.5" /> {centre._count.users} students
                   </span>
-                  <span>Code: <code className="rounded bg-gray-100 px-1.5 py-0.5 text-xs font-mono">{centre.slug}</code></span>
+                  <span className="text-xs text-gray-400">
+                    Joined {new Date(centre.createdAt).toLocaleDateString("en-IN")}
+                  </span>
                 </div>
 
-                <p className="mt-2 text-xs text-gray-400">
-                  Joined {new Date(centre.createdAt).toLocaleDateString("en-IN")}
-                </p>
+                {/* Premium Status */}
+                <div className={`mt-3 rounded-lg border p-3 ${
+                  centre.isPremiumCentre
+                    ? "border-amber-300 bg-amber-50"
+                    : "border-gray-200 bg-gray-50"
+                }`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Crown className={`h-4 w-4 ${centre.isPremiumCentre ? "text-amber-600" : "text-gray-400"}`} />
+                      <div>
+                        <p className={`text-xs font-semibold uppercase ${
+                          centre.isPremiumCentre ? "text-amber-700" : "text-gray-500"
+                        }`}>
+                          {centre.isPremiumCentre ? "Premium Centre" : "Regular Centre"}
+                        </p>
+                        {centre.isPremiumCentre && centre.premiumUntil && (
+                          <p className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-600">
+                            <Calendar className="h-3 w-3" />
+                            Until {new Date(centre.premiumUntil).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                          </p>
+                        )}
+                        {centre.isPremiumCentre && !centre.premiumUntil && (
+                          <p className="mt-0.5 text-[10px] text-amber-600">Lifetime access</p>
+                        )}
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => togglePremium(centre)}
+                      disabled={togglingId === centre.id}
+                      className={centre.isPremiumCentre ? "border-red-300 text-red-600 hover:bg-red-50" : "border-amber-300 text-amber-700 hover:bg-amber-100"}
+                    >
+                      {togglingId === centre.id
+                        ? "..."
+                        : centre.isPremiumCentre
+                          ? "Remove"
+                          : "Grant Free Access"}
+                    </Button>
+                  </div>
+                  {centre.isPremiumCentre && (
+                    <p className="mt-2 text-[10px] text-amber-700">
+                      ⭐ All students get all modules FREE
+                    </p>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

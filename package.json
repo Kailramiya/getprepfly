@@ -17,5 +17,8 @@
   },
   "devDependencies": {
     "sharp": "^0.34.5"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.3.3"
   }
 }

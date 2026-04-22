@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MediaUploader } from "@/components/admin/media-uploader";
 import {
   X, Mic, PenTool, BookOpen, Headphones,
   FileText, List, Shuffle, Edit3, CheckCircle2,
@@ -650,51 +651,42 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
 
               <div className="mt-3 space-y-4">
 
-                {/* Audio URL */}
+                {/* Audio — Upload OR URL */}
                 {fields.has("audio-url") && (
                   <div>
                     <Label required>
                       <span className="flex items-center gap-1.5">
                         <Volume2 className="h-3.5 w-3.5 text-orange-600" />
-                        Audio URL
+                        Audio File
                       </span>
                     </Label>
-                    <Input
+                    <MediaUploader
+                      kind="audio"
                       value={audioUrl}
-                      onChange={(e) => setAudioUrl(e.target.value)}
-                      placeholder="https://example.com/audio.mp3"
+                      onChange={setAudioUrl}
+                      folder="questions/audio"
                     />
-                    <p className="mt-1 text-xs text-gray-500">
-                      Paste the URL of the audio file. Upload it first to your storage (S3, Cloudinary, etc.) and paste the link here.
-                    </p>
-                    {audioUrl && (
-                      <audio controls className="mt-2 w-full" src={audioUrl}>
-                        Your browser does not support audio playback
-                      </audio>
-                    )}
                   </div>
                 )}
 
-                {/* Image URL */}
+                {/* Image — Upload OR URL */}
                 {fields.has("image-url") && (
                   <div>
                     <Label required>
                       <span className="flex items-center gap-1.5">
                         <ImageIcon className="h-3.5 w-3.5 text-teal-600" />
-                        Image URL
+                        Image File
                       </span>
                     </Label>
-                    <Input
+                    <MediaUploader
+                      kind="image"
                       value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder="https://example.com/image.jpg"
+                      onChange={setImageUrl}
+                      folder="questions/images"
                     />
                     <p className="mt-1 text-xs text-gray-500">
-                      URL of the image (graph, chart, photograph) for students to describe.
+                      Image of graph, chart, photograph for students to describe.
                     </p>
-                    {imageUrl && (
-                      <img src={imageUrl} alt="Preview" className="mt-2 max-h-48 rounded-lg border shadow-sm" />
-                    )}
                   </div>
                 )}
 
