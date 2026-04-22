@@ -187,7 +187,7 @@ Score on 0-90 scale:
 Return JSON: { pronunciation, fluency, content, overall, feedback, details }`;
   }
 
-  if (questionType === "DESCRIBE_IMAGE" || questionType === "RETELL_LECTURE") {
+  if (questionType === "DESCRIBE_IMAGE" || questionType === "RETELL_LECTURE" || questionType === "SUMMARIZE_GROUP_DISCUSSION") {
     return `
 PTE ${questionType.replace("_", " ")} Scoring:
 ${expectedText ? `Reference content: "${expectedText}"` : ""}

@@ -121,6 +121,14 @@ const QUESTION_TYPES: Record<string, QuestionTypeInfo[]> = {
       example: "Scenario: You're late for a meeting. What would you say to your colleague?",
       fields: ["text"],
     },
+    {
+      value: "SUMMARIZE_GROUP_DISCUSSION",
+      label: "Summarize Group Discussion",
+      icon: Headphones,
+      description: "Student listens to a group discussion audio, then summarizes the key points in their own words.",
+      example: "Upload audio of a discussion (3–4 speakers) + reference points for scoring.",
+      fields: ["audio-url", "text"],
+    },
   ],
   WRITING: [
     {
@@ -700,6 +708,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                        typeValue === "RETELL_LECTURE" ? "Lecture Reference Points" :
                        typeValue === "ANSWER_SHORT_QUESTION" ? "Question" :
                        typeValue === "RESPOND_TO_SITUATION" ? "Scenario/Situation" :
+                       typeValue === "SUMMARIZE_GROUP_DISCUSSION" ? "Discussion Reference Points (for scoring)" :
                        typeValue === "SUMMARIZE_SPOKEN_TEXT" ? "Audio Transcript (for reference)" :
                        "Question Text"}
                     </Label>

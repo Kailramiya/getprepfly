@@ -17,6 +17,7 @@ const QUESTION_TYPES_BY_SECTION: Record<string, { value: string; label: string }
     { value: "RETELL_LECTURE", label: "Retell Lecture" },
     { value: "ANSWER_SHORT_QUESTION", label: "Answer Short Question" },
     { value: "RESPOND_TO_SITUATION", label: "Respond to Situation" },
+    { value: "SUMMARIZE_GROUP_DISCUSSION", label: "Summarize Group Discussion" },
   ],
   Writing: [
     { value: "WRITE_ESSAY", label: "Write Essay" },

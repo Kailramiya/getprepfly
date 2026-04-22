@@ -458,6 +458,32 @@ function QuestionRenderer({
     );
   }
 
+  // ---- SUMMARIZE GROUP DISCUSSION ----
+  if (type === "SUMMARIZE_GROUP_DISCUSSION") {
+    return (
+      <SpeakingQuestion
+        instructionText="Listen to the group discussion, then summarize the key points and differing viewpoints in your own words."
+        prepTime={5}
+        maxDuration={40}
+        submitted={submitted}
+        onSubmit={onSubmit}
+        totalMarks={totalMarks}
+        questionId={question.id}
+        questionType={type}
+        expectedText={content.text || ""}
+      >
+        {(content.audioUrl || question.audioUrl) && (
+          <div className="rounded-lg bg-gray-50 p-4">
+            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+              <Volume2 className="h-4 w-4" /> Listen to the group discussion
+            </p>
+            <audio controls className="w-full" src={content.audioUrl || question.audioUrl} />
+          </div>
+        )}
+      </SpeakingQuestion>
+    );
+  }
+
   // ---- WRITE ESSAY ----
   if (type === "WRITE_ESSAY") {
     const minW = content.minWords || 200;
