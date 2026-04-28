@@ -1196,9 +1196,16 @@ function QuestionRenderer({
 // ============================================================================
 
 function AudioBlock({ src, label }: { src: string; label?: string }) {
-  // Coerce src — could be undefined/null/empty string from various code paths
   const audioSrc = (src || "").toString();
-  const hasAudio = audioSrc.length > 5; // any reasonable URL is at least 5 chars
+  const hasAudio = audioSrc.length > 5;
+  const [loadError, setLoadError] = useState(false);
+  const [loaded, setLoaded] = useState(false);
+
+  // Detect URL type for better diagnostics
+  const isDataUrl = audioSrc.startsWith("data:");
+  const isHttpUrl = audioSrc.startsWith("http://") || audioSrc.startsWith("https://");
+  const isBlobUrl = audioSrc.startsWith("blob:");
+  const urlPreview = audioSrc.length > 80 ? audioSrc.slice(0, 80) + "..." : audioSrc;
 
   return (
     <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
@@ -1208,9 +1215,41 @@ function AudioBlock({ src, label }: { src: string; label?: string }) {
         </p>
       )}
       {hasAudio ? (
-        <audio controls className="w-full" src={audioSrc}>
-          Your browser does not support audio playback.
-        </audio>
+        <>
+          <audio
+            controls
+            className="w-full"
+            src={audioSrc}
+            preload="metadata"
+            onError={() => setLoadError(true)}
+            onLoadedMetadata={() => { setLoaded(true); setLoadError(false); }}
+          >
+            Your browser does not support audio playback.
+          </audio>
+          {loadError && (
+            <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-700">
+              ⚠ Audio file could not be loaded.{" "}
+              {!isDataUrl && !isHttpUrl && !isBlobUrl && (
+                <span>The URL format looks invalid (not http/https/data/blob).</span>
+              )}
+              {isHttpUrl && (
+                <span>Check that the URL is publicly accessible.</span>
+              )}
+              {isDataUrl && (
+                <span>The base64 data may be corrupted or truncated.</span>
+              )}
+              <details className="mt-1">
+                <summary className="cursor-pointer">Show URL</summary>
+                <code className="mt-1 block break-all rounded bg-white p-1 text-[10px] text-gray-700">
+                  {urlPreview}
+                </code>
+              </details>
+            </div>
+          )}
+          {!loaded && !loadError && (
+            <p className="mt-1 text-[10px] italic text-gray-400">Loading audio metadata...</p>
+          )}
+        </>
       ) : (
         <p className="text-xs italic text-gray-500">
           No audio uploaded for this question. Ask your centre admin to add one.

@@ -72,13 +72,27 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Option 2: Base64 data URL fallback (works anywhere, but bloats DB)
+    // Option 2: Base64 data URL fallback — only safe for SMALL files (< 500KB)
+    // Larger files break because:
+    //   - Base64 inflates size by ~33%
+    //   - API request body limits (Vercel free tier: 4.5 MB)
+    //   - Postgres TEXT field gets bloated, slow queries
+    const SAFE_FALLBACK_LIMIT = 500 * 1024; // 500 KB
+
+    if (file.size > SAFE_FALLBACK_LIMIT) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: `File too large for inline storage (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum 500 KB allowed without cloud storage. Please ask the platform admin to enable Vercel Blob storage to upload larger files, OR paste a public URL instead.`,
+          needsCloudStorage: true,
+        },
+        { status: 413 }
+      );
+    }
+
     const arrayBuffer = await file.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
     const dataUrl = `data:${file.type};base64,${base64}`;
-
-    // Warn if fallback file is large (> 1MB as base64)
-    const warnLargeFile = file.size > 1 * 1024 * 1024;
 
     return NextResponse.json({
       success: true,
@@ -87,9 +101,7 @@ export async function POST(req: NextRequest) {
         method: "data-url",
         size: file.size,
         type: file.type,
-        warning: warnLargeFile
-          ? "File uploaded as inline data (no cloud storage configured). Use small files or set up Vercel Blob for better performance."
-          : null,
+        warning: "File stored inline (no cloud storage). For better performance, ask admin to enable Vercel Blob storage.",
       },
     });
   } catch (err: any) {
