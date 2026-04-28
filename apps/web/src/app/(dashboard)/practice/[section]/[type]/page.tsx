@@ -387,11 +387,6 @@ function QuestionRenderer({
         expectedText={content.text || ""}
       >
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully" />
-        {content.text && (
-          <div className="rounded-lg bg-amber-50 p-4 text-sm text-gray-700">
-            <span className="font-medium text-amber-800">Reference text:</span> {content.text}
-          </div>
-        )}
       </SpeakingQuestion>
     );
   }
