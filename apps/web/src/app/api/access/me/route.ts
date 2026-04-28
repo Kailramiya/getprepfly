@@ -16,6 +16,8 @@ export async function GET() {
       modules: Array.from(access.modules),
       expiresAt: access.expiresAt,
       centreId: user!.centreId || null,
+      role: user!.role,
+      isStaff: user!.role === "SUPER_ADMIN",
       isTrial: access.isTrial,
       trialEndsAt: access.trialEndsAt,
       trialExpired: access.trialExpired,

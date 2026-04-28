@@ -11,6 +11,7 @@ interface AccessInfo {
   trialExpired: boolean;
   freeSpeakingScoringsRemaining: number | null;
   reason?: string;
+  isStaff?: boolean;
 }
 
 export function TrialBanner() {
@@ -27,6 +28,9 @@ export function TrialBanner() {
   }, []);
 
   if (!access || dismissed) return null;
+
+  // Staff (Super Admin / Centre Admin / Teacher) — no banner ever
+  if (access.isStaff) return null;
 
   // Premium user — no banner
   if (access.hasAllAccess && !access.isTrial) return null;

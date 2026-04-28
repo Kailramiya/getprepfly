@@ -79,6 +79,22 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
 
   if (!user) return baseResult;
 
+  // ---- Priority 0: Super Admin ----
+  // Super admins manage the entire platform — unlimited access, no banners.
+  // Centre admins and teachers still need to pay (or be in a Premium Centre).
+  if (user.role === "SUPER_ADMIN") {
+    baseResult.hasAllAccess = true;
+    const farFuture = new Date("2099-12-31");
+    baseResult.expiresAt["ALL"] = farFuture;
+    ["SPEAKING", "WRITING", "READING", "LISTENING"].forEach((s) => {
+      baseResult.modules.add(s as PTESection);
+      baseResult.expiresAt[s] = farFuture;
+    });
+    baseResult.freeSpeakingScoringsRemaining = Infinity;
+    baseResult.reason = "Super admin — unlimited access";
+    return baseResult;
+  }
+
   // ---- Priority 1: Premium Centre ----
   if (user.centre?.isPremiumCentre) {
     const premiumUntil = user.centre.premiumUntil;
