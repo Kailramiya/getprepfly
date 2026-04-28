@@ -666,8 +666,12 @@ function QuestionRenderer({
 
   // ---- MCQ SINGLE ----
   if (type === "READING_MCQ_SINGLE" || type === "LISTENING_MCQ_SINGLE") {
+    const isListening = type === "LISTENING_MCQ_SINGLE";
     return (
       <div className="space-y-4">
+        {isListening && (
+          <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
+        )}
         {content.passage && (
           <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4">
             <p className="text-sm leading-relaxed text-gray-800">{content.passage}</p>
@@ -736,8 +740,12 @@ function QuestionRenderer({
   // ---- MCQ MULTIPLE ----
   if (type === "READING_MCQ_MULTIPLE" || type === "LISTENING_MCQ_MULTIPLE") {
     const selected: number[] = response || [];
+    const isListening = type === "LISTENING_MCQ_MULTIPLE";
     return (
       <div className="space-y-4">
+        {isListening && (
+          <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
+        )}
         {content.passage && (
           <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4">
             <p className="text-sm leading-relaxed text-gray-800">{content.passage}</p>
@@ -928,15 +936,183 @@ function QuestionRenderer({
     );
   }
 
+  // ---- SUMMARIZE SPOKEN TEXT ----
+  if (type === "SUMMARIZE_SPOKEN_TEXT") {
+    const currentWords = (response || "").trim().split(/\s+/).filter(Boolean).length;
+    return (
+      <div className="space-y-4">
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
+        <p className="text-sm text-gray-500">
+          Listen to the audio and write a 50–70 word summary in your own words.
+        </p>
+        <textarea
+          className="min-h-[140px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+          placeholder="Write your summary (50–70 words)..."
+          value={response || ""}
+          onChange={(e) => setResponse(e.target.value)}
+          disabled={submitted}
+        />
+        <div className="flex items-center justify-between">
+          <span className={`text-sm ${currentWords < 50 || currentWords > 70 ? "text-amber-600" : "text-green-600"}`}>
+            Words: {currentWords} / 50–70
+          </span>
+          {!submitted && (
+            <Button onClick={() => {
+              const mistakes: ScoreResult["mistakes"] = [];
+              if (currentWords < 50 || currentWords > 70) {
+                mistakes.push({
+                  position: 0,
+                  yourAnswer: `${currentWords} words`,
+                  correctAnswer: "Should be 50–70 words",
+                });
+              }
+              onSubmit({
+                text: response,
+                scoreResult: {
+                  marksEarned: 0,
+                  marksTotal: totalMarks,
+                  correct: 0,
+                  total: 1,
+                  mistakes,
+                  pending: true,
+                  message: mistakes.length === 0
+                    ? "Summary submitted. AI scoring pending. Your teacher will review soon."
+                    : "Summary submitted with format issues — see mistakes below.",
+                } as ScoreResult,
+              });
+            }} disabled={!response?.trim()}>
+              Submit Summary
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ---- HIGHLIGHT CORRECT SUMMARY ----
+  if (type === "HIGHLIGHT_CORRECT_SUMMARY") {
+    return (
+      <div className="space-y-4">
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
+        <p className="font-medium text-gray-900">{content.question || "Which summary best matches the audio?"}</p>
+        <div className="space-y-2">
+          {content.options?.map((opt: string, i: number) => {
+            const isSelected = response === i;
+            const isCorrect = submitted && (content.correctAnswer === i || content.correctAnswers?.includes(i));
+            const isWrong = submitted && isSelected && !isCorrect;
+            return (
+              <button
+                key={i}
+                onClick={() => !submitted && setResponse(i)}
+                className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left text-sm transition ${
+                  isCorrect ? "border-green-500 bg-green-50" :
+                  isWrong ? "border-red-500 bg-red-50" :
+                  isSelected ? "border-indigo-500 bg-indigo-50" :
+                  "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                }`}
+                disabled={submitted}
+              >
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold">
+                  {String.fromCharCode(65 + i)}
+                </span>
+                <span className="flex-1">{opt}</span>
+                {submitted && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+                {submitted && isWrong && <XCircle className="h-5 w-5 text-red-500" />}
+              </button>
+            );
+          })}
+        </div>
+        {!submitted && (
+          <Button
+            onClick={() => {
+              const correctIdx = content.correctAnswer ?? content.correctAnswers?.[0];
+              const isCorrect = response === correctIdx;
+              onSubmit({
+                answer: response,
+                scoreResult: {
+                  marksEarned: isCorrect ? totalMarks : 0,
+                  marksTotal: totalMarks,
+                  correct: isCorrect ? 1 : 0,
+                  total: 1,
+                  mistakes: isCorrect ? [] : [{
+                    position: 1,
+                    yourAnswer: content.options?.[response] ?? "—",
+                    correctAnswer: content.options?.[correctIdx] ?? "",
+                  }],
+                } as ScoreResult,
+              });
+            }}
+            disabled={response === null}
+          >
+            Check Answer
+          </Button>
+        )}
+      </div>
+    );
+  }
+
+  // ---- SELECT MISSING WORD ----
+  if (type === "SELECT_MISSING_WORD") {
+    return (
+      <div className="space-y-4">
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen — last word is missing" />
+        <p className="font-medium text-gray-900">Pick the word that completes the audio:</p>
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+          {content.options?.map((opt: string, i: number) => {
+            const isSelected = response === i;
+            const isCorrect = submitted && (content.correctAnswer === i || content.correctAnswers?.includes(i));
+            const isWrong = submitted && isSelected && !isCorrect;
+            return (
+              <button
+                key={i}
+                onClick={() => !submitted && setResponse(i)}
+                className={`rounded-lg border p-3 text-sm font-medium transition ${
+                  isCorrect ? "border-green-500 bg-green-50 text-green-700" :
+                  isWrong ? "border-red-500 bg-red-50 text-red-700" :
+                  isSelected ? "border-indigo-500 bg-indigo-50 text-indigo-700" :
+                  "border-gray-200 hover:border-gray-300"
+                }`}
+                disabled={submitted}
+              >
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+        {!submitted && (
+          <Button
+            onClick={() => {
+              const correctIdx = content.correctAnswer ?? content.correctAnswers?.[0];
+              const isCorrect = response === correctIdx;
+              onSubmit({
+                answer: response,
+                scoreResult: {
+                  marksEarned: isCorrect ? totalMarks : 0,
+                  marksTotal: totalMarks,
+                  correct: isCorrect ? 1 : 0,
+                  total: 1,
+                  mistakes: isCorrect ? [] : [{
+                    position: 1,
+                    yourAnswer: content.options?.[response] ?? "—",
+                    correctAnswer: content.options?.[correctIdx] ?? "",
+                  }],
+                } as ScoreResult,
+              });
+            }}
+            disabled={response === null}
+          >
+            Check Answer
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   // ---- LISTENING FILL BLANKS ----
   if (type === "LISTENING_FILL_BLANKS") {
     return (
       <div className="space-y-4">
-        {(content.audioUrl || question.audioUrl) && (
-          <audio controls className="w-full" src={content.audioUrl || question.audioUrl}>
-            Your browser does not support audio.
-          </audio>
-        )}
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
         <p className="text-sm text-gray-500">Listen to the audio and fill in the blanks below:</p>
         <FillBlanksText
           passage={content.passage || ""}
@@ -953,11 +1129,7 @@ function QuestionRenderer({
   if (type === "WRITE_FROM_DICTATION") {
     return (
       <div className="space-y-4">
-        {(content.audioUrl || question.audioUrl) && (
-          <audio controls className="w-full" src={content.audioUrl || question.audioUrl}>
-            Your browser does not support audio.
-          </audio>
-        )}
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully — audio plays once" />
         <p className="text-sm text-gray-500">Listen to the audio and type the exact sentence you hear.</p>
         <textarea
           className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
@@ -1037,6 +1209,39 @@ function QuestionRenderer({
       {!submitted && (
         <Button onClick={() => onSubmit({ raw: true })}>Mark as Attempted</Button>
       )}
+    </div>
+  );
+}
+
+// ============================================================================
+// AUDIO BLOCK — shows audio player or a clear "missing audio" warning
+// ============================================================================
+
+function AudioBlock({ src, label }: { src: string; label?: string }) {
+  if (!src || !src.trim()) {
+    return (
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+        <p className="flex items-center gap-2 text-sm font-medium text-amber-800">
+          <Volume2 className="h-4 w-4" />
+          Audio file is missing
+        </p>
+        <p className="mt-1 text-xs text-amber-700">
+          The admin who created this question has not uploaded an audio file yet.
+          Please contact your centre admin or try a different question.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+      {label && (
+        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+          <Volume2 className="h-4 w-4" /> {label}
+        </p>
+      )}
+      <audio controls className="w-full" src={src}>
+        Your browser does not support audio playback.
+      </audio>
     </div>
   );
 }
