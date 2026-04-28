@@ -46,7 +46,24 @@ export default function PracticeQuestionPage() {
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<ScoreResult | null>(null);
+  const [accessInfo, setAccessInfo] = useState<{ hasAllAccess: boolean; modules: string[]; isStaff: boolean } | null>(null);
   const currentQuestion = questions[currentIndex];
+
+  // Fetch user's access info to know if they actually have access to this section
+  useEffect(() => {
+    fetch("/api/access/me")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success) {
+          setAccessInfo({
+            hasAllAccess: data.data.hasAllAccess,
+            modules: data.data.modules || [],
+            isStaff: !!data.data.isStaff,
+          });
+        }
+      })
+      .catch(() => { /* ignore */ });
+  }, []);
 
   const saveAttempt = async (q: QuestionData, result: ScoreResult, response: any) => {
     try {
@@ -127,6 +144,46 @@ export default function PracticeQuestionPage() {
   }
 
   if (questions.length === 0) {
+    // Check if user has access to this section
+    const hasSectionAccess =
+      accessInfo?.hasAllAccess ||
+      accessInfo?.modules.includes(section) ||
+      section === "SPEAKING"; // speaking is always free to practice
+
+    // Two distinct empty states:
+    //   1. User has access but no questions exist yet → "no content yet"
+    //   2. User doesn't have access → "upgrade to unlock"
+    if (hasSectionAccess) {
+      return (
+        <div className="mx-auto max-w-2xl py-16">
+          <Card className="border-gray-200">
+            <CardContent className="p-8 text-center">
+              <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gray-100">
+                <Loader2 className="h-8 w-8 text-gray-400" />
+              </div>
+              <h2 className="mt-4 text-xl font-bold text-gray-900">No questions added yet</h2>
+              <p className="mt-2 text-sm text-gray-600">
+                {accessInfo?.isStaff
+                  ? "You have full access — but no questions have been added to this section yet. Add some from the admin panel."
+                  : "Your centre hasn't added questions for this type yet. Try a different question type or check back later."}
+              </p>
+              <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
+                {accessInfo?.isStaff && (
+                  <a href="/super-admin/questions">
+                    <Button className="gap-2">Add Questions</Button>
+                  </a>
+                )}
+                <a href="/dashboard">
+                  <Button variant="outline">Back to Dashboard</Button>
+                </a>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    // No access — show upgrade prompt
     return (
       <div className="mx-auto max-w-2xl py-16">
         <Card className="border-2 border-indigo-200 bg-gradient-to-br from-indigo-50 via-white to-teal-50">
@@ -134,9 +191,9 @@ export default function PracticeQuestionPage() {
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100">
               <Loader2 className="h-8 w-8 text-indigo-400" />
             </div>
-            <h2 className="mt-4 text-xl font-bold text-gray-900">No questions available</h2>
+            <h2 className="mt-4 text-xl font-bold text-gray-900">Module locked</h2>
             <p className="mt-2 text-sm text-gray-600">
-              You may need to upgrade to access this module, or your centre hasn&apos;t added questions yet.
+              Upgrade to unlock the full question bank for this module.
             </p>
             <div className="mt-6 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
               <a href="/pricing">
