@@ -1218,20 +1218,10 @@ function QuestionRenderer({
 // ============================================================================
 
 function AudioBlock({ src, label }: { src: string; label?: string }) {
-  if (!src || !src.trim()) {
-    return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-        <p className="flex items-center gap-2 text-sm font-medium text-amber-800">
-          <Volume2 className="h-4 w-4" />
-          Audio file is missing
-        </p>
-        <p className="mt-1 text-xs text-amber-700">
-          The admin who created this question has not uploaded an audio file yet.
-          Please contact your centre admin or try a different question.
-        </p>
-      </div>
-    );
-  }
+  // Coerce src — could be undefined/null/empty string from various code paths
+  const audioSrc = (src || "").toString();
+  const hasAudio = audioSrc.length > 5; // any reasonable URL is at least 5 chars
+
   return (
     <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
       {label && (
@@ -1239,9 +1229,15 @@ function AudioBlock({ src, label }: { src: string; label?: string }) {
           <Volume2 className="h-4 w-4" /> {label}
         </p>
       )}
-      <audio controls className="w-full" src={src}>
-        Your browser does not support audio playback.
-      </audio>
+      {hasAudio ? (
+        <audio controls className="w-full" src={audioSrc}>
+          Your browser does not support audio playback.
+        </audio>
+      ) : (
+        <p className="text-xs italic text-gray-500">
+          No audio uploaded for this question. Ask your centre admin to add one.
+        </p>
+      )}
     </div>
   );
 }
