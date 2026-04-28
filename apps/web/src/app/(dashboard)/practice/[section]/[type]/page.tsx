@@ -386,16 +386,10 @@ function QuestionRenderer({
         questionType={type}
         expectedText={content.text || ""}
       >
-        {(content.audioUrl || question.audioUrl) ? (
-          <div className="rounded-lg bg-gray-50 p-4">
-            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Volume2 className="h-4 w-4" /> Listen carefully
-            </p>
-            <audio controls className="w-full" src={content.audioUrl || question.audioUrl} />
-          </div>
-        ) : (
-          <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
-            {content.text}
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully" />
+        {content.text && (
+          <div className="rounded-lg bg-amber-50 p-4 text-sm text-gray-700">
+            <span className="font-medium text-amber-800">Reference text:</span> {content.text}
           </div>
         )}
       </SpeakingQuestion>
@@ -450,14 +444,7 @@ function QuestionRenderer({
         questionType={type}
         expectedText={content.text || ""}
       >
-        {(content.audioUrl || question.audioUrl) && (
-          <div className="rounded-lg bg-gray-50 p-4">
-            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Volume2 className="h-4 w-4" /> Listen to the lecture
-            </p>
-            <audio controls className="w-full" src={content.audioUrl || question.audioUrl} />
-          </div>
-        )}
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the lecture" />
       </SpeakingQuestion>
     );
   }
@@ -476,14 +463,12 @@ function QuestionRenderer({
         questionType={type}
         expectedText={content.text || ""}
       >
-        {(content.audioUrl || question.audioUrl) && (
-          <div className="rounded-lg bg-gray-50 p-4">
-            <audio controls className="w-full" src={content.audioUrl || question.audioUrl} />
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the question" />
+        {content.text && (
+          <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
+            {content.text}
           </div>
         )}
-        <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
-          {content.text}
-        </div>
         {submitted && content.correctText && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-3">
             <p className="text-xs font-medium text-green-700">Correct answer:</p>
@@ -529,14 +514,7 @@ function QuestionRenderer({
         questionType={type}
         expectedText={content.text || ""}
       >
-        {(content.audioUrl || question.audioUrl) && (
-          <div className="rounded-lg bg-gray-50 p-4">
-            <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
-              <Volume2 className="h-4 w-4" /> Listen to the group discussion
-            </p>
-            <audio controls className="w-full" src={content.audioUrl || question.audioUrl} />
-          </div>
-        )}
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the group discussion" />
       </SpeakingQuestion>
     );
   }
