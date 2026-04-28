@@ -1195,8 +1195,29 @@ function QuestionRenderer({
 // AUDIO BLOCK — shows audio player or a clear "missing audio" warning
 // ============================================================================
 
+// Some browsers refuse certain niche MIME types (e.g. audio/vnd.dlna.adts)
+// even though the underlying audio data (AAC, MP3, etc.) is fine.
+// We rewrite to the closest browser-friendly equivalent.
+function normalizeAudioSrc(src: string): string {
+  if (!src.startsWith("data:")) return src;
+  const remaps: Record<string, string> = {
+    "audio/vnd.dlna.adts": "audio/aac",
+    "audio/x-aac": "audio/aac",
+    "audio/x-m4a": "audio/mp4",
+    "audio/x-wav": "audio/wav",
+    "audio/x-mpeg": "audio/mpeg",
+    "audio/x-mp3": "audio/mpeg",
+  };
+  for (const [bad, good] of Object.entries(remaps)) {
+    if (src.startsWith(`data:${bad};`)) {
+      return src.replace(`data:${bad};`, `data:${good};`);
+    }
+  }
+  return src;
+}
+
 function AudioBlock({ src, label }: { src: string; label?: string }) {
-  const audioSrc = (src || "").toString();
+  const audioSrc = normalizeAudioSrc((src || "").toString());
   const hasAudio = audioSrc.length > 5;
   const [loadError, setLoadError] = useState(false);
   const [loaded, setLoaded] = useState(false);

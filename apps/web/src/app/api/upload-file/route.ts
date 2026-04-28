@@ -35,6 +35,22 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Normalize obscure audio MIME types to browser-friendly ones.
+    // Some recording apps tag AAC files as audio/vnd.dlna.adts, which browsers
+    // refuse to play even though the underlying data is just AAC.
+    let normalizedType = file.type;
+    const audioMimeRemap: Record<string, string> = {
+      "audio/vnd.dlna.adts": "audio/aac",
+      "audio/x-aac": "audio/aac",
+      "audio/x-m4a": "audio/mp4",
+      "audio/x-wav": "audio/wav",
+      "audio/x-mpeg": "audio/mpeg",
+      "audio/x-mp3": "audio/mpeg",
+    };
+    if (audioMimeRemap[file.type]) {
+      normalizedType = audioMimeRemap[file.type];
+    }
+
     const maxSize = isImage ? MAX_IMAGE_SIZE : MAX_AUDIO_SIZE;
     if (file.size > maxSize) {
       return NextResponse.json(
@@ -54,7 +70,7 @@ export async function POST(req: NextRequest) {
         const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
         const blob = await put(fileName, file, {
           access: "public",
-          contentType: file.type,
+          contentType: normalizedType,
           token: process.env.BLOB_READ_WRITE_TOKEN,
         });
         return NextResponse.json({
@@ -63,7 +79,8 @@ export async function POST(req: NextRequest) {
             url: blob.url,
             method: "vercel-blob",
             size: file.size,
-            type: file.type,
+            type: normalizedType,
+            originalType: file.type,
           },
         });
       } catch (err: any) {
@@ -92,7 +109,7 @@ export async function POST(req: NextRequest) {
 
     const arrayBuffer = await file.arrayBuffer();
     const base64 = Buffer.from(arrayBuffer).toString("base64");
-    const dataUrl = `data:${file.type};base64,${base64}`;
+    const dataUrl = `data:${normalizedType};base64,${base64}`;
 
     return NextResponse.json({
       success: true,
