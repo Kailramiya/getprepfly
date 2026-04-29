@@ -93,18 +93,11 @@ export default function PracticeQuestionPage() {
   useEffect(() => {
     const fetchQuestions = async () => {
       setLoading(true);
-      const res = await fetch(`/api/questions?section=${section}&type=${type}&pageSize=50`);
+      // Single API call with full=1 returns content + audioUrl + imageUrl in one shot
+      const res = await fetch(`/api/questions?section=${section}&type=${type}&pageSize=50&full=1`);
       const data = await res.json();
       if (data.success && data.data.items.length > 0) {
-        // Fetch full content for each question
-        const fullQuestions = await Promise.all(
-          data.data.items.map(async (q: any) => {
-            const full = await fetch(`/api/questions/${q.id}`);
-            const fullData = await full.json();
-            return fullData.data;
-          })
-        );
-        setQuestions(fullQuestions.filter(Boolean));
+        setQuestions(data.data.items);
       }
       setLoading(false);
     };

@@ -181,19 +181,27 @@ export const authOptions: NextAuthOptions = {
         token.planType = (user as any).planType || "FREE";
         token.activeSessionId = (user as any).activeSessionId;
       } else if (token.id) {
-        // Subsequent request — validate this token still matches DB
-        const dbUser = await db.user.findUnique({
-          where: { id: token.id as string },
-          select: { activeSessionId: true, centreId: true },
-        });
+        // Subsequent request — validate the session is still active.
+        // Only re-check DB every 60s to avoid hitting it on every API call.
+        const now = Math.floor(Date.now() / 1000);
+        const lastChecked = (token as any).lastSessionCheck || 0;
+        const SESSION_CHECK_INTERVAL = 60; // seconds
 
-        // Session invalidated — user logged in from another device
-        if (
-          !dbUser ||
-          (dbUser.activeSessionId && dbUser.activeSessionId !== token.activeSessionId)
-        ) {
-          // Mark token invalid — session callback will clear session
-          (token as any).sessionInvalid = true;
+        if (now - lastChecked > SESSION_CHECK_INTERVAL) {
+          const dbUser = await db.user.findUnique({
+            where: { id: token.id as string },
+            select: { activeSessionId: true, centreId: true },
+          });
+
+          // Session invalidated — user logged in from another device
+          if (
+            !dbUser ||
+            (dbUser.activeSessionId && dbUser.activeSessionId !== token.activeSessionId)
+          ) {
+            (token as any).sessionInvalid = true;
+          } else {
+            (token as any).lastSessionCheck = now;
+          }
         }
       }
 

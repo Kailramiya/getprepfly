@@ -9,7 +9,7 @@ export async function GET() {
 
   const access = await getUserAccess(user!.id);
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     success: true,
     data: {
       hasAllAccess: access.hasAllAccess,
@@ -29,4 +29,8 @@ export async function GET() {
       reason: access.reason,
     },
   });
+
+  // Cache for 60s on the client to reduce repeat calls
+  res.headers.set("Cache-Control", "private, max-age=60");
+  return res;
 }

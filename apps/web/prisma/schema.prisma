@@ -382,6 +382,7 @@ model Attempt {
   @@index([userId])
   @@index([questionId])
   @@index([userId, questionId])
+  @@index([userId, createdAt]) // for daily scoring count + recent activity
   @@index([mockTestId])
   @@index([createdAt])
 }

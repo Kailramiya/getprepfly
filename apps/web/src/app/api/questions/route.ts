@@ -16,6 +16,7 @@ export async function GET(req: NextRequest) {
   const page = parseInt(url.searchParams.get("page") || "1");
   const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
   const search = url.searchParams.get("search") || "";
+  const full = url.searchParams.get("full") === "1"; // include content + URLs in list
 
   // Build access-based visibility conditions:
   //   1. Public questions (isPublic=true) - visible to everyone
@@ -87,6 +88,12 @@ export async function GET(req: NextRequest) {
         audioUrl: true,
         marks: true,
         createdAt: true,
+        // Only include heavy fields when explicitly requested
+        ...(full && {
+          content: true,
+          explanation: true,
+          modelAnswer: true,
+        }),
         _count: { select: { attempts: true } },
       },
       skip: (page - 1) * pageSize,
@@ -96,7 +103,7 @@ export async function GET(req: NextRequest) {
     db.question.count({ where }),
   ]);
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     success: true,
     data: {
       items: questions,
@@ -106,6 +113,10 @@ export async function GET(req: NextRequest) {
       totalPages: Math.ceil(total / pageSize),
     },
   });
+
+  // Browser cache for 30s — questions list rarely changes
+  res.headers.set("Cache-Control", "private, max-age=30, stale-while-revalidate=300");
+  return res;
 }
 
 // POST /api/questions — create a question (admin only)
