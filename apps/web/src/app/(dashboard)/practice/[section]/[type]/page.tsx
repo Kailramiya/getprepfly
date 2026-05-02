@@ -378,9 +378,9 @@ function QuestionRenderer({
         questionId={question.id}
         questionType={type}
         expectedText={content.text || ""}
-      >
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully" />
-      </SpeakingQuestion>
+        audioSrc={content.audioUrl || question.audioUrl || ""}
+        audioLabel="Listen carefully"
+      />
     );
   }
 
@@ -431,9 +431,9 @@ function QuestionRenderer({
         questionId={question.id}
         questionType={type}
         expectedText={content.text || ""}
-      >
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the lecture" />
-      </SpeakingQuestion>
+        audioSrc={content.audioUrl || question.audioUrl || ""}
+        audioLabel="Listen to the lecture"
+      />
     );
   }
 
@@ -450,13 +450,9 @@ function QuestionRenderer({
         questionId={question.id}
         questionType={type}
         expectedText={content.text || ""}
+        audioSrc={content.audioUrl || question.audioUrl || ""}
+        audioLabel="Listen to the question"
       >
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the question" />
-        {content.text && (
-          <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
-            {content.text}
-          </div>
-        )}
         {submitted && content.correctText && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-3">
             <p className="text-xs font-medium text-green-700">Correct answer:</p>
@@ -501,9 +497,9 @@ function QuestionRenderer({
         questionId={question.id}
         questionType={type}
         expectedText={content.text || ""}
-      >
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the group discussion" />
-      </SpeakingQuestion>
+        audioSrc={content.audioUrl || question.audioUrl || ""}
+        audioLabel="Listen to the group discussion"
+      />
     );
   }
 
@@ -1204,7 +1200,15 @@ function normalizeAudioSrc(src: string): string {
   return src;
 }
 
-function AudioBlock({ src, label }: { src: string; label?: string }) {
+function AudioBlock({
+  src,
+  label,
+  onDuration,
+}: {
+  src: string;
+  label?: string;
+  onDuration?: (seconds: number) => void;
+}) {
   const audioSrc = normalizeAudioSrc((src || "").toString());
   const hasAudio = audioSrc.length > 5;
   const [loadError, setLoadError] = useState(false);
@@ -1231,7 +1235,12 @@ function AudioBlock({ src, label }: { src: string; label?: string }) {
             src={audioSrc}
             preload="metadata"
             onError={() => setLoadError(true)}
-            onLoadedMetadata={() => { setLoaded(true); setLoadError(false); }}
+            onLoadedMetadata={(e) => {
+              setLoaded(true);
+              setLoadError(false);
+              const dur = (e.currentTarget as HTMLAudioElement).duration;
+              if (onDuration && isFinite(dur) && dur > 0) onDuration(dur);
+            }}
           >
             Your browser does not support audio playback.
           </audio>
@@ -1409,8 +1418,9 @@ function ScoreSummary({ result }: { result: ScoreResult }) {
 function SpeakingQuestion({
   children, instructionText, prepTime, maxDuration, submitted, onSubmit,
   totalMarks = 1, questionId, questionType, expectedText = "",
+  audioSrc, audioLabel,
 }: {
-  children: React.ReactNode;
+  children?: React.ReactNode;
   instructionText: string;
   prepTime: number;
   maxDuration: number;
@@ -1420,10 +1430,23 @@ function SpeakingQuestion({
   questionId?: string;
   questionType?: string;
   expectedText?: string;
+  // When audioSrc is provided, we render the audio block AND
+  // use (audio length + 15s) as the recording max duration
+  audioSrc?: string;
+  audioLabel?: string;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [scoring, setScoring] = useState(false);
+  const [audioDurationSec, setAudioDurationSec] = useState<number | null>(null);
+
+  // Dynamic recording duration: if there's an audio prompt, give student
+  // (audio length + 15s) to record. Otherwise fall back to fixed maxDuration.
+  const RECORD_BUFFER_SEC = 15;
+  const effectiveMaxDuration =
+    audioSrc && audioDurationSec
+      ? Math.ceil(audioDurationSec) + RECORD_BUFFER_SEC
+      : maxDuration;
 
   const handleRecordingComplete = (blob: Blob, url: string) => {
     setAudioBlob(blob);
@@ -1532,19 +1555,28 @@ function SpeakingQuestion({
 
   return (
     <div className="space-y-4">
+      {audioSrc && (
+        <AudioBlock
+          src={audioSrc}
+          label={audioLabel}
+          onDuration={(sec) => setAudioDurationSec(sec)}
+        />
+      )}
       {children}
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
         <p className="text-xs font-medium text-amber-800">
           📌 {instructionText}
           {prepTime > 0 && ` You have ${prepTime}s to prepare.`}
-          {` Maximum recording time: ${maxDuration}s.`}
+          {audioSrc && audioDurationSec
+            ? ` Max recording time: ${effectiveMaxDuration}s (audio length ${Math.ceil(audioDurationSec)}s + 15s).`
+            : ` Maximum recording time: ${effectiveMaxDuration}s.`}
         </p>
       </div>
 
       {!submitted && (
         <AudioRecorder
-          maxDuration={maxDuration}
+          maxDuration={effectiveMaxDuration}
           prepTime={prepTime}
           onRecordingComplete={handleRecordingComplete}
         />

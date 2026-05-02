@@ -40,6 +40,24 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
       return;
     }
 
+    // For audio: enforce 2-minute (120 sec) maximum duration
+    if (kind === "audio") {
+      try {
+        const duration = await getAudioDuration(file);
+        if (duration > 120) {
+          setError(
+            `Audio is ${duration.toFixed(1)} seconds long. Maximum allowed is 2 minutes (120 seconds). Please trim it first.`
+          );
+          return;
+        }
+        if (duration > 0) {
+          setWarning(`Audio length: ${formatDuration(duration)}`);
+        }
+      } catch {
+        // Couldn't read duration — let server validate
+      }
+    }
+
     setUploading(true);
     try {
       const formData = new FormData();
@@ -54,7 +72,7 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
 
       if (data.success) {
         onChange(data.data.url);
-        if (data.data.warning) setWarning(data.data.warning);
+        if (data.data.warning) setWarning((prev) => prev ? `${prev} | ${data.data.warning}` : data.data.warning);
       } else {
         setError(data.error || "Upload failed");
       }
@@ -63,6 +81,27 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
     } finally {
       setUploading(false);
     }
+  };
+
+  const getAudioDuration = (file: File): Promise<number> =>
+    new Promise((resolve, reject) => {
+      const audio = new Audio();
+      audio.preload = "metadata";
+      audio.onloadedmetadata = () => {
+        URL.revokeObjectURL(audio.src);
+        resolve(audio.duration);
+      };
+      audio.onerror = () => {
+        URL.revokeObjectURL(audio.src);
+        reject(new Error("Could not read audio duration"));
+      };
+      audio.src = URL.createObjectURL(file);
+    });
+
+  const formatDuration = (sec: number): string => {
+    const m = Math.floor(sec / 60);
+    const s = Math.floor(sec % 60);
+    return `${m}:${s.toString().padStart(2, "0")}`;
   };
 
   const clearFile = () => {
