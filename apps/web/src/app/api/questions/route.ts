@@ -137,6 +137,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Determine if the question should be auto-public.
+  // Three sources of "public":
+  //   1. Super admin explicitly sets isPublic=true
+  //   2. Centre admin/teacher belongs to a centre marked as official content
+  let autoPublic = false;
+  if (user!.role === "SUPER_ADMIN" && isPublic) {
+    autoPublic = true;
+  } else if (user!.centreId) {
+    const centre = await db.centre.findUnique({
+      where: { id: user!.centreId },
+      select: { isOfficialContent: true },
+    });
+    if (centre?.isOfficialContent) autoPublic = true;
+  }
+
   const question = await db.question.create({
     data: {
       section,
@@ -151,8 +166,7 @@ export async function POST(req: NextRequest) {
       tags: tags || [],
       isPrediction: isPrediction || false,
       marks: typeof marks === "number" && marks > 0 ? marks : 1,
-      // Only super admin can mark questions as public
-      isPublic: user!.role === "SUPER_ADMIN" ? !!isPublic : false,
+      isPublic: autoPublic,
       // Centre-specific if centre admin, global if super admin
       centreId: user!.role === "SUPER_ADMIN" ? null : user!.centreId || null,
     },

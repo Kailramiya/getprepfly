@@ -115,6 +115,10 @@ model Centre {
   // Only super admin can set this
   isPremiumCentre Boolean @default(false)
   premiumUntil    DateTime? // optional expiry for premium status
+  // Official content centre — questions added by this centre are
+  // automatically marked public and visible to all users on the platform.
+  // Use this for the "global question bank" centre.
+  isOfficialContent Boolean @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
