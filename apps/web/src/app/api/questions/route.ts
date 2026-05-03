@@ -17,6 +17,9 @@ export async function GET(req: NextRequest) {
   const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
   const search = url.searchParams.get("search") || "";
   const full = url.searchParams.get("full") === "1"; // include content + URLs in list
+  const centreFilter = url.searchParams.get("centreId"); // filter by specific centre (super admin only)
+  const sortBy = url.searchParams.get("sort") || "createdAt"; // createdAt | title
+  const sortOrder = url.searchParams.get("order") === "asc" ? "asc" : "desc";
 
   // Build access-based visibility conditions:
   //   1. Public questions (isPublic=true) - visible to everyone
@@ -70,6 +73,12 @@ export async function GET(req: NextRequest) {
     ...(type && { type }),
     ...(difficulty && { difficulty }),
     ...(prediction === "true" && { isPrediction: true }),
+    // Super admin can filter by specific centre (or "global" = centreId null)
+    ...(centreFilter === "global" && isAdmin
+      ? { centreId: null }
+      : centreFilter && isAdmin
+        ? { centreId: centreFilter }
+        : {}),
   };
 
   const [questions, total] = await Promise.all([
@@ -88,6 +97,9 @@ export async function GET(req: NextRequest) {
         audioUrl: true,
         marks: true,
         createdAt: true,
+        centreId: true,
+        // Include centre info so super admin can group/filter
+        centre: { select: { id: true, name: true, slug: true } },
         // Only include heavy fields when explicitly requested
         ...(full && {
           content: true,
@@ -98,7 +110,10 @@ export async function GET(req: NextRequest) {
       },
       skip: (page - 1) * pageSize,
       take: pageSize,
-      orderBy: [{ isPrediction: "desc" }, { createdAt: "desc" }],
+      orderBy:
+        sortBy === "title"
+          ? [{ title: sortOrder }]
+          : [{ isPrediction: "desc" }, { createdAt: sortOrder }],
     }),
     db.question.count({ where }),
   ]);
