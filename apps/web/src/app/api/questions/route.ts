@@ -25,12 +25,17 @@ export async function GET(req: NextRequest) {
   //   1. Public questions (isPublic=true) - visible to everyone
   //   2. Centre-specific questions - visible only to that centre's users
   //   3. Premium questions - visible only to users who purchased that module
-  const isAdmin = user!.role === "SUPER_ADMIN" || user!.role === "CENTRE_ADMIN" || user!.role === "TEACHER";
+  const isSuperAdmin = user!.role === "SUPER_ADMIN";
+  const isCentreStaff = user!.role === "CENTRE_ADMIN" || user!.role === "TEACHER";
+  const isAdmin = isSuperAdmin || isCentreStaff;
 
   let visibilityConditions: any[] = [];
 
-  if (isAdmin) {
-    // Admins see all questions they have rights to
+  if (isSuperAdmin) {
+    // Super admin sees EVERY question (across all centres + global)
+    visibilityConditions = [{}]; // no restriction
+  } else if (isCentreStaff) {
+    // Centre admin / teacher sees global + their own centre's questions
     visibilityConditions = [
       { centreId: null },
       ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
