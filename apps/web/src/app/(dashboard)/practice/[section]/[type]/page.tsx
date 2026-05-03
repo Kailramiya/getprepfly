@@ -252,8 +252,10 @@ export default function PracticeQuestionPage() {
           <CardTitle className="text-base">{currentQuestion?.title}</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          {/* Render based on question type */}
+          {/* Render based on question type — key forces remount on question change so all
+              local state (textarea, audio recording, MCQ selection, etc.) resets cleanly. */}
           <QuestionRenderer
+            key={currentQuestion?.id}
             question={currentQuestion}
             submitted={submitted}
             onSubmit={(response: any) => {
