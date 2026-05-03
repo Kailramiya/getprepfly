@@ -129,8 +129,19 @@ export default function AdminTemplatesPage() {
 
   const handleDelete = async (id: string, title: string) => {
     if (!confirm(`Delete template "${title}"?`)) return;
-    await fetch(`/api/templates/${id}`, { method: "DELETE" });
-    fetchTemplates();
+    // Optimistic update — remove from UI immediately
+    setTemplates((prev) => prev.filter((t) => t.id !== id));
+    try {
+      const res = await fetch(`/api/templates/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!data.success) {
+        alert(data.error || "Failed to delete — refreshing list");
+        fetchTemplates();
+      }
+    } catch {
+      alert("Network error — refreshing list");
+      fetchTemplates();
+    }
   };
 
   const formatType = (t: string) => t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

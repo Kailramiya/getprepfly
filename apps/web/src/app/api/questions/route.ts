@@ -134,8 +134,9 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  // Browser cache for 30s — questions list rarely changes
-  res.headers.set("Cache-Control", "private, max-age=30, stale-while-revalidate=300");
+  // No HTTP cache — admin pages need fresh data after edits/deletes.
+  // (Optimistic UI updates handle perceived speed; browser-cached lists hide deletions.)
+  res.headers.set("Cache-Control", "no-store");
   return res;
 }
 

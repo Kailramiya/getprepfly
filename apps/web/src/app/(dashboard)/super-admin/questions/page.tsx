@@ -154,8 +154,20 @@ export default function SuperAdminQuestionsPage() {
 
   const deleteQuestion = async (id: string) => {
     if (!confirm("Delete this question?")) return;
-    await fetch(`/api/questions/${id}`, { method: "DELETE" });
-    fetchQuestions();
+    // Optimistic update — remove from UI immediately
+    setQuestions((prev) => prev.filter((q) => q.id !== id));
+    setTotal((prev) => Math.max(0, prev - 1));
+    try {
+      const res = await fetch(`/api/questions/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!data.success) {
+        alert(data.error || "Failed to delete — refreshing list");
+        fetchQuestions();
+      }
+    } catch {
+      alert("Network error — refreshing list");
+      fetchQuestions();
+    }
   };
 
   const formatType = (type: string) =>
