@@ -62,8 +62,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Option 1: Vercel Blob Storage (if configured)
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
+    const SAFE_FALLBACK_LIMIT = 500 * 1024; // 500 KB
+    const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
+
+    // ---- Option 1: Vercel Blob Storage (preferred when configured) ----
+    if (blobConfigured) {
       try {
         const { put } = await import("@vercel/blob");
         const ext = file.name.split(".").pop() || "bin";
@@ -84,24 +87,36 @@ export async function POST(req: NextRequest) {
           },
         });
       } catch (err: any) {
-        console.error("Vercel Blob upload failed:", err?.message);
-        // Fall through to base64 fallback
+        // Vercel Blob is configured but upload failed — surface the real error.
+        // Don't silently fall back to base64 (that would mislead the user).
+        const reason = err?.message || String(err) || "unknown error";
+        console.error("Vercel Blob upload failed:", reason);
+
+        // Only allow base64 fallback for tiny files (< 500KB) — for larger files,
+        // surface the actual Blob error so admin can fix it.
+        if (file.size > SAFE_FALLBACK_LIMIT) {
+          return NextResponse.json(
+            {
+              success: false,
+              error: `Vercel Blob upload failed: ${reason}. Please check the storage configuration and try again.`,
+              blobError: reason,
+            },
+            { status: 502 }
+          );
+        }
+        // Otherwise fall through to base64 (small file, harmless)
       }
     }
 
-    // Option 2: Base64 data URL fallback — only safe for SMALL files (< 500KB)
-    // Larger files break because:
-    //   - Base64 inflates size by ~33%
-    //   - API request body limits (Vercel free tier: 4.5 MB)
-    //   - Postgres TEXT field gets bloated, slow queries
-    const SAFE_FALLBACK_LIMIT = 500 * 1024; // 500 KB
-
+    // ---- Option 2: Base64 data URL fallback (no cloud storage configured) ----
     if (file.size > SAFE_FALLBACK_LIMIT) {
       return NextResponse.json(
         {
           success: false,
-          error: `File too large for inline storage (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum 500 KB allowed without cloud storage. Please ask the platform admin to enable Vercel Blob storage to upload larger files, OR paste a public URL instead.`,
-          needsCloudStorage: true,
+          error: blobConfigured
+            ? `Vercel Blob is configured but upload failed for this file (${(file.size / 1024 / 1024).toFixed(2)} MB). Check Vercel dashboard for storage status.`
+            : `File too large for inline storage (${(file.size / 1024 / 1024).toFixed(2)} MB). Maximum 500 KB without Vercel Blob. Enable it from Vercel dashboard → Storage → Blob, then redeploy.`,
+          needsCloudStorage: !blobConfigured,
         },
         { status: 413 }
       );
@@ -117,8 +132,10 @@ export async function POST(req: NextRequest) {
         url: dataUrl,
         method: "data-url",
         size: file.size,
-        type: file.type,
-        warning: "File stored inline (no cloud storage). For better performance, ask admin to enable Vercel Blob storage.",
+        type: normalizedType,
+        warning: blobConfigured
+          ? "Vercel Blob upload failed for this file — stored inline as fallback."
+          : "File stored inline (no cloud storage). Enable Vercel Blob for better performance.",
       },
     });
   } catch (err: any) {
