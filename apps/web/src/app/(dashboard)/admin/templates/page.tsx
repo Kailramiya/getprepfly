@@ -37,6 +37,7 @@ const QUESTION_TYPES_BY_SECTION: Record<string, { value: string; label: string }
     { value: "WRITE_FROM_DICTATION", label: "Write from Dictation" },
     { value: "LISTENING_FILL_BLANKS", label: "Fill in Blanks" },
     { value: "HIGHLIGHT_CORRECT_SUMMARY", label: "Highlight Correct Summary" },
+    { value: "HIGHLIGHT_INCORRECT_WORDS", label: "Highlight Incorrect Words" },
     { value: "SELECT_MISSING_WORD", label: "Select Missing Word" },
   ],
 };
