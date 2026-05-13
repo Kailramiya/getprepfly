@@ -453,10 +453,15 @@ function QuestionRenderer({
         totalMarks={totalMarks}
         questionId={question.id}
         questionType={type}
-        expectedText={content.text || ""}
+        expectedText={content.correctText || content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the question"
       >
+        {content.text && (
+          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-base font-medium text-gray-800">
+            {content.text}
+          </div>
+        )}
         {submitted && content.correctText && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-3">
             <p className="text-xs font-medium text-green-700">Correct answer:</p>
