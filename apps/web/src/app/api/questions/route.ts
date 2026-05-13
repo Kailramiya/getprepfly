@@ -17,17 +17,25 @@ export async function GET(req: NextRequest) {
   const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
   const search = url.searchParams.get("search") || "";
   const full = url.searchParams.get("full") === "1"; // include content + URLs in list
+  const centreFilter = url.searchParams.get("centreId"); // filter by specific centre (super admin only)
+  const sortBy = url.searchParams.get("sort") || "createdAt"; // createdAt | title
+  const sortOrder = url.searchParams.get("order") === "asc" ? "asc" : "desc";
 
   // Build access-based visibility conditions:
   //   1. Public questions (isPublic=true) - visible to everyone
   //   2. Centre-specific questions - visible only to that centre's users
   //   3. Premium questions - visible only to users who purchased that module
-  const isAdmin = user!.role === "SUPER_ADMIN" || user!.role === "CENTRE_ADMIN" || user!.role === "TEACHER";
+  const isSuperAdmin = user!.role === "SUPER_ADMIN";
+  const isCentreStaff = user!.role === "CENTRE_ADMIN" || user!.role === "TEACHER";
+  const isAdmin = isSuperAdmin || isCentreStaff;
 
   let visibilityConditions: any[] = [];
 
-  if (isAdmin) {
-    // Admins see all questions they have rights to
+  if (isSuperAdmin) {
+    // Super admin sees EVERY question (across all centres + global)
+    visibilityConditions = [{}]; // no restriction
+  } else if (isCentreStaff) {
+    // Centre admin / teacher sees global + their own centre's questions
     visibilityConditions = [
       { centreId: null },
       ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
@@ -70,6 +78,12 @@ export async function GET(req: NextRequest) {
     ...(type && { type }),
     ...(difficulty && { difficulty }),
     ...(prediction === "true" && { isPrediction: true }),
+    // Super admin can filter by specific centre (or "global" = centreId null)
+    ...(centreFilter === "global" && isAdmin
+      ? { centreId: null }
+      : centreFilter && isAdmin
+        ? { centreId: centreFilter }
+        : {}),
   };
 
   const [questions, total] = await Promise.all([
@@ -88,6 +102,9 @@ export async function GET(req: NextRequest) {
         audioUrl: true,
         marks: true,
         createdAt: true,
+        centreId: true,
+        // Include centre info so super admin can group/filter
+        centre: { select: { id: true, name: true, slug: true } },
         // Only include heavy fields when explicitly requested
         ...(full && {
           content: true,
@@ -98,7 +115,10 @@ export async function GET(req: NextRequest) {
       },
       skip: (page - 1) * pageSize,
       take: pageSize,
-      orderBy: [{ isPrediction: "desc" }, { createdAt: "desc" }],
+      orderBy:
+        sortBy === "title"
+          ? [{ title: sortOrder }]
+          : [{ isPrediction: "desc" }, { createdAt: sortOrder }],
     }),
     db.question.count({ where }),
   ]);
@@ -114,8 +134,9 @@ export async function GET(req: NextRequest) {
     },
   });
 
-  // Browser cache for 30s — questions list rarely changes
-  res.headers.set("Cache-Control", "private, max-age=30, stale-while-revalidate=300");
+  // No HTTP cache — admin pages need fresh data after edits/deletes.
+  // (Optimistic UI updates handle perceived speed; browser-cached lists hide deletions.)
+  res.headers.set("Cache-Control", "no-store");
   return res;
 }
 
@@ -137,6 +158,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Determine if the question should be auto-public.
+  // Three sources of "public":
+  //   1. Super admin explicitly sets isPublic=true
+  //   2. Centre admin/teacher belongs to a centre marked as official content
+  let autoPublic = false;
+  if (user!.role === "SUPER_ADMIN" && isPublic) {
+    autoPublic = true;
+  } else if (user!.centreId) {
+    const centre = await db.centre.findUnique({
+      where: { id: user!.centreId },
+      select: { isOfficialContent: true },
+    });
+    if (centre?.isOfficialContent) autoPublic = true;
+  }
+
   const question = await db.question.create({
     data: {
       section,
@@ -151,8 +187,7 @@ export async function POST(req: NextRequest) {
       tags: tags || [],
       isPrediction: isPrediction || false,
       marks: typeof marks === "number" && marks > 0 ? marks : 1,
-      // Only super admin can mark questions as public
-      isPublic: user!.role === "SUPER_ADMIN" ? !!isPublic : false,
+      isPublic: autoPublic,
       // Centre-specific if centre admin, global if super admin
       centreId: user!.role === "SUPER_ADMIN" ? null : user!.centreId || null,
     },

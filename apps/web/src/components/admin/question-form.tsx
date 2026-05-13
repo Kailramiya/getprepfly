@@ -31,6 +31,7 @@ type Field =
   | "options-multiple"
   | "paragraphs-reorder"
   | "fill-blanks"
+  | "incorrect-words"
   | "correct-text"
   | "image-url"
   | "audio-url"
@@ -232,6 +233,14 @@ const QUESTION_TYPES: Record<string, QuestionTypeInfo[]> = {
       fields: ["audio-url", "options-single"],
     },
     {
+      value: "HIGHLIGHT_INCORRECT_WORDS",
+      label: "Highlight Incorrect Words",
+      icon: Edit3,
+      description: "Student listens to audio + a written transcript that has WRONG words inserted. Student clicks the wrong words.",
+      example: "Paste the transcript text. Then click each word that is INCORRECT (different from the audio). The marked words become the answer key.",
+      fields: ["audio-url", "incorrect-words"],
+    },
+    {
       value: "SELECT_MISSING_WORD",
       label: "Select Missing Word",
       icon: CheckCircle2,
@@ -322,6 +331,16 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     return [""];
   });
 
+  // For HIGHLIGHT_INCORRECT_WORDS:
+  // - transcriptText = the displayed paragraph (with WRONG words inserted by admin)
+  // - incorrectWordIndices = which token positions are the WRONG words (answer key)
+  const [transcriptText, setTranscriptText] = useState<string>(
+    initialContent.transcript || initialContent.text || ""
+  );
+  const [incorrectWordIndices, setIncorrectWordIndices] = useState<number[]>(
+    Array.isArray(initialContent.incorrectIndices) ? initialContent.incorrectIndices : []
+  );
+
   // Extra
   const [modelAnswer, setModelAnswer] = useState(editingQuestion?.modelAnswer || "");
   const [explanation, setExplanation] = useState(editingQuestion?.explanation || "");
@@ -384,6 +403,11 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
 
     if (fields.has("fill-blanks") && !fillBlanksPassage.trim()) return "Please enter the passage with [blank] markers";
 
+    if (fields.has("incorrect-words")) {
+      if (!transcriptText.trim()) return "Please enter the transcript text";
+      if (incorrectWordIndices.length === 0) return "Click at least one word to mark it as INCORRECT";
+    }
+
     return null;
   };
 
@@ -415,6 +439,10 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     if (fields.has("fill-blanks")) {
       content.passage = fillBlanksPassage;
       content.blanks = fillBlanksAnswers.filter((a) => a.trim());
+    }
+    if (fields.has("incorrect-words")) {
+      content.transcript = transcriptText;
+      content.incorrectIndices = incorrectWordIndices;
     }
     if (fields.has("word-limits")) {
       content.minWords = minWords;
@@ -954,6 +982,67 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                         </button>
                       </div>
                     </div>
+                  </>
+                )}
+
+                {/* Highlight Incorrect Words — admin pastes transcript, then clicks the wrong words */}
+                {fields.has("incorrect-words") && (
+                  <>
+                    <div>
+                      <Label required>Transcript text (with INCORRECT words inserted)</Label>
+                      <Textarea
+                        value={transcriptText}
+                        onChange={(e) => {
+                          setTranscriptText(e.target.value);
+                          setIncorrectWordIndices([]); // reset selections when text changes
+                        }}
+                        placeholder="Paste the paragraph here. Then click each word below that should NOT be in the audio."
+                        rows={5}
+                      />
+                      <p className="mt-1 text-xs text-gray-500">
+                        Paste the displayed paragraph. Words different from what the audio actually says are the &ldquo;incorrect&rdquo; ones.
+                      </p>
+                    </div>
+
+                    {transcriptText.trim() && (
+                      <div>
+                        <Label required>
+                          Click the wrong words to mark them as the answer key
+                          <span className="ml-2 text-xs font-normal text-gray-500">
+                            ({incorrectWordIndices.length} marked)
+                          </span>
+                        </Label>
+                        <div className="mt-2 rounded-lg border-2 border-dashed border-amber-200 bg-amber-50 p-4 leading-loose">
+                          {transcriptText.split(/(\s+)/).map((token, i) => {
+                            // Only word tokens (not whitespace) are clickable
+                            const isWord = /\S/.test(token);
+                            if (!isWord) return <span key={i}>{token}</span>;
+                            const isMarked = incorrectWordIndices.includes(i);
+                            return (
+                              <button
+                                key={i}
+                                type="button"
+                                onClick={() => {
+                                  setIncorrectWordIndices((prev) =>
+                                    prev.includes(i) ? prev.filter((x) => x !== i) : [...prev, i].sort((a, b) => a - b)
+                                  );
+                                }}
+                                className={`mx-0.5 inline-block cursor-pointer rounded px-1.5 py-0.5 text-sm transition ${
+                                  isMarked
+                                    ? "bg-teal-500 font-semibold text-white shadow-sm"
+                                    : "text-gray-800 hover:bg-amber-100"
+                                }`}
+                              >
+                                {token}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <p className="mt-1 text-xs text-gray-500">
+                          Tip: Click again to unmark. Total marked words = {incorrectWordIndices.length}.
+                        </p>
+                      </div>
+                    )}
                   </>
                 )}
 

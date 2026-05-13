@@ -9,6 +9,7 @@ import { QuestionForm } from "@/components/admin/question-form";
 import {
   Database, Plus, Search, Trash2, Edit2,
   Mic, PenTool, BookOpen, Headphones, Star,
+  Building2, Calendar, ArrowUpDown, LayoutGrid, List as ListIcon,
 } from "lucide-react";
 
 const SECTION_ICONS: Record<string, any> = {
@@ -37,7 +38,15 @@ interface Question {
   tags: string[];
   createdAt: string;
   marks?: number;
+  centreId?: string | null;
+  centre?: { id: string; name: string; slug: string } | null;
   _count: { attempts: number };
+}
+
+interface CentreOption {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 interface QuestionDetail {
@@ -62,6 +71,23 @@ export default function SuperAdminQuestionsPage() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [details, setDetails] = useState<Record<string, QuestionDetail>>({});
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
+  // New: centre filter, sort, view mode
+  const [centreFilter, setCentreFilter] = useState<string>(""); // "" = all, "global" = unassigned, or centreId
+  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const [groupByCentre, setGroupByCentre] = useState<boolean>(false);
+  const [centres, setCentres] = useState<CentreOption[]>([]);
+
+  // Load centre list once for the filter dropdown
+  useEffect(() => {
+    fetch("/api/centres")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && Array.isArray(d.data)) {
+          setCentres(d.data.map((c: any) => ({ id: c.id, name: c.name, slug: c.slug })));
+        }
+      })
+      .catch(() => { /* ignore */ });
+  }, []);
 
   const openEditForm = async (questionId: string) => {
     setLoadingEdit(questionId);
@@ -105,9 +131,12 @@ export default function SuperAdminQuestionsPage() {
     setLoading(true);
     const params = new URLSearchParams({
       page: String(page),
-      pageSize: "20",
+      pageSize: groupByCentre ? "200" : "20", // need more rows to group properly
       ...(search && { search }),
       ...(section && { section }),
+      ...(centreFilter && { centreId: centreFilter }),
+      sort: "createdAt",
+      order: sortOrder,
     });
     fetch(`/api/questions?${params}`)
       .then((res) => res.json())
@@ -121,16 +150,206 @@ export default function SuperAdminQuestionsPage() {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchQuestions(); }, [page, search, section]);
+  useEffect(() => { fetchQuestions(); }, [page, search, section, centreFilter, sortOrder, groupByCentre]);
 
   const deleteQuestion = async (id: string) => {
     if (!confirm("Delete this question?")) return;
-    await fetch(`/api/questions/${id}`, { method: "DELETE" });
-    fetchQuestions();
+    // Optimistic update — remove from UI immediately
+    setQuestions((prev) => prev.filter((q) => q.id !== id));
+    setTotal((prev) => Math.max(0, prev - 1));
+    try {
+      const res = await fetch(`/api/questions/${id}`, { method: "DELETE" });
+      const data = await res.json();
+      if (!data.success) {
+        alert(data.error || "Failed to delete — refreshing list");
+        fetchQuestions();
+      }
+    } catch {
+      alert("Network error — refreshing list");
+      fetchQuestions();
+    }
   };
 
   const formatType = (type: string) =>
     type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  // Renders a single question row with expand/edit/delete + centre badge.
+  // Used by both list view and group-by-centre view.
+  const renderQuestionRow = (q: Question) => {
+    const SectionIcon = SECTION_ICONS[q.section] || Database;
+    const isExpanded = expandedId === q.id;
+    const detail = details[q.id];
+    return (
+      <div key={q.id}>
+        <div
+          className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50"
+          onClick={() => toggleExpand(q.id)}
+        >
+          <div className="flex items-center gap-4">
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${SECTION_COLORS[q.section] || "bg-gray-100"}`}>
+              <SectionIcon className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="font-medium text-gray-900">{q.title}</p>
+                {q.isPrediction && (
+                  <Badge variant="warning" className="gap-1">
+                    <Star className="h-3 w-3" /> Prediction
+                  </Badge>
+                )}
+                {q.isPublic && (
+                  <Badge className="gap-1 bg-green-100 text-green-700">🌍 Public</Badge>
+                )}
+              </div>
+              <div className="mt-1 flex flex-wrap items-center gap-2">
+                <Badge variant="secondary" className="text-xs">{formatType(q.type)}</Badge>
+                <Badge className={`text-xs ${DIFFICULTY_COLORS[q.difficulty]}`}>{q.difficulty}</Badge>
+                {q.centre ? (
+                  <Badge className="text-xs gap-1 bg-purple-100 text-purple-700">
+                    <Building2 className="h-3 w-3" /> {q.centre.name}
+                  </Badge>
+                ) : (
+                  <Badge className="text-xs bg-gray-100 text-gray-600">Global</Badge>
+                )}
+                <span className="text-xs text-gray-400">
+                  {q._count.attempts} attempts · {new Date(q.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            {typeof q.marks === "number" && (
+              <span className="mr-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700">
+                {q.marks} {q.marks === 1 ? "mark" : "marks"}
+              </span>
+            )}
+            <button
+              onClick={(e) => { e.stopPropagation(); openEditForm(q.id); }}
+              disabled={loadingEdit === q.id}
+              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50"
+              title="Edit question"
+            >
+              {loadingEdit === q.id ? (
+                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
+              ) : (
+                <Edit2 className="h-4 w-4" />
+              )}
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
+              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+              title="Delete question"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {isExpanded && (
+          <div className="border-t border-gray-100 bg-gray-50 px-4 py-4">
+            {loadingDetail === q.id ? (
+              <div className="flex items-center gap-2 py-4 pl-14">
+                <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
+                <span className="text-sm text-gray-500">Loading...</span>
+              </div>
+            ) : detail ? (
+              <div className="space-y-4 pl-14">
+                <div>
+                  <h4 className="text-xs font-semibold uppercase text-gray-400">Question Content</h4>
+                  <div className="mt-1 rounded-lg bg-white p-3 text-sm text-gray-700 shadow-sm">
+                    {typeof detail.content === "string" ? (
+                      <p>{detail.content}</p>
+                    ) : (
+                      <div className="space-y-2">
+                        {detail.content?.text && (
+                          <p><span className="font-medium text-gray-500">Text:</span> {detail.content.text}</p>
+                        )}
+                        {detail.content?.prompt && (
+                          <p><span className="font-medium text-gray-500">Prompt:</span> {detail.content.prompt}</p>
+                        )}
+                        {detail.content?.passage && (
+                          <p><span className="font-medium text-gray-500">Passage:</span> {detail.content.passage}</p>
+                        )}
+                        {detail.content?.options && (
+                          <div>
+                            <span className="font-medium text-gray-500">Options:</span>
+                            <ol className="ml-4 mt-1 list-decimal space-y-1">
+                              {detail.content.options.map((opt: string, i: number) => (
+                                <li key={i} className={detail.content?.correctAnswer === i || (Array.isArray(detail.content?.correctAnswers) && detail.content.correctAnswers.includes(i)) ? "font-semibold text-green-700" : ""}>
+                                  {opt}
+                                  {(detail.content?.correctAnswer === i || (Array.isArray(detail.content?.correctAnswers) && detail.content.correctAnswers.includes(i))) && " ✓"}
+                                </li>
+                              ))}
+                            </ol>
+                          </div>
+                        )}
+                        {detail.content?.paragraphs && (
+                          <div>
+                            <span className="font-medium text-gray-500">Paragraphs:</span>
+                            <ol className="ml-4 mt-1 list-decimal space-y-1">
+                              {detail.content.paragraphs.map((p: string, i: number) => (
+                                <li key={i} className="text-sm">{p}</li>
+                              ))}
+                            </ol>
+                            {detail.content.correctOrder && (
+                              <p className="mt-1 text-xs text-green-600">Correct order: {detail.content.correctOrder.join(" → ")}</p>
+                            )}
+                          </div>
+                        )}
+                        {detail.content?.blanks && (
+                          <div>
+                            <span className="font-medium text-gray-500">Blanks:</span>
+                            <ul className="ml-4 mt-1 list-disc">
+                              {detail.content.blanks.map((b: any, i: number) => (
+                                <li key={i} className="text-sm">{typeof b === "string" ? b : JSON.stringify(b)}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                        {detail.content?.minWords && (
+                          <p className="text-xs text-gray-500">Word limit: {detail.content.minWords}–{detail.content.maxWords} words</p>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {(detail.imageUrl || detail.content?.imageUrl) && (
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase text-gray-400">Image</h4>
+                    <img src={detail.imageUrl || detail.content.imageUrl} alt="Question" className="mt-1 max-h-64 rounded-lg border shadow-sm" />
+                  </div>
+                )}
+
+                {(detail.audioUrl || detail.content?.audioUrl) && (
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase text-gray-400">Audio</h4>
+                    <audio controls className="mt-1" src={detail.audioUrl || detail.content.audioUrl} />
+                  </div>
+                )}
+
+                {detail.modelAnswer && (
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase text-gray-400">Model Answer</h4>
+                    <div className="mt-1 rounded-lg bg-green-50 p-3 text-sm text-green-800 shadow-sm">{detail.modelAnswer}</div>
+                  </div>
+                )}
+
+                {detail.explanation && (
+                  <div>
+                    <h4 className="text-xs font-semibold uppercase text-gray-400">Explanation</h4>
+                    <div className="mt-1 rounded-lg bg-blue-50 p-3 text-sm text-blue-800 shadow-sm">{detail.explanation}</div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="py-4 pl-14 text-sm text-gray-500">Failed to load details.</p>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -144,7 +363,7 @@ export default function SuperAdminQuestionsPage() {
         </Button>
       </div>
 
-      {/* Filters */}
+      {/* Filters Row 1: Search + Section */}
       <div className="flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
@@ -155,7 +374,7 @@ export default function SuperAdminQuestionsPage() {
             className="pl-10"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           {["", "SPEAKING", "WRITING", "READING", "LISTENING"].map((s) => (
             <button
               key={s}
@@ -166,9 +385,59 @@ export default function SuperAdminQuestionsPage() {
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
-              {s || "All"}
+              {s || "All sections"}
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Filters Row 2: Centre + Sort + Group */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        {/* Centre filter dropdown */}
+        <div className="relative">
+          <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <select
+            value={centreFilter}
+            onChange={(e) => { setCentreFilter(e.target.value); setPage(1); }}
+            className="rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-8 text-sm text-gray-700 focus:border-indigo-300 focus:outline-none"
+          >
+            <option value="">All centres ({centres.length})</option>
+            <option value="global">— Global / unassigned —</option>
+            {centres.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+
+        {/* Sort by date */}
+        <button
+          onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
+          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          title="Toggle sort order"
+        >
+          <Calendar className="h-3.5 w-3.5" />
+          {sortOrder === "desc" ? "Newest first" : "Oldest first"}
+          <ArrowUpDown className="h-3.5 w-3.5 text-gray-400" />
+        </button>
+
+        {/* View toggle: List vs Grouped */}
+        <div className="ml-auto inline-flex rounded-lg bg-gray-100 p-1">
+          <button
+            onClick={() => setGroupByCentre(false)}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
+              !groupByCentre ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
+            }`}
+          >
+            <ListIcon className="h-3.5 w-3.5" /> List
+          </button>
+          <button
+            onClick={() => setGroupByCentre(true)}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
+              groupByCentre ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
+            }`}
+          >
+            <LayoutGrid className="h-3.5 w-3.5" /> Group by centre
+          </button>
         </div>
       </div>
 
@@ -184,176 +453,38 @@ export default function SuperAdminQuestionsPage() {
               <Database className="mx-auto h-12 w-12 text-gray-300" />
               <p className="mt-4 text-gray-500">No questions found.</p>
             </div>
+          ) : groupByCentre ? (
+            <div className="divide-y-4 divide-gray-100">
+              {(() => {
+                // Group questions by centre name (or "Global" for centreId null)
+                const groups = new Map<string, Question[]>();
+                for (const q of questions) {
+                  const key = q.centre?.name || "Global / Unassigned";
+                  if (!groups.has(key)) groups.set(key, []);
+                  groups.get(key)!.push(q);
+                }
+                const sorted = Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+                return sorted.map(([centreName, group]) => (
+                  <div key={centreName}>
+                    <div className="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <Building2 className="h-4 w-4 text-purple-600" />
+                        <p className="font-semibold text-gray-900">{centreName}</p>
+                      </div>
+                      <span className="text-xs font-medium text-gray-500">
+                        {group.length} {group.length === 1 ? "question" : "questions"}
+                      </span>
+                    </div>
+                    <div className="divide-y divide-gray-100">
+                      {group.map((q) => renderQuestionRow(q))}
+                    </div>
+                  </div>
+                ));
+              })()}
+            </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              {questions.map((q) => {
-                const SectionIcon = SECTION_ICONS[q.section] || Database;
-                const isExpanded = expandedId === q.id;
-                const detail = details[q.id];
-                return (
-                  <div key={q.id}>
-                    <div
-                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50"
-                      onClick={() => toggleExpand(q.id)}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${SECTION_COLORS[q.section] || "bg-gray-100"}`}>
-                          <SectionIcon className="h-5 w-5" />
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="font-medium text-gray-900">{q.title}</p>
-                            {q.isPrediction && (
-                              <Badge variant="warning" className="gap-1">
-                                <Star className="h-3 w-3" /> Prediction
-                              </Badge>
-                            )}
-                            {q.isPublic && (
-                              <Badge className="gap-1 bg-green-100 text-green-700">
-                                🌍 Public
-                              </Badge>
-                            )}
-                          </div>
-                          <div className="mt-1 flex items-center gap-2">
-                            <Badge variant="secondary" className="text-xs">{formatType(q.type)}</Badge>
-                            <Badge className={`text-xs ${DIFFICULTY_COLORS[q.difficulty]}`}>{q.difficulty}</Badge>
-                            <span className="text-xs text-gray-400">{q._count.attempts} attempts</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        {typeof q.marks === "number" && (
-                          <span className="mr-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700">
-                            {q.marks} {q.marks === 1 ? "mark" : "marks"}
-                          </span>
-                        )}
-                        <button
-                          onClick={(e) => { e.stopPropagation(); openEditForm(q.id); }}
-                          disabled={loadingEdit === q.id}
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50"
-                          title="Edit question"
-                        >
-                          {loadingEdit === q.id ? (
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-blue-600" />
-                          ) : (
-                            <Edit2 className="h-4 w-4" />
-                          )}
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
-                          title="Delete question"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </div>
-
-                    {isExpanded && (
-                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-4">
-                        {loadingDetail === q.id ? (
-                          <div className="flex items-center gap-2 py-4 pl-14">
-                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
-                            <span className="text-sm text-gray-500">Loading...</span>
-                          </div>
-                        ) : detail ? (
-                          <div className="space-y-4 pl-14">
-                            <div>
-                              <h4 className="text-xs font-semibold uppercase text-gray-400">Question Content</h4>
-                              <div className="mt-1 rounded-lg bg-white p-3 text-sm text-gray-700 shadow-sm">
-                                {typeof detail.content === "string" ? (
-                                  <p>{detail.content}</p>
-                                ) : (
-                                  <div className="space-y-2">
-                                    {detail.content?.text && (
-                                      <p><span className="font-medium text-gray-500">Text:</span> {detail.content.text}</p>
-                                    )}
-                                    {detail.content?.prompt && (
-                                      <p><span className="font-medium text-gray-500">Prompt:</span> {detail.content.prompt}</p>
-                                    )}
-                                    {detail.content?.passage && (
-                                      <p><span className="font-medium text-gray-500">Passage:</span> {detail.content.passage}</p>
-                                    )}
-                                    {detail.content?.options && (
-                                      <div>
-                                        <span className="font-medium text-gray-500">Options:</span>
-                                        <ol className="ml-4 mt-1 list-decimal space-y-1">
-                                          {detail.content.options.map((opt: string, i: number) => (
-                                            <li key={i} className={detail.content?.correctAnswer === i || (Array.isArray(detail.content?.correctAnswers) && detail.content.correctAnswers.includes(i)) ? "font-semibold text-green-700" : ""}>
-                                              {opt}
-                                              {(detail.content?.correctAnswer === i || (Array.isArray(detail.content?.correctAnswers) && detail.content.correctAnswers.includes(i))) && " ✓"}
-                                            </li>
-                                          ))}
-                                        </ol>
-                                      </div>
-                                    )}
-                                    {detail.content?.paragraphs && (
-                                      <div>
-                                        <span className="font-medium text-gray-500">Paragraphs:</span>
-                                        <ol className="ml-4 mt-1 list-decimal space-y-1">
-                                          {detail.content.paragraphs.map((p: string, i: number) => (
-                                            <li key={i} className="text-sm">{p}</li>
-                                          ))}
-                                        </ol>
-                                        {detail.content.correctOrder && (
-                                          <p className="mt-1 text-xs text-green-600">Correct order: {detail.content.correctOrder.join(" → ")}</p>
-                                        )}
-                                      </div>
-                                    )}
-                                    {detail.content?.blanks && (
-                                      <div>
-                                        <span className="font-medium text-gray-500">Blanks:</span>
-                                        <ul className="ml-4 mt-1 list-disc">
-                                          {detail.content.blanks.map((b: any, i: number) => (
-                                            <li key={i} className="text-sm">{typeof b === "string" ? b : JSON.stringify(b)}</li>
-                                          ))}
-                                        </ul>
-                                      </div>
-                                    )}
-                                    {detail.content?.minWords && (
-                                      <p className="text-xs text-gray-500">Word limit: {detail.content.minWords}–{detail.content.maxWords} words</p>
-                                    )}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-
-                            {(detail.imageUrl || detail.content?.imageUrl) && (
-                              <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400">Image</h4>
-                                <img src={detail.imageUrl || detail.content.imageUrl} alt="Question" className="mt-1 max-h-64 rounded-lg border shadow-sm" />
-                              </div>
-                            )}
-
-                            {(detail.audioUrl || detail.content?.audioUrl) && (
-                              <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400">Audio</h4>
-                                <audio controls className="mt-1" src={detail.audioUrl || detail.content.audioUrl} />
-                              </div>
-                            )}
-
-                            {detail.modelAnswer && (
-                              <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400">Model Answer</h4>
-                                <div className="mt-1 rounded-lg bg-green-50 p-3 text-sm text-green-800 shadow-sm">{detail.modelAnswer}</div>
-                              </div>
-                            )}
-
-                            {detail.explanation && (
-                              <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400">Explanation</h4>
-                                <div className="mt-1 rounded-lg bg-blue-50 p-3 text-sm text-blue-800 shadow-sm">{detail.explanation}</div>
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <p className="py-4 pl-14 text-sm text-gray-500">Failed to load details.</p>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+              {questions.map((q) => renderQuestionRow(q))}
             </div>
           )}
         </CardContent>

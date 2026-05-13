@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { AudioRecorder } from "@/components/practice/audio-recorder";
+import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   ChevronLeft, ChevronRight, RotateCcw,
   CheckCircle2, XCircle, Loader2, Volume2,
@@ -252,8 +253,10 @@ export default function PracticeQuestionPage() {
           <CardTitle className="text-base">{currentQuestion?.title}</CardTitle>
         </CardHeader>
         <CardContent className="p-6">
-          {/* Render based on question type */}
+          {/* Render based on question type — key forces remount on question change so all
+              local state (textarea, audio recording, MCQ selection, etc.) resets cleanly. */}
           <QuestionRenderer
+            key={currentQuestion?.id}
             question={currentQuestion}
             submitted={submitted}
             onSubmit={(response: any) => {
@@ -1013,6 +1016,123 @@ function QuestionRenderer({
     );
   }
 
+  // ---- HIGHLIGHT INCORRECT WORDS ----
+  if (type === "HIGHLIGHT_INCORRECT_WORDS") {
+    const transcript: string = content.transcript || content.text || "";
+    const correctIncorrectIndices: number[] = Array.isArray(content.incorrectIndices)
+      ? content.incorrectIndices
+      : [];
+    const tokens = transcript.split(/(\s+)/);
+    const wordIndicesSet = new Set<number>(); // valid clickable token positions
+    tokens.forEach((tok, i) => { if (/\S/.test(tok)) wordIndicesSet.add(i); });
+
+    const selected: number[] = response || [];
+    const selectedSet = new Set(selected);
+    const correctSet = new Set(correctIncorrectIndices);
+
+    const toggle = (i: number) => {
+      if (submitted) return;
+      setResponse(selected.includes(i) ? selected.filter((x) => x !== i) : [...selected, i]);
+    };
+
+    return (
+      <div className="space-y-4">
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully and find the wrong words" />
+        <div className="rounded-lg border border-gray-200 bg-white p-5 leading-loose">
+          {tokens.map((tok, i) => {
+            if (!wordIndicesSet.has(i)) return <span key={i}>{tok}</span>;
+            const isSelected = selectedSet.has(i);
+            const isActuallyWrong = correctSet.has(i);
+            // After submit: show right/wrong/missed
+            let cls = "mx-0.5 inline-block cursor-pointer rounded px-1.5 py-0.5 transition";
+            if (submitted) {
+              if (isSelected && isActuallyWrong) cls += " bg-green-500 font-semibold text-white"; // correct catch
+              else if (isSelected && !isActuallyWrong) cls += " bg-red-500 font-semibold text-white line-through"; // wrong selection
+              else if (!isSelected && isActuallyWrong) cls += " bg-amber-200 font-semibold text-amber-900 underline decoration-wavy"; // missed
+              else cls += " text-gray-800";
+            } else {
+              cls += isSelected
+                ? " bg-teal-500 font-semibold text-white shadow-sm"
+                : " text-gray-800 hover:bg-teal-50";
+            }
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => toggle(i)}
+                disabled={submitted}
+                className={cls}
+              >
+                {tok}
+              </button>
+            );
+          })}
+        </div>
+
+        {submitted && (
+          <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-3 w-3 rounded bg-green-500" /> Correct catches
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-3 w-3 rounded bg-red-500" /> Wrong selections
+              </span>
+              <span className="flex items-center gap-1">
+                <span className="inline-block h-3 w-3 rounded bg-amber-200" /> Missed wrong words
+              </span>
+            </div>
+          </div>
+        )}
+
+        {!submitted && (
+          <Button
+            onClick={() => {
+              const mistakes: ScoreResult["mistakes"] = [];
+              let correctCount = 0;
+              correctIncorrectIndices.forEach((idx) => {
+                if (selectedSet.has(idx)) {
+                  correctCount++;
+                } else {
+                  mistakes.push({
+                    position: idx,
+                    yourAnswer: "(not selected)",
+                    correctAnswer: tokens[idx] || "",
+                  });
+                }
+              });
+              // Penalty for false positives (wrong selections)
+              const falsePositives = selected.filter((i) => !correctSet.has(i));
+              falsePositives.forEach((idx) => {
+                mistakes.push({
+                  position: idx,
+                  yourAnswer: tokens[idx] || "",
+                  correctAnswer: "(should not have selected this)",
+                });
+              });
+              const totalCorrect = correctIncorrectIndices.length || 1;
+              const netScore = Math.max(0, correctCount - falsePositives.length);
+              const ratio = netScore / totalCorrect;
+              onSubmit({
+                answer: selected,
+                scoreResult: {
+                  marksEarned: Math.round(totalMarks * ratio * 10) / 10,
+                  marksTotal: totalMarks,
+                  correct: correctCount,
+                  total: totalCorrect,
+                  mistakes,
+                } as ScoreResult,
+              });
+            }}
+            disabled={selected.length === 0}
+          >
+            Check Answer
+          </Button>
+        )}
+      </div>
+    );
+  }
+
   // ---- SELECT MISSING WORD ----
   if (type === "SELECT_MISSING_WORD") {
     return (
@@ -1229,21 +1349,16 @@ function AudioBlock({
       )}
       {hasAudio ? (
         <>
-          <audio
-            controls
-            className="w-full"
+          <AudioPlayerCustom
             src={audioSrc}
-            preload="metadata"
-            onError={() => setLoadError(true)}
-            onLoadedMetadata={(e) => {
+            defaultVoice="Indian"
+            onLoadedMetadata={(dur) => {
               setLoaded(true);
               setLoadError(false);
-              const dur = (e.currentTarget as HTMLAudioElement).duration;
-              if (onDuration && isFinite(dur) && dur > 0) onDuration(dur);
+              if (onDuration) onDuration(dur);
             }}
-          >
-            Your browser does not support audio playback.
-          </audio>
+            onError={() => setLoadError(true)}
+          />
           {loadError && (
             <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-700">
               ⚠ Audio file could not be loaded.{" "}
