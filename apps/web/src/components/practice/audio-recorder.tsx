@@ -10,6 +10,8 @@ interface AudioRecorderProps {
   prepTime?: number; // preparation time before recording starts
   onRecordingComplete: (blob: Blob, url: string) => void;
   disabled?: boolean;
+  autoStart?: boolean; // when true, starts recording automatically after autoStartDelay
+  autoStartDelay?: number; // seconds to count down before auto-starting
 }
 
 export function AudioRecorder({
@@ -17,6 +19,8 @@ export function AudioRecorder({
   prepTime = 0,
   onRecordingComplete,
   disabled,
+  autoStart = false,
+  autoStartDelay = 0,
 }: AudioRecorderProps) {
   const {
     isRecording,
@@ -40,6 +44,30 @@ export function AudioRecorder({
       onRecordingComplete(audioBlob, audioUrl);
     }
   }, [audioBlob, audioUrl, hasRecorded, onRecordingComplete]);
+
+  // Auto-start recording when triggered (e.g. after prompt audio ends)
+  useEffect(() => {
+    if (!autoStart || isRecording || audioUrl || isPreparing) return;
+    if (autoStartDelay > 0) {
+      setIsPreparing(true);
+      setPrepCountdown(autoStartDelay);
+      const interval = setInterval(() => {
+        setPrepCountdown((prev) => {
+          if (prev <= 1) {
+            clearInterval(interval);
+            setIsPreparing(false);
+            startRecording();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(interval);
+    } else {
+      startRecording();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [autoStart]);
 
   const handleStart = async () => {
     if (prepTime > 0) {

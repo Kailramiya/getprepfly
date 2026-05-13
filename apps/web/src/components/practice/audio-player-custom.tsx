@@ -8,6 +8,7 @@ interface AudioPlayerProps {
   defaultVoice?: string; // e.g. "Indian", "US"
   onLoadedMetadata?: (durationSec: number) => void;
   onError?: () => void;
+  onEnded?: () => void;
 }
 
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -25,6 +26,7 @@ export function AudioPlayerCustom({
   defaultVoice = "Indian",
   onLoadedMetadata,
   onError,
+  onEnded,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -78,7 +80,7 @@ export function AudioPlayerCustom({
         preload="metadata"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
-        onEnded={() => setIsPlaying(false)}
+        onEnded={() => { setIsPlaying(false); onEnded?.(); }}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
         onLoadedMetadata={() => {
           const d = audioRef.current?.duration || 0;

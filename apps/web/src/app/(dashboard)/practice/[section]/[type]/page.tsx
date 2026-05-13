@@ -383,6 +383,7 @@ function QuestionRenderer({
         expectedText={content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen carefully"
+        autoStartDelay={5}
       />
     );
   }
@@ -1324,10 +1325,12 @@ function AudioBlock({
   src,
   label,
   onDuration,
+  onEnded,
 }: {
   src: string;
   label?: string;
   onDuration?: (seconds: number) => void;
+  onEnded?: () => void;
 }) {
   const audioSrc = normalizeAudioSrc((src || "").toString());
   const hasAudio = audioSrc.length > 5;
@@ -1358,6 +1361,7 @@ function AudioBlock({
               if (onDuration) onDuration(dur);
             }}
             onError={() => setLoadError(true)}
+            onEnded={onEnded}
           />
           {loadError && (
             <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-700">
@@ -1533,7 +1537,7 @@ function ScoreSummary({ result }: { result: ScoreResult }) {
 function SpeakingQuestion({
   children, instructionText, prepTime, maxDuration, submitted, onSubmit,
   totalMarks = 1, questionId, questionType, expectedText = "",
-  audioSrc, audioLabel,
+  audioSrc, audioLabel, autoStartDelay = 0,
 }: {
   children?: React.ReactNode;
   instructionText: string;
@@ -1549,11 +1553,14 @@ function SpeakingQuestion({
   // use (audio length + 15s) as the recording max duration
   audioSrc?: string;
   audioLabel?: string;
+  // Seconds to wait after prompt audio ends before auto-starting recording (0 = disabled)
+  autoStartDelay?: number;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const [scoring, setScoring] = useState(false);
   const [audioDurationSec, setAudioDurationSec] = useState<number | null>(null);
+  const [promptAudioEnded, setPromptAudioEnded] = useState(false);
 
   // Dynamic recording duration: if there's an audio prompt, give student
   // (audio length + 15s) to record. Otherwise fall back to fixed maxDuration.
@@ -1675,6 +1682,7 @@ function SpeakingQuestion({
           src={audioSrc}
           label={audioLabel}
           onDuration={(sec) => setAudioDurationSec(sec)}
+          onEnded={autoStartDelay > 0 ? () => setPromptAudioEnded(true) : undefined}
         />
       )}
       {children}
@@ -1694,6 +1702,8 @@ function SpeakingQuestion({
           maxDuration={effectiveMaxDuration}
           prepTime={prepTime}
           onRecordingComplete={handleRecordingComplete}
+          autoStart={promptAudioEnded}
+          autoStartDelay={autoStartDelay}
         />
       )}
 
