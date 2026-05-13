@@ -390,6 +390,7 @@ function QuestionRenderer({
 
   // ---- DESCRIBE IMAGE ----
   if (type === "DESCRIBE_IMAGE") {
+    const imgSrc = content.imageUrl || question.imageUrl;
     return (
       <SpeakingQuestion
         instructionText="Look at the image carefully and describe it in detail. Mention the main elements, trends, or key data."
@@ -402,18 +403,23 @@ function QuestionRenderer({
         questionType={type}
         expectedText={content.text || ""}
       >
-        {(content.imageUrl || question.imageUrl) && (
+        {imgSrc ? (
           <div className="relative mx-auto h-80 w-full">
             <Image
-              src={content.imageUrl || question.imageUrl}
+              src={imgSrc}
               alt="Describe this image"
               fill
               className="rounded-lg border object-contain"
               unoptimized
             />
           </div>
+        ) : (
+          <div className="flex h-40 items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-gray-50">
+            <p className="text-sm text-gray-400">No image uploaded for this question. Ask your admin to add one.</p>
+          </div>
         )}
-        {content.text && (
+        {/* Reference points shown only after submission so student isn't coached during practice */}
+        {submitted && content.text && (
           <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
             <span className="font-medium">Reference points: </span>{content.text}
           </div>
