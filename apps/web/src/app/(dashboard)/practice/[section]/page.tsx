@@ -66,6 +66,7 @@ const SECTION_CONFIG: Record<string, {
       { type: "LISTENING_MCQ_MULTIPLE", label: "Multiple Choice (Multiple)", description: "Listen and choose all correct answers", timeLimit: "2 min" },
       { type: "LISTENING_FILL_BLANKS", label: "Fill in the Blanks", description: "Listen and fill in the missing words in the transcript", timeLimit: "2 min" },
       { type: "HIGHLIGHT_CORRECT_SUMMARY", label: "Highlight Correct Summary", description: "Listen and choose the paragraph that best summarizes the audio", timeLimit: "2 min" },
+      { type: "HIGHLIGHT_INCORRECT_WORDS", label: "Highlight Incorrect Words", description: "Listen and click the words in the transcript that differ from the audio", timeLimit: "2 min" },
       { type: "SELECT_MISSING_WORD", label: "Select Missing Word", description: "Audio stops — choose the word that completes it", timeLimit: "2 min" },
       { type: "WRITE_FROM_DICTATION", label: "Write from Dictation", description: "Listen and type the exact sentence you hear", timeLimit: "1 min" },
     ],
