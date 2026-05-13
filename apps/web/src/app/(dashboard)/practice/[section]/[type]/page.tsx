@@ -577,61 +577,14 @@ function QuestionRenderer({
 
   // ---- SUMMARIZE WRITTEN TEXT ----
   if (type === "SUMMARIZE_WRITTEN_TEXT") {
-    const currentWords = (response || "").trim().split(/\s+/).filter(Boolean).length;
     return (
-      <div className="space-y-4">
-        <div className="max-h-64 overflow-y-auto rounded-lg bg-gray-50 p-4">
-          <p className="text-sm leading-relaxed text-gray-800">{content.passage}</p>
-        </div>
-        <textarea
-          className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-          placeholder="Write a one-sentence summary (5-75 words)..."
-          value={response || ""}
-          onChange={(e) => setResponse(e.target.value)}
-          disabled={submitted}
-        />
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">
-            Words: {currentWords} / 75
-          </span>
-          {!submitted && (
-            <Button onClick={() => {
-              const mistakes: ScoreResult["mistakes"] = [];
-              const isSingleSentence = (response || "").trim().split(/[.!?]+/).filter((s: string) => s.trim()).length <= 1;
-              if (!isSingleSentence) {
-                mistakes.push({
-                  position: 0,
-                  yourAnswer: "Multiple sentences",
-                  correctAnswer: "Should be ONE sentence only",
-                });
-              }
-              if (currentWords < 5 || currentWords > 75) {
-                mistakes.push({
-                  position: 0,
-                  yourAnswer: `${currentWords} words`,
-                  correctAnswer: "Between 5–75 words",
-                });
-              }
-              onSubmit({
-                text: response,
-                scoreResult: {
-                  marksEarned: 0,
-                  marksTotal: totalMarks,
-                  correct: 0,
-                  total: 1,
-                  mistakes,
-                  pending: true,
-                  message: mistakes.length === 0
-                    ? "Summary submitted. AI scoring pending. Your teacher will review soon."
-                    : "Summary submitted with format issues. See mistakes below.",
-                } as ScoreResult,
-              });
-            }} disabled={!response?.trim()}>
-              Submit Summary
-            </Button>
-          )}
-        </div>
-      </div>
+      <SummarizeWrittenTextQuestion
+        question={question}
+        content={content}
+        totalMarks={totalMarks}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      />
     );
   }
 
@@ -1735,6 +1688,106 @@ function SpeakingQuestion({
           Please record your answer first. Click &ldquo;Start Recording&rdquo; above.
         </p>
       )}
+    </div>
+  );
+}
+
+// ============================================================================
+// SUMMARIZE WRITTEN TEXT — AI scored on submit
+// ============================================================================
+function SummarizeWrittenTextQuestion({
+  question, content, totalMarks, submitted, onSubmit,
+}: {
+  question: QuestionData;
+  content: any;
+  totalMarks: number;
+  submitted: boolean;
+  onSubmit: (response: any) => void;
+}) {
+  const [text, setText] = useState("");
+  const [scoring, setScoring] = useState(false);
+
+  const currentWords = text.trim().split(/\s+/).filter(Boolean).length;
+
+  const handleSubmit = async () => {
+    const mistakes: ScoreResult["mistakes"] = [];
+    const isSingleSentence =
+      text.trim().split(/[.!?]+/).filter((s: string) => s.trim()).length <= 1;
+    if (!isSingleSentence)
+      mistakes.push({ position: 0, yourAnswer: "Multiple sentences", correctAnswer: "Should be ONE sentence only" });
+    if (currentWords < 5 || currentWords > 75)
+      mistakes.push({ position: 0, yourAnswer: `${currentWords} words`, correctAnswer: "Between 5–75 words" });
+
+    setScoring(true);
+    try {
+      const res = await fetch("/api/ai/score-writing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: question.id,
+          responseText: text,
+          questionType: "SUMMARIZE_WRITTEN_TEXT",
+          prompt: content.passage || "",
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const { scores } = data.data;
+        onSubmit({
+          text,
+          scoreResult: {
+            marksEarned: Math.round(((scores.overall || 0) / 90) * totalMarks * 10) / 10,
+            marksTotal: totalMarks,
+            correct: mistakes.length === 0 ? 1 : 0,
+            total: 1,
+            mistakes,
+            message: scores.feedback || "",
+          } as ScoreResult,
+        });
+      } else {
+        throw new Error(data.error || "AI scoring failed");
+      }
+    } catch {
+      onSubmit({
+        text,
+        scoreResult: {
+          marksEarned: 0,
+          marksTotal: totalMarks,
+          correct: 0,
+          total: 1,
+          mistakes,
+          pending: true,
+          message: mistakes.length === 0
+            ? "AI scoring failed. Summary saved for teacher review."
+            : "Summary submitted with format issues. See mistakes below.",
+        } as ScoreResult,
+      });
+    } finally {
+      setScoring(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="max-h-64 overflow-y-auto rounded-lg bg-gray-50 p-4">
+        <p className="text-sm leading-relaxed text-gray-800">{content.passage}</p>
+      </div>
+      <textarea
+        className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+        placeholder="Write a one-sentence summary (5-75 words)..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        disabled={submitted || scoring}
+      />
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-gray-500">Words: {currentWords} / 75</span>
+        {!submitted && (
+          <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
+            {scoring ? "AI is scoring..." : "Submit Summary"}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
