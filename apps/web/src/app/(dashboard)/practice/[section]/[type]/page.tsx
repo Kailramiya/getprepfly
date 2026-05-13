@@ -1797,14 +1797,14 @@ function SummarizeWrittenTextQuestion({
 // ============================================================================
 
 // Split a passage into text segments and blank placeholders.
-// Blanks can be marked as: _____, ___, [blank], or {{BLANK}}
+// Blanks can be marked as: __, ___, _____, [blank], or {{BLANK}}
 function splitPassage(passage: string): string[] {
   return passage
-    .split(/(_{3,}|\[blank\]|\{\{\s*blank\s*\}\})/gi)
+    .split(/(_{2,}|\[blank\]|\{\{\s*blank\s*\}\})/gi)
     .filter((s) => s !== undefined);
 }
 
-const BLANK_MARKER_REGEX = /^(_{3,}|\[blank\]|\{\{\s*blank\s*\}\})$/i;
+const BLANK_MARKER_REGEX = /^(_{2,}|\[blank\]|\{\{\s*blank\s*\}\})$/i;
 
 // Normalize a blank entry to { options, correctAnswer }
 // Supports both formats:
@@ -1845,15 +1845,42 @@ function FillBlanksDrag({
   onSubmit: (response: any) => void;
 }) {
   const segments = splitPassage(passage);
-  const normalizedBlanks = blanks.map((b) => normalizeBlank(b, []));
   const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
 
-  // Build the word bank: if blanks have per-blank options, merge all options; else use correctAnswers
+  // Normalize blanks. Handle the case where admin stored all words as one
+  // space-separated string (e.g. blanks=["melt frequent adopt critical borrow"])
+  // — split those into individual words and treat them as the word bank.
+  const rawNormalized = blanks.map((b) => normalizeBlank(b, []));
+  const isFlatWordList =
+    rawNormalized.length > 0 &&
+    rawNormalized.every((b) => !b.correctAnswer.includes(" ") === false) &&
+    rawNormalized.length <= 2;
+
+  // Flatten: any entry whose correctAnswer has spaces → split into individual words
+  const flatWords: string[] = [];
+  rawNormalized.forEach((b) => {
+    if (b.correctAnswer.includes(" ")) {
+      b.correctAnswer.split(/\s+/).filter(Boolean).forEach((w) => flatWords.push(w));
+    } else if (b.correctAnswer) {
+      flatWords.push(b.correctAnswer);
+    }
+  });
+
+  // If we ended up with more flat words than blanks, the data is a word bank list
+  // rather than per-blank correct answers — use flat mode.
+  const useFlatMode = flatWords.length > blankCount && blankCount > 0;
+
+  const normalizedBlanks = useFlatMode
+    ? Array(blankCount).fill(null).map(() => ({ correctAnswer: "", options: [] as string[] }))
+    : rawNormalized;
+
+  // Build word bank
   const wordBank = (() => {
+    if (useFlatMode) return flatWords;
     const hasPerBlankOptions = normalizedBlanks.some((b) => b.options && b.options.length > 0);
     if (hasPerBlankOptions) {
       const allOpts = new Set<string>();
-      normalizedBlanks.forEach((b) => b.options.forEach((o) => allOpts.add(o)));
+      normalizedBlanks.forEach((b) => b.options.forEach((o: string) => allOpts.add(o)));
       return Array.from(allOpts);
     }
     return normalizedBlanks.map((b) => b.correctAnswer).filter(Boolean);
@@ -1865,19 +1892,34 @@ function FillBlanksDrag({
   const [bank, setBank] = useState<string[]>(() => shuffle(wordBank));
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [draggedWord, setDraggedWord] = useState<string | null>(null);
+  const [dragSource, setDragSource] = useState<"bank" | number | null>(null);
 
-  const placeWord = (word: string, blankIndex: number) => {
-    // Remove word from bank
-    setBank((prev) => prev.filter((w) => w !== word));
-    // If the blank already has a word, send it back to bank
+  const placeWord = (word: string, blankIndex: number, fromBlank?: number) => {
+    // Return displaced word to bank
     setFilled((prev) => {
       const next = [...prev];
-      if (next[blankIndex]) {
-        setBank((b) => [...b, next[blankIndex]!]);
+      const displaced = next[blankIndex];
+      if (displaced && displaced !== word) {
+        setBank((b) => [...b, displaced]);
       }
       next[blankIndex] = word;
       return next;
     });
+    // Remove from bank only if it came from the bank (not from another blank)
+    if (fromBlank === undefined) {
+      setBank((prev) => {
+        const idx = prev.indexOf(word);
+        if (idx === -1) return prev;
+        return [...prev.slice(0, idx), ...prev.slice(idx + 1)];
+      });
+    } else {
+      // Came from another blank — clear that blank
+      setFilled((prev) => {
+        const next = [...prev];
+        if (next[fromBlank] === word) next[fromBlank] = null;
+        return next;
+      });
+    }
     setSelectedWord(null);
   };
 
@@ -1907,16 +1949,41 @@ function FillBlanksDrag({
     setSelectedWord(selectedWord === word ? null : word);
   };
 
-  const handleDragStart = (word: string) => setDraggedWord(word);
   const handleDragOver = (e: React.DragEvent) => e.preventDefault();
-  const handleDrop = (e: React.DragEvent, blankIndex: number) => {
-    e.preventDefault();
-    if (submitted || !draggedWord) return;
-    placeWord(draggedWord, blankIndex);
-    setDraggedWord(null);
+
+  // Drag from bank
+  const handleBankDragStart = (word: string) => {
+    setDraggedWord(word);
+    setDragSource("bank");
   };
 
-  const allFilled = filled.every((f) => f !== null);
+  // Drag from a filled blank
+  const handleBlankDragStart = (word: string, blankIndex: number) => {
+    setDraggedWord(word);
+    setDragSource(blankIndex);
+  };
+
+  const handleDropOnBlank = (e: React.DragEvent, blankIndex: number) => {
+    e.preventDefault();
+    if (submitted || !draggedWord) return;
+    if (dragSource === "bank") {
+      placeWord(draggedWord, blankIndex);
+    } else if (typeof dragSource === "number" && dragSource !== blankIndex) {
+      placeWord(draggedWord, blankIndex, dragSource);
+    }
+    setDraggedWord(null);
+    setDragSource(null);
+  };
+
+  const handleDropOnBank = (e: React.DragEvent) => {
+    e.preventDefault();
+    if (submitted || !draggedWord || typeof dragSource !== "number") return;
+    removeFromBlank(dragSource);
+    setDraggedWord(null);
+    setDragSource(null);
+  };
+
+  const allFilled = filled.slice(0, blankCount).every((f) => f !== null);
   let blankIdx = -1;
 
   return (
@@ -1937,30 +2004,34 @@ function FillBlanksDrag({
             const correct = normalizedBlanks[thisIndex]?.correctAnswer;
             const isCorrect =
               submitted && word && correct && word.toLowerCase() === correct.toLowerCase();
-            const isWrong = submitted && (!word || (correct && word.toLowerCase() !== correct.toLowerCase()));
+            const isWrong =
+              submitted && (!word || (correct && word.toLowerCase() !== correct.toLowerCase()));
 
             return (
-              <button
+              <span
                 key={`blank-${i}`}
-                onClick={() => handleBlankClick(thisIndex)}
+                draggable={!submitted && !!word}
+                onDragStart={() => word && handleBlankDragStart(word, thisIndex)}
                 onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, thisIndex)}
-                disabled={submitted}
-                className={`mx-1 inline-flex min-w-[100px] items-center justify-center rounded-md border-2 border-dashed px-3 py-1 text-sm font-medium transition ${
+                onDrop={(e) => handleDropOnBlank(e, thisIndex)}
+                onClick={() => handleBlankClick(thisIndex)}
+                className={`mx-1 inline-flex min-w-[100px] cursor-pointer items-center justify-center rounded-md border-2 border-dashed px-3 py-1 text-sm font-medium transition select-none ${
                   submitted
                     ? isCorrect
                       ? "border-green-500 bg-green-100 text-green-800"
                       : "border-red-400 bg-red-50 text-red-700"
                     : word
-                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                      : "border-gray-300 bg-white text-gray-400 hover:border-indigo-300 hover:bg-indigo-50"
+                      ? "border-indigo-400 bg-indigo-50 text-indigo-700 cursor-grab active:cursor-grabbing"
+                      : selectedWord
+                        ? "border-indigo-300 bg-indigo-50 text-gray-400 animate-pulse"
+                        : "border-gray-300 bg-white text-gray-400 hover:border-indigo-300 hover:bg-indigo-50"
                 }`}
-                title={word ? "Tap to remove" : "Tap to place selected word here"}
+                title={word ? "Drag or tap to remove" : "Tap or drop a word here"}
               >
-                {word || "___"}
+                {word || "drop here"}
                 {submitted && isCorrect && <CheckCircle2 className="ml-1.5 h-3.5 w-3.5" />}
                 {submitted && isWrong && <XCircle className="ml-1.5 h-3.5 w-3.5" />}
-              </button>
+              </span>
             );
           }
           return (
@@ -1975,19 +2046,23 @@ function FillBlanksDrag({
       {!submitted && (
         <div>
           <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Word Bank</p>
-          <div className="flex flex-wrap gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white p-4 min-h-[60px]">
+          <div
+            className="flex flex-wrap gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white p-4 min-h-[60px]"
+            onDragOver={handleDragOver}
+            onDrop={handleDropOnBank}
+          >
             {bank.length === 0 ? (
-              <p className="text-sm italic text-gray-400">All words placed. Click a blank to take a word back.</p>
+              <p className="text-sm italic text-gray-400">All words placed. Drag or tap a blank to return a word.</p>
             ) : (
               bank.map((word, i) => (
                 <button
                   key={`${word}-${i}`}
-                  draggable={!submitted}
-                  onDragStart={() => handleDragStart(word)}
+                  draggable
+                  onDragStart={() => handleBankDragStart(word)}
                   onClick={() => handleBankClick(word)}
-                  className={`cursor-grab rounded-lg border-2 px-3 py-1.5 text-sm font-medium transition active:cursor-grabbing ${
+                  className={`cursor-grab rounded-lg border-2 px-3 py-1.5 text-sm font-medium transition active:cursor-grabbing active:scale-95 ${
                     selectedWord === word
-                      ? "border-indigo-500 bg-indigo-600 text-white"
+                      ? "border-indigo-500 bg-indigo-600 text-white shadow-md"
                       : "border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50"
                   }`}
                 >
@@ -2000,7 +2075,7 @@ function FillBlanksDrag({
       )}
 
       {/* Correct Answers (after submit) */}
-      {submitted && (
+      {submitted && !useFlatMode && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -2017,6 +2092,24 @@ function FillBlanksDrag({
       {!submitted && (
         <Button
           onClick={() => {
+            if (useFlatMode) {
+              // Can't score per-blank without correct answer data — mark as submitted
+              onSubmit({
+                answers: filled,
+                scoreResult: {
+                  marksEarned: allFilled ? totalMarks : 0,
+                  marksTotal: totalMarks,
+                  correct: allFilled ? blankCount : 0,
+                  total: blankCount,
+                  mistakes: [],
+                  pending: !allFilled,
+                  message: allFilled
+                    ? "All blanks filled! Teacher will review your answers."
+                    : "Some blanks are still empty.",
+                } as ScoreResult,
+              });
+              return;
+            }
             const mistakes: ScoreResult["mistakes"] = [];
             let correctCount = 0;
             normalizedBlanks.forEach((b, i) => {
