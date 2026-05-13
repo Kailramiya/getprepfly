@@ -352,7 +352,7 @@ function QuestionRenderer({
     return (
       <SpeakingQuestion
         instructionText="Read the text above aloud, clearly and naturally."
-        prepTime={30}
+        prepTime={5}
         maxDuration={40}
         submitted={submitted}
         onSubmit={onSubmit}
