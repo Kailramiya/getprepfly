@@ -130,6 +130,7 @@ model Centre {
   subscriptions  CentreSubscription[]
   announcements  Announcement[]
   invitations    CentreInvitation[]
+  studentSeats   CentreStudentSeat[]
 
   @@index([slug])
   @@index([city, state])
@@ -164,10 +165,30 @@ model User {
   oauthAccounts    OAuthAccount[]
   batchMemberships BatchMember[]
   moduleAccess     ModuleAccess[]
+  centreSeats      CentreStudentSeat[]
 
   @@index([email])
   @@index([centreId])
   @@index([role])
+}
+
+// ============================================================================
+// CENTRE STUDENT SEATS — per-student 90-day access granted by centre admin
+// ============================================================================
+model CentreStudentSeat {
+  id        String   @id @default(cuid())
+  centreId  String
+  centre    Centre   @relation(fields: [centreId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  startDate DateTime @default(now())
+  endDate   DateTime // startDate + 90 days
+  status    String   @default("ACTIVE") // ACTIVE, CANCELLED
+  createdAt DateTime @default(now())
+
+  @@unique([centreId, userId])
+  @@index([centreId])
+  @@index([userId])
 }
 
 // ============================================================================

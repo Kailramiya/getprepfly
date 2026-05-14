@@ -49,6 +49,11 @@ export async function GET(
         isActive: true,
         createdAt: true,
         studentPlan: { select: { planType: true, status: true } },
+        centreSeats: {
+          where: { centreId: params.centreId },
+          select: { status: true, startDate: true, endDate: true },
+          take: 1,
+        },
         batchMemberships: {
           include: { batch: { select: { id: true, name: true } } },
         },

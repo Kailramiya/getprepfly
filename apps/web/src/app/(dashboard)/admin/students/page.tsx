@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus } from "lucide-react";
+import { Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus, XCircle, AlertTriangle } from "lucide-react";
 
 interface Student {
   id: string;
@@ -16,6 +16,7 @@ interface Student {
   isActive: boolean;
   createdAt: string;
   studentPlan: { planType: string; status: string } | null;
+  centreSeats: Array<{ status: string; startDate: string; endDate: string }>;
   _count: { attempts: number; mockTests: number };
 }
 
@@ -25,6 +26,7 @@ export default function StudentsPage() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [cancelingSeat, setCancelingSeat] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -47,6 +49,28 @@ export default function StudentsPage() {
       alert("Failed to delete student. Please try again.");
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const cancelSeat = async (studentId: string, studentName: string) => {
+    if (!confirm(`Cancel access for "${studentName}"?\n\nThis will revoke their 3-month access immediately. No refund will be issued.`)) return;
+    setCancelingSeat(studentId);
+    try {
+      const res = await fetch(`/api/centres/students/${studentId}`, { method: "DELETE" });
+      const data = await res.json();
+      if (data.success) {
+        setStudents((prev) => prev.map((s) =>
+          s.id === studentId
+            ? { ...s, centreSeats: s.centreSeats.map((seat) => ({ ...seat, status: "CANCELLED" })) }
+            : s
+        ));
+      } else {
+        alert(data.error || "Failed to cancel access");
+      }
+    } catch {
+      alert("Failed to cancel access. Please try again.");
+    } finally {
+      setCancelingSeat(null);
     }
   };
 
@@ -225,9 +249,9 @@ export default function StudentsPage() {
                   <tr className="border-b border-gray-100">
                     <th className="pb-3 text-left font-medium text-gray-500">Name</th>
                     <th className="pb-3 text-left font-medium text-gray-500">Email</th>
-                    <th className="pb-3 text-left font-medium text-gray-500">Plan</th>
+                    <th className="pb-3 text-left font-medium text-gray-500">Access</th>
+                    <th className="pb-3 text-left font-medium text-gray-500">Expires</th>
                     <th className="pb-3 text-left font-medium text-gray-500">Practice</th>
-                    <th className="pb-3 text-left font-medium text-gray-500">Mock Tests</th>
                     <th className="pb-3 text-left font-medium text-gray-500">Joined</th>
                     <th className="pb-3 text-right font-medium text-gray-500">Action</th>
                   </tr>
@@ -248,31 +272,69 @@ export default function StudentsPage() {
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 text-gray-600">{student.email}</td>
+                      <td className="py-3 text-sm text-gray-600">{student.email}</td>
                       <td className="py-3">
-                        <Badge variant={student.studentPlan?.planType === "FREE" ? "secondary" : "success"}>
-                          {student.studentPlan?.planType || "FREE"}
-                        </Badge>
+                        {student.centreSeats[0] ? (
+                          <Badge variant={
+                            student.centreSeats[0].status === "CANCELLED" ? "destructive" :
+                            new Date(student.centreSeats[0].endDate) < new Date() ? "warning" : "success"
+                          }>
+                            {student.centreSeats[0].status === "CANCELLED" ? "Cancelled" :
+                             new Date(student.centreSeats[0].endDate) < new Date() ? "Expired" : "Active"}
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary">No Seat</Badge>
+                        )}
+                      </td>
+                      <td className="py-3 text-sm">
+                        {student.centreSeats[0] && student.centreSeats[0].status === "ACTIVE" ? (
+                          <span className={
+                            new Date(student.centreSeats[0].endDate) < new Date(Date.now() + 7 * 86400000)
+                              ? "text-amber-600 font-medium" : "text-gray-600"
+                          }>
+                            {new Date(student.centreSeats[0].endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
                       </td>
                       <td className="py-3 text-gray-600">{student._count.attempts} attempts</td>
-                      <td className="py-3 text-gray-600">{student._count.mockTests} tests</td>
                       <td className="py-3 text-gray-500">
                         {new Date(student.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </td>
                       <td className="py-3 text-right">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleDelete(student.id, student.name)}
-                          disabled={deleting === student.id}
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
-                        >
-                          {deleting === student.id ? (
-                            <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
-                          ) : (
-                            <Trash2 className="h-4 w-4" />
+                        <div className="flex items-center justify-end gap-1">
+                          {student.centreSeats[0]?.status === "ACTIVE" && new Date(student.centreSeats[0].endDate) > new Date() && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => cancelSeat(student.id, student.name)}
+                              disabled={cancelingSeat === student.id}
+                              className="h-8 w-8 p-0 text-gray-400 hover:text-amber-600"
+                              title="Cancel seat access (no refund)"
+                            >
+                              {cancelingSeat === student.id ? (
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
+                              ) : (
+                                <XCircle className="h-4 w-4" />
+                              )}
+                            </Button>
                           )}
-                        </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleDelete(student.id, student.name)}
+                            disabled={deleting === student.id}
+                            className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                            title="Delete student permanently"
+                          >
+                            {deleting === student.id ? (
+                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
                       </td>
                     </tr>
                   ))}
