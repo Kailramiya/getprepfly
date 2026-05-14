@@ -49,11 +49,6 @@ export async function GET(
         isActive: true,
         createdAt: true,
         studentPlan: { select: { planType: true, status: true } },
-        centreSeats: {
-          where: { centreId: params.centreId },
-          select: { status: true, startDate: true, endDate: true },
-          take: 1,
-        },
         batchMemberships: {
           include: { batch: { select: { id: true, name: true } } },
         },
@@ -66,10 +61,22 @@ export async function GET(
     db.user.count({ where }),
   ]);
 
+  // Fetch seat info separately — table may not exist if migration hasn't run
+  let seatMap: Record<string, { status: string; startDate: Date; endDate: Date } | null> = {};
+  try {
+    const seats = await (db as any).centreStudentSeat?.findMany({
+      where: { centreId: params.centreId, userId: { in: students.map((s: any) => s.id) } },
+      select: { userId: true, status: true, startDate: true, endDate: true },
+    });
+    if (seats) {
+      seats.forEach((s: any) => { seatMap[s.userId] = s; });
+    }
+  } catch { /* table not yet migrated */ }
+
   return NextResponse.json({
     success: true,
     data: {
-      items: students,
+      items: students.map((s: any) => ({ ...s, centreSeats: seatMap[s.id] ? [seatMap[s.id]] : [] })),
       total,
       page,
       pageSize,

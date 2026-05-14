@@ -127,10 +127,13 @@ export async function GET() {
     return NextResponse.json({ success: true, data: [] });
   }
 
-  const invitations = await db.centreInvitation.findMany({
-    where: { centreId, status: "PENDING" },
-    orderBy: { createdAt: "desc" },
-  });
-
-  return NextResponse.json({ success: true, data: invitations });
+  try {
+    const invitations = await db.centreInvitation.findMany({
+      where: { centreId, status: "PENDING" },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json({ success: true, data: invitations });
+  } catch {
+    return NextResponse.json({ success: true, data: [] });
+  }
 }

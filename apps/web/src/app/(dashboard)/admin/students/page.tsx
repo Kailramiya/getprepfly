@@ -88,9 +88,9 @@ export default function StudentsPage() {
       if (data.success) {
         setInviteMsg({ type: "success", text: data.data.message });
         setInviteEmail("");
-        // Refresh pending invites and students list
-        fetchPendingInvites();
-        if (data.data.status === "linked") fetchStudents();
+        const c = new AbortController();
+        fetchPendingInvites(c.signal);
+        if (data.data.status === "linked") fetchStudents(centreId!, search, c.signal);
       } else {
         setInviteMsg({ type: "error", text: data.error || "Failed to send invite" });
       }
@@ -101,35 +101,38 @@ export default function StudentsPage() {
     }
   };
 
-  const fetchPendingInvites = async () => {
-    try {
-      const res = await fetch("/api/centres/invite-student");
-      const data = await res.json();
-      if (data.success) setPendingInvites(data.data);
-    } catch {}
-  };
+  const centreId = user?.centreId ?? null;
 
-  const fetchStudents = async () => {
-    if (!user?.centreId) return;
+  const fetchStudents = async (cid: string, q: string, signal: AbortSignal) => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ search, page: "1", pageSize: "50" });
-      const res = await fetch(`/api/centres/${user.centreId}/students?${params}`);
+      const params = new URLSearchParams({ search: q, page: "1", pageSize: "50" });
+      const res = await fetch(`/api/centres/${cid}/students?${params}`, { signal });
+      if (!res.ok) return;
       const data = await res.json();
       if (data.success) setStudents(data.data.items);
-    } catch (err) {
-      console.error("Failed to fetch students:", err);
+    } catch {
+      // AbortError or network error — silently ignore
     } finally {
       setLoading(false);
     }
   };
 
-  const centreId = user?.centreId;
+  const fetchPendingInvites = async (signal: AbortSignal) => {
+    try {
+      const res = await fetch("/api/centres/invite-student", { signal });
+      if (!res.ok) return;
+      const data = await res.json();
+      if (data.success) setPendingInvites(data.data);
+    } catch { /* ignore */ }
+  };
 
   useEffect(() => {
     if (!centreId) { setLoading(false); return; }
-    fetchStudents();
-    fetchPendingInvites();
+    const controller = new AbortController();
+    fetchStudents(centreId, search, controller.signal);
+    fetchPendingInvites(controller.signal);
+    return () => controller.abort(); // cancel on unmount or dep change
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [centreId, search]);
 
