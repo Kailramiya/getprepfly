@@ -1857,10 +1857,6 @@ function FillBlanksDrag({
   // space-separated string (e.g. blanks=["melt frequent adopt critical borrow"])
   // — split those into individual words and treat them as the word bank.
   const rawNormalized = blanks.map((b) => normalizeBlank(b, []));
-  const isFlatWordList =
-    rawNormalized.length > 0 &&
-    rawNormalized.every((b) => !b.correctAnswer.includes(" ") === false) &&
-    rawNormalized.length <= 2;
 
   // Flatten: any entry whose correctAnswer has spaces → split into individual words
   const flatWords: string[] = [];
