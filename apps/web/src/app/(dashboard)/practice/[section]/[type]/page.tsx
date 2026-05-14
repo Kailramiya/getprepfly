@@ -1199,44 +1199,57 @@ function QuestionRenderer({
         )}
         {!submitted && (
           <Button onClick={() => {
-            const studentWords = (response || "").trim().toLowerCase().split(/\s+/);
-            const correctWords = (content.correctText || "").trim().toLowerCase().split(/\s+/);
+            const normalize = (s: string) =>
+              s.trim().toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
+            const studentWords = normalize(response || "");
+            const correctWords = normalize(content.correctText || "");
+
+            // LCS-based scoring: counts matched words accounting for skips/insertions
+            const m = correctWords.length, n = studentWords.length;
+            const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+            for (let i = 1; i <= m; i++) {
+              for (let j = 1; j <= n; j++) {
+                dp[i][j] = correctWords[i - 1] === studentWords[j - 1]
+                  ? dp[i - 1][j - 1] + 1
+                  : Math.max(dp[i - 1][j], dp[i][j - 1]);
+              }
+            }
+            const matched = dp[m][n];
+
+            // Backtrack LCS to find which correct words were missed
             const mistakes: ScoreResult["mistakes"] = [];
-            let matched = 0;
-            correctWords.forEach((w: string, i: number) => {
-              if (studentWords[i] === w) {
-                matched++;
-              } else if (studentWords[i]) {
-                mistakes.push({
-                  position: i + 1,
-                  yourAnswer: studentWords[i],
-                  correctAnswer: w,
-                });
+            let i = m, j = n;
+            const missedPositions = new Set<number>();
+            while (i > 0 && j > 0) {
+              if (correctWords[i - 1] === studentWords[j - 1]) {
+                i--; j--;
+              } else if (dp[i - 1][j] >= dp[i][j - 1]) {
+                missedPositions.add(i - 1);
+                i--;
               } else {
+                j--;
+              }
+            }
+            while (i > 0) { missedPositions.add(i - 1); i--; }
+
+            correctWords.forEach((w: string, idx: number) => {
+              if (missedPositions.has(idx)) {
                 mistakes.push({
-                  position: i + 1,
-                  yourAnswer: "(missing)",
+                  position: idx + 1,
+                  yourAnswer: "(missed or wrong)",
                   correctAnswer: w,
                 });
               }
             });
-            studentWords.forEach((w: string, i: number) => {
-              if (i >= correctWords.length && w) {
-                mistakes.push({
-                  position: i + 1,
-                  yourAnswer: w,
-                  correctAnswer: "(extra word)",
-                });
-              }
-            });
-            const ratio = correctWords.length > 0 ? matched / correctWords.length : 0;
+
+            const ratio = m > 0 ? matched / m : 0;
             onSubmit({
               text: response,
               scoreResult: {
                 marksEarned: Math.round(totalMarks * ratio * 10) / 10,
                 marksTotal: totalMarks,
                 correct: matched,
-                total: correctWords.length,
+                total: m,
                 mistakes,
               } as ScoreResult,
             });
