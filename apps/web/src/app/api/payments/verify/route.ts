@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
-import { grantModuleAccess, MODULE_PRICING, PTESection } from "@/lib/access";
+import { grantModuleAccess, MODULE_PRICING, CENTRE_PLANS, activateCentrePlan, PTESection } from "@/lib/access";
 
 // POST /api/payments/verify — verify Razorpay signature and grant module access
 export async function POST(req: NextRequest) {
@@ -64,14 +64,11 @@ export async function POST(req: NextRequest) {
   }
 
   const planType = payment.planType;
-  if (!planType || !MODULE_PRICING[planType]) {
-    return NextResponse.json(
-      { success: false, error: "Invalid plan type on payment record" },
-      { status: 400 }
-    );
-  }
+  const isCentrePlan = planType?.startsWith("CENTRE_");
 
-  const plan = MODULE_PRICING[planType];
+  if (!planType || (!MODULE_PRICING[planType] && !CENTRE_PLANS[planType])) {
+    return NextResponse.json({ success: false, error: "Invalid plan type on payment record" }, { status: 400 });
+  }
 
   const updatedPayment = await db.payment.update({
     where: { id: payment.id },
@@ -83,15 +80,28 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Centre plan — activate premium for the entire centre
+  if (isCentrePlan) {
+    const centreId = user!.centreId;
+    if (!centreId) {
+      return NextResponse.json({ success: false, error: "No centre found for this admin" }, { status: 400 });
+    }
+    const centrePlan = CENTRE_PLANS[planType!];
+    await activateCentrePlan(centreId, planType!, updatedPayment.id);
+    return NextResponse.json({
+      success: true,
+      message: `${centrePlan.label} activated for your centre`,
+      data: { planType, label: centrePlan.label, daysGranted: centrePlan.days, isCentrePlan: true },
+    });
+  }
+
+  // Student module plan
+  const plan = MODULE_PRICING[planType!];
   await grantModuleAccess(user!.id, plan.section as PTESection | null, updatedPayment.id, 30);
 
   return NextResponse.json({
     success: true,
     message: `Access granted for ${plan.label}`,
-    data: {
-      planType,
-      label: plan.label,
-      daysGranted: 30,
-    },
+    data: { planType, label: plan.label, daysGranted: 30, isCentrePlan: false },
   });
 }

@@ -232,7 +232,7 @@ export async function grantModuleAccess(
 }
 
 /**
- * Pricing (in paise — Razorpay uses smallest unit).
+ * Student module pricing (in paise — Razorpay uses smallest unit).
  */
 export const MODULE_PRICING: Record<string, { amount: number; label: string; section: PTESection | null }> = {
   MODULE_SPEAKING: { amount: 9900, label: "Speaking Module", section: "SPEAKING" },
@@ -241,3 +241,102 @@ export const MODULE_PRICING: Record<string, { amount: number; label: string; sec
   MODULE_LISTENING: { amount: 9900, label: "Listening Module", section: "LISTENING" },
   ALL_MODULES: { amount: 29900, label: "All Modules (Best Value)", section: null },
 };
+
+/**
+ * Coaching centre subscription plans (in paise).
+ * Purchasing any plan sets isPremiumCentre=true and premiumUntil=+30 days,
+ * giving all students in the centre full access automatically.
+ */
+export const CENTRE_PLANS: Record<string, {
+  amount: number;        // paise
+  label: string;
+  maxStudents: number;
+  days: number;          // subscription duration
+  features: string[];
+}> = {
+  CENTRE_STARTER: {
+    amount: 299900,       // ₹2,999/month
+    label: "Starter Plan",
+    maxStudents: 50,
+    days: 30,
+    features: [
+      "Up to 50 students",
+      "All 4 modules unlocked for all students",
+      "AI scoring for all question types",
+      "Student progress tracking",
+      "Batch management",
+      "30 days access",
+    ],
+  },
+  CENTRE_GROWTH: {
+    amount: 699900,       // ₹6,999/month
+    label: "Growth Plan",
+    maxStudents: 150,
+    days: 30,
+    features: [
+      "Up to 150 students",
+      "All 4 modules unlocked for all students",
+      "AI scoring for all question types",
+      "Advanced analytics dashboard",
+      "Batch management + leaderboard",
+      "Priority support",
+      "30 days access",
+    ],
+  },
+  CENTRE_PRO: {
+    amount: 1499900,      // ₹14,999/month
+    label: "Pro Plan",
+    maxStudents: 500,
+    days: 30,
+    features: [
+      "Up to 500 students",
+      "All 4 modules unlocked for all students",
+      "AI scoring for all question types",
+      "Full analytics + centre branding",
+      "Unlimited batches",
+      "Dedicated support",
+      "30 days access",
+    ],
+  },
+};
+
+/**
+ * Activate or extend centre premium access after successful payment.
+ */
+export async function activateCentrePlan(
+  centreId: string,
+  planKey: string,
+  paymentId: string,
+): Promise<void> {
+  const plan = CENTRE_PLANS[planKey];
+  if (!plan) throw new Error("Invalid centre plan");
+
+  const now = new Date();
+
+  // Get existing premiumUntil to extend if still active
+  const centre = await db.centre.findUnique({ where: { id: centreId }, select: { premiumUntil: true } });
+  const base = centre?.premiumUntil && centre.premiumUntil > now ? centre.premiumUntil : now;
+  const newPremiumUntil = new Date(base);
+  newPremiumUntil.setDate(newPremiumUntil.getDate() + plan.days);
+
+  await db.$transaction([
+    // Update centre premium status
+    db.centre.update({
+      where: { id: centreId },
+      data: { isPremiumCentre: true, premiumUntil: newPremiumUntil },
+    }),
+    // Create subscription record
+    db.centreSubscription.create({
+      data: {
+        centreId,
+        planName: plan.label,
+        maxStudents: plan.maxStudents,
+        monthlyPrice: plan.amount,
+        status: "ACTIVE",
+        startDate: now,
+        endDate: newPremiumUntil,
+        payments: { connect: { id: paymentId } },
+      },
+    }),
+  ]);
+}
