@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -17,7 +18,26 @@ import {
   ArrowRight,
   Flame,
   Star,
+  Loader2,
 } from "lucide-react";
+
+interface DashboardData {
+  totalAttempts: number;
+  totalPracticeTime: number;
+  streak: number;
+  averageScore: number;
+  scoresBySection: Record<string, number>;
+  recentAttempts: Array<{
+    id: string;
+    questionType: string;
+    section: string;
+    title: string;
+    score: number | null;
+    createdAt: string;
+  }>;
+  weakAreas: Array<{ type: string; averageScore: number; count: number }>;
+  strongAreas: Array<{ type: string; averageScore: number; count: number }>;
+}
 
 const practiceCards = [
   {
@@ -62,8 +82,57 @@ const practiceCards = [
   },
 ];
 
+function formatTime(minutes: number): string {
+  if (!minutes) return "0m";
+  if (minutes < 60) return `${minutes}m`;
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return m > 0 ? `${h}h ${m}m` : `${h}h`;
+}
+
+function formatType(t: string): string {
+  return t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
 export default function DashboardPage() {
   const { user } = useAuth();
+  const [data, setData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/dashboard")
+      .then((r) => r.json())
+      .then((res) => { if (res.success) setData(res.data); })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const stats = [
+    {
+      label: "Practice Streak",
+      value: loading ? null : `${data?.streak ?? 0} day${data?.streak === 1 ? "" : "s"}`,
+      icon: Flame,
+      color: "text-orange-500",
+    },
+    {
+      label: "Questions Done",
+      value: loading ? null : String(data?.totalAttempts ?? 0),
+      icon: Target,
+      color: "text-teal-500",
+    },
+    {
+      label: "Avg Score",
+      value: loading ? null : data?.averageScore ? `${data.averageScore}/90` : "--",
+      icon: TrendingUp,
+      color: "text-indigo-500",
+    },
+    {
+      label: "Practice Time",
+      value: loading ? null : formatTime(data?.totalPracticeTime ?? 0),
+      icon: Clock,
+      color: "text-purple-500",
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -85,19 +154,18 @@ export default function DashboardPage() {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
-        {[
-          { label: "Practice Streak", value: "0 days", icon: Flame, color: "text-orange-500" },
-          { label: "Questions Done", value: "0", icon: Target, color: "text-teal-500" },
-          { label: "Avg Score", value: "--", icon: TrendingUp, color: "text-indigo-500" },
-          { label: "Practice Time", value: "0h", icon: Clock, color: "text-purple-500" },
-        ].map((stat) => (
+        {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="flex items-center gap-4 p-4">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50">
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
               <div>
-                <p className="text-lg font-bold text-gray-900">{stat.value}</p>
+                {stat.value === null ? (
+                  <Loader2 className="h-5 w-5 animate-spin text-gray-300" />
+                ) : (
+                  <p className="text-lg font-bold text-gray-900">{stat.value}</p>
+                )}
                 <p className="text-xs text-gray-500">{stat.label}</p>
               </div>
             </CardContent>
@@ -136,6 +204,54 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Recent Attempts */}
+      {!loading && data && data.recentAttempts.length > 0 && (
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-gray-900">Recent Practice</h2>
+            <Link href="/progress" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+              View all
+            </Link>
+          </div>
+          <div className="space-y-2">
+            {data.recentAttempts.slice(0, 5).map((attempt) => (
+              <Card key={attempt.id}>
+                <CardContent className="flex items-center justify-between p-3">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white ${
+                      attempt.section === "SPEAKING" ? "bg-teal-500" :
+                      attempt.section === "WRITING" ? "bg-blue-500" :
+                      attempt.section === "READING" ? "bg-purple-500" : "bg-orange-500"
+                    }`}>
+                      {attempt.section[0]}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{attempt.title}</p>
+                      <p className="text-xs text-gray-500">{formatType(attempt.questionType)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    {attempt.score !== null ? (
+                      <p className={`text-sm font-bold ${
+                        attempt.score >= 70 ? "text-green-600" :
+                        attempt.score >= 40 ? "text-amber-600" : "text-red-600"
+                      }`}>
+                        {attempt.score}/90
+                      </p>
+                    ) : (
+                      <p className="text-xs text-gray-400">Pending</p>
+                    )}
+                    <p className="text-xs text-gray-400">
+                      {new Date(attempt.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-3">
