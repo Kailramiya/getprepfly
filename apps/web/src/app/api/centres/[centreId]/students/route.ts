@@ -62,7 +62,7 @@ export async function GET(
   ]);
 
   // Fetch seat info separately — table may not exist if migration hasn't run
-  let seatMap: Record<string, { status: string; startDate: Date; endDate: Date } | null> = {};
+  const seatMap: Record<string, { status: string; startDate: Date; endDate: Date } | null> = {};
   try {
     const seats = await (db as any).centreStudentSeat?.findMany({
       where: { centreId: params.centreId, userId: { in: students.map((s: any) => s.id) } },
