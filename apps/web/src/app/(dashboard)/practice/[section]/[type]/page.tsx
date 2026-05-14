@@ -841,6 +841,11 @@ function QuestionRenderer({
 
   // ---- READING FILL BLANKS (DRAG) ----
   if (type === "READING_FILL_BLANKS_DRAG") {
+    // Parse modelAnswer to get ordered correct answers (used when blanks data is a flat word list)
+    const modelAnswers = (question.modelAnswer || "")
+      .split(/[\n,]+/)
+      .map((s: string) => s.trim())
+      .filter((s: string) => s && !/correct answers?/i.test(s) && !/model answer/i.test(s));
     return (
       <FillBlanksDrag
         passage={content.passage || ""}
@@ -848,6 +853,7 @@ function QuestionRenderer({
         totalMarks={totalMarks}
         submitted={submitted}
         onSubmit={onSubmit}
+        modelAnswers={modelAnswers}
       />
     );
   }
@@ -1842,13 +1848,14 @@ function shuffle<T>(arr: T[]): T[] {
 
 // -------------------- DRAG-AND-DROP FILL BLANKS --------------------
 function FillBlanksDrag({
-  passage, blanks, submitted, onSubmit, totalMarks,
+  passage, blanks, submitted, onSubmit, totalMarks, modelAnswers = [],
 }: {
   passage: string;
   blanks: any[];
   totalMarks: number;
   submitted: boolean;
   onSubmit: (response: any) => void;
+  modelAnswers?: string[];
 }) {
   const segments = splitPassage(passage);
   const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
@@ -1872,8 +1879,12 @@ function FillBlanksDrag({
   // rather than per-blank correct answers — use flat mode.
   const useFlatMode = flatWords.length > blankCount && blankCount > 0;
 
+  // In flat mode, use modelAnswers for per-blank correct answers if available
   const normalizedBlanks = useFlatMode
-    ? Array(blankCount).fill(null).map(() => ({ correctAnswer: "", options: [] as string[] }))
+    ? Array(blankCount).fill(null).map((_, i) => ({
+        correctAnswer: modelAnswers[i] || "",
+        options: [] as string[],
+      }))
     : rawNormalized;
 
   // Build word bank
@@ -2095,21 +2106,50 @@ function FillBlanksDrag({
         <Button
           onClick={() => {
             if (useFlatMode) {
-              // Can't score per-blank without correct answer data — mark as submitted
-              onSubmit({
-                answers: filled,
-                scoreResult: {
-                  marksEarned: allFilled ? totalMarks : 0,
-                  marksTotal: totalMarks,
-                  correct: allFilled ? blankCount : 0,
-                  total: blankCount,
-                  mistakes: [],
-                  pending: !allFilled,
-                  message: allFilled
-                    ? "All blanks filled! Teacher will review your answers."
-                    : "Some blanks are still empty.",
-                } as ScoreResult,
-              });
+              const hasModelAnswers = modelAnswers.length >= blankCount;
+              if (hasModelAnswers) {
+                // Score properly using modelAnswers
+                const mistakes: ScoreResult["mistakes"] = [];
+                let correctCount = 0;
+                normalizedBlanks.forEach((b, i) => {
+                  const given = (filled[i] || "").toLowerCase();
+                  const expected = (b.correctAnswer || "").toLowerCase();
+                  if (expected && given === expected) {
+                    correctCount++;
+                  } else {
+                    mistakes.push({
+                      position: i + 1,
+                      yourAnswer: filled[i] || "(empty)",
+                      correctAnswer: b.correctAnswer || "—",
+                    });
+                  }
+                });
+                const ratio = blankCount > 0 ? correctCount / blankCount : 0;
+                onSubmit({
+                  answers: filled,
+                  scoreResult: {
+                    marksEarned: Math.round(totalMarks * ratio * 10) / 10,
+                    marksTotal: totalMarks,
+                    correct: correctCount,
+                    total: blankCount,
+                    mistakes,
+                  } as ScoreResult,
+                });
+              } else {
+                // No correct answer data — mark pending for teacher review
+                onSubmit({
+                  answers: filled,
+                  scoreResult: {
+                    marksEarned: 0,
+                    marksTotal: totalMarks,
+                    correct: 0,
+                    total: blankCount,
+                    mistakes: [],
+                    pending: true,
+                    message: "Submitted for teacher review. Add a model answer to enable auto-scoring.",
+                  } as ScoreResult,
+                });
+              }
               return;
             }
             const mistakes: ScoreResult["mistakes"] = [];
