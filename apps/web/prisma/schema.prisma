@@ -170,6 +170,20 @@ model User {
 }
 
 // ============================================================================
+// PASSWORD RESET TOKENS
+// ============================================================================
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
+// ============================================================================
 // MODULE ACCESS — per-section purchases (Speaking, Writing, Reading, Listening)
 // ============================================================================
 model ModuleAccess {

@@ -41,6 +41,51 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions): Promis
   }
 }
 
+export function resetPasswordEmailTemplate({
+  resetUrl,
+  userName,
+}: {
+  resetUrl: string;
+  userName: string;
+}): string {
+  return `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: linear-gradient(135deg, #14B8A6, #4F46E5); padding: 24px; border-radius: 12px 12px 0 0; text-align: center;">
+        <h1 style="color: white; margin: 0; font-size: 22px; font-weight: 700;">Prepfly</h1>
+        <p style="color: rgba(255,255,255,0.85); margin: 6px 0 0; font-size: 14px;">PTE Academic Practice Platform</p>
+      </div>
+
+      <div style="border: 1px solid #E5E7EB; border-top: none; padding: 32px 24px; border-radius: 0 0 12px 12px; background: #ffffff;">
+        <h2 style="margin: 0 0 8px; font-size: 20px; color: #111827;">Reset your password</h2>
+        <p style="margin: 0 0 24px; color: #6B7280; font-size: 14px; line-height: 1.6;">
+          Hi ${userName}, we received a request to reset your Prepfly password. Click the button below to choose a new password.
+        </p>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${resetUrl}"
+             style="display: inline-block; background: linear-gradient(135deg, #4F46E5, #7C3AED); color: white; text-decoration: none;
+                    padding: 14px 32px; border-radius: 8px; font-size: 15px; font-weight: 600;">
+            Reset Password
+          </a>
+        </div>
+
+        <p style="margin: 0 0 8px; color: #6B7280; font-size: 13px; line-height: 1.6;">
+          Or copy and paste this link in your browser:
+        </p>
+        <p style="margin: 0 0 24px; word-break: break-all;">
+          <a href="${resetUrl}" style="color: #4F46E5; font-size: 12px;">${resetUrl}</a>
+        </p>
+
+        <div style="border-top: 1px solid #E5E7EB; padding-top: 20px; margin-top: 8px;">
+          <p style="margin: 0; color: #9CA3AF; font-size: 12px; line-height: 1.6;">
+            This link expires in <strong>1 hour</strong>. If you didn't request a password reset, you can safely ignore this email — your password will not be changed.
+          </p>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 export function feedbackEmailTemplate({
   category,
   message,
