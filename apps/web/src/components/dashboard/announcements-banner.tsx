@@ -29,7 +29,7 @@ export function AnnouncementsBanner() {
   const dismiss = (id: string) => {
     const next = new Set(dismissed).add(id);
     setDismissed(next);
-    localStorage.setItem("dismissed_announcements", JSON.stringify([...next]));
+    localStorage.setItem("dismissed_announcements", JSON.stringify(Array.from(next)));
   };
 
   const visible = announcements.filter(a => !dismissed.has(a.id));
