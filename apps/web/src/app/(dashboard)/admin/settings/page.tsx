@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Script from "next/script";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  CheckCircle2, Crown, Users, Calendar, AlertTriangle,
-  Zap, TrendingUp, Shield, Loader2, CreditCard,
+  CheckCircle2, Crown, AlertTriangle,
+  Zap, Shield, Loader2, CreditCard,
 } from "lucide-react";
 
 declare global { interface Window { Razorpay: any } }

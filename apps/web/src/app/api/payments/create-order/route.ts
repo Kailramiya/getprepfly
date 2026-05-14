@@ -86,7 +86,7 @@ export async function POST(req: NextRequest) {
         isCentrePlan,
       },
     });
-  } catch (err: any) {
+  } catch {
     return NextResponse.json({ success: false, error: "Payment creation failed. Please try again." }, { status: 500 });
   }
 }
