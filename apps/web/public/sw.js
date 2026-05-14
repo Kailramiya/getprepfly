@@ -1,4 +1,4 @@
-const CACHE_NAME = "prepfly-v1";
+const CACHE_NAME = "prepfly-v2";
 const STATIC_ASSETS = [
   "/",
   "/dashboard",
@@ -26,26 +26,25 @@ self.addEventListener("activate", (event) => {
 
 // Fetch — network first, fallback to cache
 self.addEventListener("fetch", (event) => {
+  const url = event.request.url;
+
+  // Only handle http/https — skip chrome-extension://, moz-extension://, etc.
+  if (!url.startsWith("http://") && !url.startsWith("https://")) return;
+
   // Skip non-GET and API requests
-  if (event.request.method !== "GET" || event.request.url.includes("/api/")) {
-    return;
-  }
+  if (event.request.method !== "GET" || url.includes("/api/")) return;
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache successful responses
         if (response.ok) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
         }
         return response;
       })
-      .catch(() => {
-        // Offline — serve from cache
-        return caches.match(event.request).then((cached) => {
-          return cached || caches.match("/");
-        });
-      })
+      .catch(() =>
+        caches.match(event.request).then((cached) => cached || caches.match("/"))
+      )
   );
 });
