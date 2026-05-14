@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { AnnouncementsBanner } from "@/components/dashboard/announcements-banner";
 import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -151,6 +152,9 @@ export default function DashboardPage() {
           </Button>
         </Link>
       </div>
+
+      {/* Announcements */}
+      <AnnouncementsBanner />
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

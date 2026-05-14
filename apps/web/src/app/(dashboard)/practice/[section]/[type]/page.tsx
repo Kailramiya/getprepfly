@@ -520,6 +520,19 @@ function QuestionRenderer({
 
   // ---- WRITE ESSAY ----
   if (type === "WRITE_ESSAY") {
+    return (
+      <WriteEssayQuestion
+        question={question}
+        content={content}
+        totalMarks={totalMarks}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      />
+    );
+  }
+
+  // ---- WRITE ESSAY LEGACY FALLBACK (unreachable, kept for safety) ----
+  if (false) {
     const minW = content.minWords || 200;
     const maxW = content.maxWords || 300;
     const currentWords = (response || "").trim().split(/\s+/).filter(Boolean).length;
@@ -541,22 +554,13 @@ function QuestionRenderer({
           </span>
           {!submitted && (
             <Button onClick={() => {
-              // Simple local scoring: word count within range
               const withinRange = currentWords >= minW && currentWords <= maxW;
               const mistakes: ScoreResult["mistakes"] = [];
               if (currentWords < minW) {
-                mistakes.push({
-                  position: 0,
-                  yourAnswer: `${currentWords} words`,
-                  correctAnswer: `At least ${minW} words required`,
-                });
+                mistakes.push({ position: 0, yourAnswer: `${currentWords} words`, correctAnswer: `At least ${minW} words required` });
               }
               if (currentWords > maxW) {
-                mistakes.push({
-                  position: 0,
-                  yourAnswer: `${currentWords} words`,
-                  correctAnswer: `Maximum ${maxW} words allowed`,
-                });
+                mistakes.push({ position: 0, yourAnswer: `${currentWords} words`, correctAnswer: `Maximum ${maxW} words allowed` });
               }
               onSubmit({
                 text: response,
@@ -568,8 +572,8 @@ function QuestionRenderer({
                   mistakes,
                   pending: true,
                   message: withinRange
-                    ? "Essay submitted. AI scoring pending. Your teacher will review soon."
-                    : "Essay submitted, but word count is outside range. This will reduce your score.",
+                    ? "Essay submitted. AI scoring pending."
+                    : "Essay submitted, but word count is outside range.",
                 } as ScoreResult,
               });
             }} disabled={!response?.trim()}>
@@ -1810,6 +1814,110 @@ function SummarizeWrittenTextQuestion({
         {!submitted && (
           <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
             {scoring ? "AI is scoring..." : "Submit Summary"}
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// WRITE ESSAY — AI scored on submit
+// ============================================================================
+function WriteEssayQuestion({
+  question, content, totalMarks, submitted, onSubmit,
+}: {
+  question: QuestionData;
+  content: any;
+  totalMarks: number;
+  submitted: boolean;
+  onSubmit: (response: any) => void;
+}) {
+  const [text, setText] = useState("");
+  const [scoring, setScoring] = useState(false);
+
+  const minW = content.minWords || 200;
+  const maxW = content.maxWords || 300;
+  const currentWords = text.trim().split(/\s+/).filter(Boolean).length;
+  const withinRange = currentWords >= minW && currentWords <= maxW;
+
+  const handleSubmit = async () => {
+    const mistakes: ScoreResult["mistakes"] = [];
+    if (currentWords < minW) mistakes.push({ position: 0, yourAnswer: `${currentWords} words`, correctAnswer: `At least ${minW} words required` });
+    if (currentWords > maxW) mistakes.push({ position: 0, yourAnswer: `${currentWords} words`, correctAnswer: `Maximum ${maxW} words allowed` });
+
+    setScoring(true);
+    try {
+      const res = await fetch("/api/ai/score-writing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: question.id,
+          responseText: text,
+          questionType: "WRITE_ESSAY",
+          prompt: content.prompt || "",
+        }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const { scores } = data.data;
+        onSubmit({
+          text,
+          scoreResult: {
+            marksEarned: Math.round(((scores.overall || 0) / 90) * totalMarks * 10) / 10,
+            marksTotal: totalMarks,
+            correct: mistakes.length === 0 ? 1 : 0,
+            total: 1,
+            mistakes,
+            message: scores.feedback || "",
+          } as ScoreResult,
+        });
+      } else {
+        throw new Error(data.error || "Scoring failed");
+      }
+    } catch {
+      onSubmit({
+        text,
+        scoreResult: {
+          marksEarned: 0,
+          marksTotal: totalMarks,
+          correct: 0,
+          total: 1,
+          mistakes,
+          pending: true,
+          message: withinRange
+            ? "Essay saved for teacher review."
+            : "Essay saved with word count issues. See notes above.",
+        } as ScoreResult,
+      });
+    } finally {
+      setScoring(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-lg bg-gray-50 p-4">
+        <p className="text-gray-800">{content.prompt}</p>
+      </div>
+      <textarea
+        className="min-h-[200px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+        placeholder={`Write your essay here (${minW}–${maxW} words)...`}
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        disabled={submitted || scoring}
+      />
+      <div className="flex items-center justify-between">
+        <span className={`text-sm font-medium ${
+          currentWords === 0 ? "text-gray-400" :
+          withinRange ? "text-green-600" : "text-amber-600"
+        }`}>
+          {currentWords} / {minW}–{maxW} words
+        </span>
+        {!submitted && (
+          <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
+            {scoring ? "AI is scoring..." : "Submit Essay"}
           </Button>
         )}
       </div>

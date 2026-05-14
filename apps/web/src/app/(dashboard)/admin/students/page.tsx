@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus, XCircle } from "lucide-react";
+import Link from "next/link";
+import { Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus, XCircle, RotateCcw } from "lucide-react";
 
 interface Student {
   id: string;
@@ -27,6 +28,7 @@ export default function StudentsPage() {
   const [loading, setLoading] = useState(true);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [cancelingSeat, setCancelingSeat] = useState<string | null>(null);
+  const [renewingSeat, setRenewingSeat] = useState<string | null>(null);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -50,6 +52,23 @@ export default function StudentsPage() {
     } finally {
       setDeleting(null);
     }
+  };
+
+  const renewSeat = async (studentId: string, studentName: string) => {
+    if (!confirm(`Renew 90-day access for "${studentName}"?`)) return;
+    setRenewingSeat(studentId);
+    try {
+      const res = await fetch(`/api/centres/students/${studentId}/renew`, { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        alert(data.data.message);
+        const c = new AbortController();
+        fetchStudents(centreId!, search, c.signal);
+      } else {
+        alert(data.error || "Failed to renew access");
+      }
+    } catch { alert("Failed to renew. Please try again."); }
+    finally { setRenewingSeat(null); }
   };
 
   const cancelSeat = async (studentId: string, studentName: string) => {
@@ -269,7 +288,7 @@ export default function StudentsPage() {
                             {student.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <p className="font-medium text-gray-900">{student.name}</p>
+                            <Link href={`/admin/students/${student.id}`} className="font-medium text-indigo-700 hover:underline">{student.name}</Link>
                             {student.phone && (
                               <p className="text-xs text-gray-400">{student.phone}</p>
                             )}
@@ -308,20 +327,30 @@ export default function StudentsPage() {
                       </td>
                       <td className="py-3 text-right">
                         <div className="flex items-center justify-end gap-1">
+                          {/* Renew: show when expired or cancelled */}
+                          {(!student.centreSeats[0] || student.centreSeats[0].status === "CANCELLED" || new Date(student.centreSeats[0].endDate) <= new Date()) && (
+                            <Button variant="ghost" size="sm"
+                              onClick={() => renewSeat(student.id, student.name)}
+                              disabled={renewingSeat === student.id}
+                              className="h-8 w-8 p-0 text-gray-400 hover:text-green-600"
+                              title="Renew 90-day access"
+                            >
+                              {renewingSeat === student.id
+                                ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-green-600" />
+                                : <RotateCcw className="h-4 w-4" />}
+                            </Button>
+                          )}
+                          {/* Cancel: show when active */}
                           {student.centreSeats[0]?.status === "ACTIVE" && new Date(student.centreSeats[0].endDate) > new Date() && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
+                            <Button variant="ghost" size="sm"
                               onClick={() => cancelSeat(student.id, student.name)}
                               disabled={cancelingSeat === student.id}
                               className="h-8 w-8 p-0 text-gray-400 hover:text-amber-600"
                               title="Cancel seat access (no refund)"
                             >
-                              {cancelingSeat === student.id ? (
-                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
-                              ) : (
-                                <XCircle className="h-4 w-4" />
-                              )}
+                              {cancelingSeat === student.id
+                                ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" />
+                                : <XCircle className="h-4 w-4" />}
                             </Button>
                           )}
                           <Button

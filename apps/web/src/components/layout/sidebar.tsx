@@ -22,6 +22,7 @@ import {
   CreditCard,
   ChevronLeft,
   ChevronRight,
+  Megaphone,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -51,6 +52,9 @@ const centreAdminNav: NavItem[] = [
   { label: "Batches", href: "/admin/batches", icon: Building2 },
   { label: "Questions", href: "/admin/questions", icon: Database },
   { label: "Templates", href: "/admin/templates", icon: BookOpen },
+  { label: "Teachers", href: "/admin/teachers", icon: GraduationCap },
+  { label: "Centre Profile", href: "/admin/profile", icon: Building2 },
+  { label: "Announcements", href: "/admin/announcements", icon: Megaphone },
   { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
   { label: "Billing", href: "/admin/settings", icon: CreditCard },
 ];
@@ -60,6 +64,7 @@ const superAdminNav: NavItem[] = [
   { label: "Centres", href: "/super-admin/centres", icon: Building2 },
   { label: "Users", href: "/super-admin/users", icon: Users },
   { label: "Questions", href: "/super-admin/questions", icon: Database },
+  { label: "Coupons", href: "/super-admin/coupons", icon: CreditCard },
   { label: "Analytics", href: "/super-admin/analytics", icon: BarChart3 },
 ];
 
