@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
-import { grantModuleAccess, MODULE_PRICING, CENTRE_PLANS, activateCentrePlan, PTESection } from "@/lib/access";
+import { grantModuleAccess, MODULE_PRICING, activateCentrePlan, PTESection } from "@/lib/access";
 
 // POST /api/payments/webhook — Razorpay server-side webhook
 // Handles payment.captured event to grant access even if client disconnects

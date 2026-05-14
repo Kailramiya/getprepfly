@@ -2,11 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, User, Target, TrendingUp, Mic, PenTool, BookOpen, Headphones, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { ArrowLeft, User, Target, TrendingUp, Mic, PenTool, BookOpen, Headphones, Loader2, CheckCircle2 } from "lucide-react";
 
 interface StudentProgress {
   student: { id: string; name: string; email: string; phone: string | null; createdAt: string; studentPlan: { planType: string } | null };
