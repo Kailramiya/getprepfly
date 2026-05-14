@@ -124,13 +124,14 @@ export default function StudentsPage() {
     }
   };
 
+  const centreId = user?.centreId;
+
   useEffect(() => {
-    if (!user) return;
-    if (!user.centreId) { setLoading(false); return; }
+    if (!centreId) { setLoading(false); return; }
     fetchStudents();
     fetchPendingInvites();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, search]);
+  }, [centreId, search]);
 
   return (
     <div className="space-y-6">
