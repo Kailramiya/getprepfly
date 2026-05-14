@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const SAFE_FALLBACK_LIMIT = 500 * 1024; // 500 KB
+    const SAFE_FALLBACK_LIMIT = isImage ? 2 * 1024 * 1024 : 500 * 1024; // 2 MB for images, 500 KB for audio
     const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
 
     // ---- Option 1: Vercel Blob Storage (preferred when configured) ----
@@ -71,11 +71,16 @@ export async function POST(req: NextRequest) {
         const { put } = await import("@vercel/blob");
         const ext = file.name.split(".").pop() || "bin";
         const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const blob = await put(fileName, file, {
+
+        // Convert to ArrayBuffer for maximum runtime compatibility
+        const arrayBuffer = await file.arrayBuffer();
+
+        const blob = await put(fileName, arrayBuffer, {
           access: "public",
           contentType: normalizedType,
-          token: process.env.BLOB_READ_WRITE_TOKEN,
+          // token is auto-read from BLOB_READ_WRITE_TOKEN env var
         });
+
         return NextResponse.json({
           success: true,
           data: {
@@ -83,28 +88,23 @@ export async function POST(req: NextRequest) {
             method: "vercel-blob",
             size: file.size,
             type: normalizedType,
-            originalType: file.type,
           },
         });
       } catch (err: any) {
-        // Vercel Blob is configured but upload failed — surface the real error.
-        // Don't silently fall back to base64 (that would mislead the user).
         const reason = err?.message || String(err) || "unknown error";
         console.error("Vercel Blob upload failed:", reason);
 
-        // Only allow base64 fallback for tiny files (< 500KB) — for larger files,
-        // surface the actual Blob error so admin can fix it.
+        // If Blob fails and file is too large for base64 fallback, return error
         if (file.size > SAFE_FALLBACK_LIMIT) {
           return NextResponse.json(
             {
               success: false,
-              error: `Vercel Blob upload failed: ${reason}. Please check the storage configuration and try again.`,
-              blobError: reason,
+              error: `Upload failed: ${reason}. Check that BLOB_READ_WRITE_TOKEN is set correctly in Vercel → Settings → Environment Variables.`,
             },
             { status: 502 }
           );
         }
-        // Otherwise fall through to base64 (small file, harmless)
+        // Small file — fall through to base64 silently
       }
     }
 
@@ -133,9 +133,7 @@ export async function POST(req: NextRequest) {
         method: "data-url",
         size: file.size,
         type: normalizedType,
-        warning: blobConfigured
-          ? "Vercel Blob upload failed for this file — stored inline as fallback."
-          : "File stored inline (no cloud storage). Enable Vercel Blob for better performance.",
+        warning: blobConfigured ? undefined : "File stored inline. Enable Vercel Blob for better performance.",
       },
     });
   } catch (err: any) {
