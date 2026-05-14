@@ -129,6 +129,7 @@ model Centre {
   batches        Batch[]
   subscriptions  CentreSubscription[]
   announcements  Announcement[]
+  invitations    CentreInvitation[]
 
   @@index([slug])
   @@index([city, state])
@@ -167,6 +168,22 @@ model User {
   @@index([email])
   @@index([centreId])
   @@index([role])
+}
+
+// ============================================================================
+// CENTRE INVITATIONS — admin invites students by email
+// ============================================================================
+model CentreInvitation {
+  id        String   @id @default(cuid())
+  centreId  String
+  centre    Centre   @relation(fields: [centreId], references: [id], onDelete: Cascade)
+  email     String
+  status    String   @default("PENDING") // PENDING, ACCEPTED
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([email])
+  @@index([centreId])
 }
 
 // ============================================================================

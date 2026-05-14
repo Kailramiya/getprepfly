@@ -3,7 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, User, Phone, Eye, EyeOff, Building2 } from "lucide-react";
+import { Mail, Lock, User, Phone, Eye, EyeOff, Building2, CheckCircle2 } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,16 +19,15 @@ export default function RegisterPage() {
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const centreSlug = searchParams.get("centre") || "";
   const isCentreRegistration = searchParams.get("role") === "centre";
+  const prefilledEmail = searchParams.get("email") || "";
 
   const [form, setForm] = useState({
     name: "",
-    email: "",
+    email: prefilledEmail,
     phone: "",
     password: "",
     confirmPassword: "",
-    centreSlug: centreSlug,
     centreName: "",
     centreReferralCode: "",
     slugManuallyEdited: false,
@@ -116,7 +115,6 @@ function RegisterForm() {
           email: form.email,
           phone: form.phone || undefined,
           password: form.password,
-          centreSlug: form.centreSlug || undefined,
           role: isCentreRegistration ? "centre" : "student",
           centreName: isCentreRegistration ? form.centreName : undefined,
           centreReferralCode: isCentreRegistration ? form.centreReferralCode : undefined,
@@ -153,6 +151,13 @@ function RegisterForm() {
           ? "Set up your coaching centre on Prepfly"
           : "Start your PTE preparation journey for free"}
       </p>
+
+      {prefilledEmail && !isCentreRegistration && (
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-teal-50 p-3 text-sm text-teal-800">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+          <span>You&apos;ve been invited by a coaching centre. Register with <strong>{prefilledEmail}</strong> to join automatically.</span>
+        </div>
+      )}
 
       {error && (
         <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
@@ -196,18 +201,6 @@ function RegisterForm() {
           />
         </div>
 
-        {!isCentreRegistration && (
-          <div className="relative">
-            <Building2 className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Centre code (optional — ask your coaching centre)"
-              value={form.centreSlug}
-              onChange={(e) => updateForm("centreSlug", e.target.value)}
-              className="pl-10"
-            />
-          </div>
-        )}
 
         {isCentreRegistration && (
           <>

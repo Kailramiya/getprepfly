@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search, Users, Copy, CheckCheck, Trash2, Share2, MessageCircle, Mail } from "lucide-react";
+import { Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus } from "lucide-react";
 
 interface Student {
   id: string;
@@ -24,10 +24,11 @@ export default function StudentsPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
-  const [copied, setCopied] = useState(false);
   const [deleting, setDeleting] = useState<string | null>(null);
-  const [backfilledSlug, setBackfilledSlug] = useState<string>("");
-  const [backfilledName, setBackfilledName] = useState<string>("");
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviting, setInviting] = useState(false);
+  const [inviteMsg, setInviteMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [pendingInvites, setPendingInvites] = useState<Array<{ id: string; email: string; createdAt: string }>>([]);
 
   const handleDelete = async (studentId: string, studentName: string) => {
     if (!confirm(`Are you sure you want to delete "${studentName}"? This will remove all their data and cannot be undone.`)) {
@@ -49,85 +50,63 @@ export default function StudentsPage() {
     }
   };
 
-  const [codeCopied, setCodeCopied] = useState(false);
-  const [ensuringSlug, setEnsuringSlug] = useState(false);
-  const [ensureFailed, setEnsureFailed] = useState(false);
-  const centreCode = user?.centreSlug || backfilledSlug || "";
-  const centreName = user?.centreName || backfilledName || "our coaching centre";
-
-  // Auto-backfill referral code if missing — also handles centre admins with no centre at all
-  useEffect(() => {
-    if (!user) return;
-    if (user.centreSlug) return; // already has one
-    if (backfilledSlug) return; // already backfilled
-    if (ensureFailed) return; // don't retry on failure
-
-    const ensureSlug = async () => {
-      setEnsuringSlug(true);
-      try {
-        const res = await fetch("/api/centres/ensure-slug", { method: "POST" });
-        const data = await res.json();
-        if (data.success && data.data?.slug) {
-          setBackfilledSlug(data.data.slug);
-          setBackfilledName(data.data.name || "");
-          if (updateSession) {
-            await updateSession();
-          }
-        } else {
-          setEnsureFailed(true);
-        }
-      } catch (err) {
-        console.error("Failed to ensure slug:", err);
-        setEnsureFailed(true);
-      } finally {
-        setEnsuringSlug(false);
+  const sendInvite = async () => {
+    if (!inviteEmail.trim()) return;
+    setInviting(true);
+    setInviteMsg(null);
+    try {
+      const res = await fetch("/api/centres/invite-student", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: inviteEmail.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setInviteMsg({ type: "success", text: data.data.message });
+        setInviteEmail("");
+        // Refresh pending invites and students list
+        fetchPendingInvites();
+        if (data.data.status === "linked") fetchStudents();
+      } else {
+        setInviteMsg({ type: "error", text: data.error || "Failed to send invite" });
       }
-    };
-    ensureSlug();
-  }, [user, backfilledSlug, updateSession, ensureFailed]);
-  const inviteLink = `${typeof window !== "undefined" ? window.location.origin : ""}/register?centre=${centreCode}`;
-  const shareMessage = `Join ${centreName} on PrepFly for AI-powered PTE practice! Use my referral link to auto-enroll: ${inviteLink}`;
-  const whatsappLink = `https://wa.me/?text=${encodeURIComponent(shareMessage)}`;
-  const emailLink = `mailto:?subject=${encodeURIComponent("Join " + centreName + " on PrepFly")}&body=${encodeURIComponent(shareMessage)}`;
-
-  const copyCode = () => {
-    navigator.clipboard.writeText(centreCode);
-    setCodeCopied(true);
-    setTimeout(() => setCodeCopied(false), 2000);
-  };
-
-  useEffect(() => {
-    if (!user) return;
-
-    // If user has no centreId AND we've finished trying to backfill, stop loading
-    if (!user.centreId) {
-      if (!ensuringSlug && (backfilledSlug || ensureFailed)) {
-        setLoading(false);
-      }
-      return;
+    } catch {
+      setInviteMsg({ type: "error", text: "Something went wrong. Please try again." });
+    } finally {
+      setInviting(false);
     }
-
-    const fetchStudents = async () => {
-      setLoading(true);
-      try {
-        const params = new URLSearchParams({ search, page: "1", pageSize: "50" });
-        const res = await fetch(`/api/centres/${user.centreId}/students?${params}`);
-        const data = await res.json();
-        if (data.success) setStudents(data.data.items);
-      } catch (err) {
-        console.error("Failed to fetch students:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStudents();
-  }, [user, search, ensuringSlug, backfilledSlug, ensureFailed]);
-
-  const copyInviteLink = () => {
-    navigator.clipboard.writeText(inviteLink);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
   };
+
+  const fetchPendingInvites = async () => {
+    try {
+      const res = await fetch("/api/centres/invite-student");
+      const data = await res.json();
+      if (data.success) setPendingInvites(data.data);
+    } catch {}
+  };
+
+  const fetchStudents = async () => {
+    if (!user?.centreId) return;
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ search, page: "1", pageSize: "50" });
+      const res = await fetch(`/api/centres/${user.centreId}/students?${params}`);
+      const data = await res.json();
+      if (data.success) setStudents(data.data.items);
+    } catch (err) {
+      console.error("Failed to fetch students:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) return;
+    if (!user.centreId) { setLoading(false); return; }
+    fetchStudents();
+    fetchPendingInvites();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, search]);
 
   return (
     <div className="space-y-6">
@@ -138,79 +117,72 @@ export default function StudentsPage() {
         </div>
       </div>
 
-      {/* Referral Program Card */}
-      <Card className="border-teal-200 bg-gradient-to-br from-teal-50 to-indigo-50">
+      {/* Invite Student Card */}
+      <Card className="border-indigo-200 bg-gradient-to-br from-indigo-50 to-teal-50">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-teal-600 text-white">
-              <Share2 className="h-5 w-5" />
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white">
+              <UserPlus className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-900">Your Referral Program</h3>
+              <h3 className="text-base font-semibold text-gray-900">Invite a Student</h3>
               <p className="mt-1 text-sm text-gray-600">
-                Share your referral code or link with students — they will auto-enroll into your centre when they sign up.
+                Enter the student&apos;s email address. They will receive an invitation link to create their account and will be automatically linked to your centre.
               </p>
 
-              {/* Referral Code Display */}
-              <div className="mt-4 space-y-3">
-                <div>
-                  <label className="text-xs font-semibold uppercase text-gray-500">Referral Code</label>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="flex-1 rounded-lg border border-teal-300 bg-white px-4 py-2.5 font-mono text-lg font-bold tracking-wider text-teal-700">
-                      {centreCode ? (
-                        centreCode
-                      ) : ensuringSlug ? (
-                        <span className="text-sm font-normal text-gray-400">Setting up your referral code...</span>
-                      ) : ensureFailed ? (
-                        <span className="text-sm font-normal text-red-500">Could not generate code. Refresh the page.</span>
-                      ) : (
-                        <span className="text-sm font-normal text-gray-400">Not set</span>
-                      )}
-                    </div>
-                    <Button variant="outline" size="sm" onClick={copyCode} className="gap-1.5" disabled={!centreCode}>
-                      {codeCopied ? <CheckCheck className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      {codeCopied ? "Copied!" : "Copy"}
-                    </Button>
+              <div className="mt-4 flex gap-2">
+                <div className="relative flex-1">
+                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <input
+                    type="email"
+                    placeholder="student@email.com"
+                    value={inviteEmail}
+                    onChange={(e) => { setInviteEmail(e.target.value); setInviteMsg(null); }}
+                    onKeyDown={(e) => e.key === "Enter" && sendInvite()}
+                    className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                  />
+                </div>
+                <Button onClick={sendInvite} disabled={!inviteEmail.trim() || inviting} loading={inviting} className="gap-2 shrink-0">
+                  <Send className="h-4 w-4" />
+                  {inviting ? "Sending..." : "Send Invite"}
+                </Button>
+              </div>
+
+              {inviteMsg && (
+                <div className={`mt-3 flex items-center gap-2 rounded-lg p-3 text-sm ${
+                  inviteMsg.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-700"
+                }`}>
+                  {inviteMsg.type === "success" ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : null}
+                  {inviteMsg.text}
+                </div>
+              )}
+
+              {/* Pending Invitations */}
+              {pendingInvites.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-xs font-semibold uppercase text-gray-500">Pending Invitations ({pendingInvites.length})</p>
+                  <div className="mt-2 space-y-1.5">
+                    {pendingInvites.map((invite) => (
+                      <div key={invite.id} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm border border-gray-100">
+                        <Clock className="h-3.5 w-3.5 shrink-0 text-amber-500" />
+                        <span className="flex-1 text-gray-700">{invite.email}</span>
+                        <span className="text-xs text-gray-400">
+                          {new Date(invite.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                        </span>
+                      </div>
+                    ))}
                   </div>
                 </div>
+              )}
 
-                <div>
-                  <label className="text-xs font-semibold uppercase text-gray-500">Referral Link</label>
-                  <div className="mt-1 flex items-center gap-2">
-                    <div className="flex-1 truncate rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs text-gray-600">
-                      {inviteLink}
-                    </div>
-                    <Button variant="outline" size="sm" onClick={copyInviteLink} className="gap-1.5">
-                      {copied ? <CheckCheck className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-                      {copied ? "Copied!" : "Copy"}
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Share Buttons */}
-                <div className="flex flex-wrap gap-2 pt-2">
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" className="gap-1.5 bg-green-600 hover:bg-green-700">
-                      <MessageCircle className="h-3.5 w-3.5" />
-                      Share on WhatsApp
-                    </Button>
-                  </a>
-                  <a href={emailLink}>
-                    <Button variant="outline" size="sm" className="gap-1.5">
-                      <Mail className="h-3.5 w-3.5" />
-                      Share via Email
-                    </Button>
-                  </a>
-                </div>
-
-                <div className="mt-2 rounded-md bg-white/60 p-3">
-                  <p className="text-xs font-medium text-gray-700">How it works:</p>
-                  <ol className="mt-1 list-decimal space-y-0.5 pl-4 text-xs text-gray-600">
-                    <li>Share your referral code or link with students</li>
-                    <li>Students click the link or enter the code during signup</li>
-                    <li>They automatically join your centre — visible in the list below</li>
-                  </ol>
-                </div>
+              <div className="mt-4 rounded-md bg-white/60 p-3">
+                <p className="text-xs font-medium text-gray-700">How it works:</p>
+                <ol className="mt-1 list-decimal space-y-0.5 pl-4 text-xs text-gray-600">
+                  <li>Enter student&apos;s email and click Send Invite</li>
+                  <li>Student receives an email with a registration link</li>
+                  <li>They sign up — automatically added to your centre</li>
+                  <li>If they already have an account, they&apos;re linked instantly</li>
+                </ol>
               </div>
             </div>
           </div>
@@ -233,9 +205,7 @@ export default function StudentsPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-gray-400" />
-            {students.length === 0
-              ? "0 Students Enrolled Yet"
-              : `Students Enrolled via Your Referral (${students.length})`}
+            {students.length === 0 ? "No Students Yet" : `Students (${students.length})`}
           </CardTitle>
         </CardHeader>
         <CardContent>

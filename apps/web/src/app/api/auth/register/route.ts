@@ -10,7 +10,6 @@ export async function POST(req: NextRequest) {
       email,
       password,
       phone,
-      centreSlug,
       role,
       centreName,
       centreReferralCode,
@@ -115,19 +114,16 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Find centre if student is joining via referral slug
+    // Check if there is a pending centre invitation for this email
     let centreId: string | undefined;
-    if (!isCentre && centreSlug) {
-      const centre = await db.centre.findUnique({
-        where: { slug: centreSlug },
+    if (!isCentre) {
+      const invitation = await db.centreInvitation.findFirst({
+        where: { email: emailLower, status: "PENDING" },
+        orderBy: { createdAt: "desc" },
       });
-      if (!centre) {
-        return NextResponse.json(
-          { success: false, error: "Coaching centre not found" },
-          { status: 404 }
-        );
+      if (invitation && invitation.expiresAt > new Date()) {
+        centreId = invitation.centreId;
       }
-      centreId = centre.id;
     }
 
     // Hash password
@@ -169,6 +165,14 @@ export async function POST(req: NextRequest) {
         },
       });
     });
+
+    // Mark invitation as accepted if one was used
+    if (centreId && !isCentre) {
+      await db.centreInvitation.updateMany({
+        where: { email: emailLower, centreId, status: "PENDING" },
+        data: { status: "ACCEPTED" },
+      });
+    }
 
     return NextResponse.json(
       { success: true, data: user, message: "Account created successfully" },
