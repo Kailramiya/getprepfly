@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { sendEmail, centreInvitationEmailTemplate } from "@/lib/email";
-import { grantCentreSeat, getCentreActiveSeats } from "@/lib/access";
+import { grantCentreSeat, getCentreActiveSeats } from "@/lib/centre-access";
 
 // POST /api/centres/invite-student
 // Centre admin invites a student by email.

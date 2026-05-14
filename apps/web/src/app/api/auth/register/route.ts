@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { db } from "@/lib/db";
+import { grantCentreSeat } from "@/lib/centre-access";
 
 export async function POST(req: NextRequest) {
   try {
@@ -166,12 +167,13 @@ export async function POST(req: NextRequest) {
       });
     });
 
-    // Mark invitation as accepted if one was used
+    // Mark invitation as accepted + grant 90-day centre seat if one was used
     if (centreId && !isCentre) {
       await db.centreInvitation.updateMany({
         where: { email: emailLower, centreId, status: "PENDING" },
         data: { status: "ACCEPTED" },
       });
+      await grantCentreSeat(centreId, user.id);
     }
 
     return NextResponse.json(

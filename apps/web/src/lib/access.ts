@@ -96,7 +96,30 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
     return baseResult;
   }
 
-  // ---- Priority 1: Premium Centre ----
+  // ---- Priority 1: Active Centre Seat (per-student 90-day access) ----
+  if (user.centreId) {
+    try {
+      const seat = await (db as any).centreStudentSeat?.findUnique({
+        where: { centreId_userId: { centreId: user.centreId, userId } },
+      });
+      if (seat && seat.status === "ACTIVE" && new Date(seat.endDate) > now) {
+        const seatEnd = new Date(seat.endDate);
+        baseResult.hasAllAccess = true;
+        baseResult.expiresAt["ALL"] = seatEnd;
+        ["SPEAKING", "WRITING", "READING", "LISTENING"].forEach((s) => {
+          baseResult.modules.add(s as PTESection);
+          baseResult.expiresAt[s] = seatEnd;
+        });
+        baseResult.freeSpeakingScoringsRemaining = Infinity;
+        baseResult.reason = "Centre seat — full access until " + seatEnd.toLocaleDateString();
+        return baseResult;
+      }
+    } catch {
+      // Table not yet migrated — fall through to other access checks
+    }
+  }
+
+  // ---- Priority 2: Legacy Premium Centre (isPremiumCentre flag — for backward compat) ----
   if (user.centre?.isPremiumCentre) {
     const premiumUntil = user.centre.premiumUntil;
     const stillPremium = !premiumUntil || premiumUntil > now;
