@@ -317,6 +317,7 @@ export default function SuperAdminQuestionsPage() {
                 {(detail.imageUrl || detail.content?.imageUrl) && (
                   <div>
                     <h4 className="text-xs font-semibold uppercase text-gray-400">Image</h4>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={detail.imageUrl || detail.content.imageUrl} alt="Question" className="mt-1 max-h-64 rounded-lg border shadow-sm" />
                   </div>
                 )}

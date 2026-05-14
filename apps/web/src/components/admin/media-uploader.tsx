@@ -217,6 +217,7 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
       {hasValue && (
         <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-2">
           {kind === "image" ? (
+            // eslint-disable-next-line @next/next/no-img-element
             <img
               src={value}
               alt="Preview"
