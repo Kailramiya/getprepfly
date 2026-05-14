@@ -20,7 +20,7 @@ interface Student {
 }
 
 export default function StudentsPage() {
-  const { user, updateSession } = useAuth();
+  const { user } = useAuth();
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
