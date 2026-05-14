@@ -50,7 +50,7 @@ export default function ForgotPasswordPage() {
           <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
           <p className="mt-3 text-sm text-gray-600 leading-relaxed">
             If <span className="font-medium text-gray-900">{email}</span> is registered with Prepfly,
-            you'll receive a password reset link shortly. Check your spam folder if you don't see it.
+            you&apos;ll receive a password reset link shortly. Check your spam folder if you don&apos;t see it.
           </p>
           <p className="mt-6 text-sm text-gray-500">Link expires in 1 hour.</p>
           <Link
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
 
           <h2 className="text-2xl font-bold text-gray-900">Forgot password?</h2>
           <p className="mt-2 text-sm text-gray-600">
-            Enter your registered email and we'll send you a link to reset your password.
+            Enter your registered email and we&apos;ll send you a link to reset your password.
           </p>
 
           {error && (
