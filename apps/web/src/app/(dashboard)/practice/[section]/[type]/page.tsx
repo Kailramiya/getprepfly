@@ -11,7 +11,7 @@ import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   ChevronLeft, ChevronRight, RotateCcw,
   CheckCircle2, XCircle, Loader2, Volume2, List, X, Star,
-  Flag, ThumbsUp, ThumbsDown, RefreshCw, Eye, EyeOff, BarChart2,
+  Flag, ThumbsUp, ThumbsDown, RefreshCw, Eye, EyeOff, BarChart2, AlertTriangle,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
@@ -55,6 +55,14 @@ export default function PracticeQuestionPage() {
   const [showList, setShowList] = useState(false);
   const [flags, setFlags] = useState<Record<string, string>>({});
   const [showAnswer, setShowAnswer] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportDetails, setReportDetails] = useState("");
+  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [reportDone, setReportDone] = useState<Set<string>>(() => new Set());
+  const [selectedTopic, setSelectedTopic] = useState<string>("all");
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
+  const [lastAttemptScore, setLastAttemptScore] = useState<number | null>(null);
   const [attemptHistory, setAttemptHistory] = useState<Array<{ date: string; score: number }>>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const currentQuestion = questions[currentIndex];
@@ -76,6 +84,7 @@ export default function PracticeQuestionPage() {
   }, []);
 
   const saveAttempt = async (q: QuestionData, result: ScoreResult, response: any) => {
+    const timeTaken = Math.round((Date.now() - questionStartTime) / 1000);
     try {
       await fetch("/api/attempts", {
         method: "POST",
@@ -93,6 +102,7 @@ export default function PracticeQuestionPage() {
           overallScore: result.marksTotal > 0
             ? Math.round((result.marksEarned / result.marksTotal) * 90)
             : 0,
+          timeTaken,
         }),
       });
     } catch {
@@ -125,19 +135,20 @@ export default function PracticeQuestionPage() {
     if (!currentQuestion?.id) return;
     setShowAnswer(false);
     setAttemptHistory([]);
+    setLastAttemptScore(null);
     setHistoryLoading(true);
+    setQuestionStartTime(Date.now());
     fetch(`/api/attempts?questionId=${currentQuestion.id}&pageSize=10`)
       .then(r => r.json())
       .then(d => {
         if (d.success) {
-          const history = d.data.items
-            .filter((a: any) => a.overallScore !== null)
-            .map((a: any) => ({
-              date: new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
-              score: Math.round(a.overallScore),
-            }))
-            .reverse();
+          const items = d.data.items.filter((a: any) => a.overallScore !== null);
+          const history = items.map((a: any) => ({
+            date: new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+            score: Math.round(a.overallScore),
+          })).reverse();
           setAttemptHistory(history);
+          if (items.length > 0) setLastAttemptScore(Math.round(items[0].overallScore));
         }
       })
       .catch(() => {})
@@ -268,6 +279,28 @@ export default function PracticeQuestionPage() {
     });
   };
 
+  const submitReport = async () => {
+    if (!reportReason || !currentQuestion) return;
+    setReportSubmitting(true);
+    try {
+      await fetch("/api/questions/report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ questionId: currentQuestion.id, reason: reportReason, details: reportDetails }),
+      });
+      setReportDone(prev => new Set(prev).add(currentQuestion.id));
+      setShowReportModal(false);
+      setReportReason("");
+      setReportDetails("");
+    } finally {
+      setReportSubmitting(false);
+    }
+  };
+
+  // Collect unique tags across all questions for topic filter
+  const allTopics = Array.from(new Set(questions.flatMap((q: any) => q.tags || []))).slice(0, 15);
+  const filteredQuestions = selectedTopic === "all" ? questions : questions.filter((q: any) => (q.tags || []).includes(selectedTopic));
+
   const FLAG_OPTIONS = [
     { key: "WEAK", label: "Weak", icon: ThumbsDown, color: "text-red-600 bg-red-50 border-red-200 hover:bg-red-100" },
     { key: "REVIEW_AGAIN", label: "Review Again", icon: RefreshCw, color: "text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100" },
@@ -292,16 +325,27 @@ export default function PracticeQuestionPage() {
                 <X className="h-5 w-5" />
               </button>
             </div>
+            {/* Topic filter inside list panel */}
+            {allTopics.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 border-b px-3 py-2">
+                <button onClick={() => setSelectedTopic("all")} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${selectedTopic === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>All</button>
+                {allTopics.map(t => (
+                  <button key={t} onClick={() => setSelectedTopic(t)} className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize transition ${selectedTopic === t ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>{t}</button>
+                ))}
+              </div>
+            )}
             <div className="flex-1 overflow-y-auto p-2">
-              {questions.map((q, i) => (
+              {filteredQuestions.map((q) => {
+                const origIdx = questions.indexOf(q);
+                return (
                 <button
                   key={q.id}
-                  onClick={() => jumpToQuestion(i)}
-                  className={`w-full rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-50 ${i === currentIndex ? "bg-indigo-50 ring-1 ring-indigo-200" : ""}`}
+                  onClick={() => jumpToQuestion(origIdx)}
+                  className={`w-full rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-50 ${origIdx === currentIndex ? "bg-indigo-50 ring-1 ring-indigo-200" : ""}`}
                 >
                   <div className="flex items-start gap-3">
-                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${i === currentIndex ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500"}`}>
-                      {i + 1}
+                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${origIdx === currentIndex ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500"}`}>
+                      {origIdx + 1}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium text-gray-900">{q.title}</p>
@@ -317,7 +361,8 @@ export default function PracticeQuestionPage() {
                     </div>
                   </div>
                 </button>
-              ))}
+              );
+              })}
             </div>
           </div>
         </div>
@@ -327,9 +372,12 @@ export default function PracticeQuestionPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg font-semibold text-gray-900">{formatType(type)}</h1>
-          <p className="text-sm text-gray-500">
-            Question {currentIndex + 1} of {questions.length}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-gray-500">Question {currentIndex + 1} of {questions.length}</p>
+            {lastAttemptScore !== null && (
+              <span className="text-xs text-gray-400">· Last: <span className="font-semibold text-gray-600">{lastAttemptScore}/90</span></span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {currentQuestion?.isPrediction && (
@@ -488,8 +536,46 @@ export default function PracticeQuestionPage() {
         </Card>
       )}
 
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowReportModal(false)} />
+          <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+            <h3 className="font-semibold text-gray-900">Report an Issue</h3>
+            <p className="mt-1 text-xs text-gray-500">Help us improve by flagging errors in this question.</p>
+            <div className="mt-4 space-y-2">
+              {[
+                { key: "WRONG_ANSWER", label: "Wrong answer / model answer" },
+                { key: "BAD_AUDIO", label: "Audio not working / wrong audio" },
+                { key: "UNCLEAR_QUESTION", label: "Question is unclear" },
+                { key: "BROKEN_IMAGE", label: "Image missing or broken" },
+                { key: "OTHER", label: "Other issue" },
+              ].map(({ key, label }) => (
+                <label key={key} className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-3 text-sm transition ${reportReason === key ? "border-red-400 bg-red-50" : "border-gray-200 hover:bg-gray-50"}`}>
+                  <input type="radio" name="reason" value={key} checked={reportReason === key} onChange={() => setReportReason(key)} className="accent-red-500" />
+                  {label}
+                </label>
+              ))}
+            </div>
+            <textarea
+              className="mt-3 w-full rounded-lg border border-gray-200 p-2.5 text-xs focus:border-red-400 focus:outline-none"
+              placeholder="Any additional details? (optional)"
+              rows={2}
+              value={reportDetails}
+              onChange={e => setReportDetails(e.target.value)}
+            />
+            <div className="mt-4 flex gap-2">
+              <Button onClick={submitReport} disabled={!reportReason || reportSubmitting} loading={reportSubmitting} className="flex-1 bg-red-600 hover:bg-red-700">
+                Submit Report
+              </Button>
+              <Button variant="outline" onClick={() => setShowReportModal(false)} className="flex-1">Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Flag Buttons */}
-      <div className="flex items-center justify-center gap-2 border-t pt-4">
+      <div className="flex flex-wrap items-center justify-center gap-2 border-t pt-4">
         <Flag className="h-4 w-4 text-gray-400" />
         <span className="text-xs text-gray-400 mr-1">Mark as:</span>
         {FLAG_OPTIONS.map(({ key, label, icon: Icon, color }) => {
@@ -505,6 +591,13 @@ export default function PracticeQuestionPage() {
             </button>
           );
         })}
+        <button
+          onClick={() => setShowReportModal(true)}
+          className={`ml-auto flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${reportDone.has(currentQuestion?.id) ? "border-red-200 bg-red-50 text-red-500" : "border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500"}`}
+        >
+          <AlertTriangle className="h-3.5 w-3.5" />
+          {reportDone.has(currentQuestion?.id) ? "Reported" : "Report"}
+        </button>
       </div>
     </div>
   );
@@ -1576,14 +1669,18 @@ function ScoreSummary({ result }: { result: ScoreResult }) {
                   : "Partial credit"}
           </h3>
           {!result.pending && (
-            <div className="mt-1 flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-gray-900">
-                {result.marksEarned}
-              </span>
+            <div className="mt-1 flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-bold text-gray-900">{result.marksEarned}</span>
               <span className="text-sm text-gray-500">/ {result.marksTotal} marks</span>
-              <span className="ml-2 text-sm font-medium text-gray-600">
-                ({Math.round(percent)}%)
-              </span>
+              <span className="ml-2 text-sm font-medium text-gray-600">({Math.round(percent)}%)</span>
+              {result.aiScores?.overall != null && lastAttemptScore !== null && (() => {
+                const delta = Math.round(result.aiScores!.overall) - lastAttemptScore;
+                return delta !== 0 ? (
+                  <span className={`text-sm font-semibold ${delta > 0 ? "text-green-600" : "text-red-500"}`}>
+                    {delta > 0 ? `↑${delta}` : `↓${Math.abs(delta)}`} vs last attempt
+                  </span>
+                ) : <span className="text-sm text-gray-400">Same as last attempt</span>;
+              })()}
             </div>
           )}
           {result.pending && result.message && (

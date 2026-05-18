@@ -23,6 +23,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Megaphone,
+  AlertTriangle,
+  Flag,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -40,6 +42,7 @@ const studentNav: NavItem[] = [
   { label: "Reading", href: "/practice/reading", icon: BookOpen },
   { label: "Listening", href: "/practice/listening", icon: Headphones },
   { label: "Mock Test", href: "/mock-test", icon: ClipboardList },
+  { label: "My Flagged", href: "/my-flags", icon: Flag },
   { label: "Progress", href: "/progress", icon: BarChart3 },
   { label: "Study Guides", href: "/study-guides", icon: GraduationCap },
   { label: "Vocabulary", href: "/vocabulary", icon: BookMarked },
@@ -64,9 +67,11 @@ const superAdminNav: NavItem[] = [
   { label: "Centres", href: "/super-admin/centres", icon: Building2 },
   { label: "Users", href: "/super-admin/users", icon: Users },
   { label: "Questions", href: "/super-admin/questions", icon: Database },
+  { label: "Reports", href: "/super-admin/reports", icon: AlertTriangle },
   { label: "Coupons", href: "/super-admin/coupons", icon: CreditCard },
   { label: "Analytics", href: "/super-admin/analytics", icon: BarChart3 },
 ];
+
 
 export function Sidebar() {
   const pathname = usePathname();

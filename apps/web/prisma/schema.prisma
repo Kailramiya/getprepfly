@@ -167,6 +167,7 @@ model User {
   moduleAccess     ModuleAccess[]
   centreSeats      CentreStudentSeat[]
   questionFlags    QuestionFlag[]
+  questionReports  QuestionReport[]
 
   @@index([email])
   @@index([centreId])
@@ -401,6 +402,7 @@ model Question {
   attempts      Attempt[]
   mockTestQuestions MockTestQuestion[]
   flags         QuestionFlag[]
+  reports       QuestionReport[]
 
   @@index([section, type])
   @@index([centreId])
@@ -444,6 +446,33 @@ model Attempt {
   @@index([userId, createdAt]) // for daily scoring count + recent activity
   @@index([mockTestId])
   @@index([createdAt])
+}
+
+// ============================================================================
+// QUESTION REPORTS — students flag errors in questions
+// ============================================================================
+
+enum ReportReason {
+  WRONG_ANSWER
+  BAD_AUDIO
+  UNCLEAR_QUESTION
+  BROKEN_IMAGE
+  OTHER
+}
+
+model QuestionReport {
+  id         String       @id @default(cuid())
+  userId     String
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  reason     ReportReason
+  details    String?
+  resolved   Boolean      @default(false)
+  createdAt  DateTime     @default(now())
+
+  @@index([questionId])
+  @@index([resolved])
 }
 
 // ============================================================================
