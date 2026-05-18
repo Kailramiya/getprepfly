@@ -11,8 +11,9 @@ import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   ChevronLeft, ChevronRight, RotateCcw,
   CheckCircle2, XCircle, Loader2, Volume2, List, X, Star,
-  Flag, ThumbsUp, ThumbsDown, RefreshCw, Eye, EyeOff, BarChart2, AlertTriangle,
+  Flag, ThumbsUp, ThumbsDown, RefreshCw, Eye, EyeOff, BarChart2, AlertTriangle, BookOpen as TemplateIcon,
 } from "lucide-react";
+import { WRITING_TEMPLATES, SPEAKING_TEMPLATES } from "@/lib/templates";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface QuestionData {
@@ -1844,6 +1845,17 @@ function SpeakingQuestion({
   const [scoring, setScoring] = useState(false);
   const [audioDurationSec, setAudioDurationSec] = useState<number | null>(null);
   const [promptAudioEnded, setPromptAudioEnded] = useState(false);
+  const [showSpeakingTemplate, setShowSpeakingTemplate] = useState(false);
+
+  const speakingTemplate = questionType === "DESCRIBE_IMAGE"
+    ? SPEAKING_TEMPLATES.DESCRIBE_IMAGE[0]
+    : questionType === "RETELL_LECTURE"
+      ? SPEAKING_TEMPLATES.RETELL_LECTURE
+      : questionType === "RESPOND_TO_SITUATION"
+        ? SPEAKING_TEMPLATES.RESPOND_TO_SITUATION
+        : questionType === "SUMMARIZE_GROUP_DISCUSSION"
+          ? SPEAKING_TEMPLATES.SUMMARIZE_GROUP_DISCUSSION
+          : null;
 
   // Dynamic recording duration: if there's an audio prompt, give student
   // (audio length + 15s) to record. Otherwise fall back to fixed maxDuration.
@@ -1976,6 +1988,21 @@ function SpeakingQuestion({
         />
       )}
       {children}
+
+      {/* Speaking Template */}
+      {speakingTemplate && !submitted && (
+        <div className="rounded-lg border border-indigo-100 bg-indigo-50">
+          <button onClick={() => setShowSpeakingTemplate(t => !t)} className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-indigo-700">
+            <span className="flex items-center gap-2"><TemplateIcon className="h-4 w-4" /> Answer Template</span>
+            <span className="text-xs text-indigo-400">{showSpeakingTemplate ? "Hide" : "Show"}</span>
+          </button>
+          {showSpeakingTemplate && (
+            <div className="border-t border-indigo-100 p-4">
+              <pre className="whitespace-pre-wrap text-xs leading-relaxed text-gray-700 font-sans">{speakingTemplate.template}</pre>
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
         <p className="text-xs font-medium text-amber-800">
@@ -2247,6 +2274,8 @@ function WriteEssayQuestion({
   });
   const [scoring, setScoring] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [activeTemplate, setActiveTemplate] = useState(0);
 
   const minW = content.minWords || 200;
   const maxW = content.maxWords || 300;
@@ -2332,11 +2361,46 @@ function WriteEssayQuestion({
     }
   };
 
+  const essayTemplates = WRITING_TEMPLATES.WRITE_ESSAY;
+
   return (
     <div className="space-y-4">
       <div className="rounded-lg bg-gray-50 p-4">
         <p className="text-gray-800">{content.prompt}</p>
       </div>
+
+      {/* Template Panel */}
+      <div className="rounded-lg border border-indigo-100 bg-indigo-50">
+        <button
+          onClick={() => setShowTemplates(t => !t)}
+          className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-indigo-700"
+        >
+          <span className="flex items-center gap-2"><TemplateIcon className="h-4 w-4" /> Essay Templates</span>
+          <span className="text-xs text-indigo-400">{showTemplates ? "Hide" : "Show"}</span>
+        </button>
+        {showTemplates && (
+          <div className="border-t border-indigo-100 p-4 space-y-3">
+            <div className="flex gap-2">
+              {essayTemplates.map((t, i) => (
+                <button key={i} onClick={() => setActiveTemplate(i)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition ${activeTemplate === i ? "bg-indigo-600 text-white" : "bg-white text-indigo-600 border border-indigo-200"}`}>
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <div className="rounded-lg bg-white p-3 text-xs text-gray-600 whitespace-pre-wrap font-mono leading-relaxed">
+              {essayTemplates[activeTemplate].structure}
+            </div>
+            <button
+              onClick={() => { setText(essayTemplates[activeTemplate].template); setShowTemplates(false); }}
+              className="text-xs font-medium text-indigo-600 hover:text-indigo-800"
+            >
+              Use this template as starting point →
+            </button>
+          </div>
+        )}
+      </div>
+
       <textarea
         className="min-h-[200px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
         placeholder={`Write your essay here (${minW}–${maxW} words)...`}
