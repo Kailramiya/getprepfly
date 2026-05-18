@@ -1675,8 +1675,32 @@ function ScoreSummary({ result }: { result: ScoreResult }) {
         </div>
       )}
 
-      {/* Transcription (for speaking questions) */}
-      {result.transcription && (
+      {/* Word-level pronunciation feedback for Read Aloud / Repeat Sentence */}
+      {result.transcription && result.mistakes.length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Word-by-Word Feedback</p>
+          <div className="rounded-lg bg-white/70 p-3 leading-loose">
+            {(() => {
+              const spokenWords = result.transcription.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
+              const mistakePositions = new Set(result.mistakes.map(m => m.position - 1));
+              return spokenWords.map((word, i) => (
+                <span key={i} className={`mr-1 inline-block rounded px-1 py-0.5 text-sm ${
+                  mistakePositions.has(i)
+                    ? "bg-red-100 text-red-700 line-through"
+                    : "bg-green-100 text-green-700"
+                }`}>{word}</span>
+              ));
+            })()}
+          </div>
+          <p className="mt-1 text-xs text-gray-400">
+            <span className="inline-block rounded bg-green-100 px-1 text-green-700">green</span> = correct &nbsp;
+            <span className="inline-block rounded bg-red-100 px-1 text-red-700 line-through">red</span> = wrong/missed
+          </p>
+        </div>
+      )}
+
+      {/* Plain transcription for other speaking types */}
+      {result.transcription && result.mistakes.length === 0 && (
         <div className="mt-3 rounded-md bg-white/70 p-2 text-xs text-gray-600">
           <span className="font-medium text-gray-700">Transcribed: </span>{result.transcription}
         </div>
