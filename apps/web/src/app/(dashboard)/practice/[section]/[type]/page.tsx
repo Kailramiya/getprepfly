@@ -1058,54 +1058,14 @@ function QuestionRenderer({
 
   // ---- SUMMARIZE SPOKEN TEXT ----
   if (type === "SUMMARIZE_SPOKEN_TEXT") {
-    const currentWords = (response || "").trim().split(/\s+/).filter(Boolean).length;
     return (
-      <div className="space-y-4">
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
-        <p className="text-sm text-gray-500">
-          Listen to the audio and write a 50–70 word summary in your own words.
-        </p>
-        <textarea
-          className="min-h-[140px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-          placeholder="Write your summary (50–70 words)..."
-          value={response || ""}
-          onChange={(e) => setResponse(e.target.value)}
-          disabled={submitted}
-        />
-        <div className="flex items-center justify-between">
-          <span className={`text-sm ${currentWords < 50 || currentWords > 70 ? "text-amber-600" : "text-green-600"}`}>
-            Words: {currentWords} / 50–70
-          </span>
-          {!submitted && (
-            <Button onClick={() => {
-              const mistakes: ScoreResult["mistakes"] = [];
-              if (currentWords < 50 || currentWords > 70) {
-                mistakes.push({
-                  position: 0,
-                  yourAnswer: `${currentWords} words`,
-                  correctAnswer: "Should be 50–70 words",
-                });
-              }
-              onSubmit({
-                text: response,
-                scoreResult: {
-                  marksEarned: 0,
-                  marksTotal: totalMarks,
-                  correct: 0,
-                  total: 1,
-                  mistakes,
-                  pending: true,
-                  message: mistakes.length === 0
-                    ? "Summary submitted. AI scoring pending. Your teacher will review soon."
-                    : "Summary submitted with format issues — see mistakes below.",
-                } as ScoreResult,
-              });
-            }} disabled={!response?.trim()}>
-              Submit Summary
-            </Button>
-          )}
-        </div>
-      </div>
+      <SummarizeSpokenTextQuestion
+        question={question}
+        content={content}
+        totalMarks={totalMarks}
+        submitted={submitted}
+        onSubmit={onSubmit}
+      />
     );
   }
 
@@ -1897,6 +1857,104 @@ function SpeakingQuestion({
           Please record your answer first. Click &ldquo;Start Recording&rdquo; above.
         </p>
       )}
+    </div>
+  );
+}
+
+// ============================================================================
+// SUMMARIZE WRITTEN TEXT — AI scored on submit
+// ============================================================================
+// ============================================================================
+// SUMMARIZE SPOKEN TEXT — AI scored on submit
+// ============================================================================
+function SummarizeSpokenTextQuestion({
+  question, content, totalMarks, submitted, onSubmit,
+}: {
+  question: QuestionData;
+  content: any;
+  totalMarks: number;
+  submitted: boolean;
+  onSubmit: (response: any) => void;
+}) {
+  const [text, setText] = useState("");
+  const [scoring, setScoring] = useState(false);
+
+  const currentWords = text.trim().split(/\s+/).filter(Boolean).length;
+  const withinRange = currentWords >= 50 && currentWords <= 70;
+
+  const handleSubmit = async () => {
+    setScoring(true);
+    const mistakes: ScoreResult["mistakes"] = [];
+    if (!withinRange) {
+      mistakes.push({ position: 0, yourAnswer: `${currentWords} words`, correctAnswer: "Should be 50–70 words" });
+    }
+    try {
+      const res = await fetch("/api/ai/score-writing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: question.id,
+          responseText: text,
+          questionType: "SUMMARIZE_SPOKEN_TEXT",
+          prompt: content.topic || content.text || question.title || "",
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const { scores } = data.data;
+        onSubmit({
+          text,
+          scoreResult: {
+            marksEarned: Math.round(((scores.overall || 0) / 90) * totalMarks * 10) / 10,
+            marksTotal: totalMarks,
+            correct: mistakes.length === 0 ? 1 : 0,
+            total: 1,
+            mistakes,
+            message: scores.feedback || "",
+          } as ScoreResult,
+        });
+      } else {
+        throw new Error(data.error || "Scoring failed");
+      }
+    } catch {
+      onSubmit({
+        text,
+        scoreResult: {
+          marksEarned: 0,
+          marksTotal: totalMarks,
+          correct: 0,
+          total: 1,
+          mistakes,
+          pending: true,
+          message: "AI scoring failed. Please try again.",
+        } as ScoreResult,
+      });
+    } finally {
+      setScoring(false);
+    }
+  };
+
+  return (
+    <div className="space-y-4">
+      <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio carefully" />
+      <p className="text-sm text-gray-500">Write a 50–70 word summary of what you heard in your own words.</p>
+      <textarea
+        className="min-h-[140px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+        placeholder="Write your summary (50–70 words)..."
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        disabled={submitted || scoring}
+      />
+      <div className="flex items-center justify-between">
+        <span className={`text-sm font-medium ${withinRange ? "text-green-600" : currentWords === 0 ? "text-gray-400" : "text-amber-600"}`}>
+          Words: {currentWords} / 50–70
+        </span>
+        {!submitted && (
+          <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
+            {scoring ? "AI is scoring..." : "Submit Summary"}
+          </Button>
+        )}
+      </div>
     </div>
   );
 }

@@ -60,7 +60,32 @@ async function scoreWriting(
   let systemPrompt: string;
   let userPrompt: string;
 
-  if (questionType === "WRITE_ESSAY") {
+  if (questionType === "SUMMARIZE_SPOKEN_TEXT") {
+    systemPrompt = `You are an expert PTE Academic evaluator for Summarize Spoken Text. Score on 0-90 scale. Return ONLY valid JSON.`;
+    userPrompt = `
+PTE Summarize Spoken Text Scoring:
+Audio topic/context: "${questionPrompt}"
+Student's written summary (${wordCount} words):
+"${responseText}"
+
+Required: 50-70 words, written summary of spoken audio.
+Score on 0-90:
+- grammar: Grammatical accuracy and sentence structure
+- spelling: Spelling accuracy
+- content: Captures the main points of the spoken text, key ideas covered
+- structure: Clear organization, logical flow, appropriate use of linking words
+- vocabulary: Range and appropriateness of vocabulary used
+- overall: Weighted average (content 40%, grammar 25%, structure 15%, vocabulary 15%, spelling 5%)
+
+Word count check:
+- If < 50 or > 70 words: reduce overall by 10-15 points
+
+Provide:
+- feedback: 2-3 sentences of specific, actionable feedback
+- corrections: Array of {original, corrected, type} for up to 3 errors
+
+Return JSON: { grammar, spelling, content, structure, vocabulary, wordCount: ${wordCount}, overall, feedback, corrections }`;
+  } else if (questionType === "WRITE_ESSAY") {
     systemPrompt = `You are an expert PTE Academic essay evaluator. Score strictly on the PTE rubric (0-90 scale). Be fair and constructive. Return ONLY valid JSON.`;
     userPrompt = `
 PTE Write Essay Scoring:
@@ -86,7 +111,7 @@ Provide:
 
 Return JSON: { grammar, spelling, content, structure, vocabulary, wordCount: ${wordCount}, overall, feedback, corrections }`;
   } else {
-    // SUMMARIZE_WRITTEN_TEXT
+    // SUMMARIZE_WRITTEN_TEXT (default)
     systemPrompt = `You are an expert PTE Academic writing evaluator for Summarize Written Text. Score on 0-90 scale. Return ONLY valid JSON.`;
     userPrompt = `
 PTE Summarize Written Text Scoring:
