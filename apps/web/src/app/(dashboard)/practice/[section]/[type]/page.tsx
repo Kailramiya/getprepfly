@@ -2120,13 +2120,32 @@ function WriteEssayQuestion({
   submitted: boolean;
   onSubmit: (response: any) => void;
 }) {
-  const [text, setText] = useState("");
+  const DRAFT_KEY = `essay_draft_${question.id}`;
+  const [text, setText] = useState(() => {
+    try { return localStorage.getItem(DRAFT_KEY) || ""; } catch { return ""; }
+  });
   const [scoring, setScoring] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   const minW = content.minWords || 200;
   const maxW = content.maxWords || 300;
   const currentWords = text.trim().split(/\s+/).filter(Boolean).length;
   const withinRange = currentWords >= minW && currentWords <= maxW;
+
+  // Auto-save draft every 30 seconds
+  useEffect(() => {
+    if (submitted || !text.trim()) return;
+    const timer = setTimeout(() => {
+      try {
+        localStorage.setItem(DRAFT_KEY, text);
+        setLastSaved(new Date());
+      } catch {}
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [text, submitted, DRAFT_KEY]);
+
+  // Clear draft on submit
+  const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch {} };
 
   const handleSubmit = async () => {
     const mistakes: ScoreResult["mistakes"] = [];
@@ -2149,6 +2168,7 @@ function WriteEssayQuestion({
 
       if (data.success) {
         const { scores } = data.data;
+        clearDraft();
         onSubmit({
           text,
           scoreResult: {
@@ -2204,12 +2224,19 @@ function WriteEssayQuestion({
         disabled={submitted || scoring}
       />
       <div className="flex items-center justify-between">
-        <span className={`text-sm font-medium ${
-          currentWords === 0 ? "text-gray-400" :
-          withinRange ? "text-green-600" : "text-amber-600"
-        }`}>
-          {currentWords} / {minW}–{maxW} words
-        </span>
+        <div className="flex items-center gap-3">
+          <span className={`text-sm font-medium ${
+            currentWords === 0 ? "text-gray-400" :
+            withinRange ? "text-green-600" : "text-amber-600"
+          }`}>
+            {currentWords} / {minW}–{maxW} words
+          </span>
+          {lastSaved && !submitted && (
+            <span className="text-xs text-gray-400">
+              Draft saved {lastSaved.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
+        </div>
         {!submitted && (
           <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
             {scoring ? "AI is scoring..." : "Submit Essay"}
