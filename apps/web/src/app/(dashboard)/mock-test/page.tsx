@@ -28,11 +28,13 @@ interface MockTestSummary {
 export default function MockTestPage() {
   const router = useRouter();
   const [tests, setTests] = useState<MockTestSummary[]>([]);
+  const [assignedTests, setAssignedTests] = useState<{ id: string; title: string; createdAt: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     fetchTests();
+    fetch("/api/mock-tests/assigned").then(r => r.json()).then(d => { if (d.success) setAssignedTests(d.data); });
   }, []);
 
   const fetchTests = async () => {
@@ -99,6 +101,28 @@ export default function MockTestPage() {
           </p>
         </CardContent>
       </Card>
+
+      {/* Assigned by Centre */}
+      {assignedTests.length > 0 && (
+        <div>
+          <h2 className="mb-3 text-lg font-semibold text-gray-900">Assigned by Your Centre</h2>
+          <div className="space-y-2">
+            {assignedTests.map(t => (
+              <Card key={t.id}>
+                <CardContent className="flex items-center justify-between p-4">
+                  <div>
+                    <p className="font-medium text-gray-900">{t.title}</p>
+                    <p className="text-xs text-gray-400 mt-0.5">Assigned {new Date(t.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
+                  </div>
+                  <Button size="sm" onClick={() => router.push(`/mock-test/${t.id}`)}>
+                    <Play className="h-4 w-4 mr-1" /> Start
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Past Tests */}
       <div>

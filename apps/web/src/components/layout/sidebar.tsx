@@ -27,6 +27,8 @@ import {
   Flag,
 } from "lucide-react";
 import { useState } from "react";
+import { useDarkMode } from "@/hooks/use-dark-mode";
+import { Moon, Sun } from "lucide-react";
 
 interface NavItem {
   label: string;
@@ -77,6 +79,7 @@ export function Sidebar() {
   const pathname = usePathname();
   const { user, isCentreAdmin, isSuperAdmin } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
+  const { isDark, toggle } = useDarkMode();
 
   let navItems = studentNav;
   if (isSuperAdmin) navItems = superAdminNav;
@@ -144,6 +147,15 @@ export function Sidebar() {
           <Settings className="h-5 w-5 shrink-0 text-gray-400" />
           {!collapsed && <span>Settings</span>}
         </Link>
+
+        <button
+          onClick={toggle}
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+          title={isDark ? "Switch to light mode" : "Switch to dark mode"}
+        >
+          {isDark ? <Sun className="h-5 w-5 shrink-0 text-amber-400" /> : <Moon className="h-5 w-5 shrink-0 text-gray-400" />}
+          {!collapsed && <span>{isDark ? "Light Mode" : "Dark Mode"}</span>}
+        </button>
 
         {!collapsed && user && (
           <div className="mt-2 flex items-center gap-3 rounded-lg bg-gray-50 px-3 py-2.5">

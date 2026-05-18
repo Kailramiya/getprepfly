@@ -270,7 +270,8 @@ model Batch {
   centre    Centre   @relation(fields: [centreId], references: [id])
   createdAt DateTime @default(now())
 
-  members BatchMember[]
+  members    BatchMember[]
+  mockTests  MockTest[]
 
   @@index([centreId])
 }
@@ -528,12 +529,18 @@ model MockTest {
 
   createdAt   DateTime @default(now())
 
+  // Batch assignment — set when admin assigns this test to a batch
+  assignedBatchId String?
+  assignedBatch   Batch?  @relation(fields: [assignedBatchId], references: [id])
+  isTemplate      Boolean @default(false) // admin-created templates for batch assignment
+
   // Relations
   questions   MockTestQuestion[]
   attempts    Attempt[]
 
   @@index([userId])
   @@index([status])
+  @@index([assignedBatchId])
 }
 
 model MockTestQuestion {
