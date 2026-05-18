@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { PWARegister } from "@/components/pwa-register";
+import { ContentProtection } from "@/components/content-protection";
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
@@ -31,7 +32,10 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
       <body className="min-h-screen bg-gray-50 font-sans antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          <ContentProtection />
+          {children}
+        </Providers>
         <PWARegister />
       </body>
     </html>
