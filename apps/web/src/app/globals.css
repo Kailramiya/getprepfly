@@ -53,8 +53,61 @@ body {
   background: var(--background);
 }
 
-/* Dark mode base */
-.dark body { background-color: #0f172a; color: #f1f5f9; }
+/* ── Dark Mode Global Overrides ──
+   Covers every bg-white / bg-gray-* / border-gray-* / text-gray-* pattern
+   without needing dark: on every component. */
+
+/* Page & card backgrounds */
+.dark body                          { background-color: #0f172a; color: #f1f5f9; }
+.dark .bg-white                     { background-color: #1e293b !important; }
+.dark .bg-gray-50                   { background-color: #0f172a !important; }
+.dark .bg-gray-100                  { background-color: #1e293b !important; }
+.dark .bg-gray-200                  { background-color: #334155 !important; }
+
+/* Borders */
+.dark .border-gray-100              { border-color: #1e293b !important; }
+.dark .border-gray-200              { border-color: #334155 !important; }
+.dark .border-gray-300              { border-color: #475569 !important; }
+.dark .divide-gray-200 > * + *      { border-color: #334155 !important; }
+.dark .divide-y > * + *             { border-color: #334155 !important; }
+
+/* Text */
+.dark .text-gray-900                { color: #f1f5f9 !important; }
+.dark .text-gray-800                { color: #e2e8f0 !important; }
+.dark .text-gray-700                { color: #cbd5e1 !important; }
+.dark .text-gray-600                { color: #94a3b8 !important; }
+.dark .text-gray-500                { color: #64748b !important; }
+.dark .text-gray-400                { color: #475569 !important; }
+
+/* Inputs & textareas */
+.dark input,
+.dark textarea,
+.dark select                        { background-color: #1e293b; border-color: #334155; color: #f1f5f9; }
+.dark input::placeholder,
+.dark textarea::placeholder         { color: #64748b; }
+
+/* Hover states */
+.dark .hover\:bg-gray-50:hover      { background-color: #1e293b !important; }
+.dark .hover\:bg-gray-100:hover     { background-color: #334155 !important; }
+
+/* Shadows — lighten in dark mode */
+.dark .shadow-sm                    { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.4); }
+.dark .shadow                       { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5); }
+.dark .shadow-lg                    { box-shadow: 0 4px 16px 0 rgb(0 0 0 / 0.5); }
+
+/* Buttons with light backgrounds */
+.dark .bg-white\/80                 { background-color: rgb(30 41 59 / 0.8) !important; }
+
+/* Cards — white box with rounded corners */
+.dark [class*="rounded"][class*="border"] { border-color: #334155; }
+
+/* Autofill fix in dark mode */
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus  {
+  -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+}
 
 /* Fix browser autofill purple/blue background */
 input:-webkit-autofill,
@@ -66,9 +119,12 @@ input:-webkit-autofill:active {
   transition: background-color 5000s ease-in-out 0s;
 }
 
-/* Ensure all input text is dark */
+/* Ensure all input text is legible */
 input, textarea, select {
   color: #111827;
+}
+.dark input, .dark textarea, .dark select {
+  color: #f1f5f9;
 }
 
 @layer utilities {
