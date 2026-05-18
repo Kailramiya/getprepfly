@@ -7,7 +7,7 @@ export const maxDuration = 30;
 // POST /api/ai/tts — generate audio for a question using OpenAI TTS
 // Admin-only. Calls OpenAI TTS, uploads to Vercel Blob, saves URL to question.
 export async function POST(req: NextRequest) {
-  const { user, error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"]);
+  const { error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"]);
   if (error) return error;
 
   const { questionId, text, voice = "nova" } = await req.json();

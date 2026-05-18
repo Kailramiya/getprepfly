@@ -33,7 +33,7 @@ export async function POST(req: NextRequest, { params }: { params: { batchId: st
 
 // GET — list assigned tests for a batch
 export async function GET(_req: NextRequest, { params }: { params: { batchId: string } }) {
-  const { user, error } = await requireRole(["CENTRE_ADMIN", "TEACHER"]);
+  const { error } = await requireRole(["CENTRE_ADMIN", "TEACHER"]);
   if (error) return error;
 
   const tests = await db.mockTest.findMany({

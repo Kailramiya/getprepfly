@@ -37,7 +37,7 @@ export default function QuestionReportsPage() {
       .finally(() => setLoading(false));
   };
 
-  useEffect(() => { fetchReports(); }, [showResolved]);
+  useEffect(() => { fetchReports(); }, [showResolved]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const resolve = async (id: string) => {
     await fetch("/api/questions/report", {
@@ -81,7 +81,7 @@ export default function QuestionReportsPage() {
                       <Badge variant="secondary" className="text-xs">{r.question.section}</Badge>
                       <Badge variant="warning" className="text-xs">{REASON_LABELS[r.reason] || r.reason}</Badge>
                     </div>
-                    {r.details && <p className="mt-1 text-sm text-gray-600">"{r.details}"</p>}
+                    {r.details && <p className="mt-1 text-sm text-gray-600">&ldquo;{r.details}&rdquo;</p>}
                     <p className="mt-1 text-xs text-gray-400">
                       by {r.user.name} · {new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
