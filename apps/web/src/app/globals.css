@@ -53,18 +53,8 @@ body {
   background: var(--background);
 }
 
-/* Dark mode base overrides */
+/* Dark mode base */
 .dark body { background-color: #0f172a; color: #f1f5f9; }
-.dark .bg-white { background-color: #1e293b !important; }
-.dark .bg-gray-50 { background-color: #0f172a !important; }
-.dark .bg-gray-100 { background-color: #1e293b !important; }
-.dark .border-gray-200 { border-color: #334155 !important; }
-.dark .text-gray-900 { color: #f1f5f9 !important; }
-.dark .text-gray-700 { color: #cbd5e1 !important; }
-.dark .text-gray-600 { color: #94a3b8 !important; }
-.dark .text-gray-500 { color: #64748b !important; }
-.dark .text-gray-400 { color: #475569 !important; }
-.dark aside { background-color: #1e293b; border-color: #334155; }
 
 /* Fix browser autofill purple/blue background */
 input:-webkit-autofill,

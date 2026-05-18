@@ -88,18 +88,18 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-gray-200 bg-white transition-all duration-300",
+        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-all duration-300",
         collapsed ? "w-[68px]" : "w-64"
       )}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 px-4">
+      <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-slate-700 px-4">
         <Link href="/dashboard" className="overflow-hidden">
           <Logo size="sm" showText={!collapsed} />
         </Link>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="hidden rounded-md p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 lg:block"
+          className="hidden rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600 lg:block"
         >
           {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
@@ -119,15 +119,15 @@ export function Sidebar() {
                   className={cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-indigo-50 text-indigo-700"
-                      : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                      ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300"
+                      : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100"
                   )}
                   title={collapsed ? item.label : undefined}
                 >
                   <item.icon
                     className={cn(
                       "h-5 w-5 shrink-0",
-                      isActive ? "text-indigo-600" : "text-gray-400"
+                      isActive ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-slate-500"
                     )}
                   />
                   {!collapsed && <span>{item.label}</span>}
@@ -139,18 +139,18 @@ export function Sidebar() {
       </nav>
 
       {/* User info + Settings */}
-      <div className="border-t border-gray-200 p-3">
+      <div className="border-t border-gray-200 dark:border-slate-700 p-3">
         <Link
           href="/settings"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100"
         >
-          <Settings className="h-5 w-5 shrink-0 text-gray-400" />
+          <Settings className="h-5 w-5 shrink-0 text-gray-400 dark:text-slate-500" />
           {!collapsed && <span>Settings</span>}
         </Link>
 
         <button
           onClick={toggle}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 transition-colors hover:bg-gray-50 hover:text-gray-900"
+          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100"
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
           {isDark ? <Sun className="h-5 w-5 shrink-0 text-amber-400" /> : <Moon className="h-5 w-5 shrink-0 text-gray-400" />}
@@ -158,13 +158,13 @@ export function Sidebar() {
         </button>
 
         {!collapsed && user && (
-          <div className="mt-2 flex items-center gap-3 rounded-lg bg-gray-50 px-3 py-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
+          <div className="mt-2 flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-slate-800 px-3 py-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-sm font-bold text-indigo-600 dark:text-indigo-300">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-gray-900">{user.name}</p>
-              <p className="truncate text-xs text-gray-500">{user.email}</p>
+              <p className="truncate text-sm font-medium text-gray-900 dark:text-slate-100">{user.name}</p>
+              <p className="truncate text-xs text-gray-500 dark:text-slate-400">{user.email}</p>
             </div>
           </div>
         )}
