@@ -447,7 +447,7 @@ export default function PracticeQuestionPage() {
           {/* Score Summary (shown after submission) */}
           {submitted && score && (
             <div className="mt-6">
-              <ScoreSummary result={score} />
+              <ScoreSummary result={score} lastAttemptScore={lastAttemptScore} />
             </div>
           )}
         </CardContent>
@@ -1623,7 +1623,7 @@ function AudioBlock({
 // SCORE SUMMARY CARD (shown after every submission)
 // ============================================================================
 
-function ScoreSummary({ result }: { result: ScoreResult }) {
+function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastAttemptScore: number | null }) {
   const percent = result.marksTotal > 0 ? (result.marksEarned / result.marksTotal) * 100 : 0;
   const isPerfect = result.marksEarned === result.marksTotal && result.marksTotal > 0;
   const isFailed = result.marksEarned === 0 && !result.pending;
