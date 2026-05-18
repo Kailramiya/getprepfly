@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
   const prediction = url.searchParams.get("prediction");
   const page = parseInt(url.searchParams.get("page") || "1");
   const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
+  const fetchAll = url.searchParams.get("all") === "1";
   const search = url.searchParams.get("search") || "";
   const full = url.searchParams.get("full") === "1"; // include content + URLs in list
   const centreFilter = url.searchParams.get("centreId"); // filter by specific centre (super admin only)
@@ -113,8 +114,7 @@ export async function GET(req: NextRequest) {
         }),
         _count: { select: { attempts: true } },
       },
-      skip: (page - 1) * pageSize,
-      take: pageSize,
+      ...(fetchAll ? {} : { skip: (page - 1) * pageSize, take: pageSize }),
       orderBy:
         sortBy === "title"
           ? [{ title: sortOrder }]

@@ -95,7 +95,7 @@ export default function PracticeQuestionPage() {
     const fetchQuestions = async () => {
       setLoading(true);
       // Single API call with full=1 returns content + audioUrl + imageUrl in one shot
-      const res = await fetch(`/api/questions?section=${section}&type=${type}&pageSize=50&full=1`);
+      const res = await fetch(`/api/questions?section=${section}&type=${type}&all=1&full=1`);
       const data = await res.json();
       if (data.success && data.data.items.length > 0) {
         setQuestions(data.data.items);
