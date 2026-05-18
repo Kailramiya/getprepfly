@@ -35,8 +35,10 @@ interface ScoreResult {
   correct: number;
   total: number;
   mistakes: Array<{ position: number; yourAnswer: string; correctAnswer: string }>;
-  pending?: boolean; // for speaking/writing awaiting AI scoring
+  pending?: boolean;
   message?: string;
+  aiScores?: Record<string, number>; // detailed breakdown from AI: pronunciation/fluency/content etc.
+  transcription?: string;
 }
 
 export default function PracticeQuestionPage() {
@@ -1647,6 +1649,39 @@ function ScoreSummary({ result }: { result: ScoreResult }) {
         </div>
       )}
 
+      {/* AI Score Breakdown */}
+      {result.aiScores && Object.keys(result.aiScores).filter(k => k !== "overall").length > 0 && (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Score Breakdown</p>
+          <div className="space-y-2">
+            {Object.entries(result.aiScores)
+              .filter(([key]) => key !== "overall")
+              .map(([key, val]) => {
+                const pct = Math.round((val / 90) * 100);
+                const barColor = pct >= 67 ? "bg-green-500" : pct >= 33 ? "bg-amber-400" : "bg-red-400";
+                return (
+                  <div key={key}>
+                    <div className="flex items-center justify-between mb-0.5">
+                      <span className="text-xs capitalize text-gray-600">{key}</span>
+                      <span className="text-xs font-semibold text-gray-800">{val}/90</span>
+                    </div>
+                    <div className="h-1.5 w-full rounded-full bg-white/60">
+                      <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
+
+      {/* Transcription (for speaking questions) */}
+      {result.transcription && (
+        <div className="mt-3 rounded-md bg-white/70 p-2 text-xs text-gray-600">
+          <span className="font-medium text-gray-700">Transcribed: </span>{result.transcription}
+        </div>
+      )}
+
       {/* Message at bottom if any */}
       {!result.pending && result.message && (
         <p className="mt-3 rounded-md bg-white/70 p-2 text-xs text-gray-700">
@@ -1782,7 +1817,14 @@ function SpeakingQuestion({
             correct: mistakes.length === 0 ? 1 : 0,
             total: 1,
             mistakes,
-            message: `${scores.feedback || ""} | Transcribed: "${transcription}"`,
+            message: scores.feedback || "",
+            transcription,
+            aiScores: {
+              pronunciation: scores.pronunciation || 0,
+              fluency: scores.fluency || 0,
+              content: scores.content || 0,
+              overall,
+            },
           };
         } else {
           scoreResult.message = data.error || scoreResult.message;
@@ -2010,6 +2052,13 @@ function SummarizeWrittenTextQuestion({
             total: 1,
             mistakes,
             message: scores.feedback || "",
+            aiScores: {
+              grammar: scores.grammar || 0,
+              spelling: scores.spelling || 0,
+              content: scores.content || 0,
+              structure: scores.structure || 0,
+              overall: scores.overall || 0,
+            },
           } as ScoreResult,
         });
       } else {
@@ -2109,6 +2158,14 @@ function WriteEssayQuestion({
             total: 1,
             mistakes,
             message: scores.feedback || "",
+            aiScores: {
+              grammar: scores.grammar || 0,
+              spelling: scores.spelling || 0,
+              content: scores.content || 0,
+              structure: scores.structure || 0,
+              vocabulary: scores.vocabulary || 0,
+              overall: scores.overall || 0,
+            },
           } as ScoreResult,
         });
       } else {
