@@ -166,6 +166,7 @@ model User {
   batchMemberships BatchMember[]
   moduleAccess     ModuleAccess[]
   centreSeats      CentreStudentSeat[]
+  questionFlags    QuestionFlag[]
 
   @@index([email])
   @@index([centreId])
@@ -399,6 +400,7 @@ model Question {
   // Relations
   attempts      Attempt[]
   mockTestQuestions MockTestQuestion[]
+  flags         QuestionFlag[]
 
   @@index([section, type])
   @@index([centreId])
@@ -442,6 +444,30 @@ model Attempt {
   @@index([userId, createdAt]) // for daily scoring count + recent activity
   @@index([mockTestId])
   @@index([createdAt])
+}
+
+// ============================================================================
+// QUESTION FLAGS — per-user bookmarking of questions as weak/strong/review
+// ============================================================================
+
+enum FlagType {
+  WEAK
+  STRONG
+  REVIEW_AGAIN
+}
+
+model QuestionFlag {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  flag       FlagType
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, questionId])
+  @@index([userId, flag])
 }
 
 // ============================================================================

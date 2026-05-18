@@ -11,6 +11,7 @@ import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   ChevronLeft, ChevronRight, RotateCcw,
   CheckCircle2, XCircle, Loader2, Volume2, List, X, Star,
+  Flag, ThumbsUp, ThumbsDown, RefreshCw,
 } from "lucide-react";
 
 interface QuestionData {
@@ -49,6 +50,7 @@ export default function PracticeQuestionPage() {
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [accessInfo, setAccessInfo] = useState<{ hasAllAccess: boolean; modules: string[]; isStaff: boolean } | null>(null);
   const [showList, setShowList] = useState(false);
+  const [flags, setFlags] = useState<Record<string, string>>({});
   const currentQuestion = questions[currentIndex];
 
   // Fetch user's access info to know if they actually have access to this section
@@ -99,7 +101,14 @@ export default function PracticeQuestionPage() {
       const res = await fetch(`/api/questions?section=${section}&type=${type}&all=1&full=1`);
       const data = await res.json();
       if (data.success && data.data.items.length > 0) {
-        setQuestions(data.data.items);
+        const items = data.data.items;
+        setQuestions(items);
+        // Fetch flags for all questions in one call
+        const ids = items.map((q: QuestionData) => q.id).join(",");
+        fetch(`/api/questions/flag?questionIds=${ids}`)
+          .then(r => r.json())
+          .then(d => { if (d.success) setFlags(d.data); })
+          .catch(() => {});
       }
       setLoading(false);
     };
@@ -216,6 +225,26 @@ export default function PracticeQuestionPage() {
     setShowList(false);
   };
 
+  const setFlag = async (flag: string | null) => {
+    if (!currentQuestion) return;
+    const qid = currentQuestion.id;
+    const prev = flags[qid];
+    // Toggle off if same flag clicked again
+    const next = prev === flag ? null : flag;
+    setFlags(f => ({ ...f, [qid]: next as string }));
+    await fetch("/api/questions/flag", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ questionId: qid, flag: next }),
+    });
+  };
+
+  const FLAG_OPTIONS = [
+    { key: "WEAK", label: "Weak", icon: ThumbsDown, color: "text-red-600 bg-red-50 border-red-200 hover:bg-red-100" },
+    { key: "REVIEW_AGAIN", label: "Review Again", icon: RefreshCw, color: "text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100" },
+    { key: "STRONG", label: "Strong", icon: ThumbsUp, color: "text-green-600 bg-green-50 border-green-200 hover:bg-green-100" },
+  ];
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       {/* Question List Overlay */}
@@ -252,6 +281,9 @@ export default function PracticeQuestionPage() {
                           {q.difficulty}
                         </span>
                         {q.isPrediction && <Star className="h-3 w-3 text-amber-500" />}
+                        {flags[q.id] === "WEAK" && <ThumbsDown className="h-3 w-3 text-red-500" />}
+                        {flags[q.id] === "REVIEW_AGAIN" && <RefreshCw className="h-3 w-3 text-amber-500" />}
+                        {flags[q.id] === "STRONG" && <ThumbsUp className="h-3 w-3 text-green-500" />}
                       </div>
                     </div>
                   </div>
@@ -378,6 +410,25 @@ export default function PracticeQuestionPage() {
         >
           Next <ChevronRight className="h-4 w-4" />
         </Button>
+      </div>
+
+      {/* Flag Buttons */}
+      <div className="flex items-center justify-center gap-2 border-t pt-4">
+        <Flag className="h-4 w-4 text-gray-400" />
+        <span className="text-xs text-gray-400 mr-1">Mark as:</span>
+        {FLAG_OPTIONS.map(({ key, label, icon: Icon, color }) => {
+          const isActive = flags[currentQuestion?.id] === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setFlag(key)}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${isActive ? color : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"}`}
+            >
+              <Icon className="h-3.5 w-3.5" />
+              {label}
+            </button>
+          );
+        })}
       </div>
     </div>
   );
