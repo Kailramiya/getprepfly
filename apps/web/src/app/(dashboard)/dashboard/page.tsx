@@ -27,6 +27,7 @@ interface DashboardData {
   totalPracticeTime: number;
   streak: number;
   averageScore: number;
+  estimatedPTEScore: number | null;
   scoresBySection: Record<string, number>;
   recentAttempts: Array<{
     id: string;
@@ -126,6 +127,13 @@ export default function DashboardPage() {
       value: loading ? null : data?.averageScore ? `${data.averageScore}/90` : "--",
       icon: TrendingUp,
       color: "text-indigo-500",
+    },
+    {
+      label: "Est. PTE Score",
+      value: loading ? null : data?.estimatedPTEScore ? `~${data.estimatedPTEScore}` : "--",
+      icon: Star,
+      color: "text-amber-500",
+      tooltip: "Estimated based on your section averages using PTE score weights",
     },
     {
       label: "Practice Time",

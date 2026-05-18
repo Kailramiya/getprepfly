@@ -116,6 +116,21 @@ export async function GET() {
     }
   }
 
+  const secAvg = {
+    SPEAKING: avg(sectionScores.SPEAKING),
+    WRITING: avg(sectionScores.WRITING),
+    READING: avg(sectionScores.READING),
+    LISTENING: avg(sectionScores.LISTENING),
+  };
+
+  // PTE score estimation using section weights (Speaking 30%, Writing 30%, Reading 20%, Listening 20%)
+  // Maps 0-90 practice scale to 10-90 PTE scale
+  const hasData = Object.values(secAvg).some(v => v > 0);
+  const weightedPractice = hasData
+    ? (secAvg.SPEAKING * 0.3 + secAvg.WRITING * 0.3 + secAvg.READING * 0.2 + secAvg.LISTENING * 0.2)
+    : 0;
+  const estimatedPTEScore = hasData ? Math.round(10 + (weightedPractice / 90) * 80) : null;
+
   return NextResponse.json({
     success: true,
     data: {
@@ -123,12 +138,8 @@ export async function GET() {
       totalPracticeTime: timeResult._sum.timeTaken || 0,
       streak,
       averageScore: avg(attemptsWithSection.filter((a) => a.overallScore !== null).map((a) => a.overallScore!)),
-      scoresBySection: {
-        SPEAKING: avg(sectionScores.SPEAKING),
-        WRITING: avg(sectionScores.WRITING),
-        READING: avg(sectionScores.READING),
-        LISTENING: avg(sectionScores.LISTENING),
-      },
+      estimatedPTEScore,
+      scoresBySection: secAvg,
       recentAttempts: recentAttempts.map((a) => ({
         id: a.id,
         questionType: a.question.type,
