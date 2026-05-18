@@ -312,6 +312,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
   const [correctText, setCorrectText] = useState(initialContent.correctText || "");
   const [imageUrl, setImageUrl] = useState(editingQuestion?.imageUrl || initialContent.imageUrl || "");
   const [audioUrl, setAudioUrl] = useState(editingQuestion?.audioUrl || initialContent.audioUrl || "");
+  const [generatingAudio, setGeneratingAudio] = useState(false);
   const [minWords, setMinWords] = useState<number>(initialContent.minWords || 200);
   const [maxWords, setMaxWords] = useState<number>(initialContent.maxWords || 300);
   const [paragraphs, setParagraphs] = useState<string[]>(
@@ -702,6 +703,32 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       onChange={setAudioUrl}
                       folder="questions/audio"
                     />
+                    {/* TTS — only available when editing an existing question */}
+                    {editingQuestion?.id && (
+                      <button
+                        type="button"
+                        disabled={generatingAudio}
+                        onClick={async () => {
+                          const textForTts = text.trim() || correctText.trim();
+                          if (!textForTts) { alert("Add the question text first so we know what to speak."); return; }
+                          setGeneratingAudio(true);
+                          try {
+                            const res = await fetch("/api/ai/tts", {
+                              method: "POST",
+                              headers: { "Content-Type": "application/json" },
+                              body: JSON.stringify({ questionId: editingQuestion.id, text: textForTts, voice: "nova" }),
+                            });
+                            const data = await res.json();
+                            if (data.success) { setAudioUrl(data.data.audioUrl); alert("Audio generated and saved!"); }
+                            else alert(data.error || "Generation failed");
+                          } catch { alert("Failed to generate audio"); }
+                          finally { setGeneratingAudio(false); }
+                        }}
+                        className="mt-2 flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 hover:bg-indigo-100 disabled:opacity-50"
+                      >
+                        {generatingAudio ? "Generating..." : "✨ Auto-generate audio with AI"}
+                      </button>
+                    )}
                   </div>
                 )}
 
