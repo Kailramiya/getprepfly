@@ -30,6 +30,7 @@ const SECTION_CONFIG: Record<string, {
       { type: "RETELL_LECTURE", label: "Re-tell Lecture", description: "Listen to a lecture and re-tell it", timeLimit: "10+40 sec" },
       { type: "ANSWER_SHORT_QUESTION", label: "Answer Short Question", description: "Listen and give a short answer", timeLimit: "10 sec" },
       { type: "RESPOND_TO_SITUATION", label: "Respond to a Situation", description: "Listen to a situation and respond appropriately", timeLimit: "20 sec" },
+      { type: "SUMMARIZE_GROUP_DISCUSSION", label: "Summarize Group Discussion", description: "Listen to a group discussion and summarize the key points", timeLimit: "10+40 sec" },
     ],
   },
   writing: {
