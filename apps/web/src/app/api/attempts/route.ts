@@ -10,13 +10,15 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const section = url.searchParams.get("section");
   const type = url.searchParams.get("type");
+  const questionId = url.searchParams.get("questionId");
   const page = parseInt(url.searchParams.get("page") || "1");
   const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
 
   const where: any = {
     userId: user!.id,
-    ...(section && { question: { section } }),
-    ...(type && { question: { type } }),
+    ...(questionId && { questionId }),
+    ...(section && !questionId && { question: { section } }),
+    ...(type && !questionId && { question: { type } }),
   };
 
   const [attempts, total] = await Promise.all([

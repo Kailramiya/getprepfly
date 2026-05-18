@@ -11,8 +11,9 @@ import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   ChevronLeft, ChevronRight, RotateCcw,
   CheckCircle2, XCircle, Loader2, Volume2, List, X, Star,
-  Flag, ThumbsUp, ThumbsDown, RefreshCw,
+  Flag, ThumbsUp, ThumbsDown, RefreshCw, Eye, EyeOff, BarChart2,
 } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 
 interface QuestionData {
   id: string;
@@ -51,6 +52,9 @@ export default function PracticeQuestionPage() {
   const [accessInfo, setAccessInfo] = useState<{ hasAllAccess: boolean; modules: string[]; isStaff: boolean } | null>(null);
   const [showList, setShowList] = useState(false);
   const [flags, setFlags] = useState<Record<string, string>>({});
+  const [showAnswer, setShowAnswer] = useState(false);
+  const [attemptHistory, setAttemptHistory] = useState<Array<{ date: string; score: number }>>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const currentQuestion = questions[currentIndex];
 
   // Fetch user's access info to know if they actually have access to this section
@@ -218,6 +222,29 @@ export default function PracticeQuestionPage() {
     );
   }
 
+  useEffect(() => {
+    if (!currentQuestion?.id) return;
+    setShowAnswer(false);
+    setAttemptHistory([]);
+    setHistoryLoading(true);
+    fetch(`/api/attempts?questionId=${currentQuestion.id}&pageSize=10`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          const history = d.data.items
+            .filter((a: any) => a.overallScore !== null)
+            .map((a: any) => ({
+              date: new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+              score: Math.round(a.overallScore),
+            }))
+            .reverse();
+          setAttemptHistory(history);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setHistoryLoading(false));
+  }, [currentQuestion?.id]);
+
   const jumpToQuestion = (index: number) => {
     setCurrentIndex(index);
     setSubmitted(false);
@@ -337,7 +364,16 @@ export default function PracticeQuestionPage() {
       {/* Question Content */}
       <Card className="overflow-hidden">
         <CardHeader className="bg-gray-50">
-          <CardTitle className="text-base">{currentQuestion?.title}</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">{currentQuestion?.title}</CardTitle>
+            <button
+              onClick={() => setShowAnswer(a => !a)}
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition"
+            >
+              {showAnswer ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              {showAnswer ? "Hide Answer" : "Show Answer"}
+            </button>
+          </div>
         </CardHeader>
         <CardContent className="p-6">
           {/* Render based on question type — key forces remount on question change so all
@@ -366,8 +402,8 @@ export default function PracticeQuestionPage() {
         </CardContent>
       </Card>
 
-      {/* Model Answer (shown after submission) */}
-      {submitted && currentQuestion?.modelAnswer && (
+      {/* Model Answer — shown after submission OR when Show Answer is toggled */}
+      {(submitted || showAnswer) && currentQuestion?.modelAnswer && (
         <Card className="border-green-200 bg-green-50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base text-green-800">
@@ -381,8 +417,8 @@ export default function PracticeQuestionPage() {
         </Card>
       )}
 
-      {/* Explanation */}
-      {submitted && currentQuestion?.explanation && (
+      {/* Explanation — shown after submission OR when Show Answer is toggled */}
+      {(submitted || showAnswer) && currentQuestion?.explanation && (
         <Card className="border-blue-200 bg-blue-50">
           <CardContent className="p-4">
             <p className="text-sm font-medium text-blue-800">Explanation:</p>
@@ -411,6 +447,44 @@ export default function PracticeQuestionPage() {
           Next <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
+
+      {/* Score History */}
+      {(attemptHistory.length > 0 || historyLoading) && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-sm text-gray-700">
+              <BarChart2 className="h-4 w-4 text-indigo-500" />
+              Your Score History
+              <span className="ml-auto text-xs font-normal text-gray-400">{attemptHistory.length} attempt{attemptHistory.length !== 1 ? "s" : ""}</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="pt-0">
+            {historyLoading ? (
+              <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-indigo-400" /></div>
+            ) : (
+              <ResponsiveContainer width="100%" height={140}>
+                <BarChart data={attemptHistory} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
+                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
+                  <YAxis domain={[0, 90]} tick={{ fontSize: 11 }} />
+                  <Tooltip
+                    formatter={(v: number) => [`${v}/90`, "Score"]}
+                    contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                  />
+                  <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+                    {attemptHistory.map((entry, i) => (
+                      <Cell
+                        key={i}
+                        fill={entry.score >= 60 ? "#22c55e" : entry.score >= 30 ? "#f59e0b" : "#ef4444"}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            )}
+            <p className="mt-1 text-center text-xs text-gray-400">Green ≥ 60 · Amber ≥ 30 · Red &lt; 30</p>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Flag Buttons */}
       <div className="flex items-center justify-center gap-2 border-t pt-4">
