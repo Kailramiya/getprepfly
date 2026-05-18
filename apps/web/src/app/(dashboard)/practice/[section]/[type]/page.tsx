@@ -121,6 +121,29 @@ export default function PracticeQuestionPage() {
     if (section && type) fetchQuestions();
   }, [section, type]);
 
+  useEffect(() => {
+    if (!currentQuestion?.id) return;
+    setShowAnswer(false);
+    setAttemptHistory([]);
+    setHistoryLoading(true);
+    fetch(`/api/attempts?questionId=${currentQuestion.id}&pageSize=10`)
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) {
+          const history = d.data.items
+            .filter((a: any) => a.overallScore !== null)
+            .map((a: any) => ({
+              date: new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+              score: Math.round(a.overallScore),
+            }))
+            .reverse();
+          setAttemptHistory(history);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setHistoryLoading(false));
+  }, [currentQuestion?.id]);
+
   const goToNext = useCallback(() => {
     if (currentIndex < questions.length - 1) {
       setCurrentIndex(currentIndex + 1);
@@ -223,29 +246,6 @@ export default function PracticeQuestionPage() {
       </div>
     );
   }
-
-  useEffect(() => {
-    if (!currentQuestion?.id) return;
-    setShowAnswer(false);
-    setAttemptHistory([]);
-    setHistoryLoading(true);
-    fetch(`/api/attempts?questionId=${currentQuestion.id}&pageSize=10`)
-      .then(r => r.json())
-      .then(d => {
-        if (d.success) {
-          const history = d.data.items
-            .filter((a: any) => a.overallScore !== null)
-            .map((a: any) => ({
-              date: new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
-              score: Math.round(a.overallScore),
-            }))
-            .reverse();
-          setAttemptHistory(history);
-        }
-      })
-      .catch(() => {})
-      .finally(() => setHistoryLoading(false));
-  }, [currentQuestion?.id]);
 
   const jumpToQuestion = (index: number) => {
     setCurrentIndex(index);
