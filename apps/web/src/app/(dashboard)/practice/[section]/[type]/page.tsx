@@ -10,7 +10,7 @@ import { AudioRecorder } from "@/components/practice/audio-recorder";
 import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   ChevronLeft, ChevronRight, RotateCcw,
-  CheckCircle2, XCircle, Loader2, Volume2,
+  CheckCircle2, XCircle, Loader2, Volume2, List, X, Star,
 } from "lucide-react";
 
 interface QuestionData {
@@ -48,6 +48,7 @@ export default function PracticeQuestionPage() {
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [accessInfo, setAccessInfo] = useState<{ hasAllAccess: boolean; modules: string[]; isStaff: boolean } | null>(null);
+  const [showList, setShowList] = useState(false);
   const currentQuestion = questions[currentIndex];
 
   // Fetch user's access info to know if they actually have access to this section
@@ -208,8 +209,59 @@ export default function PracticeQuestionPage() {
     );
   }
 
+  const jumpToQuestion = (index: number) => {
+    setCurrentIndex(index);
+    setSubmitted(false);
+    setScore(null);
+    setShowList(false);
+  };
+
   return (
     <div className="mx-auto max-w-4xl space-y-6">
+      {/* Question List Overlay */}
+      {showList && (
+        <div className="fixed inset-0 z-50 flex justify-end">
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40" onClick={() => setShowList(false)} />
+          {/* Panel */}
+          <div className="relative flex h-full w-full max-w-sm flex-col bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <div>
+                <p className="font-semibold text-gray-900">{formatType(type)}</p>
+                <p className="text-xs text-gray-500">{questions.length} questions</p>
+              </div>
+              <button onClick={() => setShowList(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-2">
+              {questions.map((q, i) => (
+                <button
+                  key={q.id}
+                  onClick={() => jumpToQuestion(i)}
+                  className={`w-full rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-50 ${i === currentIndex ? "bg-indigo-50 ring-1 ring-indigo-200" : ""}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${i === currentIndex ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500"}`}>
+                      {i + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-medium text-gray-900">{q.title}</p>
+                      <div className="mt-1 flex items-center gap-1.5">
+                        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${q.difficulty === "EASY" ? "bg-green-100 text-green-700" : q.difficulty === "HARD" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"}`}>
+                          {q.difficulty}
+                        </span>
+                        {q.isPrediction && <Star className="h-3 w-3 text-amber-500" />}
+                      </div>
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Progress Bar */}
       <div className="flex items-center justify-between">
         <div>
@@ -228,6 +280,9 @@ export default function PracticeQuestionPage() {
           }>
             {currentQuestion?.difficulty}
           </Badge>
+          <Button variant="outline" size="sm" onClick={() => setShowList(true)} className="gap-1.5">
+            <List className="h-4 w-4" /> All Questions
+          </Button>
         </div>
       </div>
 
