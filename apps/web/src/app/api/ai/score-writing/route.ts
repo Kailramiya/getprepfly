@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 
+export const maxDuration = 60;
+
 // POST /api/ai/score-writing — AI scoring for writing responses
 export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();

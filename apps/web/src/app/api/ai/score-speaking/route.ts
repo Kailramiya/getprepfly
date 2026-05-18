@@ -3,6 +3,8 @@ import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { getUserAccess, FREE_DAILY_SPEAKING_SCORINGS } from "@/lib/access";
 
+export const maxDuration = 60; // seconds — required for Whisper + GPT pipeline
+
 // POST /api/ai/score-speaking — AI scoring for speaking responses
 // Accepts: audio blob (as base64 or URL) + expected text
 // Returns: pronunciation, fluency, content scores + feedback
