@@ -7,11 +7,19 @@ export async function GET() {
   const { user, error } = await requireAuth();
   if (error) return error;
 
+  const isSuperAdmin = user!.role === "SUPER_ADMIN";
+
   const announcements = await db.announcement.findMany({
     where: {
-      OR: [
-        { isGlobal: true },
-        ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
+      AND: [
+        // Feedback entries (stored as announcements) are only visible to super admins
+        ...(isSuperAdmin ? [] : [{ title: { not: { startsWith: "[FEEDBACK:" } } }]),
+        {
+          OR: [
+            { isGlobal: true },
+            ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
+          ],
+        },
       ],
     },
     orderBy: { createdAt: "desc" },

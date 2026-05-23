@@ -14,7 +14,8 @@ interface MediaUploaderProps {
 
 export function MediaUploader({ kind, value, onChange, folder = "questions" }: MediaUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [mode, setMode] = useState<"upload" | "url">("upload");
+  // Audio upload is disabled (Blob store is private); audio is URL-only.
+  const [mode, setMode] = useState<"upload" | "url">(kind === "audio" ? "url" : "upload");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
@@ -116,29 +117,31 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
 
   return (
     <div className="space-y-2">
-      {/* Mode Toggle */}
-      <div className="inline-flex rounded-lg bg-gray-100 p-1">
-        <button
-          type="button"
-          onClick={() => setMode("upload")}
-          className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
-            mode === "upload" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
-          }`}
-        >
-          <Upload className="h-3.5 w-3.5" />
-          Upload File
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("url")}
-          className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
-            mode === "url" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
-          }`}
-        >
-          <Link2 className="h-3.5 w-3.5" />
-          Paste URL
-        </button>
-      </div>
+      {/* Mode Toggle — hidden for audio (URL-only) */}
+      {kind !== "audio" && (
+        <div className="inline-flex rounded-lg bg-gray-100 p-1">
+          <button
+            type="button"
+            onClick={() => setMode("upload")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
+              mode === "upload" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
+            }`}
+          >
+            <Upload className="h-3.5 w-3.5" />
+            Upload File
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode("url")}
+            className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
+              mode === "url" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
+            }`}
+          >
+            <Link2 className="h-3.5 w-3.5" />
+            Paste URL
+          </button>
+        </div>
+      )}
 
       {/* Upload mode */}
       {mode === "upload" && (
