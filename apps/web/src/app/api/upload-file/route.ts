@@ -72,19 +72,40 @@ export async function POST(req: NextRequest) {
         const ext = file.name.split(".").pop() || "bin";
         const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-        // Convert to ArrayBuffer for maximum runtime compatibility
         const arrayBuffer = await file.arrayBuffer();
 
-        const blob = await put(fileName, arrayBuffer, {
-          access: "public",
-          contentType: normalizedType,
-          // token is auto-read from BLOB_READ_WRITE_TOKEN env var
-        });
+        // Try public access first; if the store is private, fall back to private access.
+        let blob: Awaited<ReturnType<typeof put>> | null = null;
+        let isPrivate = false;
+
+        try {
+          blob = await put(fileName, arrayBuffer, {
+            access: "public",
+            contentType: normalizedType,
+          });
+        } catch (pubErr: any) {
+          if (pubErr?.message?.includes("private")) {
+            // Store is configured as private — retry with private access
+            blob = await put(fileName, arrayBuffer, {
+              access: "private",
+              contentType: normalizedType,
+            });
+            isPrivate = true;
+          } else {
+            throw pubErr;
+          }
+        }
+
+        // For private blobs the raw URL requires the token to access.
+        // Wrap it in our proxy route so audio/images load in the browser.
+        const serveUrl = isPrivate
+          ? `/api/media-proxy?url=${encodeURIComponent(blob!.url)}`
+          : blob!.url;
 
         return NextResponse.json({
           success: true,
           data: {
-            url: blob.url,
+            url: serveUrl,
             method: "vercel-blob",
             size: file.size,
             type: normalizedType,
