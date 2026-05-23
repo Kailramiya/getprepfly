@@ -159,21 +159,21 @@ export default function StudentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Students</h1>
-          <p className="text-gray-500">Manage your coaching centre students</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Students</h1>
+          <p className="text-gray-500 dark:text-slate-400">Manage your coaching centre students</p>
         </div>
       </div>
 
       {/* Invite Student Card */}
-      <Card className="border-indigo-200 bg-gradient-to-br from-indigo-50 to-teal-50">
+      <Card className="border-indigo-200 dark:border-indigo-900 bg-gradient-to-br from-indigo-50 to-teal-50 dark:from-slate-800 dark:to-slate-800">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white">
               <UserPlus className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-900">Invite a Student</h3>
-              <p className="mt-1 text-sm text-gray-600">
+              <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">Invite a Student</h3>
+              <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
                 Enter the student&apos;s email address. They will receive an invitation link to create their account and will be automatically linked to your centre.
               </p>
 
@@ -186,7 +186,7 @@ export default function StudentsPage() {
                     value={inviteEmail}
                     onChange={(e) => { setInviteEmail(e.target.value); setInviteMsg(null); }}
                     onKeyDown={(e) => e.key === "Enter" && sendInvite()}
-                    className="w-full rounded-lg border border-gray-300 py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
                   />
                 </div>
                 <Button onClick={sendInvite} disabled={!inviteEmail.trim() || inviting} loading={inviting} className="gap-2 shrink-0">
@@ -197,7 +197,9 @@ export default function StudentsPage() {
 
               {inviteMsg && (
                 <div className={`mt-3 flex items-center gap-2 rounded-lg p-3 text-sm ${
-                  inviteMsg.type === "success" ? "bg-green-50 text-green-800" : "bg-red-50 text-red-700"
+                  inviteMsg.type === "success"
+                    ? "bg-green-50 dark:bg-green-900/30 text-green-800 dark:text-green-300"
+                    : "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400"
                 }`}>
                   {inviteMsg.type === "success" ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : null}
                   {inviteMsg.text}
@@ -207,13 +209,13 @@ export default function StudentsPage() {
               {/* Pending Invitations */}
               {pendingInvites.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs font-semibold uppercase text-gray-500">Pending Invitations ({pendingInvites.length})</p>
+                  <p className="text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Pending Invitations ({pendingInvites.length})</p>
                   <div className="mt-2 space-y-1.5">
                     {pendingInvites.map((invite) => (
-                      <div key={invite.id} className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 text-sm border border-gray-100">
+                      <div key={invite.id} className="flex items-center gap-2 rounded-lg bg-white dark:bg-slate-700 px-3 py-2 text-sm border border-gray-100 dark:border-slate-600">
                         <Clock className="h-3.5 w-3.5 shrink-0 text-amber-500" />
-                        <span className="flex-1 text-gray-700">{invite.email}</span>
-                        <span className="text-xs text-gray-400">
+                        <span className="flex-1 text-gray-700 dark:text-slate-300">{invite.email}</span>
+                        <span className="text-xs text-gray-400 dark:text-slate-500">
                           {new Date(invite.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                         </span>
                       </div>
@@ -222,9 +224,9 @@ export default function StudentsPage() {
                 </div>
               )}
 
-              <div className="mt-4 rounded-md bg-white/60 p-3">
-                <p className="text-xs font-medium text-gray-700">How it works:</p>
-                <ol className="mt-1 list-decimal space-y-0.5 pl-4 text-xs text-gray-600">
+              <div className="mt-4 rounded-md bg-white/60 dark:bg-slate-700/60 p-3">
+                <p className="text-xs font-medium text-gray-700 dark:text-slate-300">How it works:</p>
+                <ol className="mt-1 list-decimal space-y-0.5 pl-4 text-xs text-gray-600 dark:text-slate-400">
                   <li>Enter student&apos;s email and click Send Invite</li>
                   <li>Student receives an email with a registration link</li>
                   <li>They sign up — automatically added to your centre</li>
@@ -262,40 +264,40 @@ export default function StudentsPage() {
             </div>
           ) : students.length === 0 ? (
             <div className="py-12 text-center">
-              <Users className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-4 text-gray-500">No students yet. Share your invite link to get started.</p>
+              <Users className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
+              <p className="mt-4 text-gray-500 dark:text-slate-400">No students yet. Share your invite link to get started.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-gray-100">
-                    <th className="pb-3 text-left font-medium text-gray-500">Name</th>
-                    <th className="pb-3 text-left font-medium text-gray-500">Email</th>
-                    <th className="pb-3 text-left font-medium text-gray-500">Access</th>
-                    <th className="pb-3 text-left font-medium text-gray-500">Expires</th>
-                    <th className="pb-3 text-left font-medium text-gray-500">Practice</th>
-                    <th className="pb-3 text-left font-medium text-gray-500">Joined</th>
-                    <th className="pb-3 text-right font-medium text-gray-500">Action</th>
+                  <tr className="border-b border-gray-100 dark:border-slate-700">
+                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Name</th>
+                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Email</th>
+                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Access</th>
+                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Expires</th>
+                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Practice</th>
+                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Joined</th>
+                    <th className="pb-3 text-right font-medium text-gray-500 dark:text-slate-400">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-gray-50 dark:divide-slate-700/50">
                   {students.map((student) => (
-                    <tr key={student.id} className="hover:bg-gray-50">
+                    <tr key={student.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40">
                       <td className="py-3">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-xs font-bold text-indigo-600 dark:text-indigo-300">
                             {student.name.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <Link href={`/admin/students/${student.id}`} className="font-medium text-indigo-700 hover:underline">{student.name}</Link>
+                            <Link href={`/admin/students/${student.id}`} className="font-medium text-indigo-700 dark:text-indigo-400 hover:underline">{student.name}</Link>
                             {student.phone && (
-                              <p className="text-xs text-gray-400">{student.phone}</p>
+                              <p className="text-xs text-gray-400 dark:text-slate-500">{student.phone}</p>
                             )}
                           </div>
                         </div>
                       </td>
-                      <td className="py-3 text-sm text-gray-600">{student.email}</td>
+                      <td className="py-3 text-sm text-gray-600 dark:text-slate-400">{student.email}</td>
                       <td className="py-3">
                         {student.centreSeats[0] ? (
                           <Badge variant={
@@ -313,16 +315,16 @@ export default function StudentsPage() {
                         {student.centreSeats[0] && student.centreSeats[0].status === "ACTIVE" ? (
                           <span className={
                             new Date(student.centreSeats[0].endDate) < new Date(Date.now() + 7 * 86400000)
-                              ? "text-amber-600 font-medium" : "text-gray-600"
+                              ? "text-amber-600 dark:text-amber-400 font-medium" : "text-gray-600 dark:text-slate-400"
                           }>
                             {new Date(student.centreSeats[0].endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                           </span>
                         ) : (
-                          <span className="text-gray-400">—</span>
+                          <span className="text-gray-400 dark:text-slate-600">—</span>
                         )}
                       </td>
-                      <td className="py-3 text-gray-600">{student._count.attempts} attempts</td>
-                      <td className="py-3 text-gray-500">
+                      <td className="py-3 text-gray-600 dark:text-slate-400">{student._count.attempts} attempts</td>
+                      <td className="py-3 text-gray-500 dark:text-slate-500">
                         {new Date(student.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </td>
                       <td className="py-3 text-right">
@@ -332,7 +334,7 @@ export default function StudentsPage() {
                             <Button variant="ghost" size="sm"
                               onClick={() => renewSeat(student.id, student.name)}
                               disabled={renewingSeat === student.id}
-                              className="h-8 w-8 p-0 text-gray-400 hover:text-green-600"
+                              className="h-8 w-8 p-0 text-gray-400 dark:text-slate-500 hover:text-green-600 dark:hover:text-green-400"
                               title="Renew 90-day access"
                             >
                               {renewingSeat === student.id
@@ -345,7 +347,7 @@ export default function StudentsPage() {
                             <Button variant="ghost" size="sm"
                               onClick={() => cancelSeat(student.id, student.name)}
                               disabled={cancelingSeat === student.id}
-                              className="h-8 w-8 p-0 text-gray-400 hover:text-amber-600"
+                              className="h-8 w-8 p-0 text-gray-400 dark:text-slate-500 hover:text-amber-600 dark:hover:text-amber-400"
                               title="Cancel seat access (no refund)"
                             >
                               {cancelingSeat === student.id
@@ -358,7 +360,7 @@ export default function StudentsPage() {
                             size="sm"
                             onClick={() => handleDelete(student.id, student.name)}
                             disabled={deleting === student.id}
-                            className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                            className="h-8 w-8 p-0 text-gray-400 dark:text-slate-500 hover:text-red-600 dark:hover:text-red-400"
                             title="Delete student permanently"
                           >
                             {deleting === student.id ? (
