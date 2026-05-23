@@ -185,7 +185,7 @@ export const authOptions: NextAuthOptions = {
         // Only re-check DB every 60s to avoid hitting it on every API call.
         const now = Math.floor(Date.now() / 1000);
         const lastChecked = (token as any).lastSessionCheck || 0;
-        const SESSION_CHECK_INTERVAL = 60; // seconds
+        const SESSION_CHECK_INTERVAL = 30; // seconds
 
         if (now - lastChecked > SESSION_CHECK_INTERVAL) {
           const dbUser = await db.user.findUnique({
