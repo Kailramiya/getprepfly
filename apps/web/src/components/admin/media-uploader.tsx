@@ -117,12 +117,12 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
   return (
     <div className="space-y-2">
       {/* Mode Toggle */}
-      <div className="inline-flex rounded-lg bg-gray-100 p-1">
+      <div className="inline-flex rounded-lg bg-gray-100 dark:bg-slate-700 p-1">
         <button
           type="button"
           onClick={() => setMode("upload")}
           className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
-            mode === "upload" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
+            mode === "upload" ? "bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-300 shadow-sm" : "text-gray-500 dark:text-slate-400"
           }`}
         >
           <Upload className="h-3.5 w-3.5" />
@@ -132,7 +132,7 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
           type="button"
           onClick={() => setMode("url")}
           className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
-            mode === "url" ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
+            mode === "url" ? "bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-300 shadow-sm" : "text-gray-500 dark:text-slate-400"
           }`}
         >
           <Link2 className="h-3.5 w-3.5" />
@@ -184,7 +184,7 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
               </Button>
             )}
           </div>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">
             Max {maxSizeMB} MB. {kind === "image" ? "JPG, PNG, WebP" : "MP3, WAV, OGG, WebM"}.
           </p>
         </div>
@@ -215,7 +215,7 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
 
       {/* Preview */}
       {hasValue && (
-        <div className="mt-2 rounded-lg border border-gray-200 bg-gray-50 p-2">
+        <div className="mt-2 rounded-lg border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 p-2">
           {kind === "image" ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -226,7 +226,7 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
           ) : (
             <audio controls src={value} className="w-full" />
           )}
-          <p className="mt-1 truncate text-[10px] text-gray-400">
+          <p className="mt-1 truncate text-[10px] text-gray-400 dark:text-slate-500">
             {isDataUrl ? "Inline file (no cloud storage)" : value}
           </p>
         </div>

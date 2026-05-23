@@ -42,32 +42,32 @@ const SECTIONS = [
     value: "SPEAKING",
     label: "Speaking",
     icon: Mic,
-    activeClasses: "border-teal-500 bg-teal-50",
-    iconActive: "text-teal-600",
+    activeClasses: "border-teal-500 bg-teal-50 dark:bg-teal-950",
+    iconActive: "text-teal-600 dark:text-teal-400",
     desc: "Student records audio",
   },
   {
     value: "WRITING",
     label: "Writing",
     icon: PenTool,
-    activeClasses: "border-blue-500 bg-blue-50",
-    iconActive: "text-blue-600",
+    activeClasses: "border-blue-500 bg-blue-50 dark:bg-blue-950",
+    iconActive: "text-blue-600 dark:text-blue-400",
     desc: "Student types response",
   },
   {
     value: "READING",
     label: "Reading",
     icon: BookOpen,
-    activeClasses: "border-purple-500 bg-purple-50",
-    iconActive: "text-purple-600",
+    activeClasses: "border-purple-500 bg-purple-50 dark:bg-purple-950",
+    iconActive: "text-purple-600 dark:text-purple-400",
     desc: "Student reads and answers",
   },
   {
     value: "LISTENING",
     label: "Listening",
     icon: Headphones,
-    activeClasses: "border-orange-500 bg-orange-50",
-    iconActive: "text-orange-600",
+    activeClasses: "border-orange-500 bg-orange-50 dark:bg-orange-950",
+    iconActive: "text-orange-600 dark:text-orange-400",
     desc: "Student listens and answers",
   },
 ];
@@ -503,20 +503,20 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-      <div className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
+      <div className="relative flex max-h-[92vh] w-full max-w-4xl flex-col overflow-hidden rounded-2xl bg-white dark:bg-slate-900 shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-teal-50 to-indigo-50 px-6 py-4">
+        <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-700 bg-gradient-to-r from-teal-50 to-indigo-50 dark:from-slate-800 dark:to-slate-800 px-6 py-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
               {isEditing ? "Edit Question" : "Add New Question"}
             </h2>
-            <p className="mt-0.5 text-sm text-gray-500">
+            <p className="mt-0.5 text-sm text-gray-500 dark:text-slate-400">
               {isEditing
                 ? "Update the question details below"
                 : "Fill in the details below to add a question to your centre"}
             </p>
           </div>
-          <button onClick={onClose} className="rounded-lg p-2 text-gray-400 hover:bg-white hover:text-gray-600">
+          <button onClick={onClose} className="rounded-lg p-2 text-gray-400 dark:text-slate-500 hover:bg-white dark:hover:bg-slate-700 hover:text-gray-600 dark:hover:text-slate-300">
             <X className="h-5 w-5" />
           </button>
         </div>
@@ -537,15 +537,15 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       key={s.value}
                       onClick={() => handleSectionChange(s.value)}
                       className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 text-center transition ${
-                        active ? s.activeClasses : "border-gray-200 bg-white hover:border-gray-300"
+                        active ? s.activeClasses : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-600"
                       }`}
                     >
-                      <Icon className={`h-6 w-6 ${active ? s.iconActive : "text-gray-400"}`} />
+                      <Icon className={`h-6 w-6 ${active ? s.iconActive : "text-gray-400 dark:text-slate-500"}`} />
                       <div>
-                        <p className={`text-sm font-medium ${active ? "text-gray-900" : "text-gray-600"}`}>
+                        <p className={`text-sm font-medium ${active ? "text-gray-900 dark:text-slate-100" : "text-gray-600 dark:text-slate-400"}`}>
                           {s.label}
                         </p>
-                        <p className="text-[10px] text-gray-400">{s.desc}</p>
+                        <p className="text-[10px] text-gray-400 dark:text-slate-500">{s.desc}</p>
                       </div>
                     </button>
                   );
@@ -566,16 +566,16 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       onClick={() => setTypeValue(t.value)}
                       className={`flex items-start gap-3 rounded-lg border-2 p-3 text-left transition ${
                         active
-                          ? "border-indigo-500 bg-indigo-50"
-                          : "border-gray-200 bg-white hover:border-gray-300"
+                          ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950"
+                          : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-gray-300 dark:hover:border-slate-600"
                       }`}
                     >
-                      <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? "text-indigo-600" : "text-gray-400"}`} />
+                      <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${active ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-slate-500"}`} />
                       <div>
-                        <p className={`text-sm font-medium ${active ? "text-gray-900" : "text-gray-700"}`}>
+                        <p className={`text-sm font-medium ${active ? "text-gray-900 dark:text-slate-100" : "text-gray-700 dark:text-slate-300"}`}>
                           {t.label}
                         </p>
-                        <p className="mt-0.5 text-xs text-gray-500">{t.description}</p>
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-500">{t.description}</p>
                       </div>
                     </button>
                   );
@@ -584,15 +584,15 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
             </section>
 
             {/* Info Banner — describes what to fill */}
-            <div className="flex items-start gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4">
-              <Info className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" />
+            <div className="flex items-start gap-3 rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/50 p-4">
+              <Info className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
               <div className="flex-1">
-                <p className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                <p className="text-sm font-semibold text-blue-900 dark:text-blue-300 flex items-center gap-2">
                   <TypeIcon className="h-4 w-4" />
                   {currentType.label}
                 </p>
-                <p className="mt-1 text-sm text-blue-800">{currentType.description}</p>
-                <p className="mt-1 text-xs italic text-blue-600">{currentType.example}</p>
+                <p className="mt-1 text-sm text-blue-800 dark:text-blue-400">{currentType.description}</p>
+                <p className="mt-1 text-xs italic text-blue-600 dark:text-blue-500">{currentType.example}</p>
               </div>
             </div>
 
@@ -607,7 +607,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="e.g., Climate Change Impact on Oceans"
                   />
-                  <p className="mt-1 text-xs text-gray-500">Short name so you can identify this question later</p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">Short name so you can identify this question later</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">
@@ -619,7 +619,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                           key={d.value}
                           onClick={() => setDifficulty(d.value)}
                           className={`rounded-lg border-2 px-3 py-2 text-sm font-medium transition ${
-                            difficulty === d.value ? d.color : "border-gray-200 bg-white text-gray-500 hover:border-gray-300"
+                            difficulty === d.value ? d.color : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-gray-500 dark:text-slate-400 hover:border-gray-300 dark:hover:border-slate-600"
                           }`}
                         >
                           {d.label}
@@ -637,7 +637,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       onChange={(e) => setMarks(parseInt(e.target.value) || 1)}
                       placeholder="1"
                     />
-                    <p className="mt-1 text-xs text-gray-500">Points for this question</p>
+                    <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">Points for this question</p>
                   </div>
                 </div>
 
@@ -649,21 +649,21 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       onChange={(e) => setIsPrediction(e.target.checked)}
                       className="h-4 w-4 rounded border-gray-300 text-amber-600"
                     />
-                    <span className="flex items-center gap-1 text-sm text-gray-700">
+                    <span className="flex items-center gap-1 text-sm text-gray-700 dark:text-slate-300">
                       <Star className="h-3.5 w-3.5 text-amber-500" />
                       Mark as Prediction (high priority)
                     </span>
                   </label>
 
                   {isSuperAdmin && (
-                    <label className="flex items-center gap-2 cursor-pointer rounded-md border border-green-200 bg-green-50 px-3 py-1.5">
+                    <label className="flex items-center gap-2 cursor-pointer rounded-md border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/50 px-3 py-1.5">
                       <input
                         type="checkbox"
                         checked={isPublic}
                         onChange={(e) => setIsPublic(e.target.checked)}
                         className="h-4 w-4 rounded border-gray-300 text-green-600"
                       />
-                      <span className="text-sm font-medium text-green-700">
+                      <span className="text-sm font-medium text-green-700 dark:text-green-400">
                         🌍 Public (free for all students)
                       </span>
                     </label>
@@ -677,7 +677,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                     onChange={(e) => setTags(e.target.value)}
                     placeholder="e.g., environment, science, graph"
                   />
-                  <p className="mt-1 text-xs text-gray-500">Comma-separated. Helps students filter by topic.</p>
+                  <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">Comma-separated. Helps students filter by topic.</p>
                 </div>
               </div>
             </section>
@@ -790,7 +790,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       placeholder="Paste the full reading passage here..."
                       rows={8}
                     />
-                    <p className="mt-1 text-xs text-gray-500">
+                    <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">
                       This is what students will read. Keep it between 150-300 words for best difficulty.
                     </p>
                   </div>
@@ -864,8 +864,8 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                               key={i}
                               className={`flex items-center gap-3 rounded-lg border-2 p-3 transition ${
                                 isCorrect
-                                  ? "border-green-400 bg-green-50"
-                                  : "border-gray-200 bg-white"
+                                  ? "border-green-400 bg-green-50 dark:bg-green-950/50"
+                                  : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"
                               }`}
                             >
                               <input
@@ -883,7 +883,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                                 }}
                                 className="h-5 w-5 shrink-0"
                               />
-                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">
+                              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-xs font-bold text-gray-600 dark:text-slate-300">
                                 {String.fromCharCode(65 + i)}
                               </span>
                               <Input
@@ -905,7 +905,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                         })}
                         <button
                           onClick={addOption}
-                          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 py-2 text-sm text-gray-500 hover:border-indigo-300 hover:text-indigo-600"
+                          className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 dark:border-slate-700 py-2 text-sm text-gray-500 dark:text-slate-400 hover:border-indigo-300 hover:text-indigo-600"
                         >
                           <Plus className="h-4 w-4" />
                           Add another option
@@ -927,7 +927,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                     <div className="mt-2 space-y-2">
                       {paragraphs.map((p, i) => (
                         <div key={i} className="flex items-start gap-2">
-                          <span className="mt-3 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+                          <span className="mt-3 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-xs font-bold text-indigo-700 dark:text-indigo-300">
                             {i + 1}
                           </span>
                           <div className="flex-1">
@@ -950,13 +950,13 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       ))}
                       <button
                         onClick={addParagraph}
-                        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 py-2 text-sm text-gray-500 hover:border-indigo-300 hover:text-indigo-600"
+                        className="flex w-full items-center justify-center gap-2 rounded-lg border-2 border-dashed border-gray-200 dark:border-slate-700 py-2 text-sm text-gray-500 dark:text-slate-400 hover:border-indigo-300 hover:text-indigo-600"
                       >
                         <Plus className="h-4 w-4" />
                         Add another paragraph
                       </button>
                     </div>
-                    <p className="mt-2 text-xs text-gray-500">
+                    <p className="mt-2 text-xs text-gray-500 dark:text-slate-500">
                       Enter paragraphs in the CORRECT order. Students will see them shuffled and need to rearrange.
                     </p>
                   </div>
@@ -973,8 +973,8 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                         placeholder="The cat sat on the [blank]. It was a sunny [blank]."
                         rows={5}
                       />
-                      <p className="mt-1 text-xs text-gray-500">
-                        Use <code className="rounded bg-gray-100 px-1 py-0.5">[blank]</code> where you want students to fill in a word.
+                      <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">
+                        Use <code className="rounded bg-gray-100 dark:bg-slate-700 dark:text-slate-300 px-1 py-0.5">[blank]</code> where you want students to fill in a word.
                       </p>
                     </div>
 
@@ -983,7 +983,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       <div className="mt-2 space-y-2">
                         {fillBlanksAnswers.map((ans, i) => (
                           <div key={i} className="flex items-center gap-2">
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">
+                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-xs font-bold text-gray-600 dark:text-slate-300">
                               {i + 1}
                             </span>
                             <Input
@@ -1039,7 +1039,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                             ({incorrectWordIndices.length} marked)
                           </span>
                         </Label>
-                        <div className="mt-2 rounded-lg border-2 border-dashed border-amber-200 bg-amber-50 p-4 leading-loose">
+                        <div className="mt-2 rounded-lg border-2 border-dashed border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-4 leading-loose">
                           {transcriptText.split(/(\s+)/).map((token, i) => {
                             // Only word tokens (not whitespace) are clickable
                             const isWord = /\S/.test(token);
@@ -1057,7 +1057,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                                 className={`mx-0.5 inline-block cursor-pointer rounded px-1.5 py-0.5 text-sm transition ${
                                   isMarked
                                     ? "bg-teal-500 font-semibold text-white shadow-sm"
-                                    : "text-gray-800 hover:bg-amber-100"
+                                    : "text-gray-800 dark:text-slate-200 hover:bg-amber-100 dark:hover:bg-amber-900/40"
                                 }`}
                               >
                                 {token}
@@ -1122,7 +1122,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
             </section>
 
             {error && (
-              <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+              <div className="rounded-lg border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-3 text-sm text-red-700 dark:text-red-400">
                 ⚠ {error}
               </div>
             )}
@@ -1131,8 +1131,8 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-between border-t border-gray-100 bg-gray-50 px-6 py-4">
-          <p className="text-xs text-gray-500">
+        <div className="flex items-center justify-between border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 px-6 py-4">
+          <p className="text-xs text-gray-500 dark:text-slate-400">
             <SectionIcon className="inline h-3 w-3" /> {section} / <TypeIcon className="inline h-3 w-3" /> {currentType.label}
           </p>
           <div className="flex gap-3">
@@ -1153,13 +1153,13 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
 
 function SectionHeader({ number, title, description }: { number: number; title: string; description: string }) {
   return (
-    <div className="flex items-center gap-3 border-b border-gray-100 pb-2">
-      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-700">
+    <div className="flex items-center gap-3 border-b border-gray-100 dark:border-slate-700 pb-2">
+      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-xs font-bold text-indigo-700 dark:text-indigo-300">
         {number}
       </div>
       <div>
-        <h3 className="text-sm font-bold uppercase tracking-wide text-gray-700">{title}</h3>
-        <p className="text-xs text-gray-500">{description}</p>
+        <h3 className="text-sm font-bold uppercase tracking-wide text-gray-700 dark:text-slate-300">{title}</h3>
+        <p className="text-xs text-gray-500 dark:text-slate-500">{description}</p>
       </div>
     </div>
   );
@@ -1167,7 +1167,7 @@ function SectionHeader({ number, title, description }: { number: number; title: 
 
 function Label({ children, required }: { children: React.ReactNode; required?: boolean }) {
   return (
-    <label className="mb-1.5 block text-sm font-medium text-gray-700">
+    <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
       {children}
       {required && <span className="ml-0.5 text-red-500">*</span>}
     </label>
@@ -1178,7 +1178,7 @@ function Textarea(props: React.TextareaHTMLAttributes<HTMLTextAreaElement>) {
   return (
     <textarea
       {...props}
-      className={`w-full rounded-lg border border-gray-300 bg-white p-3 text-sm text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${props.className || ""}`}
+      className={`w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-800 p-3 text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${props.className || ""}`}
     />
   );
 }
