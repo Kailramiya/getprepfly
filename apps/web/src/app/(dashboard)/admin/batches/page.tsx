@@ -63,8 +63,8 @@ export default function BatchesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Batches</h1>
-          <p className="text-gray-500">Organize students into batches</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Batches</h1>
+          <p className="text-gray-500 dark:text-slate-400">Organize students into batches</p>
         </div>
         <Button onClick={() => setShowCreate(true)} className="gap-2">
           <Plus className="h-4 w-4" /> Create Batch
@@ -73,7 +73,7 @@ export default function BatchesPage() {
 
       {/* Create Batch Inline Form */}
       {showCreate && (
-        <Card className="border-indigo-200 bg-indigo-50">
+        <Card className="border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-slate-800">
           <CardContent className="flex items-center gap-3 p-4">
             <Input
               placeholder="Batch name (e.g., Morning Batch, Weekend Batch)"
@@ -96,9 +96,9 @@ export default function BatchesPage() {
       ) : batches.length === 0 ? (
         <Card>
           <CardContent className="py-16 text-center">
-            <Layers className="mx-auto h-12 w-12 text-gray-300" />
-            <p className="mt-4 text-gray-500">No batches created yet.</p>
-            <p className="text-sm text-gray-400">Create batches to organize students by timing or level.</p>
+            <Layers className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
+            <p className="mt-4 text-gray-500 dark:text-slate-400">No batches created yet.</p>
+            <p className="text-sm text-gray-400 dark:text-slate-500">Create batches to organize students by timing or level.</p>
           </CardContent>
         </Card>
       ) : (
@@ -113,26 +113,26 @@ export default function BatchesPage() {
               </CardHeader>
               <CardContent>
                 {batch.members.length === 0 ? (
-                  <p className="text-sm text-gray-400">No students in this batch yet</p>
+                  <p className="text-sm text-gray-400 dark:text-slate-500">No students in this batch yet</p>
                 ) : (
                   <div className="space-y-2">
                     {batch.members.slice(0, 5).map((m) => (
                       <div key={m.user.id} className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 text-xs font-bold text-indigo-600">
+                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-xs font-bold text-indigo-600 dark:text-indigo-300">
                           {m.user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900">{m.user.name}</p>
-                          <p className="text-xs text-gray-400">{m.user.email}</p>
+                          <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{m.user.name}</p>
+                          <p className="text-xs text-gray-400 dark:text-slate-500">{m.user.email}</p>
                         </div>
                       </div>
                     ))}
                     {batch.members.length > 5 && (
-                      <p className="text-xs text-gray-400">+{batch.members.length - 5} more</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500">+{batch.members.length - 5} more</p>
                     )}
                   </div>
                 )}
-                <p className="mt-3 text-xs text-gray-400">
+                <p className="mt-3 text-xs text-gray-400 dark:text-slate-500">
                   Created {new Date(batch.createdAt).toLocaleDateString("en-IN")}
                 </p>
               </CardContent>
