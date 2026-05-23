@@ -148,10 +148,10 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
             Welcome back, {user?.name?.split(" ")[0] || "Student"}!
           </h1>
-          <p className="mt-1 text-gray-500">Continue your PTE preparation journey</p>
+          <p className="mt-1 text-gray-500 dark:text-slate-400">Continue your PTE preparation journey</p>
         </div>
         <Link href="/mock-test">
           <Button size="lg" className="gap-2">
@@ -169,16 +169,16 @@ export default function DashboardPage() {
         {stats.map((stat) => (
           <Card key={stat.label}>
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50 dark:bg-slate-800">
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
               <div>
                 {stat.value === null ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-gray-300" />
+                  <Loader2 className="h-5 w-5 animate-spin text-gray-300 dark:text-slate-600" />
                 ) : (
-                  <p className="text-lg font-bold text-gray-900">{stat.value}</p>
+                  <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{stat.value}</p>
                 )}
-                <p className="text-xs text-gray-500">{stat.label}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
@@ -187,7 +187,7 @@ export default function DashboardPage() {
 
       {/* Practice Sections — Inspired by DSIC design with modern cards */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Practice by Section</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Practice by Section</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           {practiceCards.map((card) => (
             <Link key={card.title} href={card.href}>
@@ -201,13 +201,13 @@ export default function DashboardPage() {
                     {/* Content */}
                     <div className="flex flex-1 items-center justify-between p-4">
                       <div>
-                        <h3 className="text-base font-semibold text-gray-900">{card.title}</h3>
-                        <p className="mt-0.5 text-xs text-gray-500">{card.description}</p>
+                        <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">{card.title}</h3>
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">{card.description}</p>
                         <Badge variant="secondary" className="mt-2">
                           {card.questions} question types
                         </Badge>
                       </div>
-                      <ArrowRight className="h-5 w-5 shrink-0 text-gray-300 transition group-hover:text-gray-600 group-hover:translate-x-1" />
+                      <ArrowRight className="h-5 w-5 shrink-0 text-gray-300 dark:text-slate-600 transition group-hover:text-gray-600 dark:group-hover:text-slate-300 group-hover:translate-x-1" />
                     </div>
                   </div>
                 </CardContent>
@@ -221,8 +221,8 @@ export default function DashboardPage() {
       {!loading && data && data.recentAttempts.length > 0 && (
         <div>
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Recent Practice</h2>
-            <Link href="/progress" className="text-sm font-medium text-indigo-600 hover:text-indigo-500">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Recent Practice</h2>
+            <Link href="/progress" className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
               View all
             </Link>
           </div>
@@ -239,8 +239,8 @@ export default function DashboardPage() {
                       {attempt.section[0]}
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">{attempt.title}</p>
-                      <p className="text-xs text-gray-500">{formatType(attempt.questionType)}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{attempt.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">{formatType(attempt.questionType)}</p>
                     </div>
                   </div>
                   <div className="text-right">
@@ -252,9 +252,9 @@ export default function DashboardPage() {
                         {attempt.score}/90
                       </p>
                     ) : (
-                      <p className="text-xs text-gray-400">Pending</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500">Pending</p>
                     )}
-                    <p className="text-xs text-gray-400">
+                    <p className="text-xs text-gray-400 dark:text-slate-500">
                       {new Date(attempt.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                     </p>
                   </div>
@@ -268,36 +268,36 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Link href="/mock-test">
-          <Card className="group cursor-pointer border-indigo-200 bg-indigo-50 transition hover:bg-indigo-100">
+          <Card className="group cursor-pointer border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/40 transition hover:bg-indigo-100 dark:hover:bg-indigo-950/70">
             <CardContent className="flex items-center gap-4 p-5">
-              <ClipboardList className="h-8 w-8 text-indigo-600" />
+              <ClipboardList className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
               <div>
-                <h3 className="font-semibold text-indigo-900">Full Mock Test</h3>
-                <p className="text-sm text-indigo-600">Simulate the real PTE exam</p>
+                <h3 className="font-semibold text-indigo-900 dark:text-indigo-300">Full Mock Test</h3>
+                <p className="text-sm text-indigo-600 dark:text-indigo-400">Simulate the real PTE exam</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/study-guides">
-          <Card className="group cursor-pointer border-teal-200 bg-teal-50 transition hover:bg-teal-100">
+          <Card className="group cursor-pointer border-teal-200 dark:border-teal-900 bg-teal-50 dark:bg-teal-950/40 transition hover:bg-teal-100 dark:hover:bg-teal-950/70">
             <CardContent className="flex items-center gap-4 p-5">
-              <Star className="h-8 w-8 text-teal-600" />
+              <Star className="h-8 w-8 text-teal-600 dark:text-teal-400" />
               <div>
-                <h3 className="font-semibold text-teal-900">Study Guides</h3>
-                <p className="text-sm text-teal-600">Tips & strategies for each section</p>
+                <h3 className="font-semibold text-teal-900 dark:text-teal-300">Study Guides</h3>
+                <p className="text-sm text-teal-600 dark:text-teal-400">Tips & strategies for each section</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/vocabulary">
-          <Card className="group cursor-pointer border-purple-200 bg-purple-50 transition hover:bg-purple-100">
+          <Card className="group cursor-pointer border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/40 transition hover:bg-purple-100 dark:hover:bg-purple-950/70">
             <CardContent className="flex items-center gap-4 p-5">
-              <BookOpen className="h-8 w-8 text-purple-600" />
+              <BookOpen className="h-8 w-8 text-purple-600 dark:text-purple-400" />
               <div>
-                <h3 className="font-semibold text-purple-900">Vocabulary</h3>
-                <p className="text-sm text-purple-600">Build your PTE word bank</p>
+                <h3 className="font-semibold text-purple-900 dark:text-purple-300">Vocabulary</h3>
+                <p className="text-sm text-purple-600 dark:text-purple-400">Build your PTE word bank</p>
               </div>
             </CardContent>
           </Card>
