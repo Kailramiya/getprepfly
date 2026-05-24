@@ -5,16 +5,6 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { db } from "./db";
 
-// Generate a new session ID and save it to the user record.
-// This invalidates any existing sessions on other devices.
-async function rotateSessionId(userId: string): Promise<string> {
-  const sessionId = crypto.randomUUID();
-  await db.user.update({
-    where: { id: userId },
-    data: { activeSessionId: sessionId },
-  });
-  return sessionId;
-}
 
 export const authOptions: NextAuthOptions = {
   session: {
