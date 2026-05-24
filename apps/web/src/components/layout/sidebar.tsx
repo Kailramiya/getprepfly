@@ -12,6 +12,7 @@ import {
   BookOpen,
   Headphones,
   ClipboardList,
+
   BarChart3,
   GraduationCap,
   BookMarked,
@@ -69,6 +70,7 @@ const superAdminNav: NavItem[] = [
   { label: "Centres", href: "/super-admin/centres", icon: Building2 },
   { label: "Users", href: "/super-admin/users", icon: Users },
   { label: "Questions", href: "/super-admin/questions", icon: Database },
+  { label: "Mock Tests", href: "/super-admin/mock-tests", icon: ClipboardList },
   { label: "Reports", href: "/super-admin/reports", icon: AlertTriangle },
   { label: "Coupons", href: "/super-admin/coupons", icon: CreditCard },
   { label: "Analytics", href: "/super-admin/analytics", icon: BarChart3 },

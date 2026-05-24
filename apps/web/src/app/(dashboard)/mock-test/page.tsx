@@ -25,16 +25,27 @@ interface MockTestSummary {
   _count: { questions: number; attempts: number };
 }
 
+interface GlobalTemplate {
+  id: string;
+  title: string;
+  mockType: string;
+  section: string | null;
+  _count: { questions: number };
+}
+
 export default function MockTestPage() {
   const router = useRouter();
   const [tests, setTests] = useState<MockTestSummary[]>([]);
   const [assignedTests, setAssignedTests] = useState<{ id: string; title: string; createdAt: string }[]>([]);
+  const [globalTemplates, setGlobalTemplates] = useState<GlobalTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
+  const [startingId, setStartingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchTests();
     fetch("/api/mock-tests/assigned").then(r => r.json()).then(d => { if (d.success) setAssignedTests(d.data); });
+    fetch("/api/mock-tests/global-templates").then(r => r.json()).then(d => { if (d.success) setGlobalTemplates(d.data); });
   }, []);
 
   const fetchTests = async () => {
@@ -49,13 +60,28 @@ export default function MockTestPage() {
     try {
       const res = await fetch("/api/mock-tests", { method: "POST" });
       const data = await res.json();
-      if (data.success) {
-        router.push(`/mock-test/${data.data.id}`);
-      }
+      if (data.success) router.push(`/mock-test/${data.data.id}`);
     } catch {
       alert("Failed to create test. Please try again.");
     }
     setCreating(false);
+  };
+
+  const startTemplate = async (templateId: string) => {
+    setStartingId(templateId);
+    try {
+      const res = await fetch("/api/mock-tests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ templateId }),
+      });
+      const data = await res.json();
+      if (data.success) router.push(`/mock-test/${data.data.id}`);
+      else alert(data.error || "Failed to start test");
+    } catch {
+      alert("Failed to start test. Please try again.");
+    }
+    setStartingId(null);
   };
 
   const formatDuration = (seconds: number) => {
@@ -115,6 +141,45 @@ export default function MockTestPage() {
                     <p className="text-xs text-gray-400 mt-0.5 dark:text-slate-500">Assigned {new Date(t.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
                   </div>
                   <Button size="sm" onClick={() => router.push(`/mock-test/${t.id}`)}>
+                    <Play className="h-4 w-4 mr-1" /> Start
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Global Templates from Super Admin */}
+      {globalTemplates.length > 0 && (
+        <div>
+          <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-slate-100">Available Tests</h2>
+          <div className="space-y-2">
+            {globalTemplates.map(t => (
+              <Card key={t.id}>
+                <CardContent className="flex items-center justify-between p-4">
+                  <div className="flex items-center gap-3">
+                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                      t.mockType === "FULL" ? "bg-indigo-100 dark:bg-indigo-950/50" :
+                      t.section === "SPEAKING" ? "bg-teal-100 dark:bg-teal-950/50" :
+                      t.section === "WRITING" ? "bg-blue-100 dark:bg-blue-950/50" :
+                      t.section === "READING" ? "bg-purple-100 dark:bg-purple-950/50" :
+                      "bg-orange-100 dark:bg-orange-950/50"
+                    }`}>
+                      {t.mockType === "FULL" ? <ClipboardList className="h-5 w-5 text-indigo-600" /> :
+                       t.section === "SPEAKING" ? <Mic className="h-5 w-5 text-teal-600" /> :
+                       t.section === "WRITING" ? <PenTool className="h-5 w-5 text-blue-600" /> :
+                       t.section === "READING" ? <BookOpen className="h-5 w-5 text-purple-600" /> :
+                       <Headphones className="h-5 w-5 text-orange-600" />}
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
+                      <p className="text-xs text-gray-400 dark:text-slate-500">
+                        {t.mockType === "FULL" ? "Full Mock Test" : `Sectional — ${t.section}`} · {t._count.questions} questions
+                      </p>
+                    </div>
+                  </div>
+                  <Button size="sm" loading={startingId === t.id} onClick={() => startTemplate(t.id)}>
                     <Play className="h-4 w-4 mr-1" /> Start
                   </Button>
                 </CardContent>

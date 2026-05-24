@@ -534,6 +534,10 @@ model MockTest {
   assignedBatch   Batch?  @relation(fields: [assignedBatchId], references: [id])
   isTemplate      Boolean @default(false) // admin-created templates for batch assignment
 
+  // Mock test type — FULL (all 4 sections) or SECTIONAL (one section)
+  mockType        String  @default("FULL")   // "FULL" | "SECTIONAL"
+  section         String? // null for FULL, section name for SECTIONAL
+
   // Relations
   questions   MockTestQuestion[]
   attempts    Attempt[]

@@ -32,13 +32,43 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({ success: true, data: tests });
 }
 
-// POST /api/mock-tests — create a new mock test
-export async function POST(_req: NextRequest) {
+// POST /api/mock-tests — create a new mock test (random or from a template)
+export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
 
   try {
-    // Select random questions for each type
+    const body = await req.json().catch(() => ({}));
+    const { templateId } = body;
+
+    // --- Start from a super-admin template: copy its questions ---
+    if (templateId) {
+      const template = await db.mockTest.findUnique({
+        where: { id: templateId, isTemplate: true },
+        include: { questions: { orderBy: { order: "asc" } } },
+      });
+      if (!template) return NextResponse.json({ success: false, error: "Template not found" }, { status: 404 });
+
+      const mockTest = await db.mockTest.create({
+        data: {
+          userId: user!.id,
+          title: template.title,
+          mockType: template.mockType,
+          section: template.section,
+          status: "IN_PROGRESS",
+          currentSection: (template.section ?? "SPEAKING") as any,
+          currentIndex: 0,
+          questions: {
+            create: template.questions.map(q => ({ questionId: q.questionId, order: q.order })),
+          },
+        },
+        include: { _count: { select: { questions: true } } },
+      });
+
+      return NextResponse.json({ success: true, data: mockTest }, { status: 201 });
+    }
+
+    // --- Random full mock test ---
     const questionSelections: { questionId: string; order: number }[] = [];
     let order = 0;
 
@@ -55,13 +85,11 @@ export async function POST(_req: NextRequest) {
             ],
           },
           select: { id: true },
-          take: count * 3, // get more than needed for randomization
+          take: count * 3,
         });
 
-        // Shuffle and take required count
         const shuffled = questions.sort(() => Math.random() - 0.5);
         const selected = shuffled.slice(0, Math.min(count, shuffled.length));
-
         for (const q of selected) {
           questionSelections.push({ questionId: q.id, order: order++ });
         }
@@ -75,7 +103,6 @@ export async function POST(_req: NextRequest) {
       );
     }
 
-    // Create mock test with questions
     const mockTest = await db.mockTest.create({
       data: {
         userId: user!.id,
@@ -83,24 +110,14 @@ export async function POST(_req: NextRequest) {
         status: "IN_PROGRESS",
         currentSection: "SPEAKING",
         currentIndex: 0,
-        questions: {
-          create: questionSelections,
-        },
+        questions: { create: questionSelections },
       },
-      include: {
-        _count: { select: { questions: true } },
-      },
+      include: { _count: { select: { questions: true } } },
     });
 
-    return NextResponse.json(
-      { success: true, data: mockTest },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, data: mockTest }, { status: 201 });
   } catch (err) {
     console.error("Mock test creation error:", err);
-    return NextResponse.json(
-      { success: false, error: "Failed to create mock test" },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: "Failed to create mock test" }, { status: 500 });
   }
 }
