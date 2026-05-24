@@ -58,7 +58,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
 
 // PATCH /api/super-admin/mock-tests/[id]/questions — reorder questions
 // Body: { questions: [{ id: mockTestQuestionId, order: number }] }
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params: _params }: { params: { id: string } }) {
   const { error } = await requireRole(["SUPER_ADMIN"]);
   if (error) return error;
 

@@ -195,7 +195,7 @@ export default function TemplateDetailPage() {
   const toggleSelect = (qId: string) => {
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(qId) ? next.delete(qId) : next.add(qId);
+      if (next.has(qId)) { next.delete(qId); } else { next.add(qId); }
       return next;
     });
   };
@@ -215,8 +215,6 @@ export default function TemplateDetailPage() {
       <div className="py-20 text-center text-gray-500">Template not found.</div>
     );
   }
-
-  const SectionIcon = template.section ? SECTION_ICONS[template.section] ?? Layers : Layers;
 
   return (
     <div className="space-y-6">
