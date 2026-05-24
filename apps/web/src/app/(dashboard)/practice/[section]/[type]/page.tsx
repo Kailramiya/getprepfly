@@ -637,7 +637,7 @@ function QuestionRenderer({
         questionType={type}
         expectedText={content.text || ""}
       >
-        <div className="rounded-lg bg-amber-50 p-4 text-lg leading-relaxed text-gray-800">
+        <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-lg leading-relaxed text-gray-800 dark:text-slate-100">
           {content.text}
         </div>
       </SpeakingQuestion>
@@ -740,7 +740,7 @@ function QuestionRenderer({
         audioLabel="Listen to the question"
       >
         {content.text && (
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-base font-medium text-gray-800">
+          <div className="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-slate-700/50 p-4 text-base font-medium text-gray-800 dark:text-slate-100">
             {content.text}
           </div>
         )}
@@ -768,7 +768,7 @@ function QuestionRenderer({
         questionType={type}
         expectedText={content.text || ""}
       >
-        <div className="rounded-lg bg-amber-50 p-4 text-base text-gray-800">
+        <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-base text-gray-800 dark:text-slate-100">
           {content.text}
         </div>
       </SpeakingQuestion>
@@ -1991,21 +1991,21 @@ function SpeakingQuestion({
 
       {/* Speaking Template */}
       {speakingTemplate && !submitted && (
-        <div className="rounded-lg border border-indigo-100 bg-indigo-50">
-          <button onClick={() => setShowSpeakingTemplate(t => !t)} className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-indigo-700">
+        <div className="rounded-lg border border-indigo-100 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/30">
+          <button onClick={() => setShowSpeakingTemplate(t => !t)} className="flex w-full items-center justify-between px-4 py-2.5 text-sm font-medium text-indigo-700 dark:text-indigo-300">
             <span className="flex items-center gap-2"><TemplateIcon className="h-4 w-4" /> Answer Template</span>
-            <span className="text-xs text-indigo-400">{showSpeakingTemplate ? "Hide" : "Show"}</span>
+            <span className="text-xs text-indigo-400 dark:text-indigo-500">{showSpeakingTemplate ? "Hide" : "Show"}</span>
           </button>
           {showSpeakingTemplate && (
-            <div className="border-t border-indigo-100 p-4">
-              <pre className="whitespace-pre-wrap text-xs leading-relaxed text-gray-700 font-sans">{speakingTemplate.template}</pre>
+            <div className="border-t border-indigo-100 dark:border-indigo-900 p-4">
+              <pre className="whitespace-pre-wrap text-xs leading-relaxed text-gray-700 dark:text-slate-300 font-sans">{speakingTemplate.template}</pre>
             </div>
           )}
         </div>
       )}
 
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-3">
-        <p className="text-xs font-medium text-amber-800">
+      <div className="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-3">
+        <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
           📌 {instructionText}
           {prepTime > 0 && ` You have ${prepTime}s to prepare.`}
           {audioSrc && audioDurationSec
@@ -2025,8 +2025,8 @@ function SpeakingQuestion({
       )}
 
       {submitted && audioUrl && (
-        <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3">
-          <p className="mb-2 text-xs font-medium text-indigo-800">Your recording:</p>
+        <div className="rounded-lg border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/30 p-3">
+          <p className="mb-2 text-xs font-medium text-indigo-800 dark:text-indigo-300">Your recording:</p>
           <audio controls src={audioUrl} className="w-full" />
         </div>
       )}
