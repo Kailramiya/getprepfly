@@ -15,7 +15,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
           question: {
             select: {
               id: true, section: true, type: true, title: true,
-              difficulty: true, mockTestOnly: true, audioUrl: true, imageUrl: true,
+              difficulty: true, audioUrl: true, imageUrl: true,
             },
           },
         },

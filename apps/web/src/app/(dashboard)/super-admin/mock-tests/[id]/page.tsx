@@ -24,7 +24,7 @@ interface TemplateQuestion {
     type: string;
     title: string;
     difficulty: string;
-    mockTestOnly: boolean;
+    mockTestOnly?: boolean;
     audioUrl?: string | null;
     imageUrl?: string | null;
   };
@@ -93,10 +93,15 @@ export default function TemplateDetailPage() {
 
   const fetchTemplate = useCallback(async () => {
     setLoading(true);
-    const res = await fetch(`/api/super-admin/mock-tests/${id}`);
-    const data = await res.json();
-    if (data.success) setTemplate(data.data);
-    setLoading(false);
+    try {
+      const res = await fetch(`/api/super-admin/mock-tests/${id}`);
+      const data = await res.json();
+      if (data.success) setTemplate(data.data);
+    } catch (e) {
+      console.error("Failed to load template", e);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
   useEffect(() => { fetchTemplate(); }, [fetchTemplate]);
@@ -105,19 +110,24 @@ export default function TemplateDetailPage() {
 
   const fetchBank = useCallback(async () => {
     setBankLoading(true);
-    const params = new URLSearchParams({
-      page: String(bankPage),
-      pageSize: "20",
-      ...(bankSearch && { search: bankSearch }),
-      ...(bankSection !== "ALL" && { section: bankSection }),
-    });
-    const res = await fetch(`/api/questions?${params}`);
-    const data = await res.json();
-    if (data.success) {
-      setBankQuestions(data.data.items);
-      setBankTotal(data.data.total);
+    try {
+      const params = new URLSearchParams({
+        page: String(bankPage),
+        pageSize: "20",
+        ...(bankSearch && { search: bankSearch }),
+        ...(bankSection !== "ALL" && { section: bankSection }),
+      });
+      const res = await fetch(`/api/questions?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        setBankQuestions(data.data.items);
+        setBankTotal(data.data.total);
+      }
+    } catch (e) {
+      console.error("Failed to load question bank", e);
+    } finally {
+      setBankLoading(false);
     }
-    setBankLoading(false);
   }, [bankPage, bankSearch, bankSection]);
 
   useEffect(() => {
