@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ClipboardList, Plus, Trash2, X, Mic, PenTool, BookOpen, Headphones, Layers } from "lucide-react";
+import { ClipboardList, Plus, Trash2, X, Mic, PenTool, BookOpen, Headphones, Layers, Settings2 } from "lucide-react";
 
 interface MockTemplate {
   id: string;
@@ -24,6 +25,7 @@ const SECTION_META: Record<string, { label: string; icon: any; color: string; bg
 };
 
 export default function SuperAdminMockTestsPage() {
+  const router = useRouter();
   const [templates, setTemplates] = useState<MockTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -164,12 +166,20 @@ export default function SuperAdminMockTestsPage() {
                         </p>
                       </div>
                     </div>
-                    <button
-                      onClick={() => handleDelete(t.id, t.title)}
-                      className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => router.push(`/super-admin/mock-tests/${t.id}`)}
+                        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-950/30"
+                      >
+                        <Settings2 className="h-4 w-4" /> Manage
+                      </button>
+                      <button
+                        onClick={() => handleDelete(t.id, t.title)}
+                        className="rounded-lg p-2 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/30 dark:hover:text-red-400"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
                 );
               })}

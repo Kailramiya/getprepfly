@@ -271,7 +271,7 @@ const DIFFICULTIES = [
 
 interface QuestionFormProps {
   onClose: () => void;
-  onSave: () => void;
+  onSave: (question?: any) => void;
   question?: any; // existing question for edit mode
   isSuperAdmin?: boolean;
 }
@@ -280,6 +280,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
   const isEditing = !!editingQuestion?.id;
   const initialContent = editingQuestion?.content || {};
   const [isPublic, setIsPublic] = useState<boolean>(!!editingQuestion?.isPublic);
+  const [mockTestOnly, setMockTestOnly] = useState<boolean>(!!editingQuestion?.mockTestOnly);
 
   const [section, setSection] = useState<string>(editingQuestion?.section || "SPEAKING");
   const [typeValue, setTypeValue] = useState<string>(editingQuestion?.type || "READ_ALOUD");
@@ -481,12 +482,13 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
           isPrediction,
           marks: marks > 0 ? marks : 1,
           isPublic: isSuperAdmin ? isPublic : undefined,
+          mockTestOnly: isSuperAdmin ? mockTestOnly : undefined,
           tags: tags.split(",").map((t: string) => t.trim()).filter(Boolean),
         }),
       });
       const data = await res.json();
       if (data.success) {
-        onSave();
+        onSave(data.data);
         onClose();
       } else {
         setError(data.error || "Failed to save question");
@@ -665,6 +667,19 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       />
                       <span className="text-sm font-medium text-green-700 dark:text-green-400">
                         🌍 Public (free for all students)
+                      </span>
+                    </label>
+                  )}
+                  {isSuperAdmin && (
+                    <label className="flex items-center gap-2 cursor-pointer rounded-md border border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/50 px-3 py-1.5">
+                      <input
+                        type="checkbox"
+                        checked={mockTestOnly}
+                        onChange={(e) => setMockTestOnly(e.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300 text-purple-600"
+                      />
+                      <span className="text-sm font-medium text-purple-700 dark:text-purple-400">
+                        🧪 Mock Test Only (hidden from practice)
                       </span>
                     </label>
                   )}
