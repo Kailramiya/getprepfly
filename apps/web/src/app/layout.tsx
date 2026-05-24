@@ -8,14 +8,23 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://getprepfly.com"),
   title: {
     default: "Prepfly — AI-Powered PTE Practice Platform",
     template: "%s | Prepfly",
   },
   description:
     "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Free during beta.",
-  keywords: ["PTE", "PTE Academic", "PTE practice", "PTE mock test", "Prepfly", "PTE India"],
+  keywords: ["PTE", "PTE Academic", "PTE practice", "PTE mock test", "Prepfly", "getprepfly", "PTE India"],
   manifest: "/manifest.json",
+  alternates: {
+    canonical: "https://getprepfly.com",
+  },
+  openGraph: {
+    siteName: "Prepfly",
+    url: "https://getprepfly.com",
+    type: "website",
+  },
 };
 
 export default function RootLayout({
