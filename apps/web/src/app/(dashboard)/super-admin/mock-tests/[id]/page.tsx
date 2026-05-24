@@ -10,7 +10,7 @@ import { QuestionForm } from "@/components/admin/question-form";
 import {
   ArrowLeft, Plus, Trash2, ChevronUp, ChevronDown,
   Search, X, Mic, PenTool, BookOpen, Headphones, ClipboardList,
-  Layers, CheckSquare, Square,
+  CheckSquare, Square,
 } from "lucide-react";
 
 // ─── types ───────────────────────────────────────────────────────────────────
