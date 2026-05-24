@@ -5,7 +5,12 @@ import { PWARegister } from "@/components/pwa-register";
 import { ContentProtection } from "@/components/content-protection";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+  preload: true,
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://getprepfly.com"),
@@ -36,6 +41,8 @@ export default function RootLayout({
     <html lang="en" className={inter.variable}>
       <head>
         <meta name="theme-color" content="#14B8A6" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
