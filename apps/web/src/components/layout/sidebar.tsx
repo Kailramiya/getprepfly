@@ -93,20 +93,32 @@ export function Sidebar() {
       )}
     >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between border-b border-gray-200 dark:border-slate-700 px-4">
-        <Link href="/dashboard" className="overflow-hidden">
-          <Logo size="sm" showText={!collapsed} />
-        </Link>
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="hidden rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600 lg:block"
-        >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
-        </button>
+      <div className={cn(
+        "flex h-16 items-center border-b border-gray-200 dark:border-slate-700 px-4",
+        collapsed ? "justify-center" : "justify-between"
+      )}>
+        {!collapsed && (
+          <Link href="/dashboard" className="overflow-hidden">
+            <Logo size="sm" showText />
+          </Link>
+        )}
+        {collapsed && (
+          <Link href="/dashboard">
+            <Logo size="sm" showText={false} />
+          </Link>
+        )}
+        {!collapsed && (
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="hidden rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600 lg:block"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+        )}
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-4">
+      <nav className="flex-1 overflow-y-auto px-2 py-4">
         <ul className="space-y-1">
           {navItems.map((item) => {
             const isActive =
@@ -117,7 +129,8 @@ export function Sidebar() {
                 <Link
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                    "flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors",
+                    collapsed ? "justify-center px-2" : "gap-3 px-3",
                     isActive
                       ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300"
                       : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100"
@@ -136,13 +149,28 @@ export function Sidebar() {
             );
           })}
         </ul>
+
+        {/* Expand button at bottom of nav when collapsed */}
+        {collapsed && (
+          <button
+            onClick={() => setCollapsed(false)}
+            className="mt-3 flex w-full items-center justify-center rounded-lg py-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600 dark:hover:text-slate-300"
+            title="Expand sidebar"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        )}
       </nav>
 
       {/* User info + Settings */}
-      <div className="border-t border-gray-200 dark:border-slate-700 p-3">
+      <div className="border-t border-gray-200 dark:border-slate-700 p-2">
         <Link
           href="/settings"
-          className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100"
+          className={cn(
+            "flex items-center rounded-lg py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100",
+            collapsed ? "justify-center px-2" : "gap-3 px-3"
+          )}
+          title={collapsed ? "Settings" : undefined}
         >
           <Settings className="h-5 w-5 shrink-0 text-gray-400 dark:text-slate-500" />
           {!collapsed && <span>Settings</span>}
@@ -150,7 +178,10 @@ export function Sidebar() {
 
         <button
           onClick={toggle}
-          className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100"
+          className={cn(
+            "flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100",
+            collapsed ? "justify-center px-2" : "gap-3 px-3"
+          )}
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
           {isDark ? <Sun className="h-5 w-5 shrink-0 text-amber-400" /> : <Moon className="h-5 w-5 shrink-0 text-gray-400" />}
