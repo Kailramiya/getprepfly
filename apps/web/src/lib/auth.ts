@@ -68,9 +68,6 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid password");
         }
 
-        // Rotate session ID - kicks out any other active session
-        const sessionId = await rotateSessionId(user.id);
-
         return {
           id: user.id,
           name: user.name,
@@ -81,7 +78,6 @@ export const authOptions: NextAuthOptions = {
           centreName: user.centre?.name,
           centreSlug: user.centre?.slug,
           planType: user.studentPlan?.planType || "FREE",
-          activeSessionId: sessionId,
         } as any;
       },
     }),
@@ -155,16 +151,12 @@ export const authOptions: NextAuthOptions = {
             },
           });
 
-          // Rotate session ID — kicks out any other active session
-          const sessionId = await rotateSessionId(fullUser!.id);
-
           (user as any).id = fullUser!.id;
           (user as any).role = fullUser!.role;
           (user as any).centreId = fullUser!.centreId || undefined;
           (user as any).centreName = fullUser!.centre?.name;
           (user as any).centreSlug = fullUser!.centre?.slug;
           (user as any).planType = fullUser!.studentPlan?.planType || "FREE";
-          (user as any).activeSessionId = sessionId;
         }
       }
       return true;
@@ -180,29 +172,6 @@ export const authOptions: NextAuthOptions = {
         token.centreSlug = (user as any).centreSlug;
         token.planType = (user as any).planType || "FREE";
         token.activeSessionId = (user as any).activeSessionId;
-      } else if (token.id) {
-        // Subsequent request — validate the session is still active.
-        // Only re-check DB every 60s to avoid hitting it on every API call.
-        const now = Math.floor(Date.now() / 1000);
-        const lastChecked = (token as any).lastSessionCheck || 0;
-        const SESSION_CHECK_INTERVAL = 30; // seconds
-
-        if (now - lastChecked > SESSION_CHECK_INTERVAL) {
-          const dbUser = await db.user.findUnique({
-            where: { id: token.id as string },
-            select: { activeSessionId: true, centreId: true },
-          });
-
-          // Session invalidated — user logged in from another device
-          if (
-            !dbUser ||
-            (dbUser.activeSessionId && dbUser.activeSessionId !== token.activeSessionId)
-          ) {
-            (token as any).sessionInvalid = true;
-          } else {
-            (token as any).lastSessionCheck = now;
-          }
-        }
       }
 
       // Backfill missing centre info for existing sessions
@@ -227,10 +196,6 @@ export const authOptions: NextAuthOptions = {
     },
 
     async session({ session, token }) {
-      // Session was invalidated by login on another device
-      if ((token as any).sessionInvalid) {
-        return { ...session, user: undefined as any, expires: "1970-01-01T00:00:00.000Z" };
-      }
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
