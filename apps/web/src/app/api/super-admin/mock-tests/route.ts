@@ -56,7 +56,7 @@ export async function POST(req: NextRequest) {
   for (const [sec, types] of Object.entries(structure)) {
     for (const [type, count] of Object.entries(types)) {
       const questions = await db.question.findMany({
-        where: { section: sec as any, type: type as any, isActive: true, centreId: null },
+        where: { section: sec as any, type: type as any, isActive: true },
         select: { id: true },
         take: count * 3,
       });
