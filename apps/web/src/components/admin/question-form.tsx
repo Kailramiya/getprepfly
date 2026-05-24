@@ -110,9 +110,9 @@ const QUESTION_TYPES: Record<string, QuestionTypeInfo[]> = {
       value: "ANSWER_SHORT_QUESTION",
       label: "Answer Short Question",
       icon: Edit3,
-      description: "Student answers a short question in 1-2 words.",
+      description: "Student answers a short question in 1-2 words. Audio prompt is optional — add it when the question is spoken.",
       example: 'Question: "What do we call the study of plants?" Answer: "Botany"',
-      fields: ["text", "correct-text"],
+      fields: ["audio-url", "text", "correct-text"],
     },
     {
       value: "RESPOND_TO_SITUATION",
@@ -388,7 +388,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     if (fields.has("passage") && !passage.trim()) return "Please enter the passage";
     if (fields.has("prompt") && !prompt.trim()) return "Please enter the essay prompt";
     if (fields.has("correct-text") && !correctText.trim()) return "Please enter the correct answer text";
-    if (fields.has("audio-url") && !audioUrl.trim()) return "Please provide the audio URL";
+    if (fields.has("audio-url") && !audioUrl.trim() && typeValue !== "ANSWER_SHORT_QUESTION") return "Please provide the audio URL";
     if (fields.has("image-url") && !imageUrl.trim()) return "Please provide the image URL";
 
     if (fields.has("options-single") || fields.has("options-multiple")) {
@@ -691,10 +691,13 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                 {/* Audio — Upload OR URL */}
                 {fields.has("audio-url") && (
                   <div>
-                    <Label required>
+                    <Label required={typeValue !== "ANSWER_SHORT_QUESTION"}>
                       <span className="flex items-center gap-1.5">
                         <Volume2 className="h-3.5 w-3.5 text-orange-600" />
                         Audio File
+                        {typeValue === "ANSWER_SHORT_QUESTION" && (
+                          <span className="text-xs font-normal text-gray-400 dark:text-slate-500">(optional — add when question is spoken)</span>
+                        )}
                       </span>
                     </Label>
                     <MediaUploader
