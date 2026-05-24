@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,6 +12,7 @@ import {
   ChevronLeft, ChevronRight, RotateCcw,
   CheckCircle2, XCircle, Loader2, Volume2, List, X, Star,
   Flag, ThumbsUp, ThumbsDown, RefreshCw, Eye, EyeOff, BarChart2, AlertTriangle, BookOpen as TemplateIcon,
+  GripVertical,
 } from "lucide-react";
 import { WRITING_TEMPLATES, SPEAKING_TEMPLATES } from "@/lib/templates";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -605,6 +606,104 @@ export default function PracticeQuestionPage() {
 }
 
 // ==========================================================================
+// ==========================================================================
+// Drag-and-drop reorder component for REORDER_PARAGRAPHS
+// ==========================================================================
+function ReorderDnD({
+  paragraphs, order, onReorder, submitted, correctOrder,
+}: {
+  paragraphs: string[];
+  order: number[];
+  onReorder: (newOrder: number[]) => void;
+  submitted: boolean;
+  correctOrder: number[];
+}) {
+  const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
+  const dragIdxRef = useRef<number | null>(null);
+
+  const handleDragStart = (idx: number) => { dragIdxRef.current = idx; };
+
+  const handleDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    setDragOverIdx(idx);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIdx: number) => {
+    e.preventDefault();
+    const dragIdx = dragIdxRef.current;
+    if (dragIdx === null || dragIdx === dropIdx) { setDragOverIdx(null); return; }
+    const newOrder = [...order];
+    const [removed] = newOrder.splice(dragIdx, 1);
+    newOrder.splice(dropIdx, 0, removed);
+    onReorder(newOrder);
+    dragIdxRef.current = null;
+    setDragOverIdx(null);
+  };
+
+  const handleDragEnd = () => { dragIdxRef.current = null; setDragOverIdx(null); };
+
+  const moveUp = (idx: number) => {
+    if (idx <= 0) return;
+    const newOrder = [...order];
+    [newOrder[idx - 1], newOrder[idx]] = [newOrder[idx], newOrder[idx - 1]];
+    onReorder(newOrder);
+  };
+
+  const moveDown = (idx: number) => {
+    if (idx >= order.length - 1) return;
+    const newOrder = [...order];
+    [newOrder[idx], newOrder[idx + 1]] = [newOrder[idx + 1], newOrder[idx]];
+    onReorder(newOrder);
+  };
+
+  return (
+    <div className="space-y-2">
+      {order.map((paraIdx, position) => {
+        const isCorrect = submitted && correctOrder[position] === paraIdx;
+        const isDragOver = !submitted && dragOverIdx === position;
+        const isDragging = !submitted && dragIdxRef.current === position;
+
+        return (
+          <div
+            key={`${paraIdx}-${position}`}
+            draggable={!submitted}
+            onDragStart={() => handleDragStart(position)}
+            onDragOver={(e) => handleDragOver(e, position)}
+            onDrop={(e) => handleDrop(e, position)}
+            onDragEnd={handleDragEnd}
+            className={`flex items-start gap-3 rounded-lg border p-3 transition-all select-none ${
+              submitted
+                ? isCorrect
+                  ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30"
+                  : "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30"
+                : isDragOver
+                  ? "border-indigo-400 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30 shadow-md"
+                  : isDragging
+                    ? "border-indigo-300 bg-indigo-50/50 dark:border-indigo-700 opacity-50"
+                    : "border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 cursor-grab hover:border-gray-300 dark:hover:border-slate-500"
+            }`}
+          >
+            {!submitted && (
+              <GripVertical className="mt-0.5 h-5 w-5 shrink-0 text-gray-300 dark:text-slate-600" />
+            )}
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-slate-700 dark:text-slate-300">
+              {position + 1}
+            </span>
+            <p className="flex-1 text-sm text-gray-800 dark:text-slate-200">{paragraphs[paraIdx]}</p>
+            {/* Arrow buttons shown only on mobile where drag isn't reliable */}
+            {!submitted && (
+              <div className="flex flex-col gap-1 sm:hidden">
+                <button onClick={() => moveUp(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▲</button>
+                <button onClick={() => moveDown(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▼</button>
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // Question Renderer — renders different UI based on question type
 // ==========================================================================
 function QuestionRenderer({
@@ -1043,49 +1142,18 @@ function QuestionRenderer({
     const paragraphs: string[] = content.paragraphs || [];
     const order: number[] = response || paragraphs.map((_: string, i: number) => i);
 
-    const moveUp = (idx: number) => {
-      if (idx <= 0) return;
-      const newOrder = [...order];
-      [newOrder[idx - 1], newOrder[idx]] = [newOrder[idx], newOrder[idx - 1]];
-      setResponse(newOrder);
-    };
-
-    const moveDown = (idx: number) => {
-      if (idx >= order.length - 1) return;
-      const newOrder = [...order];
-      [newOrder[idx], newOrder[idx + 1]] = [newOrder[idx + 1], newOrder[idx]];
-      setResponse(newOrder);
-    };
-
     return (
       <div className="space-y-4">
-        <p className="text-sm text-gray-500 dark:text-slate-400">Arrange the paragraphs in the correct order:</p>
-        <div className="space-y-2">
-          {order.map((paraIdx: number, position: number) => {
-            const isCorrectPosition = submitted && content.correctOrder?.[position] === paraIdx;
-            return (
-              <div
-                key={`${paraIdx}-${position}`}
-                className={`flex items-start gap-3 rounded-lg border p-3 ${
-                  submitted
-                    ? isCorrectPosition ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" : "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30"
-                    : "border-gray-200 dark:border-slate-600"
-                }`}
-              >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-slate-700 dark:text-slate-300">
-                  {position + 1}
-                </span>
-                <p className="flex-1 text-sm text-gray-800 dark:text-slate-200">{paragraphs[paraIdx]}</p>
-                {!submitted && (
-                  <div className="flex flex-col gap-1">
-                    <button onClick={() => moveUp(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▲</button>
-                    <button onClick={() => moveDown(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▼</button>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+        <p className="text-sm text-gray-500 dark:text-slate-400">
+          Drag the paragraphs to arrange them in the correct order:
+        </p>
+        <ReorderDnD
+          paragraphs={paragraphs}
+          order={order}
+          onReorder={setResponse}
+          submitted={submitted}
+          correctOrder={content.correctOrder || paragraphs.map((_: string, i: number) => i)}
+        />
         {!submitted && (
           <Button onClick={() => {
             const correctOrder: number[] = content.correctOrder || paragraphs.map((_: string, i: number) => i);
