@@ -59,26 +59,26 @@ export default function CentreProfilePage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Centre Profile</h1>
-        <p className="text-gray-500">Update your coaching centre information</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Centre Profile</h1>
+        <p className="text-gray-500 dark:text-slate-400">Update your coaching centre information</p>
       </div>
 
       {centre && (
-        <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-4">
+        <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-slate-700">
           <div className="flex h-12 w-12 items-center justify-center rounded-xl text-white text-lg font-bold" style={{ backgroundColor: form.primaryColor }}>
             {form.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="font-semibold text-gray-900">{form.name}</p>
-            <p className="text-xs text-gray-500">Slug: <span className="font-mono">{centre.slug}</span></p>
+            <p className="font-semibold text-gray-900 dark:text-slate-100">{form.name}</p>
+            <p className="text-xs text-gray-500 dark:text-slate-400">Slug: <span className="font-mono">{centre.slug}</span></p>
           </div>
           <Badge variant="secondary" className="ml-auto">Centre Admin</Badge>
         </div>
       )}
 
-      {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">{error}</p>}
       {saved && (
-        <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-800">
+        <div className="flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950/50 dark:text-green-300">
           <CheckCircle2 className="h-4 w-4" /> Profile saved successfully!
         </div>
       )}
@@ -88,21 +88,21 @@ export default function CentreProfilePage() {
           <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Building2 className="h-4 w-4" /> Basic Info</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Centre Name *</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Centre Name *</label>
               <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Phone</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Phone</label>
                 <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="+91 XXXXX XXXXX" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Email</label>
                 <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="centre@email.com" />
               </div>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Website</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Website</label>
               <Input value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder="https://yourcentre.com" />
             </div>
           </CardContent>
@@ -112,16 +112,16 @@ export default function CentreProfilePage() {
           <CardHeader><CardTitle className="text-base">Address</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700">Street Address</label>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Street Address</label>
               <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="123 Main Street" />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">City</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">City</label>
                 <Input value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} placeholder="Amritsar" />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">State</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">State</label>
                 <Input value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} placeholder="Punjab" />
               </div>
             </div>
@@ -131,13 +131,13 @@ export default function CentreProfilePage() {
         <Card>
           <CardHeader><CardTitle className="text-base">Branding</CardTitle></CardHeader>
           <CardContent>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Brand Color</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Brand Color</label>
             <div className="flex items-center gap-3">
               <input type="color" value={form.primaryColor} onChange={e => setForm({ ...form, primaryColor: e.target.value })} className="h-10 w-20 cursor-pointer rounded border" />
               <Input value={form.primaryColor} onChange={e => setForm({ ...form, primaryColor: e.target.value })} className="w-32 font-mono text-sm" />
               <div className="h-10 w-10 rounded-lg border" style={{ backgroundColor: form.primaryColor }} />
             </div>
-            <p className="mt-2 text-xs text-gray-500">This color will be used for your centre&apos;s branding on the platform.</p>
+            <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">This color will be used for your centre&apos;s branding on the platform.</p>
           </CardContent>
         </Card>
 

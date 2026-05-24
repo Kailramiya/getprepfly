@@ -133,10 +133,10 @@ export default function PracticeSectionPage() {
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900">{qt.label}</h3>
-                    <ArrowRight className="h-4 w-4 text-gray-300 transition group-hover:text-gray-600 group-hover:translate-x-0.5" />
+                    <h3 className="font-semibold text-gray-900 dark:text-slate-100">{qt.label}</h3>
+                    <ArrowRight className="h-4 w-4 text-gray-300 transition group-hover:text-gray-600 group-hover:translate-x-0.5 dark:text-slate-600 dark:group-hover:text-slate-400" />
                   </div>
-                  <p className="mt-1 text-sm text-gray-500">{qt.description}</p>
+                  <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{qt.description}</p>
                   <div className="mt-3 flex items-center gap-2">
                     <Badge variant="secondary" className="text-xs">
                       {qt.timeLimit}
@@ -153,13 +153,13 @@ export default function PracticeSectionPage() {
       </div>
 
       {/* Weekly Predictions */}
-      <Card className="border-amber-200 bg-amber-50">
+      <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
         <CardContent className="flex items-center justify-between p-5">
           <div className="flex items-center gap-3">
             <Star className="h-6 w-6 text-amber-500" />
             <div>
-              <h3 className="font-semibold text-amber-900">Weekly Predictions</h3>
-              <p className="text-sm text-amber-700">High-probability questions for this week</p>
+              <h3 className="font-semibold text-amber-900 dark:text-amber-200">Weekly Predictions</h3>
+              <p className="text-sm text-amber-700 dark:text-amber-300">High-probability questions for this week</p>
             </div>
           </div>
           <Link href={`/practice/${sectionKey}?prediction=true`}>

@@ -159,8 +159,8 @@ export default function QuestionsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Question Bank</h1>
-          <p className="text-gray-500">{total} questions available</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Question Bank</h1>
+          <p className="text-gray-500 dark:text-slate-400">{total} questions available</p>
         </div>
         <div className="flex gap-2">
           <Button variant="outline" className="gap-2" onClick={() => { setEditingQuestion(null); setShowForm(true); }}>
@@ -192,8 +192,8 @@ export default function QuestionsPage() {
               onClick={() => { setSection(s); setPage(1); }}
               className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                 section === s
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
               }`}
             >
               {s || "All"}
@@ -212,10 +212,10 @@ export default function QuestionsPage() {
           ) : questions.length === 0 ? (
             <div className="py-16 text-center">
               <Database className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-4 text-gray-500">No questions found. Add your first question!</p>
+              <p className="mt-4 text-gray-500 dark:text-slate-400">No questions found. Add your first question!</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-slate-700">
               {questions.map((q) => {
                 const SectionIcon = SECTION_ICONS[q.section] || Database;
                 const isExpanded = expandedId === q.id;
@@ -223,7 +223,7 @@ export default function QuestionsPage() {
                 return (
                   <div key={q.id}>
                     <div
-                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50"
+                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-slate-700"
                       onClick={() => toggleExpand(q.id)}
                     >
                       <div className="flex items-center gap-4">
@@ -232,7 +232,7 @@ export default function QuestionsPage() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-medium text-gray-900">{q.title}</p>
+                            <p className="font-medium text-gray-900 dark:text-slate-100">{q.title}</p>
                             {q.isPrediction && (
                               <Badge variant="warning" className="gap-1">
                                 <Star className="h-3 w-3" /> Prediction
@@ -246,7 +246,7 @@ export default function QuestionsPage() {
                             <Badge className={`text-xs ${DIFFICULTY_COLORS[q.difficulty]}`}>
                               {q.difficulty}
                             </Badge>
-                            <span className="text-xs text-gray-400">
+                            <span className="text-xs text-gray-400 dark:text-slate-500">
                               {q._count.attempts} attempts
                             </span>
                           </div>
@@ -254,12 +254,12 @@ export default function QuestionsPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         {typeof q.marks === "number" && (
-                          <span className="mr-2 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700">
+                          <span className="mr-2 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300">
                             {q.marks} {q.marks === 1 ? "mark" : "marks"}
                           </span>
                         )}
                         <button
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50"
+                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-blue-400"
                           onClick={(e) => { e.stopPropagation(); openEditForm(q.id); }}
                           disabled={loadingEdit === q.id}
                           title="Edit question"
@@ -271,7 +271,7 @@ export default function QuestionsPage() {
                           )}
                         </button>
                         <button
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 disabled:opacity-50"
+                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-red-400"
                           onClick={(e) => { e.stopPropagation(); handleDelete(q.id, q.title); }}
                           disabled={deleting === q.id}
                           title="Delete question"
@@ -287,18 +287,18 @@ export default function QuestionsPage() {
 
                     {/* Expanded Detail */}
                     {isExpanded && (
-                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 pl-18">
+                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 pl-18 dark:border-slate-700 dark:bg-slate-700/50">
                         {loadingDetail === q.id ? (
                           <div className="flex items-center gap-2 py-4">
                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
-                            <span className="text-sm text-gray-500">Loading...</span>
+                            <span className="text-sm text-gray-500 dark:text-slate-400">Loading...</span>
                           </div>
                         ) : detail ? (
                           <div className="space-y-4 pl-14">
                             {/* Question Content */}
                             <div>
-                              <h4 className="text-xs font-semibold uppercase text-gray-400">Question Content</h4>
-                              <div className="mt-1 rounded-lg bg-white p-3 text-sm text-gray-700 shadow-sm">
+                              <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Question Content</h4>
+                              <div className="mt-1 rounded-lg bg-white p-3 text-sm text-gray-700 shadow-sm dark:bg-slate-800 dark:text-slate-300">
                                 {typeof detail.content === "string" ? (
                                   <p>{detail.content}</p>
                                 ) : (
@@ -314,7 +314,7 @@ export default function QuestionsPage() {
                                     )}
                                     {detail.content?.options && (
                                       <div>
-                                        <span className="font-medium text-gray-500">Options:</span>
+                                        <span className="font-medium text-gray-500 dark:text-slate-400">Options:</span>
                                         <ol className="ml-4 mt-1 list-decimal space-y-1">
                                           {detail.content.options.map((opt: string, i: number) => (
                                             <li key={i} className={detail.content?.correctAnswer === i || (Array.isArray(detail.content?.correctAnswers) && detail.content.correctAnswers.includes(i)) ? "font-semibold text-green-700" : ""}>
@@ -327,7 +327,7 @@ export default function QuestionsPage() {
                                     )}
                                     {detail.content?.paragraphs && (
                                       <div>
-                                        <span className="font-medium text-gray-500">Paragraphs:</span>
+                                        <span className="font-medium text-gray-500 dark:text-slate-400">Paragraphs:</span>
                                         <ol className="ml-4 mt-1 list-decimal space-y-1">
                                           {detail.content.paragraphs.map((p: string, i: number) => (
                                             <li key={i} className="text-sm">{p}</li>
@@ -340,7 +340,7 @@ export default function QuestionsPage() {
                                     )}
                                     {detail.content?.blanks && (
                                       <div>
-                                        <span className="font-medium text-gray-500">Blanks:</span>
+                                        <span className="font-medium text-gray-500 dark:text-slate-400">Blanks:</span>
                                         <ul className="ml-4 mt-1 list-disc">
                                           {detail.content.blanks.map((b: any, i: number) => (
                                             <li key={i} className="text-sm">
@@ -361,7 +361,7 @@ export default function QuestionsPage() {
                             {/* Image */}
                             {(detail.imageUrl || detail.content?.imageUrl) && (
                               <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400">Image</h4>
+                                <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Image</h4>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={detail.imageUrl || detail.content.imageUrl}
@@ -374,7 +374,7 @@ export default function QuestionsPage() {
                             {/* Audio */}
                             {(detail.audioUrl || detail.content?.audioUrl) && (
                               <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400">Audio</h4>
+                                <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Audio</h4>
                                 <audio controls className="mt-1" src={detail.audioUrl || detail.content.audioUrl} />
                               </div>
                             )}
@@ -382,8 +382,8 @@ export default function QuestionsPage() {
                             {/* Model Answer */}
                             {detail.modelAnswer && (
                               <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400">Model Answer</h4>
-                                <div className="mt-1 rounded-lg bg-green-50 p-3 text-sm text-green-800 shadow-sm">
+                                <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Model Answer</h4>
+                                <div className="mt-1 rounded-lg bg-green-50 p-3 text-sm text-green-800 shadow-sm dark:bg-green-950/50 dark:text-green-300">
                                   {detail.modelAnswer}
                                 </div>
                               </div>
@@ -392,15 +392,15 @@ export default function QuestionsPage() {
                             {/* Explanation */}
                             {detail.explanation && (
                               <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400">Explanation</h4>
-                                <div className="mt-1 rounded-lg bg-blue-50 p-3 text-sm text-blue-800 shadow-sm">
+                                <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Explanation</h4>
+                                <div className="mt-1 rounded-lg bg-blue-50 p-3 text-sm text-blue-800 shadow-sm dark:bg-blue-950/50 dark:text-blue-300">
                                   {detail.explanation}
                                 </div>
                               </div>
                             )}
                           </div>
                         ) : (
-                          <p className="py-4 text-sm text-gray-500">Failed to load details.</p>
+                          <p className="py-4 text-sm text-gray-500 dark:text-slate-400">Failed to load details.</p>
                         )}
                       </div>
                     )}
@@ -415,7 +415,7 @@ export default function QuestionsPage() {
       {/* Pagination */}
       {total > 20 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             Page {page} of {Math.ceil(total / 20)}
           </p>
           <div className="flex gap-2">

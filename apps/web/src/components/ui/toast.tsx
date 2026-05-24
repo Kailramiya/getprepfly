@@ -42,10 +42,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   };
 
   const bgColors = {
-    success: "bg-green-50 border-green-200",
-    error: "bg-red-50 border-red-200",
-    warning: "bg-amber-50 border-amber-200",
-    info: "bg-blue-50 border-blue-200",
+    success: "bg-green-50 border-green-200 dark:bg-green-950/50 dark:border-green-900",
+    error: "bg-red-50 border-red-200 dark:bg-red-950/50 dark:border-red-900",
+    warning: "bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-900",
+    info: "bg-blue-50 border-blue-200 dark:bg-blue-950/50 dark:border-blue-900",
   };
 
   return (
@@ -60,8 +60,8 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             style={{ animation: "slideIn 0.3s ease-out" }}
           >
             {icons[t.type]}
-            <p className="text-sm font-medium text-gray-900">{t.message}</p>
-            <button onClick={() => removeToast(t.id)} className="ml-2 text-gray-400 hover:text-gray-600">
+            <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{t.message}</p>
+            <button onClick={() => removeToast(t.id)} className="ml-2 text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300">
               <X className="h-4 w-4" />
             </button>
           </div>

@@ -47,10 +47,10 @@ export function ScoreDisplay({ scores, type, feedback, corrections, transcriptio
         <div className={`${scoreBg(scores.overall)} px-6 py-4`}>
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-gray-600">Overall Score</p>
+              <p className="text-sm font-medium text-gray-600 dark:text-slate-400">Overall Score</p>
               <p className={`text-4xl font-bold ${scoreColor(scores.overall)}`}>
                 {scores.overall}
-                <span className="text-lg text-gray-400">/90</span>
+                <span className="text-lg text-gray-400 dark:text-slate-500">/90</span>
               </p>
             </div>
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
@@ -65,12 +65,12 @@ export function ScoreDisplay({ scores, type, feedback, corrections, transcriptio
             {metrics.map((metric) => {
               const value = scores[metric] ?? 0;
               return (
-                <div key={metric} className="rounded-lg bg-gray-50 p-3">
-                  <p className="text-xs font-medium capitalize text-gray-500">{metric}</p>
+                <div key={metric} className="rounded-lg bg-gray-50 p-3 dark:bg-slate-700">
+                  <p className="text-xs font-medium capitalize text-gray-500 dark:text-slate-400">{metric}</p>
                   <div className="mt-1 flex items-center gap-2">
                     <p className={`text-xl font-bold ${scoreColor(value)}`}>{value}</p>
                     <div className="flex-1">
-                      <div className="h-1.5 rounded-full bg-gray-200">
+                      <div className="h-1.5 rounded-full bg-gray-200 dark:bg-slate-600">
                         <div
                           className={`h-full rounded-full transition-all ${
                             value >= 79 ? "bg-green-500" :
@@ -103,19 +103,19 @@ export function ScoreDisplay({ scores, type, feedback, corrections, transcriptio
             <CardTitle className="text-sm">Your Transcription</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-gray-700 leading-relaxed">{transcription}</p>
+            <p className="text-sm text-gray-700 leading-relaxed dark:text-slate-300">{transcription}</p>
           </CardContent>
         </Card>
       )}
 
       {/* Feedback */}
       {feedback && (
-        <Card className="border-indigo-200 bg-indigo-50">
+        <Card className="border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/50">
           <CardContent className="flex gap-3 p-4">
             <TrendingUp className="h-5 w-5 shrink-0 text-indigo-600" />
             <div>
-              <p className="text-sm font-medium text-indigo-900">AI Feedback</p>
-              <p className="mt-1 text-sm text-indigo-700">{feedback}</p>
+              <p className="text-sm font-medium text-indigo-900 dark:text-indigo-200">AI Feedback</p>
+              <p className="mt-1 text-sm text-indigo-700 dark:text-indigo-300">{feedback}</p>
             </div>
           </CardContent>
         </Card>
@@ -130,7 +130,7 @@ export function ScoreDisplay({ scores, type, feedback, corrections, transcriptio
           <CardContent>
             <div className="space-y-2">
               {corrections.map((c, i) => (
-                <div key={i} className="flex items-start gap-3 rounded-lg bg-gray-50 p-3">
+                <div key={i} className="flex items-start gap-3 rounded-lg bg-gray-50 p-3 dark:bg-slate-700">
                   <Badge variant="destructive" className="shrink-0 text-xs">{c.type}</Badge>
                   <div>
                     <p className="text-sm">

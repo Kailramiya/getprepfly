@@ -143,24 +143,24 @@ function RegisterForm() {
         <Logo size="sm" />
       </div>
 
-      <h2 className="text-2xl font-bold text-gray-900">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
         {isCentreRegistration ? "Register Your Centre" : "Create your account"}
       </h2>
-      <p className="mt-2 text-sm text-gray-600">
+      <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
         {isCentreRegistration
           ? "Set up your coaching centre on Prepfly"
           : "Start your PTE preparation journey for free"}
       </p>
 
       {prefilledEmail && !isCentreRegistration && (
-        <div className="mt-4 flex items-start gap-2 rounded-lg bg-teal-50 p-3 text-sm text-teal-800">
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-teal-50 p-3 text-sm text-teal-800 dark:bg-teal-950/50 dark:text-teal-300">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
           <span>You&apos;ve been invited by a coaching centre. Register with <strong>{prefilledEmail}</strong> to join automatically.</span>
         </div>
       )}
 
       {error && (
-        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
           {error}
         </div>
       )}
@@ -233,7 +233,7 @@ function RegisterForm() {
                   required
                 />
               </div>
-              <p className="mt-1 pl-1 text-xs text-gray-500">
+              <p className="mt-1 pl-1 text-xs text-gray-500 dark:text-slate-400">
                 This code will be used by students to join your centre. Only lowercase letters, numbers, and hyphens.
               </p>
             </div>
@@ -276,7 +276,7 @@ function RegisterForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-gray-600 dark:text-slate-400">
         Already have an account?{" "}
         <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
           Log in
@@ -284,7 +284,7 @@ function RegisterForm() {
       </p>
 
       {!isCentreRegistration && (
-        <p className="mt-3 text-center text-sm text-gray-500">
+        <p className="mt-3 text-center text-sm text-gray-500 dark:text-slate-400">
           Are you a coaching centre?{" "}
           <Link href="/register?role=centre" className="font-medium text-teal-600 hover:text-teal-500">
             Register as Centre

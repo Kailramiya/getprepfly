@@ -44,15 +44,15 @@ export default function ForgotPasswordPage() {
 
       {sent ? (
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/50">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Check your email</h2>
-          <p className="mt-3 text-sm text-gray-600 leading-relaxed">
-            If <span className="font-medium text-gray-900">{email}</span> is registered with Prepfly,
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Check your email</h2>
+          <p className="mt-3 text-sm text-gray-600 leading-relaxed dark:text-slate-400">
+            If <span className="font-medium text-gray-900 dark:text-slate-200">{email}</span> is registered with Prepfly,
             you&apos;ll receive a password reset link shortly. Check your spam folder if you don&apos;t see it.
           </p>
-          <p className="mt-6 text-sm text-gray-500">Link expires in 1 hour.</p>
+          <p className="mt-6 text-sm text-gray-500 dark:text-slate-400">Link expires in 1 hour.</p>
           <Link
             href="/login"
             className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-500"
@@ -64,18 +64,18 @@ export default function ForgotPasswordPage() {
         <>
           <Link
             href="/login"
-            className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+            className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
           >
             <ArrowLeft className="h-4 w-4" /> Back to login
           </Link>
 
-          <h2 className="text-2xl font-bold text-gray-900">Forgot password?</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Forgot password?</h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
             Enter your registered email and we&apos;ll send you a link to reset your password.
           </p>
 
           {error && (
-            <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
+            <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">

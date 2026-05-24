@@ -47,7 +47,7 @@ export default function ProgressPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Your Progress</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Your Progress</h1>
 
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -59,12 +59,12 @@ export default function ProgressPage() {
         ].map((stat) => (
           <Card key={stat.label}>
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50 dark:bg-slate-700">
                 <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
               <div>
-                <p className="text-lg font-bold text-gray-900">{stat.value}</p>
-                <p className="text-xs text-gray-500">{stat.label}</p>
+                <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{stat.value}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
@@ -87,13 +87,13 @@ export default function ProgressPage() {
               const numScore = score as number;
 
               return (
-                <div key={section} className="rounded-xl border border-gray-200 p-4">
+                <div key={section} className="rounded-xl border border-gray-200 p-4 dark:border-slate-700">
                   <div className="flex items-center gap-3">
                     <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${config?.bg || "bg-gray-100"}`}>
                       <SectionIcon className={`h-5 w-5 ${config?.color || "text-gray-500"}`} />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-600">{section}</p>
+                      <p className="text-sm font-medium text-gray-600 dark:text-slate-300">{section}</p>
                       <p className={`text-2xl font-bold ${
                         numScore >= 79 ? "text-green-600" :
                         numScore >= 65 ? "text-blue-600" :
@@ -105,7 +105,7 @@ export default function ProgressPage() {
                     </div>
                   </div>
                   {/* Score bar */}
-                  <div className="mt-3 h-2 rounded-full bg-gray-100">
+                  <div className="mt-3 h-2 rounded-full bg-gray-100 dark:bg-slate-700">
                     <div
                       className={`h-full rounded-full ${
                         numScore >= 79 ? "bg-green-500" :
@@ -140,10 +140,10 @@ export default function ProgressPage() {
                 {data.weakAreas.map((area: any) => (
                   <div key={area.type} className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
                         {area.type.replace(/_/g, " ")}
                       </p>
-                      <p className="text-xs text-gray-500">{area.count} attempts</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">{area.count} attempts</p>
                     </div>
                     <Badge variant="destructive">{area.averageScore}</Badge>
                   </div>
@@ -169,10 +169,10 @@ export default function ProgressPage() {
                 {data.strongAreas.map((area: any) => (
                   <div key={area.type} className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
                         {area.type.replace(/_/g, " ")}
                       </p>
-                      <p className="text-xs text-gray-500">{area.count} attempts</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">{area.count} attempts</p>
                     </div>
                     <Badge variant="success">{area.averageScore}</Badge>
                   </div>
@@ -196,14 +196,14 @@ export default function ProgressPage() {
               {data.recentAttempts.map((attempt: any) => {
                 const config = SECTION_CONFIG[attempt.section];
                 return (
-                  <div key={attempt.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+                  <div key={attempt.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-700/50">
                     <div className="flex items-center gap-3">
                       <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${config?.bg || "bg-gray-200"}`}>
                         {config?.icon && <config.icon className={`h-4 w-4 ${config.color}`} />}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{attempt.title}</p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{attempt.title}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">
                           {attempt.questionType.replace(/_/g, " ")} &bull;{" "}
                           {new Date(attempt.createdAt).toLocaleDateString("en-IN")}
                         </p>

@@ -228,8 +228,8 @@ export default function MockTestSessionPage() {
       <div className="mx-auto max-w-2xl space-y-6">
         <div className="text-center">
           <CheckCircle2 className="mx-auto h-16 w-16 text-green-500" />
-          <h1 className="mt-4 text-2xl font-bold text-gray-900">Test Completed!</h1>
-          <p className="mt-2 text-gray-500">{test.title}</p>
+          <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-slate-100">Test Completed!</h1>
+          <p className="mt-2 text-gray-500 dark:text-slate-400">{test.title}</p>
         </div>
 
         {/* Overall Score */}
@@ -247,8 +247,8 @@ export default function MockTestSessionPage() {
             ].map((s) => (
               <div key={s.label} className="text-center">
                 <s.icon className={`mx-auto h-6 w-6 ${s.color}`} />
-                <p className="mt-2 text-2xl font-bold text-gray-900">{s.score ?? "--"}</p>
-                <p className="text-xs text-gray-500">{s.label}</p>
+                <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-slate-100">{s.score ?? "--"}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">{s.label}</p>
               </div>
             ))}
           </CardContent>
@@ -266,19 +266,19 @@ export default function MockTestSessionPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       {/* Top Bar — Timer + Progress */}
-      <div className="flex items-center justify-between rounded-xl bg-white p-3 shadow-sm border border-gray-200">
+      <div className="flex items-center justify-between rounded-xl bg-white p-3 shadow-sm border border-gray-200 dark:bg-slate-800 dark:border-slate-700">
         <div className="flex items-center gap-4">
           <Badge className={SECTION_COLORS[qSection]}>{qSection}</Badge>
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-gray-500 dark:text-slate-400">
             Q {currentIdx + 1} / {totalQuestions}
           </span>
-          <span className="text-sm text-gray-400">
+          <span className="text-sm text-gray-400 dark:text-slate-500">
             ({attemptedCount} answered)
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 text-sm font-mono font-medium text-gray-700">
-            <Clock className="h-4 w-4 text-gray-400" />
+          <div className="flex items-center gap-1.5 text-sm font-mono font-medium text-gray-700 dark:text-slate-300">
+            <Clock className="h-4 w-4 text-gray-400 dark:text-slate-500" />
             {formatTime(elapsed)}
           </div>
           <Button variant="destructive" size="sm" onClick={finishTest} loading={finishing}>
@@ -293,7 +293,7 @@ export default function MockTestSessionPage() {
         {Object.entries(sectionBreakdown).map(([sec, info]) => {
           const SIcon = SECTION_ICONS[sec] || BookOpen;
           return (
-            <div key={sec} className="flex items-center gap-1.5 text-xs text-gray-500">
+            <div key={sec} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400">
               <SIcon className="h-3.5 w-3.5" />
               {sec}: {info.attempted}/{info.total}
             </div>
@@ -302,7 +302,7 @@ export default function MockTestSessionPage() {
       </div>
 
       {/* Progress Bar */}
-      <div className="h-1.5 rounded-full bg-gray-200">
+      <div className="h-1.5 rounded-full bg-gray-200 dark:bg-slate-700">
         <div
           className="h-full rounded-full bg-indigo-500 transition-all"
           style={{ width: `${((currentIdx + 1) / totalQuestions) * 100}%` }}
@@ -311,10 +311,10 @@ export default function MockTestSessionPage() {
 
       {/* Question Card */}
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between bg-gray-50">
+        <CardHeader className="flex flex-row items-center justify-between bg-gray-50 dark:bg-slate-800/50">
           <div>
-            <CardTitle className="text-base">{currentQuestion?.question?.title}</CardTitle>
-            <p className="mt-1 text-xs text-gray-500">
+            <CardTitle className="text-base dark:text-slate-100">{currentQuestion?.question?.title}</CardTitle>
+            <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
               {qType.replace(/_/g, " ")} • {currentQuestion?.question?.difficulty}
             </p>
           </div>
@@ -325,9 +325,9 @@ export default function MockTestSessionPage() {
           {(qType === "READING_MCQ_SINGLE" || qType === "LISTENING_MCQ_SINGLE" || qType === "HIGHLIGHT_CORRECT_SUMMARY" || qType === "SELECT_MISSING_WORD") && (
             <div className="space-y-4">
               {content?.passage && (
-                <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 text-sm text-gray-800">{content.passage}</div>
+                <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 text-sm text-gray-800 dark:bg-slate-800/50 dark:text-slate-200">{content.passage}</div>
               )}
-              {content?.question && <p className="font-medium text-gray-900">{content.question}</p>}
+              {content?.question && <p className="font-medium text-gray-900 dark:text-slate-100">{content.question}</p>}
               <div className="space-y-2">
                 {(content?.options || []).map((opt: string, i: number) => {
                   const isSelected = response === i;
@@ -340,14 +340,14 @@ export default function MockTestSessionPage() {
                       onClick={() => !submitted && setResponse(i)}
                       disabled={submitted}
                       className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left text-sm transition ${
-                        isCorrect ? "border-green-500 bg-green-50" :
-                        isWrong ? "border-red-500 bg-red-50" :
-                        isSelected ? "border-indigo-500 bg-indigo-50" :
-                        "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                        isCorrect ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" :
+                        isWrong ? "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30" :
+                        isSelected ? "border-indigo-500 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30" :
+                        "border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-700/40"
                       }`}
                     >
                       <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
-                        isSelected || isCorrect ? "border-indigo-500 bg-indigo-600 text-white" : "border-gray-300 text-gray-500"
+                        isSelected || isCorrect ? "border-indigo-500 bg-indigo-600 text-white" : "border-gray-300 text-gray-500 dark:border-slate-500 dark:text-slate-400"
                       }`}>{String.fromCharCode(65 + i)}</span>
                       <span className="flex-1">{opt}</span>
                       {isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
@@ -363,10 +363,10 @@ export default function MockTestSessionPage() {
           {(qType === "READING_MCQ_MULTIPLE" || qType === "LISTENING_MCQ_MULTIPLE") && (
             <div className="space-y-4">
               {content?.passage && (
-                <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 text-sm text-gray-800">{content.passage}</div>
+                <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 text-sm text-gray-800 dark:bg-slate-800/50 dark:text-slate-200">{content.passage}</div>
               )}
-              {content?.question && <p className="font-medium text-gray-900">{content.question}</p>}
-              <p className="text-xs text-gray-500">Select all correct answers</p>
+              {content?.question && <p className="font-medium text-gray-900 dark:text-slate-100">{content.question}</p>}
+              <p className="text-xs text-gray-500 dark:text-slate-400">Select all correct answers</p>
               <div className="space-y-2">
                 {(content?.options || []).map((opt: string, i: number) => {
                   const selected: number[] = response || [];
@@ -382,14 +382,14 @@ export default function MockTestSessionPage() {
                       }}
                       disabled={submitted}
                       className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left text-sm transition ${
-                        isCorrect ? "border-green-500 bg-green-50" :
-                        isWrong ? "border-red-500 bg-red-50" :
-                        isSelected ? "border-indigo-500 bg-indigo-50" :
-                        "border-gray-200 hover:border-gray-300"
+                        isCorrect ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" :
+                        isWrong ? "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30" :
+                        isSelected ? "border-indigo-500 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30" :
+                        "border-gray-200 hover:border-gray-300 dark:border-slate-600 dark:hover:border-slate-500"
                       }`}
                     >
                       <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                        isSelected ? "border-indigo-500 bg-indigo-600" : "border-gray-300"
+                        isSelected ? "border-indigo-500 bg-indigo-600" : "border-gray-300 dark:border-slate-500"
                       }`}>{isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}</div>
                       <span className="flex-1">{opt}</span>
                     </button>
@@ -402,8 +402,8 @@ export default function MockTestSessionPage() {
           {/* ---- READ ALOUD ---- */}
           {qType === "READ_ALOUD" && (
             <div className="space-y-4">
-              <div className="rounded-lg bg-amber-50 p-4 text-lg leading-relaxed text-gray-900">{content?.text}</div>
-              <p className="text-sm text-gray-500">Read the text above aloud. (Audio recording in speaking module)</p>
+              <div className="rounded-lg bg-amber-50 p-4 text-lg leading-relaxed text-gray-900 dark:bg-amber-950/30 dark:text-slate-200">{content?.text}</div>
+              <p className="text-sm text-gray-500 dark:text-slate-400">Read the text above aloud. (Audio recording in speaking module)</p>
             </div>
           )}
 
@@ -414,16 +414,16 @@ export default function MockTestSessionPage() {
                 <div className="max-h-52 overflow-y-auto rounded-lg bg-gray-50 p-4 text-sm text-gray-800">{content.passage}</div>
               )}
               {content?.prompt && (
-                <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-800">{content.prompt}</div>
+                <div className="rounded-lg bg-gray-50 p-4 text-sm text-gray-800 dark:bg-slate-800/50 dark:text-slate-200">{content.prompt}</div>
               )}
               <textarea
-                className="min-h-[160px] w-full rounded-lg border border-gray-300 p-4 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="min-h-[160px] w-full rounded-lg border border-gray-300 p-4 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder={qType === "WRITE_ESSAY" ? "Write your essay (200-300 words)..." : "Write a one-sentence summary (5-75 words)..."}
                 value={response || ""}
                 onChange={(e) => setResponse(e.target.value)}
                 disabled={submitted}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-slate-400">
                 Words: {(response || "").trim().split(/\s+/).filter(Boolean).length}
               </p>
             </div>
@@ -435,18 +435,18 @@ export default function MockTestSessionPage() {
               {(content?.audioUrl || currentQuestion?.question?.audioUrl) && (
                 <audio controls className="w-full" src={content?.audioUrl || currentQuestion?.question?.audioUrl} />
               )}
-              <p className="text-sm text-gray-500">Listen and type the exact sentence you hear.</p>
+              <p className="text-sm text-gray-500 dark:text-slate-400">Listen and type the exact sentence you hear.</p>
               <textarea
-                className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm text-gray-900 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Type what you hear..."
                 value={response || ""}
                 onChange={(e) => setResponse(e.target.value)}
                 disabled={submitted}
               />
               {submitted && content?.correctText && (
-                <div className="rounded-lg bg-green-50 p-3">
-                  <p className="text-xs font-medium text-green-800">Correct:</p>
-                  <p className="text-sm text-green-900">{content.correctText}</p>
+                <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950/40">
+                  <p className="text-xs font-medium text-green-800 dark:text-green-300">Correct:</p>
+                  <p className="text-sm text-green-900 dark:text-green-200">{content.correctText}</p>
                 </div>
               )}
             </div>
@@ -455,7 +455,7 @@ export default function MockTestSessionPage() {
           {/* ---- REORDER PARAGRAPHS ---- */}
           {qType === "REORDER_PARAGRAPHS" && (
             <div className="space-y-4">
-              <p className="text-sm text-gray-500">Arrange paragraphs in correct order:</p>
+              <p className="text-sm text-gray-500 dark:text-slate-400">Arrange paragraphs in correct order:</p>
               {(() => {
                 const paragraphs: string[] = content?.paragraphs || [];
                 const order: number[] = response || paragraphs.map((_: string, i: number) => i);
@@ -477,14 +477,14 @@ export default function MockTestSessionPage() {
                       const isCorrect = submitted && content?.correctOrder?.[pos] === paraIdx;
                       return (
                         <div key={`${paraIdx}-${pos}`} className={`flex items-start gap-3 rounded-lg border p-3 ${
-                          submitted ? (isCorrect ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50") : "border-gray-200"
+                          submitted ? (isCorrect ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" : "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30") : "border-gray-200 dark:border-slate-600"
                         }`}>
-                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">{pos + 1}</span>
-                          <p className="flex-1 text-sm text-gray-800">{paragraphs[paraIdx]}</p>
+                          <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-slate-700 dark:text-slate-300">{pos + 1}</span>
+                          <p className="flex-1 text-sm text-gray-800 dark:text-slate-200">{paragraphs[paraIdx]}</p>
                           {!submitted && (
                             <div className="flex flex-col gap-1">
-                              <button onClick={() => moveUp(pos)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100">▲</button>
-                              <button onClick={() => moveDown(pos)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100">▼</button>
+                              <button onClick={() => moveUp(pos)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▲</button>
+                              <button onClick={() => moveDown(pos)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▼</button>
                             </div>
                           )}
                         </div>
@@ -537,7 +537,7 @@ export default function MockTestSessionPage() {
             "READING_FILL_BLANKS_DRAG"].includes(qType) && (
             <div className="space-y-4">
               {content?.text && <div className="rounded-lg bg-amber-50 p-4 text-gray-900">{content.text}</div>}
-              {content?.question && <p className="font-medium text-gray-900">{content.question}</p>}
+              {content?.question && <p className="font-medium text-gray-900 dark:text-slate-100">{content.question}</p>}
               {content?.prompt && <p className="text-gray-800">{content.prompt}</p>}
               {content?.context && <p className="text-sm text-gray-600">{content.context}</p>}
               {(content?.audioUrl || currentQuestion?.question?.audioUrl) && (

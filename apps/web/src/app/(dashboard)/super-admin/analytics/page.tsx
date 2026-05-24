@@ -36,8 +36,8 @@ export default function SuperAdminAnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Platform Analytics</h1>
-        <p className="text-gray-500">Overall platform statistics</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Platform Analytics</h1>
+        <p className="text-gray-500 dark:text-slate-400">Overall platform statistics</p>
       </div>
 
       {loading ? (
@@ -47,9 +47,9 @@ export default function SuperAdminAnalyticsPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-3">
           {[
-            { label: "Total Centres", value: stats.centres, icon: Building2, color: "text-indigo-500", bg: "bg-indigo-50" },
-            { label: "Total Users", value: stats.users, icon: Users, color: "text-teal-500", bg: "bg-teal-50" },
-            { label: "Total Questions", value: stats.questions, icon: Database, color: "text-purple-500", bg: "bg-purple-50" },
+            { label: "Total Centres", value: stats.centres, icon: Building2, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-950/40" },
+            { label: "Total Users", value: stats.users, icon: Users, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-950/40" },
+            { label: "Total Questions", value: stats.questions, icon: Database, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-950/40" },
           ].map((stat) => (
             <Card key={stat.label}>
               <CardContent className="flex items-center gap-4 p-6">
@@ -57,8 +57,8 @@ export default function SuperAdminAnalyticsPage() {
                   <stat.icon className={`h-7 w-7 ${stat.color}`} />
                 </div>
                 <div>
-                  <p className="text-3xl font-bold text-gray-900">{stat.value}</p>
-                  <p className="text-sm text-gray-500">{stat.label}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">{stat.value}</p>
+                  <p className="text-sm text-gray-500 dark:text-slate-400">{stat.label}</p>
                 </div>
               </CardContent>
             </Card>

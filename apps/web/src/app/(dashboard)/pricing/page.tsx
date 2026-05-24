@@ -195,24 +195,24 @@ export default function PricingPage() {
 
       {/* Header */}
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900">Choose Your Plan</h1>
-        <p className="mt-2 text-gray-600">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Choose Your Plan</h1>
+        <p className="mt-2 text-gray-600 dark:text-slate-400">
           Unlock premium practice questions with AI-powered scoring
         </p>
         {access?.isTrial && (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-blue-100 px-4 py-2 text-sm font-medium text-blue-700 dark:bg-blue-950/50 dark:text-blue-300">
             <Sparkles className="h-4 w-4" />
             Free Trial — full access until {formatExpiry("ALL_MODULES")}
           </div>
         )}
         {access?.hasAllAccess && !access?.isTrial && (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-100 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-950/50 dark:text-green-300">
             <Check className="h-4 w-4" />
             You have full access until {formatExpiry("ALL_MODULES")}
           </div>
         )}
         {access?.trialExpired && (
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-red-100 px-4 py-2 text-sm font-medium text-red-700">
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-red-100 px-4 py-2 text-sm font-medium text-red-700 dark:bg-red-950/50 dark:text-red-300">
             <Lock className="h-4 w-4" />
             Trial expired. Unlock modules to continue.
           </div>
@@ -226,7 +226,7 @@ export default function PricingPage() {
       )}
 
       {/* All Modules Bundle - Featured */}
-      <Card className="relative overflow-hidden border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 via-white to-purple-50 shadow-xl">
+      <Card className="relative overflow-hidden border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 via-white to-purple-50 shadow-xl dark:from-indigo-950/40 dark:via-slate-900 dark:to-purple-950/40">
         <div className="absolute -right-6 -top-6 rotate-12">
           <Badge className="bg-amber-500 text-white">
             <Sparkles className="mr-1 h-3 w-3" /> BEST VALUE
@@ -240,11 +240,11 @@ export default function PricingPage() {
                   <Star className="h-6 w-6" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold text-gray-900">All Modules Bundle</h3>
-                  <p className="text-sm text-gray-600">Everything unlocked — 30 days access</p>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">All Modules Bundle</h3>
+                  <p className="text-sm text-gray-600 dark:text-slate-400">Everything unlocked — 30 days access</p>
                 </div>
               </div>
-              <div className="mt-4 grid gap-2 text-sm text-gray-700 sm:grid-cols-2">
+              <div className="mt-4 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-slate-300">
                 {[
                   "All 20+ PTE question types",
                   "Unlimited practice in all 4 sections",
@@ -261,10 +261,10 @@ export default function PricingPage() {
               </div>
             </div>
             <div className="text-center lg:text-right">
-              <div className="mb-1 text-xs font-medium text-gray-500 line-through">₹396 separately</div>
+              <div className="mb-1 text-xs font-medium text-gray-500 line-through dark:text-slate-400">₹396 separately</div>
               <div className="flex items-baseline justify-center gap-1 lg:justify-end">
-                <span className="text-4xl font-bold text-gray-900">₹299</span>
-                <span className="text-sm text-gray-500">/ 30 days</span>
+                <span className="text-4xl font-bold text-gray-900 dark:text-slate-100">₹299</span>
+                <span className="text-sm text-gray-500 dark:text-slate-400">/ 30 days</span>
               </div>
               <p className="mt-1 text-xs text-green-600 font-medium">Save ₹97</p>
               {hasAccess("ALL_MODULES") ? (
@@ -290,7 +290,7 @@ export default function PricingPage() {
       <div>
         <div className="mb-4 flex items-center gap-3">
           <div className="h-px flex-1 bg-gray-200" />
-          <p className="text-sm font-medium text-gray-500">OR BUY INDIVIDUAL MODULES</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-slate-400">OR BUY INDIVIDUAL MODULES</p>
           <div className="h-px flex-1 bg-gray-200" />
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -309,13 +309,13 @@ export default function PricingPage() {
                   <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${plan.color} text-white`}>
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="mt-3 text-lg font-bold text-gray-900">{plan.title}</h3>
+                  <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-slate-100">{plan.title}</h3>
                   <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-gray-900">₹{plan.price}</span>
-                    <span className="text-xs text-gray-500">/ 30 days</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">₹{plan.price}</span>
+                    <span className="text-xs text-gray-500 dark:text-slate-400">/ 30 days</span>
                   </div>
 
-                  <ul className="mt-4 space-y-1.5 text-xs text-gray-600">
+                  <ul className="mt-4 space-y-1.5 text-xs text-gray-600 dark:text-slate-400">
                     {plan.features.map((f) => (
                       <li key={f} className="flex items-start gap-1.5">
                         <Check className="mt-0.5 h-3 w-3 shrink-0 text-green-600" />
@@ -325,7 +325,7 @@ export default function PricingPage() {
                   </ul>
 
                   {owned ? (
-                    <div className="mt-4 rounded-md bg-white p-2 text-center text-xs text-green-700">
+                    <div className="mt-4 rounded-md bg-white p-2 text-center text-xs text-green-700 dark:bg-slate-700 dark:text-green-300">
                       Active until {expiry}
                     </div>
                   ) : (
@@ -346,12 +346,12 @@ export default function PricingPage() {
       </div>
 
       {/* Free Tier Info */}
-      <Card className="border-gray-200 bg-gray-50">
+      <Card className="border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800/50">
         <CardContent className="flex items-start gap-3 p-5">
           <Lock className="mt-0.5 h-5 w-5 text-gray-400" />
           <div>
-            <h3 className="font-semibold text-gray-900">Free Tier</h3>
-            <p className="mt-1 text-sm text-gray-600">
+            <h3 className="font-semibold text-gray-900 dark:text-slate-100">Free Tier</h3>
+            <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
               Free users can practice with questions that coaching centres have publicly shared. Purchase a module to unlock the full question bank and AI-powered feedback for that section.
             </p>
             {access && !access.hasAllAccess && access.modules.length === 0 && (

@@ -9,9 +9,9 @@ const buttonVariants = cva(
       variant: {
         default: "bg-indigo-600 text-white hover:bg-indigo-700 focus-visible:ring-indigo-500",
         destructive: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
-        outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-indigo-500",
-        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-500",
-        ghost: "text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-500",
+        outline: "border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 focus-visible:ring-indigo-500 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700",
+        secondary: "bg-gray-100 text-gray-900 hover:bg-gray-200 focus-visible:ring-gray-500 dark:bg-slate-700 dark:text-slate-100 dark:hover:bg-slate-600",
+        ghost: "text-gray-700 hover:bg-gray-100 focus-visible:ring-gray-500 dark:text-slate-300 dark:hover:bg-slate-800",
         link: "text-indigo-600 underline-offset-4 hover:underline",
         success: "bg-green-600 text-white hover:bg-green-700 focus-visible:ring-green-500",
       },

@@ -182,7 +182,7 @@ export default function SuperAdminQuestionsPage() {
     return (
       <div key={q.id}>
         <div
-          className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50"
+          className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-slate-700/40"
           onClick={() => toggleExpand(q.id)}
         >
           <div className="flex items-center gap-4">
@@ -191,7 +191,7 @@ export default function SuperAdminQuestionsPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <p className="font-medium text-gray-900">{q.title}</p>
+                <p className="font-medium text-gray-900 dark:text-slate-100">{q.title}</p>
                 {q.isPrediction && (
                   <Badge variant="warning" className="gap-1">
                     <Star className="h-3 w-3" /> Prediction
@@ -211,7 +211,7 @@ export default function SuperAdminQuestionsPage() {
                 ) : (
                   <Badge className="text-xs bg-gray-100 text-gray-600">Global</Badge>
                 )}
-                <span className="text-xs text-gray-400">
+                <span className="text-xs text-gray-400 dark:text-slate-500">
                   {q._count.attempts} attempts · {new Date(q.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                 </span>
               </div>
@@ -219,14 +219,14 @@ export default function SuperAdminQuestionsPage() {
           </div>
           <div className="flex items-center gap-1">
             {typeof q.marks === "number" && (
-              <span className="mr-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700">
+              <span className="mr-1 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300">
                 {q.marks} {q.marks === 1 ? "mark" : "marks"}
               </span>
             )}
             <button
               onClick={(e) => { e.stopPropagation(); openEditForm(q.id); }}
               disabled={loadingEdit === q.id}
-              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50"
+              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-blue-400"
               title="Edit question"
             >
               {loadingEdit === q.id ? (
@@ -237,7 +237,7 @@ export default function SuperAdminQuestionsPage() {
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
-              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-red-400"
               title="Delete question"
             >
               <Trash2 className="h-4 w-4" />
@@ -246,17 +246,17 @@ export default function SuperAdminQuestionsPage() {
         </div>
 
         {isExpanded && (
-          <div className="border-t border-gray-100 bg-gray-50 px-4 py-4">
+          <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 dark:border-slate-700 dark:bg-slate-800/50">
             {loadingDetail === q.id ? (
               <div className="flex items-center gap-2 py-4 pl-14">
                 <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
-                <span className="text-sm text-gray-500">Loading...</span>
+                <span className="text-sm text-gray-500 dark:text-slate-400">Loading...</span>
               </div>
             ) : detail ? (
               <div className="space-y-4 pl-14">
                 <div>
-                  <h4 className="text-xs font-semibold uppercase text-gray-400">Question Content</h4>
-                  <div className="mt-1 rounded-lg bg-white p-3 text-sm text-gray-700 shadow-sm">
+                  <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Question Content</h4>
+                  <div className="mt-1 rounded-lg bg-white p-3 text-sm text-gray-700 shadow-sm dark:bg-slate-700 dark:text-slate-300">
                     {typeof detail.content === "string" ? (
                       <p>{detail.content}</p>
                     ) : (
@@ -316,7 +316,7 @@ export default function SuperAdminQuestionsPage() {
 
                 {(detail.imageUrl || detail.content?.imageUrl) && (
                   <div>
-                    <h4 className="text-xs font-semibold uppercase text-gray-400">Image</h4>
+                    <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Image</h4>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={detail.imageUrl || detail.content.imageUrl} alt="Question" className="mt-1 max-h-64 rounded-lg border shadow-sm" />
                   </div>
@@ -324,27 +324,27 @@ export default function SuperAdminQuestionsPage() {
 
                 {(detail.audioUrl || detail.content?.audioUrl) && (
                   <div>
-                    <h4 className="text-xs font-semibold uppercase text-gray-400">Audio</h4>
+                    <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Audio</h4>
                     <audio controls className="mt-1" src={detail.audioUrl || detail.content.audioUrl} />
                   </div>
                 )}
 
                 {detail.modelAnswer && (
                   <div>
-                    <h4 className="text-xs font-semibold uppercase text-gray-400">Model Answer</h4>
-                    <div className="mt-1 rounded-lg bg-green-50 p-3 text-sm text-green-800 shadow-sm">{detail.modelAnswer}</div>
+                    <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Model Answer</h4>
+                    <div className="mt-1 rounded-lg bg-green-50 p-3 text-sm text-green-800 shadow-sm dark:bg-green-950/40 dark:text-green-300">{detail.modelAnswer}</div>
                   </div>
                 )}
 
                 {detail.explanation && (
                   <div>
-                    <h4 className="text-xs font-semibold uppercase text-gray-400">Explanation</h4>
-                    <div className="mt-1 rounded-lg bg-blue-50 p-3 text-sm text-blue-800 shadow-sm">{detail.explanation}</div>
+                    <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Explanation</h4>
+                    <div className="mt-1 rounded-lg bg-blue-50 p-3 text-sm text-blue-800 shadow-sm dark:bg-blue-950/40 dark:text-blue-300">{detail.explanation}</div>
                   </div>
                 )}
               </div>
             ) : (
-              <p className="py-4 pl-14 text-sm text-gray-500">Failed to load details.</p>
+              <p className="py-4 pl-14 text-sm text-gray-500 dark:text-slate-400">Failed to load details.</p>
             )}
           </div>
         )}
@@ -356,8 +356,8 @@ export default function SuperAdminQuestionsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Global Question Bank</h1>
-          <p className="text-gray-500">{total} questions (visible to all centres)</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Global Question Bank</h1>
+          <p className="text-gray-500 dark:text-slate-400">{total} questions (visible to all centres)</p>
         </div>
         <Button onClick={() => { setEditingQuestion(null); setShowForm(true); }} className="gap-2">
           <Plus className="h-4 w-4" /> Add Question
@@ -382,8 +382,8 @@ export default function SuperAdminQuestionsPage() {
               onClick={() => { setSection(s); setPage(1); }}
               className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                 section === s
-                  ? "bg-indigo-100 text-indigo-700"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
               }`}
             >
               {s || "All sections"}
@@ -400,7 +400,7 @@ export default function SuperAdminQuestionsPage() {
           <select
             value={centreFilter}
             onChange={(e) => { setCentreFilter(e.target.value); setPage(1); }}
-            className="rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-8 text-sm text-gray-700 focus:border-indigo-300 focus:outline-none"
+            className="rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-8 text-sm text-gray-700 focus:border-indigo-300 focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
           >
             <option value="">All centres ({centres.length})</option>
             <option value="global">— Global / unassigned —</option>
@@ -413,7 +413,7 @@ export default function SuperAdminQuestionsPage() {
         {/* Sort by date */}
         <button
           onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
           title="Toggle sort order"
         >
           <Calendar className="h-3.5 w-3.5" />
@@ -422,11 +422,11 @@ export default function SuperAdminQuestionsPage() {
         </button>
 
         {/* View toggle: List vs Grouped */}
-        <div className="ml-auto inline-flex rounded-lg bg-gray-100 p-1">
+        <div className="ml-auto inline-flex rounded-lg bg-gray-100 p-1 dark:bg-slate-700">
           <button
             onClick={() => setGroupByCentre(false)}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
-              !groupByCentre ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
+              !groupByCentre ? "bg-white text-indigo-600 shadow-sm dark:bg-slate-800 dark:text-indigo-400" : "text-gray-500 dark:text-slate-400"
             }`}
           >
             <ListIcon className="h-3.5 w-3.5" /> List
@@ -434,7 +434,7 @@ export default function SuperAdminQuestionsPage() {
           <button
             onClick={() => setGroupByCentre(true)}
             className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
-              groupByCentre ? "bg-white text-indigo-600 shadow-sm" : "text-gray-500"
+              groupByCentre ? "bg-white text-indigo-600 shadow-sm dark:bg-slate-800 dark:text-indigo-400" : "text-gray-500 dark:text-slate-400"
             }`}
           >
             <LayoutGrid className="h-3.5 w-3.5" /> Group by centre
@@ -467,12 +467,12 @@ export default function SuperAdminQuestionsPage() {
                 const sorted = Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
                 return sorted.map(([centreName, group]) => (
                   <div key={centreName}>
-                    <div className="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3">
+                    <div className="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 dark:from-purple-950/30 dark:to-indigo-950/30">
                       <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-purple-600" />
-                        <p className="font-semibold text-gray-900">{centreName}</p>
+                        <Building2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                        <p className="font-semibold text-gray-900 dark:text-slate-100">{centreName}</p>
                       </div>
-                      <span className="text-xs font-medium text-gray-500">
+                      <span className="text-xs font-medium text-gray-500 dark:text-slate-400">
                         {group.length} {group.length === 1 ? "question" : "questions"}
                       </span>
                     </div>
@@ -494,7 +494,7 @@ export default function SuperAdminQuestionsPage() {
       {/* Pagination */}
       {total > 20 && (
         <div className="flex items-center justify-between">
-          <p className="text-sm text-gray-500">Page {page} of {Math.ceil(total / 20)}</p>
+          <p className="text-sm text-gray-500 dark:text-slate-400">Page {page} of {Math.ceil(total / 20)}</p>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</Button>
             <Button variant="outline" size="sm" disabled={page >= Math.ceil(total / 20)} onClick={() => setPage(page + 1)}>Next</Button>

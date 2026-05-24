@@ -122,15 +122,15 @@ export default function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Settings</h1>
+      <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Settings</h1>
 
       {/* Free Beta */}
-      <Card className="border-teal-200 bg-gradient-to-r from-teal-50 to-indigo-50">
+      <Card className="border-teal-200 bg-gradient-to-r from-teal-50 to-indigo-50 dark:border-teal-900 dark:from-slate-800 dark:to-slate-800">
         <CardContent className="flex items-center gap-4 p-5">
           <Crown className="h-6 w-6 shrink-0 text-teal-600" />
           <div>
-            <p className="text-sm font-medium text-gray-900">Free Beta Access</p>
-            <p className="text-xs text-gray-600">All features unlocked during beta</p>
+            <p className="text-sm font-medium text-gray-900 dark:text-slate-100">Free Beta Access</p>
+            <p className="text-xs text-gray-600 dark:text-slate-400">All features unlocked during beta</p>
           </div>
           <Badge className="ml-auto shrink-0 bg-teal-600 text-white">FREE</Badge>
         </CardContent>
@@ -152,9 +152,9 @@ export default function SettingsPage() {
             placeholder="Your full name"
           />
           <div>
-            <p className="mb-1.5 text-sm font-medium text-gray-700">Email</p>
-            <p className="flex h-10 items-center rounded-lg bg-gray-50 px-3 text-sm text-gray-500">{user?.email}</p>
-            <p className="mt-1 text-xs text-gray-400">Email cannot be changed</p>
+            <p className="mb-1.5 text-sm font-medium text-gray-700 dark:text-slate-300">Email</p>
+            <p className="flex h-10 items-center rounded-lg bg-gray-50 px-3 text-sm text-gray-500 dark:bg-slate-700 dark:text-slate-400">{user?.email}</p>
+            <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Email cannot be changed</p>
           </div>
           <Input
             label="Phone Number"
@@ -164,9 +164,9 @@ export default function SettingsPage() {
             type="tel"
           />
           <div>
-            <label className="mb-1.5 block text-sm font-medium text-gray-700">Language</label>
+            <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Language</label>
             <select
-              className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900"
+              className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
               value={profile.language}
               onChange={(e) => setProfile({ ...profile, language: e.target.value })}
             >
@@ -177,8 +177,8 @@ export default function SettingsPage() {
           </div>
           {user?.centreName && (
             <div>
-              <p className="mb-1.5 text-sm font-medium text-gray-700">Coaching Centre</p>
-              <p className="flex h-10 items-center gap-2 rounded-lg bg-gray-50 px-3 text-sm text-gray-700">
+              <p className="mb-1.5 text-sm font-medium text-gray-700 dark:text-slate-300">Coaching Centre</p>
+              <p className="flex h-10 items-center gap-2 rounded-lg bg-gray-50 px-3 text-sm text-gray-700 dark:bg-slate-700 dark:text-slate-300">
                 <Building2 className="h-4 w-4 text-gray-400" />{user.centreName}
               </p>
             </div>
@@ -199,8 +199,8 @@ export default function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {passwordError && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{passwordError}</div>}
-          {passwordSaved && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700">Password changed!</div>}
+          {passwordError && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">{passwordError}</div>}
+          {passwordSaved && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950/50 dark:text-green-300">Password changed!</div>}
           <Input label="Current Password" type="password" value={passwords.currentPassword}
             onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })} placeholder="Enter current password" />
           <Input label="New Password" type="password" value={passwords.newPassword}
@@ -225,7 +225,7 @@ export default function SettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-slate-400">
               Customize how your centre appears to students. Only your students will see this branding.
             </p>
             <Input label="Centre Name" value={centre.name}
@@ -257,12 +257,12 @@ export default function SettingsPage() {
                 onChange={(e) => setCentre({ ...centre, website: e.target.value })} placeholder="https://..." className="pl-10" />
             </div>
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">Brand Color</label>
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Brand Color</label>
               <div className="flex items-center gap-3">
                 <input type="color" value={centre.primaryColor}
                   onChange={(e) => setCentre({ ...centre, primaryColor: e.target.value })}
-                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-300" />
-                <span className="text-sm text-gray-500">{centre.primaryColor}</span>
+                  className="h-10 w-14 cursor-pointer rounded-lg border border-gray-300 dark:border-slate-600" />
+                <span className="text-sm text-gray-500 dark:text-slate-400">{centre.primaryColor}</span>
                 <div className="ml-2 flex gap-2">
                   {["#0D9488", "#4F46E5", "#2563EB", "#DC2626", "#D97706", "#059669"].map((c) => (
                     <button key={c} onClick={() => setCentre({ ...centre, primaryColor: c })}
@@ -284,20 +284,20 @@ export default function SettingsPage() {
       <Card>
         <CardHeader><CardTitle className="text-base">Account</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+          <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-700/50">
             <div>
-              <p className="text-sm font-medium text-gray-900">Role</p>
-              <p className="text-xs text-gray-500">{user?.role?.replace(/_/g, " ")}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-slate-100">Role</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400">{user?.role?.replace(/_/g, " ")}</p>
             </div>
             <Badge variant="secondary">{user?.role?.replace(/_/g, " ")}</Badge>
           </div>
           {user?.centreSlug && (
-            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
+            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-700/50">
               <div>
-                <p className="text-sm font-medium text-gray-900">Centre Code</p>
-                <p className="text-xs text-gray-500">Share with students to register under your centre</p>
+                <p className="text-sm font-medium text-gray-900 dark:text-slate-100">Centre Code</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">Share with students to register under your centre</p>
               </div>
-              <code className="rounded border border-teal-200 bg-white px-2 py-1 font-mono text-sm text-teal-700">{user.centreSlug}</code>
+              <code className="rounded border border-teal-200 bg-white px-2 py-1 font-mono text-sm text-teal-700 dark:border-teal-900 dark:bg-slate-700 dark:text-teal-300">{user.centreSlug}</code>
             </div>
           )}
           <div className="pt-2">

@@ -86,7 +86,7 @@ export function AudioPlayer({ src, autoPlay = false, onEnded }: AudioPlayerProps
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
       <audio ref={audioRef} src={src} preload="metadata" />
 
       <div className="flex items-center gap-3">
@@ -101,7 +101,7 @@ export function AudioPlayer({ src, autoPlay = false, onEnded }: AudioPlayerProps
         {/* Progress Bar */}
         <div className="flex-1">
           <div
-            className="h-2 cursor-pointer rounded-full bg-gray-200"
+            className="h-2 cursor-pointer rounded-full bg-gray-200 dark:bg-slate-700"
             onClick={seekTo}
           >
             <div
@@ -109,7 +109,7 @@ export function AudioPlayer({ src, autoPlay = false, onEnded }: AudioPlayerProps
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="mt-1 flex justify-between text-xs text-gray-400">
+          <div className="mt-1 flex justify-between text-xs text-gray-400 dark:text-slate-500">
             <span>{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
@@ -118,7 +118,7 @@ export function AudioPlayer({ src, autoPlay = false, onEnded }: AudioPlayerProps
         {/* Speed */}
         <button
           onClick={changeSpeed}
-          className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-bold text-gray-700 transition hover:bg-gray-50"
+          className="rounded-lg border border-gray-200 px-2.5 py-1 text-xs font-bold text-gray-700 transition hover:bg-gray-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           {speed}x
         </button>
@@ -126,7 +126,7 @@ export function AudioPlayer({ src, autoPlay = false, onEnded }: AudioPlayerProps
         {/* Restart */}
         <button
           onClick={restart}
-          className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600"
+          className="rounded-lg p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-700 dark:hover:text-slate-300"
         >
           <RotateCcw className="h-4 w-4" />
         </button>

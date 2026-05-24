@@ -32,8 +32,8 @@ function ResetPasswordForm() {
   if (!token) {
     return (
       <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900">Invalid link</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Invalid link</h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
           This reset link is missing or invalid.{" "}
           <Link href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
             Request a new one
@@ -85,11 +85,11 @@ function ResetPasswordForm() {
 
       {done ? (
         <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100">
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/50">
             <CheckCircle2 className="h-8 w-8 text-green-600" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900">Password updated!</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Password updated!</h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
             Your password has been reset successfully. Redirecting you to login...
           </p>
           <Link
@@ -101,13 +101,13 @@ function ResetPasswordForm() {
         </div>
       ) : (
         <>
-          <h2 className="text-2xl font-bold text-gray-900">Set new password</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Set new password</h2>
+          <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
             Choose a strong password — at least 8 characters.
           </p>
 
           {error && (
-            <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
+            <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">{error}</div>
           )}
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -155,7 +155,7 @@ function ResetPasswordForm() {
             </Button>
           </form>
 
-          <p className="mt-4 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm text-gray-500 dark:text-slate-400">
             Remember it?{" "}
             <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
               Back to login

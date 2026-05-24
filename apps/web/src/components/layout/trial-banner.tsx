@@ -46,19 +46,19 @@ export function TrialBanner() {
     return (
       <div className={`border-b px-4 py-2.5 text-sm sm:px-6 lg:px-8 ${
         isExpiringSoon
-          ? "border-amber-300 bg-amber-50"
-          : "border-blue-200 bg-blue-50"
+          ? "border-amber-300 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30"
+          : "border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30"
       }`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <Crown className={`h-4 w-4 ${isExpiringSoon ? "text-amber-600" : "text-blue-600"}`} />
-            <p className={isExpiringSoon ? "text-amber-800" : "text-blue-800"}>
+            <p className={isExpiringSoon ? "text-amber-800 dark:text-amber-300" : "text-blue-800 dark:text-blue-300"}>
               <strong>Free Trial Active</strong> — {daysLeft === 0 ? "ends today" : `${daysLeft} day${daysLeft > 1 ? "s" : ""} left`}. Enjoy full access!
             </p>
           </div>
           <Link
             href="/pricing"
-            className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+            className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-700 shadow-sm hover:bg-gray-50 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600"
           >
             View plans →
           </Link>
@@ -70,14 +70,14 @@ export function TrialBanner() {
   // Trial expired
   if (access.trialExpired) {
     return (
-      <div className="border-b border-red-200 bg-red-50 px-4 py-2.5 text-sm sm:px-6 lg:px-8">
+      <div className="border-b border-red-200 bg-red-50 px-4 py-2.5 text-sm sm:px-6 lg:px-8 dark:border-red-900 dark:bg-red-950/30">
         <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
             <AlertCircle className="h-4 w-4 text-red-600" />
-            <p className="text-red-800">
+            <p className="text-red-800 dark:text-red-300">
               <strong>Trial expired.</strong>{" "}
               {access.freeSpeakingScoringsRemaining !== null && (
-                <span className="text-red-700">
+                <span className="text-red-700 dark:text-red-400">
                   You can still practice Speaking (<strong>{access.freeSpeakingScoringsRemaining}</strong> free AI scorings left today).
                 </span>
               )}{" "}
@@ -98,10 +98,10 @@ export function TrialBanner() {
   // Post-trial speaking limit indicator (rare edge case)
   if (access.freeSpeakingScoringsRemaining !== null && access.freeSpeakingScoringsRemaining < 7) {
     return (
-      <div className="border-b border-indigo-200 bg-indigo-50 px-4 py-2 text-xs sm:px-6 lg:px-8">
+      <div className="border-b border-indigo-200 bg-indigo-50 px-4 py-2 text-xs sm:px-6 lg:px-8 dark:border-indigo-900 dark:bg-indigo-950/50">
         <div className="flex items-center gap-2">
           <Clock className="h-3.5 w-3.5 text-indigo-600" />
-          <p className="text-indigo-700">
+          <p className="text-indigo-700 dark:text-indigo-300">
             <strong>{access.freeSpeakingScoringsRemaining}</strong> free AI scorings left today. Resets at midnight.
           </p>
         </div>

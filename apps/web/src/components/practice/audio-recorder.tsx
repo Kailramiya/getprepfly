@@ -104,9 +104,9 @@ export function AudioRecorder({
   const progress = maxDuration > 0 ? (recordingTime / maxDuration) * 100 : 0;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
       {error && (
-        <div className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</div>
+        <div className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">{error}</div>
       )}
 
       {/* Preparation countdown */}
@@ -142,10 +142,10 @@ export function AudioRecorder({
 
             {/* Timer */}
             <div className="text-center">
-              <p className={`text-2xl font-mono font-bold ${isRecording ? "text-red-600" : "text-gray-900"}`}>
+              <p className={`text-2xl font-mono font-bold ${isRecording ? "text-red-600" : "text-gray-900 dark:text-slate-100"}`}>
                 {formatTime(recordingTime)}
               </p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-slate-400">
                 {isRecording ? `Recording... (max ${formatTime(maxDuration)})` :
                  audioUrl ? "Recording complete" : "Ready to record"}
               </p>
@@ -154,7 +154,7 @@ export function AudioRecorder({
 
           {/* Progress bar */}
           {isRecording && (
-            <div className="h-1.5 w-full rounded-full bg-gray-200">
+            <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-slate-700">
               <div
                 className="h-full rounded-full bg-red-500 transition-all"
                 style={{ width: `${Math.min(progress, 100)}%` }}

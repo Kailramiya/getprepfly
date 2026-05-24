@@ -61,9 +61,9 @@ const platforms = [
 
 export default function DownloadPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
       {/* Navbar */}
-      <nav className="border-b border-gray-200 bg-white">
+      <nav className="border-b border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/">
             <Logo size="sm" />
@@ -80,8 +80,8 @@ export default function DownloadPage() {
           <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-teal-500 to-indigo-600">
             <Download className="h-8 w-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl">Get Prepfly</h1>
-          <p className="mt-3 text-lg text-gray-600">
+          <h1 className="text-3xl font-bold text-gray-900 sm:text-4xl dark:text-slate-100">Get Prepfly</h1>
+          <p className="mt-3 text-lg text-gray-600 dark:text-slate-400">
             Available on Web, Android, and iOS. One account works everywhere.
           </p>
         </div>
@@ -101,16 +101,16 @@ export default function DownloadPage() {
                 </span>
               </div>
               <CardContent className="p-5">
-                <p className="text-sm text-gray-600">{platform.description}</p>
+                <p className="text-sm text-gray-600 dark:text-slate-400">{platform.description}</p>
 
                 {/* Steps */}
                 <div className="mt-4 space-y-2">
                   {platform.steps.map((step, i) => (
                     <div key={i} className="flex items-start gap-2">
-                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-500">
+                      <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-500 dark:bg-slate-700 dark:text-slate-400">
                         {i + 1}
                       </span>
-                      <p className="text-xs text-gray-500">{step}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">{step}</p>
                     </div>
                   ))}
                 </div>
@@ -136,14 +136,14 @@ export default function DownloadPage() {
         </div>
 
         {/* One Account Everywhere */}
-        <Card className="mt-12 border-teal-200 bg-teal-50">
+        <Card className="mt-12 border-teal-200 bg-teal-50 dark:border-teal-900 dark:bg-teal-950/30">
           <CardContent className="flex flex-col items-center gap-4 p-8 text-center sm:flex-row sm:text-left">
-            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-teal-100">
-              <CheckCircle2 className="h-7 w-7 text-teal-600" />
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-teal-100 dark:bg-teal-950/50">
+              <CheckCircle2 className="h-7 w-7 text-teal-600 dark:text-teal-400" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-teal-900">One Account, All Platforms</h3>
-              <p className="mt-1 text-sm text-teal-700">
+              <h3 className="text-lg font-semibold text-teal-900 dark:text-teal-200">One Account, All Platforms</h3>
+              <p className="mt-1 text-sm text-teal-700 dark:text-teal-300">
                 Your progress, scores, and mock test history sync across web, Android, and iOS.
                 Sign up once and practice anywhere.
               </p>

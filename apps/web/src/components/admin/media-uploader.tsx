@@ -205,12 +205,12 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
 
       {/* Error */}
       {error && (
-        <p className="rounded-md bg-red-50 p-2 text-xs text-red-700">⚠ {error}</p>
+        <p className="rounded-md bg-red-50 p-2 text-xs text-red-700 dark:bg-red-950/50 dark:text-red-400">⚠ {error}</p>
       )}
 
       {/* Warning (e.g., fallback method used) */}
       {warning && (
-        <p className="rounded-md bg-amber-50 p-2 text-xs text-amber-800">ℹ {warning}</p>
+        <p className="rounded-md bg-amber-50 p-2 text-xs text-amber-800 dark:bg-amber-950/50 dark:text-amber-400">ℹ {warning}</p>
       )}
 
       {/* Preview */}

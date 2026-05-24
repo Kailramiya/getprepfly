@@ -72,8 +72,8 @@ export default function SuperAdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">All Users</h1>
-        <p className="text-gray-500">{users.length} users across all centres</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">All Users</h1>
+        <p className="text-gray-500 dark:text-slate-400">{users.length} users across all centres</p>
       </div>
 
       <div className="relative max-w-md">
@@ -93,7 +93,7 @@ export default function SuperAdminUsersPage() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-slate-700">
               {users.map((u) => {
                 const roleConfig = ROLE_CONFIG[u.role] || ROLE_CONFIG.STUDENT;
                 const RoleIcon = roleConfig.icon;
@@ -104,28 +104,28 @@ export default function SuperAdminUsersPage() {
                       ? "Enrolled via"
                       : "Centre";
                 return (
-                  <div key={u.id} className="flex flex-col gap-3 p-4 hover:bg-gray-50 sm:flex-row sm:items-center sm:justify-between">
+                  <div key={u.id} className="flex flex-col gap-3 p-4 hover:bg-gray-50 dark:hover:bg-slate-700/40 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
                         {u.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-medium text-gray-900">{u.name}</p>
-                        <p className="text-xs text-gray-500">{u.email}</p>
+                        <p className="font-medium text-gray-900 dark:text-slate-100">{u.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">{u.email}</p>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
                       {u.centre ? (
                         <div className="flex items-center gap-2">
                           <div className="flex flex-col items-end">
-                            <span className="text-[10px] uppercase tracking-wide text-gray-400">
+                            <span className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-slate-500">
                               {referralLabel}
                             </span>
-                            <span className="text-xs font-medium text-gray-600">{u.centre.name}</span>
+                            <span className="text-xs font-medium text-gray-600 dark:text-slate-300">{u.centre.name}</span>
                           </div>
                           <button
                             onClick={() => copySlug(u.centre!.slug)}
-                            className="group flex items-center gap-1 rounded-md border border-teal-200 bg-teal-50 px-2 py-1 font-mono text-xs text-teal-700 hover:bg-teal-100"
+                            className="group flex items-center gap-1 rounded-md border border-teal-200 bg-teal-50 px-2 py-1 font-mono text-xs text-teal-700 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-950/30 dark:text-teal-300 dark:hover:bg-teal-950/50"
                             title="Click to copy referral code"
                           >
                             <Hash className="h-3 w-3" />
@@ -142,7 +142,7 @@ export default function SuperAdminUsersPage() {
                           ⚠ No centre — will auto-create on next login
                         </Badge>
                       ) : u.role === "STUDENT" ? (
-                        <span className="text-xs italic text-gray-400">Not enrolled in any centre</span>
+                        <span className="text-xs italic text-gray-400 dark:text-slate-500">Not enrolled in any centre</span>
                       ) : null}
                       <Badge className={roleConfig.color}>
                         <RoleIcon className="mr-1 h-3 w-3" />

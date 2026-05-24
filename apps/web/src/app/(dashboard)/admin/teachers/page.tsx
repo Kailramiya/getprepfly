@@ -52,29 +52,29 @@ export default function TeachersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Teachers</h1>
-          <p className="text-gray-500">Manage teaching staff for your centre</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Teachers</h1>
+          <p className="text-gray-500 dark:text-slate-400">Manage teaching staff for your centre</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)} className="gap-2"><Plus className="h-4 w-4" /> Add Teacher</Button>
       </div>
 
-      {success && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800">{success}</div>}
+      {success && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950/50 dark:text-green-300">{success}</div>}
 
       {showForm && (
-        <Card className="border-indigo-200 bg-indigo-50">
+        <Card className="border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/40">
           <CardContent className="p-5">
-            {error && <p className="mb-3 text-sm text-red-700">{error}</p>}
+            {error && <p className="mb-3 text-sm text-red-700 dark:text-red-400">{error}</p>}
             <form onSubmit={handleAdd} className="grid gap-3 sm:grid-cols-3">
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">Full Name *</label>
+                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Full Name *</label>
                 <Input placeholder="Priya Sharma" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">Email *</label>
+                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Email *</label>
                 <Input type="email" placeholder="teacher@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">Phone</label>
+                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Phone</label>
                 <Input placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
               </div>
               <div className="flex gap-2 sm:col-span-3">
@@ -82,7 +82,7 @@ export default function TeachersPage() {
                 <Button type="button" variant="outline" onClick={() => { setShowForm(false); setError(""); }}>Cancel</Button>
               </div>
             </form>
-            <p className="mt-2 text-xs text-gray-500">A temporary password will be sent to the teacher&apos;s email.</p>
+            <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">A temporary password will be sent to the teacher&apos;s email.</p>
           </CardContent>
         </Card>
       )}
@@ -103,16 +103,16 @@ export default function TeachersPage() {
               <p className="mt-3 text-gray-500">Add teachers to help manage your students.</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y dark:divide-slate-700">
               {teachers.map(t => (
                 <div key={t.id} className="flex items-center justify-between py-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
                       {t.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{t.name}</p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                      <p className="font-medium text-gray-900 dark:text-slate-100">{t.name}</p>
+                      <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-slate-400">
                         <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{t.email}</span>
                         {t.phone && <span className="flex items-center gap-1"><User className="h-3 w-3" />{t.phone}</span>}
                       </div>
@@ -120,7 +120,7 @@ export default function TeachersPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge variant="secondary">Teacher</Badge>
-                    <button onClick={() => handleRemove(t.id, t.name)} disabled={removing === t.id} className="text-gray-400 hover:text-red-600">
+                    <button onClick={() => handleRemove(t.id, t.name)} disabled={removing === t.id} className="text-gray-400 hover:text-red-600 dark:hover:text-red-400">
                       {removing === t.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" /> : <Trash2 className="h-4 w-4" />}
                     </button>
                   </div>

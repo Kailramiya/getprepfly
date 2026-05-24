@@ -54,8 +54,8 @@ export default function FeedbackPage() {
     return (
       <div className="mx-auto max-w-lg py-20 text-center">
         <CheckCircle2 className="mx-auto h-16 w-16 text-green-500" />
-        <h2 className="mt-6 text-2xl font-bold text-gray-900">Thank you!</h2>
-        <p className="mt-2 text-gray-500">Your feedback has been submitted. We will use it to improve the platform.</p>
+        <h2 className="mt-6 text-2xl font-bold text-gray-900 dark:text-slate-100">Thank you!</h2>
+        <p className="mt-2 text-gray-500 dark:text-slate-400">Your feedback has been submitted. We will use it to improve the platform.</p>
         <Button className="mt-6" onClick={() => { setSubmitted(false); setMessage(""); setRating(0); }}>
           Submit Another
         </Button>
@@ -66,14 +66,14 @@ export default function FeedbackPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Send Feedback</h1>
-        <p className="text-gray-500">Help us improve Prepfly. Your feedback matters!</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Send Feedback</h1>
+        <p className="text-gray-500 dark:text-slate-400">Help us improve Prepfly. Your feedback matters!</p>
       </div>
 
-      <Card className="border-teal-200 bg-teal-50">
+      <Card className="border-teal-200 bg-teal-50 dark:border-teal-900 dark:bg-teal-950/30">
         <CardContent className="flex items-center gap-3 p-4">
           <MessageSquare className="h-5 w-5 text-teal-600" />
-          <p className="text-sm text-teal-800">
+          <p className="text-sm text-teal-800 dark:text-teal-300">
             Prepfly is currently in <strong>free beta</strong>. We are collecting feedback to make the platform better before the paid launch. Everything is free during this period.
           </p>
         </CardContent>
@@ -94,8 +94,8 @@ export default function FeedbackPage() {
                   onClick={() => setCategory(cat.value)}
                   className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition ${
                     category === cat.value
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                      : "border-gray-200 text-gray-600 hover:bg-gray-50"
+                      ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-700"
+                      : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
                   }`}
                 >
                   <span>{cat.emoji}</span>
@@ -106,7 +106,7 @@ export default function FeedbackPage() {
 
             {/* Rating */}
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300">
                 How would you rate your experience so far?
               </label>
               <div className="flex gap-1">
@@ -129,11 +129,11 @@ export default function FeedbackPage() {
 
             {/* Message */}
             <div>
-              <label className="mb-1.5 block text-sm font-medium text-gray-700">
+              <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
                 Your feedback
               </label>
               <textarea
-                className="min-h-[120px] w-full rounded-lg border border-gray-300 p-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                className="min-h-[120px] w-full rounded-lg border border-gray-300 p-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 placeholder="Tell us what is working, what is broken, or what you would like to see..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}

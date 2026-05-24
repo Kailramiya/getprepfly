@@ -316,22 +316,22 @@ export default function PracticeQuestionPage() {
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowList(false)} />
           {/* Panel */}
-          <div className="relative flex h-full w-full max-w-sm flex-col bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b px-4 py-3">
+          <div className="relative flex h-full w-full max-w-sm flex-col bg-white shadow-2xl dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b px-4 py-3 dark:border-slate-700">
               <div>
-                <p className="font-semibold text-gray-900">{formatType(type)}</p>
-                <p className="text-xs text-gray-500">{questions.length} questions</p>
+                <p className="font-semibold text-gray-900 dark:text-slate-100">{formatType(type)}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">{questions.length} questions</p>
               </div>
-              <button onClick={() => setShowList(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700">
+              <button onClick={() => setShowList(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300">
                 <X className="h-5 w-5" />
               </button>
             </div>
             {/* Topic filter inside list panel */}
             {allTopics.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 border-b px-3 py-2">
-                <button onClick={() => setSelectedTopic("all")} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${selectedTopic === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>All</button>
+              <div className="flex flex-wrap gap-1.5 border-b px-3 py-2 dark:border-slate-700">
+                <button onClick={() => setSelectedTopic("all")} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${selectedTopic === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"}`}>All</button>
                 {allTopics.map(t => (
-                  <button key={t} onClick={() => setSelectedTopic(t)} className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize transition ${selectedTopic === t ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>{t}</button>
+                  <button key={t} onClick={() => setSelectedTopic(t)} className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize transition ${selectedTopic === t ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"}`}>{t}</button>
                 ))}
               </div>
             )}
@@ -342,16 +342,16 @@ export default function PracticeQuestionPage() {
                 <button
                   key={q.id}
                   onClick={() => jumpToQuestion(origIdx)}
-                  className={`w-full rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-50 ${origIdx === currentIndex ? "bg-indigo-50 ring-1 ring-indigo-200" : ""}`}
+                  className={`w-full rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-50 dark:hover:bg-slate-700/40 ${origIdx === currentIndex ? "bg-indigo-50 ring-1 ring-indigo-200 dark:bg-indigo-950/40 dark:ring-indigo-700" : ""}`}
                 >
                   <div className="flex items-start gap-3">
-                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${origIdx === currentIndex ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500"}`}>
+                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${origIdx === currentIndex ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-slate-400"}`}>
                       {origIdx + 1}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-900">{q.title}</p>
+                      <p className="truncate text-sm font-medium text-gray-900 dark:text-slate-100">{q.title}</p>
                       <div className="mt-1 flex items-center gap-1.5">
-                        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${q.difficulty === "EASY" ? "bg-green-100 text-green-700" : q.difficulty === "HARD" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600"}`}>
+                        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${q.difficulty === "EASY" ? "bg-green-100 text-green-700" : q.difficulty === "HARD" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-400"}`}>
                           {q.difficulty}
                         </span>
                         {q.isPrediction && <Star className="h-3 w-3 text-amber-500" />}
@@ -372,11 +372,11 @@ export default function PracticeQuestionPage() {
       {/* Progress Bar */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900">{formatType(type)}</h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{formatType(type)}</h1>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-gray-500">Question {currentIndex + 1} of {questions.length}</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">Question {currentIndex + 1} of {questions.length}</p>
             {lastAttemptScore !== null && (
-              <span className="text-xs text-gray-400">· Last: <span className="font-semibold text-gray-600">{lastAttemptScore}/90</span></span>
+              <span className="text-xs text-gray-400 dark:text-slate-500">· Last: <span className="font-semibold text-gray-600 dark:text-slate-300">{lastAttemptScore}/90</span></span>
             )}
           </div>
         </div>
@@ -414,12 +414,12 @@ export default function PracticeQuestionPage() {
 
       {/* Question Content */}
       <Card className="overflow-hidden">
-        <CardHeader className="bg-gray-50">
+        <CardHeader className="bg-gray-50 dark:bg-slate-800/50">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">{currentQuestion?.title}</CardTitle>
+            <CardTitle className="text-base dark:text-slate-100">{currentQuestion?.title}</CardTitle>
             <button
               onClick={() => setShowAnswer(a => !a)}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition"
+              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               {showAnswer ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               {showAnswer ? "Hide Answer" : "Show Answer"}
@@ -455,25 +455,25 @@ export default function PracticeQuestionPage() {
 
       {/* Model Answer — shown after submission OR when Show Answer is toggled */}
       {(submitted || showAnswer) && currentQuestion?.modelAnswer && (
-        <Card className="border-green-200 bg-green-50">
+        <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base text-green-800">
+            <CardTitle className="flex items-center gap-2 text-base text-green-800 dark:text-green-300">
               <CheckCircle2 className="h-5 w-5" />
               Model Answer
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-green-900 whitespace-pre-wrap">{currentQuestion.modelAnswer}</p>
+            <p className="text-sm text-green-900 whitespace-pre-wrap dark:text-green-200">{currentQuestion.modelAnswer}</p>
           </CardContent>
         </Card>
       )}
 
       {/* Explanation — shown after submission OR when Show Answer is toggled */}
       {(submitted || showAnswer) && currentQuestion?.explanation && (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40">
           <CardContent className="p-4">
-            <p className="text-sm font-medium text-blue-800">Explanation:</p>
-            <p className="mt-1 text-sm text-blue-700">{currentQuestion.explanation}</p>
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Explanation:</p>
+            <p className="mt-1 text-sm text-blue-700 dark:text-blue-200">{currentQuestion.explanation}</p>
           </CardContent>
         </Card>
       )}
@@ -503,10 +503,10 @@ export default function PracticeQuestionPage() {
       {(attemptHistory.length > 0 || historyLoading) && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm text-gray-700">
+            <CardTitle className="flex items-center gap-2 text-sm text-gray-700 dark:text-slate-300">
               <BarChart2 className="h-4 w-4 text-indigo-500" />
               Your Score History
-              <span className="ml-auto text-xs font-normal text-gray-400">{attemptHistory.length} attempt{attemptHistory.length !== 1 ? "s" : ""}</span>
+              <span className="ml-auto text-xs font-normal text-gray-400 dark:text-slate-500">{attemptHistory.length} attempt{attemptHistory.length !== 1 ? "s" : ""}</span>
             </CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
@@ -532,7 +532,7 @@ export default function PracticeQuestionPage() {
                 </BarChart>
               </ResponsiveContainer>
             )}
-            <p className="mt-1 text-center text-xs text-gray-400">Green ≥ 60 · Amber ≥ 30 · Red &lt; 30</p>
+            <p className="mt-1 text-center text-xs text-gray-400 dark:text-slate-500">Green ≥ 60 · Amber ≥ 30 · Red &lt; 30</p>
           </CardContent>
         </Card>
       )}
@@ -541,9 +541,9 @@ export default function PracticeQuestionPage() {
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/40" onClick={() => setShowReportModal(false)} />
-          <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
-            <h3 className="font-semibold text-gray-900">Report an Issue</h3>
-            <p className="mt-1 text-xs text-gray-500">Help us improve by flagging errors in this question.</p>
+          <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800">
+            <h3 className="font-semibold text-gray-900 dark:text-slate-100">Report an Issue</h3>
+            <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">Help us improve by flagging errors in this question.</p>
             <div className="mt-4 space-y-2">
               {[
                 { key: "WRONG_ANSWER", label: "Wrong answer / model answer" },
@@ -552,14 +552,14 @@ export default function PracticeQuestionPage() {
                 { key: "BROKEN_IMAGE", label: "Image missing or broken" },
                 { key: "OTHER", label: "Other issue" },
               ].map(({ key, label }) => (
-                <label key={key} className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-3 text-sm transition ${reportReason === key ? "border-red-400 bg-red-50" : "border-gray-200 hover:bg-gray-50"}`}>
+                <label key={key} className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-3 text-sm transition ${reportReason === key ? "border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/40" : "border-gray-200 hover:bg-gray-50 dark:border-slate-600 dark:hover:bg-slate-700/40"}`}>
                   <input type="radio" name="reason" value={key} checked={reportReason === key} onChange={() => setReportReason(key)} className="accent-red-500" />
                   {label}
                 </label>
               ))}
             </div>
             <textarea
-              className="mt-3 w-full rounded-lg border border-gray-200 p-2.5 text-xs focus:border-red-400 focus:outline-none"
+              className="mt-3 w-full rounded-lg border border-gray-200 p-2.5 text-xs focus:border-red-400 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500"
               placeholder="Any additional details? (optional)"
               rows={2}
               value={reportDetails}
@@ -576,16 +576,16 @@ export default function PracticeQuestionPage() {
       )}
 
       {/* Flag Buttons */}
-      <div className="flex flex-wrap items-center justify-center gap-2 border-t pt-4">
-        <Flag className="h-4 w-4 text-gray-400" />
-        <span className="text-xs text-gray-400 mr-1">Mark as:</span>
+      <div className="flex flex-wrap items-center justify-center gap-2 border-t pt-4 dark:border-slate-700">
+        <Flag className="h-4 w-4 text-gray-400 dark:text-slate-500" />
+        <span className="text-xs text-gray-400 dark:text-slate-500 mr-1">Mark as:</span>
         {FLAG_OPTIONS.map(({ key, label, icon: Icon, color }) => {
           const isActive = flags[currentQuestion?.id] === key;
           return (
             <button
               key={key}
               onClick={() => setFlag(key)}
-              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${isActive ? color : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50"}`}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${isActive ? color : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50 dark:border-slate-600 dark:bg-transparent dark:text-slate-400 dark:hover:bg-slate-700/40"}`}
             >
               <Icon className="h-3.5 w-3.5" />
               {label}
@@ -883,11 +883,11 @@ function QuestionRenderer({
           <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
         )}
         {content.passage && (
-          <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4">
-            <p className="text-sm leading-relaxed text-gray-800">{content.passage}</p>
+          <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-slate-800/50">
+            <p className="text-sm leading-relaxed text-gray-800 dark:text-slate-200">{content.passage}</p>
           </div>
         )}
-        <p className="font-medium text-gray-900">{content.question}</p>
+        <p className="font-medium text-gray-900 dark:text-slate-100">{content.question}</p>
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
@@ -899,15 +899,15 @@ function QuestionRenderer({
                 key={i}
                 onClick={() => !submitted && setResponse(i)}
                 className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left text-sm transition ${
-                  isCorrect ? "border-green-500 bg-green-50" :
-                  isWrong ? "border-red-500 bg-red-50" :
-                  isSelected ? "border-indigo-500 bg-indigo-50" :
-                  "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  isCorrect ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" :
+                  isWrong ? "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30" :
+                  isSelected ? "border-indigo-500 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30" :
+                  "border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-700/40"
                 }`}
                 disabled={submitted}
               >
                 <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
-                  isSelected || isCorrect ? "border-indigo-500 bg-indigo-600 text-white" : "border-gray-300 text-gray-500"
+                  isSelected || isCorrect ? "border-indigo-500 bg-indigo-600 text-white" : "border-gray-300 text-gray-500 dark:border-slate-500 dark:text-slate-400"
                 }`}>
                   {String.fromCharCode(65 + i)}
                 </span>
@@ -957,12 +957,12 @@ function QuestionRenderer({
           <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
         )}
         {content.passage && (
-          <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4">
-            <p className="text-sm leading-relaxed text-gray-800">{content.passage}</p>
+          <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-slate-800/50">
+            <p className="text-sm leading-relaxed text-gray-800 dark:text-slate-200">{content.passage}</p>
           </div>
         )}
-        <p className="font-medium text-gray-900">{content.question}</p>
-        <p className="text-xs text-gray-500">Select all correct answers</p>
+        <p className="font-medium text-gray-900 dark:text-slate-100">{content.question}</p>
+        <p className="text-xs text-gray-500 dark:text-slate-400">Select all correct answers</p>
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = selected.includes(i);
@@ -979,15 +979,15 @@ function QuestionRenderer({
                   );
                 }}
                 className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left text-sm transition ${
-                  isCorrect ? "border-green-500 bg-green-50" :
-                  isWrong ? "border-red-500 bg-red-50" :
-                  isSelected ? "border-indigo-500 bg-indigo-50" :
-                  "border-gray-200 hover:border-gray-300"
+                  isCorrect ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" :
+                  isWrong ? "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30" :
+                  isSelected ? "border-indigo-500 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30" :
+                  "border-gray-200 hover:border-gray-300 dark:border-slate-600 dark:hover:border-slate-500"
                 }`}
                 disabled={submitted}
               >
                 <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                  isSelected ? "border-indigo-500 bg-indigo-600" : "border-gray-300"
+                  isSelected ? "border-indigo-500 bg-indigo-600" : "border-gray-300 dark:border-slate-500"
                 }`}>
                   {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
                 </div>
@@ -1059,7 +1059,7 @@ function QuestionRenderer({
 
     return (
       <div className="space-y-4">
-        <p className="text-sm text-gray-500">Arrange the paragraphs in the correct order:</p>
+        <p className="text-sm text-gray-500 dark:text-slate-400">Arrange the paragraphs in the correct order:</p>
         <div className="space-y-2">
           {order.map((paraIdx: number, position: number) => {
             const isCorrectPosition = submitted && content.correctOrder?.[position] === paraIdx;
@@ -1068,18 +1068,18 @@ function QuestionRenderer({
                 key={`${paraIdx}-${position}`}
                 className={`flex items-start gap-3 rounded-lg border p-3 ${
                   submitted
-                    ? isCorrectPosition ? "border-green-500 bg-green-50" : "border-red-500 bg-red-50"
-                    : "border-gray-200"
+                    ? isCorrectPosition ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" : "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30"
+                    : "border-gray-200 dark:border-slate-600"
                 }`}
               >
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-slate-700 dark:text-slate-300">
                   {position + 1}
                 </span>
-                <p className="flex-1 text-sm text-gray-800">{paragraphs[paraIdx]}</p>
+                <p className="flex-1 text-sm text-gray-800 dark:text-slate-200">{paragraphs[paraIdx]}</p>
                 {!submitted && (
                   <div className="flex flex-col gap-1">
-                    <button onClick={() => moveUp(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100">▲</button>
-                    <button onClick={() => moveDown(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100">▼</button>
+                    <button onClick={() => moveUp(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▲</button>
+                    <button onClick={() => moveDown(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▼</button>
                   </div>
                 )}
               </div>
@@ -1406,7 +1406,7 @@ function QuestionRenderer({
     return (
       <div className="space-y-4">
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
-        <p className="text-sm text-gray-500">Listen to the audio and fill in the blanks below:</p>
+        <p className="text-sm text-gray-500 dark:text-slate-400">Listen to the audio and fill in the blanks below:</p>
         <FillBlanksText
           passage={content.passage || ""}
           blanks={content.blanks || []}
@@ -1423,18 +1423,18 @@ function QuestionRenderer({
     return (
       <div className="space-y-4">
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully — audio plays once" />
-        <p className="text-sm text-gray-500">Listen to the audio and type the exact sentence you hear.</p>
+        <p className="text-sm text-gray-500 dark:text-slate-400">Listen to the audio and type the exact sentence you hear.</p>
         <textarea
-          className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+          className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
           placeholder="Type what you hear..."
           value={response || ""}
           onChange={(e) => setResponse(e.target.value)}
           disabled={submitted}
         />
         {submitted && content.correctText && (
-          <div className="rounded-lg bg-green-50 p-3">
-            <p className="text-xs font-medium text-green-800">Correct answer:</p>
-            <p className="text-sm text-green-900">{content.correctText}</p>
+          <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950/40">
+            <p className="text-xs font-medium text-green-800 dark:text-green-300">Correct answer:</p>
+            <p className="text-sm text-green-900 dark:text-green-200">{content.correctText}</p>
           </div>
         )}
         {!submitted && (
@@ -1567,9 +1567,9 @@ function AudioBlock({
   const urlPreview = audioSrc.length > 80 ? audioSrc.slice(0, 80) + "..." : audioSrc;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
+    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
       {label && (
-        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
+        <p className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700 dark:text-slate-300">
           <Volume2 className="h-4 w-4" /> {label}
         </p>
       )}
@@ -1660,7 +1660,7 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
           )}
         </div>
         <div className="flex-1">
-          <h3 className="text-lg font-bold text-gray-900">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-slate-100">
             {result.pending
               ? "Submitted — awaiting review"
               : isPerfect
@@ -1671,9 +1671,9 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
           </h3>
           {!result.pending && (
             <div className="mt-1 flex items-baseline gap-2 flex-wrap">
-              <span className="text-2xl font-bold text-gray-900">{result.marksEarned}</span>
-              <span className="text-sm text-gray-500">/ {result.marksTotal} marks</span>
-              <span className="ml-2 text-sm font-medium text-gray-600">({Math.round(percent)}%)</span>
+              <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">{result.marksEarned}</span>
+              <span className="text-sm text-gray-500 dark:text-slate-400">/ {result.marksTotal} marks</span>
+              <span className="ml-2 text-sm font-medium text-gray-600 dark:text-slate-300">({Math.round(percent)}%)</span>
               {result.aiScores?.overall != null && lastAttemptScore !== null && (() => {
                 const delta = Math.round(result.aiScores!.overall) - lastAttemptScore;
                 return delta !== 0 ? (
@@ -1706,7 +1706,7 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
       {!result.pending && result.total > 0 && (
         <div className="mt-3 flex items-center gap-2 text-sm">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <span className="text-gray-700">
+          <span className="text-gray-700 dark:text-slate-300">
             {result.correct} of {result.total} correct
           </span>
         </div>
@@ -1715,17 +1715,17 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
       {/* Mistakes */}
       {result.mistakes.length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold uppercase text-gray-600">
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-600 dark:text-slate-400">
             Mistakes to review ({result.mistakes.length})
           </p>
           <div className="space-y-2">
             {result.mistakes.map((m, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-red-200 bg-white p-3 text-sm"
+                className="rounded-lg border border-red-200 bg-white p-3 text-sm dark:border-red-900 dark:bg-slate-700"
               >
                 {m.position > 0 && (
-                  <p className="mb-1 text-xs font-medium text-gray-500">
+                  <p className="mb-1 text-xs font-medium text-gray-500 dark:text-slate-400">
                     Position #{m.position}
                   </p>
                 )}
@@ -1750,7 +1750,7 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
       {/* AI Score Breakdown */}
       {result.aiScores && Object.keys(result.aiScores).filter(k => k !== "overall").length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Score Breakdown</p>
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Score Breakdown</p>
           <div className="space-y-2">
             {Object.entries(result.aiScores)
               .filter(([key]) => key !== "overall")
@@ -1760,8 +1760,8 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
                 return (
                   <div key={key}>
                     <div className="flex items-center justify-between mb-0.5">
-                      <span className="text-xs capitalize text-gray-600">{key}</span>
-                      <span className="text-xs font-semibold text-gray-800">{val}/90</span>
+                      <span className="text-xs capitalize text-gray-600 dark:text-slate-300">{key}</span>
+                      <span className="text-xs font-semibold text-gray-800 dark:text-slate-200">{val}/90</span>
                     </div>
                     <div className="h-1.5 w-full rounded-full bg-white/60">
                       <div className={`h-full rounded-full transition-all ${barColor}`} style={{ width: `${pct}%` }} />
@@ -1776,7 +1776,7 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
       {/* Word-level pronunciation feedback for Read Aloud / Repeat Sentence */}
       {result.transcription && result.mistakes.length > 0 && (
         <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Word-by-Word Feedback</p>
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Word-by-Word Feedback</p>
           <div className="rounded-lg bg-white/70 p-3 leading-loose">
             {(() => {
               const spokenWords = result.transcription.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);

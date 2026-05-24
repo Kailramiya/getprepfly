@@ -66,10 +66,10 @@ export function AppInstallPrompt() {
   if (isStandalone || !showBanner) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-4 shadow-lg sm:bottom-4 sm:left-auto sm:right-4 sm:max-w-sm sm:rounded-2xl sm:border">
+    <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white p-4 shadow-lg sm:bottom-4 sm:left-auto sm:right-4 sm:max-w-sm sm:rounded-2xl sm:border dark:border-slate-700 dark:bg-slate-800">
       <button
         onClick={dismissBanner}
-        className="absolute right-3 top-3 rounded-md p-1 text-gray-400 hover:bg-gray-100"
+        className="absolute right-3 top-3 rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700"
       >
         <X className="h-4 w-4" />
       </button>
@@ -79,8 +79,8 @@ export function AppInstallPrompt() {
           <Download className="h-6 w-6 text-white" />
         </div>
         <div className="flex-1">
-          <h3 className="font-semibold text-gray-900">Get Prepfly App</h3>
-          <p className="mt-0.5 text-xs text-gray-500">
+          <h3 className="font-semibold text-gray-900 dark:text-slate-100">Get Prepfly App</h3>
+          <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
             {isIOS
               ? "Add to your home screen for the best experience"
               : "Install the app for offline practice and faster access"}
@@ -99,7 +99,7 @@ export function AppInstallPrompt() {
 
         {/* iOS Safari instructions */}
         {isIOS && !deferredPrompt && (
-          <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
+          <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600 dark:bg-slate-700 dark:text-slate-300">
             <p className="font-medium">To install on iPhone:</p>
             <p className="mt-1">
               Tap the <strong>Share</strong> button (square with arrow) then tap <strong>&quot;Add to Home Screen&quot;</strong>
@@ -129,7 +129,7 @@ export function AppInstallPrompt() {
 
         {/* Desktop — show PWA or coming soon */}
         {!isIOS && !isAndroid && !deferredPrompt && (
-          <p className="text-center text-xs text-gray-400">
+          <p className="text-center text-xs text-gray-400 dark:text-slate-500">
             Use Chrome or Edge for the installable app experience
           </p>
         )}

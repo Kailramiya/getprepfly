@@ -47,8 +47,8 @@ export default function StudentProgressPage() {
           <ArrowLeft className="h-4 w-4" /> Back
         </Button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">{student.name}</h1>
-          <p className="text-gray-500">{student.email} {student.phone && `· ${student.phone}`}</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">{student.name}</h1>
+          <p className="text-gray-500 dark:text-slate-400">{student.email} {student.phone && `· ${student.phone}`}</p>
         </div>
         <Badge variant={student.studentPlan?.planType === "FREE" ? "secondary" : "success"} className="ml-auto">
           {student.studentPlan?.planType || "FREE"}
@@ -67,8 +67,8 @@ export default function StudentProgressPage() {
             <CardContent className="flex items-center gap-3 p-4">
               <stat.icon className={`h-8 w-8 shrink-0 ${stat.color}`} />
               <div>
-                <p className="text-xl font-bold text-gray-900">{stat.value}</p>
-                <p className="text-xs text-gray-500">{stat.label}</p>
+                <p className="text-xl font-bold text-gray-900 dark:text-slate-100">{stat.value}</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
@@ -89,7 +89,7 @@ export default function StudentProgressPage() {
                     <Icon className="h-4 w-4" />
                     <span className="text-xs font-semibold uppercase">{section}</span>
                   </div>
-                  <p className="mt-2 text-2xl font-bold text-gray-900">{score > 0 ? `${score}/90` : "—"}</p>
+                  <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-slate-100">{score > 0 ? `${score}/90` : "—"}</p>
                   {score > 0 && (
                     <div className="mt-2 h-1.5 rounded-full bg-white/60">
                       <div className={`h-full rounded-full ${colorClass.split(" ")[0].replace("text", "bg")}`} style={{ width: `${(score / 90) * 100}%` }} />
@@ -112,17 +112,17 @@ export default function StudentProgressPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-gray-50">
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Question</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Type</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Score</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Date</th>
+                  <tr className="border-b bg-gray-50 dark:border-slate-700 dark:bg-slate-800">
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Question</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Type</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Score</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Date</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y dark:divide-slate-700">
                   {recentAttempts.map(a => (
-                    <tr key={a.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-gray-900">{a.title}</td>
+                    <tr key={a.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40">
+                      <td className="px-4 py-3 text-gray-900 dark:text-slate-100">{a.title}</td>
                       <td className="px-4 py-3">
                         <Badge variant="secondary" className="text-xs">{formatType(a.questionType)}</Badge>
                       </td>
@@ -133,7 +133,7 @@ export default function StudentProgressPage() {
                           </span>
                         ) : <span className="text-gray-400">Pending</span>}
                       </td>
-                      <td className="px-4 py-3 text-gray-500">
+                      <td className="px-4 py-3 text-gray-500 dark:text-slate-400">
                         {new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                       </td>
                     </tr>

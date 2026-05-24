@@ -58,13 +58,13 @@ export function CountdownTimer({
       <span
         className={`font-mono font-bold ${sizeClasses[size]} ${
           isCritical ? "text-red-600 animate-pulse" :
-          isLow ? "text-amber-600" : "text-gray-700"
+          isLow ? "text-amber-600" : "text-gray-700 dark:text-slate-300"
         }`}
       >
         {minutes}:{seconds.toString().padStart(2, "0")}
       </span>
       {showProgress && (
-        <div className="h-1.5 w-20 rounded-full bg-gray-200">
+        <div className="h-1.5 w-20 rounded-full bg-gray-200 dark:bg-slate-700">
           <div
             className={`h-full rounded-full transition-all ${
               isCritical ? "bg-red-500" :

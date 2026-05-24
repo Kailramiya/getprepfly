@@ -527,17 +527,17 @@ export default function StudyGuidesPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Study Guides</h1>
-        <p className="mt-1 text-gray-500">Tips, strategies, and templates for every PTE question type</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Study Guides</h1>
+        <p className="mt-1 text-gray-500 dark:text-slate-400">Tips, strategies, and templates for every PTE question type</p>
       </div>
 
       {/* Quick Tips Banner */}
-      <Card className="border-amber-200 bg-amber-50">
+      <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
         <CardContent className="flex items-center gap-4 p-5">
           <Lightbulb className="h-8 w-8 shrink-0 text-amber-500" />
           <div>
-            <h3 className="font-semibold text-amber-900">Quick Tip of the Day</h3>
-            <p className="text-sm text-amber-700">
+            <h3 className="font-semibold text-amber-900 dark:text-amber-200">Quick Tip of the Day</h3>
+            <p className="text-sm text-amber-700 dark:text-amber-300">
               In PTE, Write from Dictation and Read Aloud contribute to MULTIPLE scoring categories.
               Prioritize these question types — they have the highest impact on your overall score.
             </p>
@@ -553,8 +553,8 @@ export default function StudyGuidesPage() {
               <FileText className="h-5 w-5 text-white" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Ready-to-use Templates</h2>
-              <p className="text-xs text-gray-500">Adapt these templates for faster, higher-scoring answers</p>
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Ready-to-use Templates</h2>
+              <p className="text-xs text-gray-500 dark:text-slate-400">Adapt these templates for faster, higher-scoring answers</p>
             </div>
           </div>
           <div className="space-y-3">
@@ -565,7 +565,7 @@ export default function StudyGuidesPage() {
                   <CardContent className="p-0">
                     <button
                       onClick={() => setExpandedTemplateId(isExpanded ? null : t.id)}
-                      className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+                      className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/40"
                     >
                       <div className="flex items-center gap-3">
                         <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100">
@@ -573,7 +573,7 @@ export default function StudyGuidesPage() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-gray-900">{t.title}</h3>
+                            <h3 className="font-medium text-gray-900 dark:text-slate-100">{t.title}</h3>
                             {t.isPremium && (
                               <Badge variant="warning" className="gap-1">
                                 <Star className="h-3 w-3" /> Premium
@@ -592,8 +592,8 @@ export default function StudyGuidesPage() {
                       )}
                     </button>
                     {isExpanded && (
-                      <div className="border-t border-gray-100 bg-gray-50 p-4">
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700">
+                      <div className="border-t border-gray-100 bg-gray-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
+                        <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-slate-300">
                           {t.content}
                         </p>
                       </div>
@@ -613,7 +613,7 @@ export default function StudyGuidesPage() {
             <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${section.gradient}`}>
               <section.icon className="h-5 w-5 text-white" />
             </div>
-            <h2 className="text-lg font-semibold text-gray-900">{section.section} Guides</h2>
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{section.section} Guides</h2>
           </div>
           <div className="space-y-3">
             {section.tips.map((tip) => {
@@ -623,11 +623,11 @@ export default function StudyGuidesPage() {
                   <CardContent className="p-0">
                     <button
                       onClick={() => setExpandedTipSlug(isExpanded ? null : tip.slug)}
-                      className="group flex w-full items-center justify-between p-4 text-left hover:bg-gray-50"
+                      className="group flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/40"
                     >
                       <div>
-                        <h3 className="font-medium text-gray-900">{tip.title}</h3>
-                        <p className="mt-1 text-sm text-gray-500">{tip.description}</p>
+                        <h3 className="font-medium text-gray-900 dark:text-slate-100">{tip.title}</h3>
+                        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{tip.description}</p>
                       </div>
                       {isExpanded ? (
                         <ChevronUp className="h-4 w-4 shrink-0 text-gray-400 transition group-hover:text-gray-600" />
@@ -637,8 +637,8 @@ export default function StudyGuidesPage() {
                     </button>
 
                     {isExpanded && (
-                      <div className="border-t border-gray-100 bg-gradient-to-br from-gray-50 to-white p-5">
-                        <div className="whitespace-pre-wrap rounded-lg bg-white p-4 text-sm leading-relaxed text-gray-700 shadow-sm">
+                      <div className="border-t border-gray-100 bg-gradient-to-br from-gray-50 to-white p-5 dark:border-slate-700 dark:from-slate-800 dark:to-slate-800">
+                        <div className="whitespace-pre-wrap rounded-lg bg-white p-4 text-sm leading-relaxed text-gray-700 shadow-sm dark:bg-slate-800/50 dark:text-slate-300">
                           {(tip as any).content || "Content coming soon..."}
                         </div>
                       </div>

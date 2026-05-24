@@ -82,25 +82,25 @@ function LoginForm() {
         <Logo size="sm" />
       </div>
 
-      <h2 className="text-2xl font-bold text-gray-900">Welcome back</h2>
-      <p className="mt-2 text-sm text-gray-600">
+      <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Welcome back</h2>
+      <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
         Log in to continue your PTE preparation
       </p>
 
       {registered && (
-        <div className="mt-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">
+        <div className="mt-4 rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950/50 dark:text-green-300">
           Account created successfully! Please log in.
         </div>
       )}
 
       {kicked && (
-        <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
+        <div className="mt-4 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
           Your account was used to log in on another device. Please log in again to continue.
         </div>
       )}
 
       {error && (
-        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700">
+        <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
           {error}
         </div>
       )}
@@ -108,7 +108,7 @@ function LoginForm() {
       {/* Google Login */}
       <button
         onClick={handleGoogleLogin}
-        className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"
+        className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
       >
         <svg className="h-5 w-5" viewBox="0 0 24 24">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -120,9 +120,9 @@ function LoginForm() {
       </button>
 
       <div className="my-6 flex items-center gap-3">
-        <div className="h-px flex-1 bg-gray-200" />
-        <span className="text-xs text-gray-500">or continue with email</span>
-        <div className="h-px flex-1 bg-gray-200" />
+        <div className="h-px flex-1 bg-gray-200 dark:bg-slate-700" />
+        <span className="text-xs text-gray-500 dark:text-slate-400">or continue with email</span>
+        <div className="h-px flex-1 bg-gray-200 dark:bg-slate-700" />
       </div>
 
       {/* Email Login Form */}
@@ -169,7 +169,7 @@ function LoginForm() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-gray-600 dark:text-slate-400">
         Don&apos;t have an account?{" "}
         <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
           Sign up free

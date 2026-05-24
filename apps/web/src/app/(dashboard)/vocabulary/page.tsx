@@ -42,8 +42,8 @@ export default function VocabularyPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Vocabulary Builder</h1>
-          <p className="text-gray-500">Learn PTE-essential words — {mastered.size}/{SAMPLE_VOCAB.length} mastered</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Vocabulary Builder</h1>
+          <p className="text-gray-500 dark:text-slate-400">Learn PTE-essential words — {mastered.size}/{SAMPLE_VOCAB.length} mastered</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -64,7 +64,7 @@ export default function VocabularyPage() {
       </div>
 
       {/* Progress */}
-      <div className="h-2 rounded-full bg-gray-200">
+      <div className="h-2 rounded-full bg-gray-200 dark:bg-slate-700">
         <div
           className="h-full rounded-full bg-indigo-500 transition-all"
           style={{ width: `${(mastered.size / SAMPLE_VOCAB.length) * 100}%` }}
@@ -83,33 +83,33 @@ export default function VocabularyPage() {
                 {!showMeaning ? (
                   <>
                     <Badge variant="secondary" className="mb-4">{current.category}</Badge>
-                    <h2 className="text-3xl font-bold text-gray-900">{current.word}</h2>
-                    <p className="mt-4 text-sm text-gray-400">Tap to reveal meaning</p>
+                    <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100">{current.word}</h2>
+                    <p className="mt-4 text-sm text-gray-400 dark:text-slate-500">Tap to reveal meaning</p>
                   </>
                 ) : (
                   <>
                     <h2 className="text-2xl font-bold text-indigo-600">{current.word}</h2>
-                    <p className="mt-3 text-lg text-gray-700">{current.meaning}</p>
-                    <div className="mt-4 rounded-lg bg-gray-50 px-4 py-3">
-                      <p className="text-sm italic text-gray-600">&ldquo;{current.example}&rdquo;</p>
+                    <p className="mt-3 text-lg text-gray-700 dark:text-slate-300">{current.meaning}</p>
+                    <div className="mt-4 rounded-lg bg-gray-50 px-4 py-3 dark:bg-slate-700/50">
+                      <p className="text-sm italic text-gray-600 dark:text-slate-400">&ldquo;{current.example}&rdquo;</p>
                     </div>
                   </>
                 )}
               </div>
 
               {showMeaning && (
-                <div className="flex border-t border-gray-200">
+                <div className="flex border-t border-gray-200 dark:border-slate-700">
                   <button
                     onClick={handleNext}
-                    className="flex flex-1 items-center justify-center gap-2 p-4 text-sm font-medium text-red-600 hover:bg-red-50"
+                    className="flex flex-1 items-center justify-center gap-2 p-4 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30"
                   >
                     <X className="h-4 w-4" />
                     Review Again
                   </button>
-                  <div className="w-px bg-gray-200" />
+                  <div className="w-px bg-gray-200 dark:bg-slate-700" />
                   <button
                     onClick={handleMastered}
-                    className="flex flex-1 items-center justify-center gap-2 p-4 text-sm font-medium text-green-600 hover:bg-green-50"
+                    className="flex flex-1 items-center justify-center gap-2 p-4 text-sm font-medium text-green-600 hover:bg-green-50 dark:hover:bg-green-950/30"
                   >
                     <Check className="h-4 w-4" />
                     Mastered
@@ -119,7 +119,7 @@ export default function VocabularyPage() {
             </CardContent>
           </Card>
 
-          <p className="mt-4 text-center text-sm text-gray-500">
+          <p className="mt-4 text-center text-sm text-gray-500 dark:text-slate-400">
             Card {currentIndex + 1} of {SAMPLE_VOCAB.length}
           </p>
         </div>
@@ -131,7 +131,7 @@ export default function VocabularyPage() {
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold text-gray-900">{vocab.word}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{vocab.word}</h3>
                     <Badge variant={
                       vocab.difficulty === "EASY" ? "success" :
                       vocab.difficulty === "HARD" ? "destructive" : "default"
@@ -140,8 +140,8 @@ export default function VocabularyPage() {
                     </Badge>
                     {mastered.has(i) && <Check className="h-4 w-4 text-green-500" />}
                   </div>
-                  <p className="mt-1 text-sm text-gray-600">{vocab.meaning}</p>
-                  <p className="mt-1 text-xs italic text-gray-400">&ldquo;{vocab.example}&rdquo;</p>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">{vocab.meaning}</p>
+                  <p className="mt-1 text-xs italic text-gray-400 dark:text-slate-500">&ldquo;{vocab.example}&rdquo;</p>
                 </div>
               </CardContent>
             </Card>

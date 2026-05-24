@@ -152,8 +152,8 @@ export default function AdminTemplatesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Study Guide Templates</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Study Guide Templates</h1>
+          <p className="text-sm text-gray-500 dark:text-slate-400">
             Add ready-made templates that students can use while practicing each question type
           </p>
         </div>
@@ -183,13 +183,13 @@ export default function AdminTemplatesPage() {
       ) : (
         <Card>
           <CardContent className="p-0">
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-gray-100 dark:divide-slate-700">
               {templates.map((t) => {
                 const isExpanded = expandedId === t.id;
                 return (
                   <div key={t.id}>
                     <div
-                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50"
+                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-slate-700/40"
                       onClick={() => setExpandedId(isExpanded ? null : t.id)}
                     >
                       <div className="flex items-center gap-3">
@@ -198,7 +198,7 @@ export default function AdminTemplatesPage() {
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-medium text-gray-900">{t.title}</p>
+                            <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
                             {t.isPremium && (
                               <Badge variant="warning" className="gap-1">
                                 <Star className="h-3 w-3" /> Premium
@@ -207,20 +207,20 @@ export default function AdminTemplatesPage() {
                           </div>
                           <div className="mt-1 flex items-center gap-2">
                             <Badge variant="secondary" className="text-xs">{formatType(t.questionType)}</Badge>
-                            <span className="text-xs text-gray-400">{t.language}</span>
+                            <span className="text-xs text-gray-400 dark:text-slate-500">{t.language}</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
                         <button
                           onClick={(e) => { e.stopPropagation(); openEdit(t); }}
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600"
+                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 dark:hover:bg-slate-700 dark:hover:text-blue-400"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDelete(t.id, t.title); }}
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600"
+                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 dark:hover:bg-slate-700 dark:hover:text-red-400"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -228,9 +228,9 @@ export default function AdminTemplatesPage() {
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-4">
-                        <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">Template Content</h4>
-                        <div className="rounded-lg bg-white p-4 text-sm text-gray-700 whitespace-pre-wrap shadow-sm">
+                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 dark:border-slate-700 dark:bg-slate-800/50">
+                        <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2 dark:text-slate-500">Template Content</h4>
+                        <div className="rounded-lg bg-white p-4 text-sm text-gray-700 whitespace-pre-wrap shadow-sm dark:bg-slate-800 dark:text-slate-300">
                           {t.content}
                         </div>
                       </div>
@@ -246,19 +246,19 @@ export default function AdminTemplatesPage() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-teal-50 px-6 py-4">
+          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900">
+            <div className="flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-teal-50 px-6 py-4 dark:border-slate-700 dark:from-slate-800 dark:to-slate-800">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
+                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
                   {editingId ? "Edit Template" : "Add New Template"}
                 </h2>
-                <p className="mt-0.5 text-sm text-gray-500">
+                <p className="mt-0.5 text-sm text-gray-500 dark:text-slate-400">
                   Templates help students structure their answers for better scores
                 </p>
               </div>
               <button
                 onClick={() => { setShowForm(false); resetForm(); }}
-                className="rounded-lg p-2 text-gray-400 hover:bg-white hover:text-gray-600"
+                className="rounded-lg p-2 text-gray-400 hover:bg-white hover:text-gray-600 dark:hover:bg-slate-700 dark:hover:text-slate-200"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -266,7 +266,7 @@ export default function AdminTemplatesPage() {
 
             <div className="flex-1 space-y-4 overflow-y-auto px-6 py-6">
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
                   Template Title <span className="text-red-500">*</span>
                 </label>
                 <Input
@@ -277,13 +277,13 @@ export default function AdminTemplatesPage() {
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
                   Question Type <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={questionType}
                   onChange={(e) => setQuestionType(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                 >
                   {Object.entries(QUESTION_TYPES_BY_SECTION).map(([section, types]) => (
                     <optgroup key={section} label={section}>
@@ -293,13 +293,13 @@ export default function AdminTemplatesPage() {
                     </optgroup>
                   ))}
                 </select>
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                   Which question type does this template help with?
                 </p>
               </div>
 
               <div>
-                <label className="mb-1.5 block text-sm font-medium text-gray-700">
+                <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">
                   Template Content <span className="text-red-500">*</span>
                 </label>
                 <textarea
@@ -315,20 +315,20 @@ Body Paragraph 2: On the other hand, [second argument]. For example, [example]. 
 
 Conclusion: In conclusion, [restate position]. Overall, [final thought].`}
                   rows={12}
-                  className="w-full rounded-lg border border-gray-300 bg-white p-3 text-sm font-mono"
+                  className="w-full rounded-lg border border-gray-300 bg-white p-3 text-sm font-mono dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
                 />
-                <p className="mt-1 text-xs text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                   Write the template that students can adapt. Use [placeholders] for parts students should fill in.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-gray-700">Language</label>
+                  <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Language</label>
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm"
+                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
                   >
                     <option value="EN">English</option>
                     <option value="HI">हिंदी (Hindi)</option>
@@ -343,7 +343,7 @@ Conclusion: In conclusion, [restate position]. Overall, [final thought].`}
                       onChange={(e) => setIsPremium(e.target.checked)}
                       className="h-4 w-4 rounded border-gray-300 text-amber-600"
                     />
-                    <span className="flex items-center gap-1 text-sm text-gray-700">
+                    <span className="flex items-center gap-1 text-sm text-gray-700 dark:text-slate-300">
                       <Star className="h-3.5 w-3.5 text-amber-500" />
                       Premium template (VIP only)
                     </span>
@@ -352,13 +352,13 @@ Conclusion: In conclusion, [restate position]. Overall, [final thought].`}
               </div>
 
               {error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950/50 dark:text-red-400">
                   ⚠ {error}
                 </div>
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4">
+            <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800">
               <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
                 Cancel
               </Button>

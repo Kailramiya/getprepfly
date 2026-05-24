@@ -52,8 +52,8 @@ export default function QuestionReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Question Reports</h1>
-          <p className="text-gray-500">Student-reported issues with questions</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Question Reports</h1>
+          <p className="text-gray-500 dark:text-slate-400">Student-reported issues with questions</p>
         </div>
         <div className="flex gap-2">
           <Button variant={!showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(false)}>Open</Button>
@@ -71,18 +71,18 @@ export default function QuestionReportsPage() {
               <p className="mt-3 text-gray-500">{showResolved ? "No resolved reports." : "No open reports — all clear!"}</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y dark:divide-slate-700">
               {reports.map(r => (
                 <div key={r.id} className="flex items-start justify-between gap-4 p-4">
                   <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium text-gray-900 truncate">{r.question.title}</p>
+                      <p className="font-medium text-gray-900 truncate dark:text-slate-100">{r.question.title}</p>
                       <Badge variant="secondary" className="text-xs">{r.question.section}</Badge>
                       <Badge variant="warning" className="text-xs">{REASON_LABELS[r.reason] || r.reason}</Badge>
                     </div>
-                    {r.details && <p className="mt-1 text-sm text-gray-600">&ldquo;{r.details}&rdquo;</p>}
-                    <p className="mt-1 text-xs text-gray-400">
+                    {r.details && <p className="mt-1 text-sm text-gray-600 dark:text-slate-300">&ldquo;{r.details}&rdquo;</p>}
+                    <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">
                       by {r.user.name} · {new Date(r.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                     </p>
                   </div>

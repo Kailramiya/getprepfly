@@ -73,7 +73,7 @@ export function AudioPlayerCustom({
   const progressPct = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm">
+    <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-800">
       <audio
         ref={audioRef}
         src={src}
@@ -111,7 +111,7 @@ export function AudioPlayerCustom({
             onChange={handleSeek}
             className="flex-1 cursor-pointer accent-teal-500"
           />
-          <span className="font-mono text-xs text-gray-600 whitespace-nowrap">
+          <span className="font-mono text-xs text-gray-600 whitespace-nowrap dark:text-slate-400">
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
         </div>
@@ -148,13 +148,13 @@ export function AudioPlayerCustom({
             {playbackRate}x
           </button>
           {showRateMenu && (
-            <div className="absolute right-0 top-full z-20 mt-1 w-24 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+            <div className="absolute right-0 top-full z-20 mt-1 w-24 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
               {PLAYBACK_RATES.map((r) => (
                 <button
                   key={r}
                   onClick={() => { setPlaybackRate(r); setShowRateMenu(false); }}
-                  className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 ${
-                    playbackRate === r ? "font-semibold text-teal-600" : "text-gray-700"
+                  className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-slate-700 ${
+                    playbackRate === r ? "font-semibold text-teal-600" : "text-gray-700 dark:text-slate-300"
                   }`}
                 >
                   {r}x {playbackRate === r && "✓"}
@@ -173,13 +173,13 @@ export function AudioPlayerCustom({
             {voice} ▾
           </button>
           {showVoiceMenu && (
-            <div className="absolute right-0 top-full z-20 mt-1 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg">
+            <div className="absolute right-0 top-full z-20 mt-1 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
               {VOICES.map((v) => (
                 <button
                   key={v}
                   onClick={() => { setVoice(v); setShowVoiceMenu(false); }}
-                  className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 ${
-                    voice === v ? "font-semibold text-teal-600" : "text-gray-700"
+                  className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-slate-700 ${
+                    voice === v ? "font-semibold text-teal-600" : "text-gray-700 dark:text-slate-300"
                   }`}
                 >
                   {v} {voice === v && "✓"}

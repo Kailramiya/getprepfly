@@ -56,8 +56,8 @@ export default function MyFlagsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">My Flagged Questions</h1>
-        <p className="text-gray-500">Questions you marked for later review</p>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">My Flagged Questions</h1>
+        <p className="text-gray-500 dark:text-slate-400">Questions you marked for later review</p>
       </div>
 
       {/* Filter tabs */}
@@ -66,9 +66,9 @@ export default function MyFlagsPage() {
           <button
             key={key}
             onClick={() => setFilter(key)}
-            className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition ${filter === key ? "bg-indigo-600 border-indigo-600 text-white" : "border-gray-200 text-gray-600 hover:border-gray-300"}`}
+            className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition ${filter === key ? "bg-indigo-600 border-indigo-600 text-white" : "border-gray-200 text-gray-600 hover:border-gray-300 dark:border-slate-600 dark:text-slate-300 dark:hover:border-slate-500"}`}
           >
-            {label} <span className={`rounded-full px-1.5 py-0.5 text-xs ${filter === key ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500"}`}>{count}</span>
+            {label} <span className={`rounded-full px-1.5 py-0.5 text-xs ${filter === key ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-slate-400"}`}>{count}</span>
           </button>
         ))}
       </div>
@@ -84,7 +84,7 @@ export default function MyFlagsPage() {
               <Link href="/practice/speaking"><Button variant="outline" className="mt-4">Start Practicing</Button></Link>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y dark:divide-slate-700">
               {visible.map(({ flag, question }) => {
                 const cfg = FLAG_CONFIG[flag];
                 const Icon = cfg.icon;
@@ -94,7 +94,7 @@ export default function MyFlagsPage() {
                       <Icon className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="truncate font-medium text-gray-900">{question.title}</p>
+                      <p className="truncate font-medium text-gray-900 dark:text-slate-100">{question.title}</p>
                       <div className="mt-1 flex items-center gap-2">
                         <Badge variant="secondary" className="text-xs">{question.section}</Badge>
                         <Badge variant="secondary" className="text-xs">{question.type.replace(/_/g, " ")}</Badge>
@@ -102,7 +102,7 @@ export default function MyFlagsPage() {
                       </div>
                     </div>
                     <div className="flex shrink-0 items-center gap-2">
-                      <button onClick={() => remove(question.id)} className="text-xs text-gray-400 hover:text-red-500">Remove</button>
+                      <button onClick={() => remove(question.id)} className="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400">Remove</button>
                       <Link href={sectionPath(question.section, question.type)}>
                         <Button size="sm" variant="outline" className="gap-1.5">
                           Practice <ArrowRight className="h-3.5 w-3.5" />

@@ -38,11 +38,11 @@ export function AnnouncementsBanner() {
   return (
     <div className="space-y-2">
       {visible.map(a => (
-        <div key={a.id} className="flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3">
+        <div key={a.id} className="flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-3 dark:border-indigo-900 dark:bg-indigo-950/50">
           <Megaphone className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-indigo-900">{a.title}</p>
-            <p className="text-sm text-indigo-700 mt-0.5">{a.message}</p>
+            <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">{a.title}</p>
+            <p className="text-sm text-indigo-700 mt-0.5 dark:text-indigo-300">{a.message}</p>
           </div>
           <button onClick={() => dismiss(a.id)} className="shrink-0 text-indigo-400 hover:text-indigo-700">
             <X className="h-4 w-4" />

@@ -97,8 +97,8 @@ export default function CouponsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Coupon Management</h1>
-          <p className="text-gray-500">Create and manage discount codes for student plans</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Coupon Management</h1>
+          <p className="text-gray-500 dark:text-slate-400">Create and manage discount codes for student plans</p>
         </div>
         <Button onClick={() => setShowForm(!showForm)} className="gap-2">
           <Plus className="h-4 w-4" />
@@ -107,7 +107,7 @@ export default function CouponsPage() {
       </div>
 
       {showForm && (
-        <Card className="border-indigo-200 bg-indigo-50">
+        <Card className="border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/40">
           <CardHeader>
             <CardTitle className="text-base">Create Coupon</CardTitle>
           </CardHeader>
@@ -115,7 +115,7 @@ export default function CouponsPage() {
             {error && <p className="mb-3 rounded-lg bg-red-50 p-2 text-sm text-red-700">{error}</p>}
             <form onSubmit={handleCreate} className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">Code</label>
+                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Code</label>
                 <Input
                   placeholder="SUMMER50"
                   value={form.code}
@@ -124,7 +124,7 @@ export default function CouponsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">Discount %</label>
+                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Discount %</label>
                 <Input
                   type="number" min="1" max="100"
                   value={form.discountPercent}
@@ -133,7 +133,7 @@ export default function CouponsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">Max Uses</label>
+                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Max Uses</label>
                 <Input
                   type="number" min="1"
                   value={form.maxUses}
@@ -142,7 +142,7 @@ export default function CouponsPage() {
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500">Valid Until</label>
+                <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Valid Until</label>
                 <Input
                   type="date"
                   value={form.validUntil}
@@ -174,38 +174,38 @@ export default function CouponsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-gray-50">
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Code</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Discount</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Usage</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Valid Until</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500">Status</th>
-                    <th className="px-4 py-3 text-right font-medium text-gray-500">Actions</th>
+                  <tr className="border-b bg-gray-50 dark:border-slate-700 dark:bg-slate-800">
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Code</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Discount</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Usage</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Valid Until</th>
+                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Status</th>
+                    <th className="px-4 py-3 text-right font-medium text-gray-500 dark:text-slate-400">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y">
+                <tbody className="divide-y dark:divide-slate-700">
                   {coupons.map((c) => {
                     const expired = isExpired(c.validUntil);
                     const exhausted = c.usedCount >= c.maxUses;
                     const effective = c.isActive && !expired && !exhausted;
                     return (
-                      <tr key={c.id} className="hover:bg-gray-50">
+                      <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40">
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-indigo-700">{c.code}</span>
-                            <button onClick={() => copyCode(c.code)} className="text-gray-400 hover:text-gray-600">
+                            <span className="font-mono font-bold text-indigo-700 dark:text-indigo-400">{c.code}</span>
+                            <button onClick={() => copyCode(c.code)} className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300">
                               {copied === c.code ? <CheckCheck className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
                             </button>
                           </div>
                         </td>
                         <td className="px-4 py-3 font-semibold text-green-700">{c.discountPercent}% off</td>
-                        <td className="px-4 py-3 text-gray-600">
+                        <td className="px-4 py-3 text-gray-600 dark:text-slate-300">
                           {c.usedCount} / {c.maxUses}
-                          <div className="mt-1 h-1.5 w-24 rounded-full bg-gray-200">
+                          <div className="mt-1 h-1.5 w-24 rounded-full bg-gray-200 dark:bg-slate-700">
                             <div className="h-full rounded-full bg-indigo-500" style={{ width: `${Math.min((c.usedCount / c.maxUses) * 100, 100)}%` }} />
                           </div>
                         </td>
-                        <td className={`px-4 py-3 ${expired ? "text-red-600 font-medium" : "text-gray-600"}`}>
+                        <td className={`px-4 py-3 ${expired ? "text-red-600 font-medium dark:text-red-400" : "text-gray-600 dark:text-slate-300"}`}>
                           {formatDate(c.validUntil)}
                           {expired && <span className="ml-1 text-xs">(expired)</span>}
                         </td>
@@ -216,10 +216,10 @@ export default function CouponsPage() {
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => toggleActive(c.id, c.isActive)} className="text-gray-400 hover:text-indigo-600" title={c.isActive ? "Deactivate" : "Activate"}>
-                              {c.isActive ? <ToggleRight className="h-5 w-5 text-indigo-600" /> : <ToggleLeft className="h-5 w-5" />}
+                            <button onClick={() => toggleActive(c.id, c.isActive)} className="text-gray-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400" title={c.isActive ? "Deactivate" : "Activate"}>
+                              {c.isActive ? <ToggleRight className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> : <ToggleLeft className="h-5 w-5" />}
                             </button>
-                            <button onClick={() => deleteCoupon(c.id, c.code)} className="text-gray-400 hover:text-red-600">
+                            <button onClick={() => deleteCoupon(c.id, c.code)} className="text-gray-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400">
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>

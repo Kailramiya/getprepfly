@@ -68,8 +68,8 @@ export default function MockTestPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mock Tests</h1>
-          <p className="text-gray-500">Simulate the real PTE Academic exam</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Mock Tests</h1>
+          <p className="text-gray-500 dark:text-slate-400">Simulate the real PTE Academic exam</p>
         </div>
         <Button onClick={startNewTest} loading={creating} size="lg" className="gap-2">
           <Play className="h-5 w-5" />
@@ -78,7 +78,7 @@ export default function MockTestPage() {
       </div>
 
       {/* Test Info Card */}
-      <Card className="border-indigo-200 bg-indigo-50">
+      <Card className="border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/30">
         <CardContent className="p-5">
           <div className="grid gap-4 sm:grid-cols-4">
             {[
@@ -90,13 +90,13 @@ export default function MockTestPage() {
               <div key={s.label} className="flex items-center gap-3">
                 <s.icon className={`h-5 w-5 ${s.color}`} />
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{s.label}</p>
-                  <p className="text-xs text-gray-500">{s.info}</p>
+                  <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{s.label}</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-400">{s.info}</p>
                 </div>
               </div>
             ))}
           </div>
-          <p className="mt-3 text-xs text-indigo-700">
+          <p className="mt-3 text-xs text-indigo-700 dark:text-indigo-400">
             Full mock test: 56 questions across 4 sections. Estimated time: 2-3 hours.
           </p>
         </CardContent>
@@ -105,14 +105,14 @@ export default function MockTestPage() {
       {/* Assigned by Centre */}
       {assignedTests.length > 0 && (
         <div>
-          <h2 className="mb-3 text-lg font-semibold text-gray-900">Assigned by Your Centre</h2>
+          <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-slate-100">Assigned by Your Centre</h2>
           <div className="space-y-2">
             {assignedTests.map(t => (
               <Card key={t.id}>
                 <CardContent className="flex items-center justify-between p-4">
                   <div>
-                    <p className="font-medium text-gray-900">{t.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5">Assigned {new Date(t.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
+                    <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
+                    <p className="text-xs text-gray-400 mt-0.5 dark:text-slate-500">Assigned {new Date(t.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
                   </div>
                   <Button size="sm" onClick={() => router.push(`/mock-test/${t.id}`)}>
                     <Play className="h-4 w-4 mr-1" /> Start
@@ -126,7 +126,7 @@ export default function MockTestPage() {
 
       {/* Past Tests */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-gray-900">Your Mock Tests</h2>
+        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Your Mock Tests</h2>
         {loading ? (
           <div className="flex justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
@@ -159,8 +159,8 @@ export default function MockTestPage() {
                       )}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900">{test.title}</p>
-                      <div className="mt-1 flex items-center gap-3 text-xs text-gray-500">
+                      <p className="font-medium text-gray-900 dark:text-slate-100">{test.title}</p>
+                      <div className="mt-1 flex items-center gap-3 text-xs text-gray-500 dark:text-slate-400">
                         <span>{new Date(test.startedAt).toLocaleDateString("en-IN")}</span>
                         {test.totalTime && (
                           <span className="flex items-center gap-1">
@@ -188,12 +188,12 @@ export default function MockTestPage() {
                         { label: "L", score: test.listeningScore, color: "text-orange-600" },
                       ].map((s) => (
                         <div key={s.label} className="text-center">
-                          <p className="text-xs text-gray-400">{s.label}</p>
+                          <p className="text-xs text-gray-400 dark:text-slate-500">{s.label}</p>
                           <p className={`text-sm font-bold ${s.color}`}>{s.score || "--"}</p>
                         </div>
                       ))}
-                      <div className="border-l border-gray-200 pl-4 text-center">
-                        <p className="text-xs text-gray-400">Overall</p>
+                      <div className="border-l border-gray-200 pl-4 text-center dark:border-slate-600">
+                        <p className="text-xs text-gray-400 dark:text-slate-500">Overall</p>
                         <p className="text-lg font-bold text-indigo-600">{test.overallScore}</p>
                       </div>
                     </div>

@@ -192,26 +192,26 @@ export default function AdminBillingPage() {
 
       <div className="space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Billing & Subscription</h1>
-          <p className="text-gray-500">Manage your coaching centre plan</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Billing & Subscription</h1>
+          <p className="text-gray-500 dark:text-slate-400">Manage your coaching centre plan</p>
         </div>
 
         {error && (
-          <div className="flex items-center gap-2 rounded-lg bg-red-50 p-4 text-sm text-red-700">
+          <div className="flex items-center gap-2 rounded-lg bg-red-50 p-4 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
             <AlertTriangle className="h-4 w-4 shrink-0" />
             {error}
           </div>
         )}
 
         {successMsg && (
-          <div className="flex items-center gap-2 rounded-lg bg-green-50 p-4 text-sm text-green-800">
+          <div className="flex items-center gap-2 rounded-lg bg-green-50 p-4 text-sm text-green-800 dark:bg-green-950/50 dark:text-green-300">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
             {successMsg}
           </div>
         )}
 
         {/* Current Plan Status */}
-        <Card className={centre?.isActive ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50"}>
+        <Card className={centre?.isActive ? "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30" : "border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30"}>
           <CardContent className="p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
@@ -220,7 +220,7 @@ export default function AdminBillingPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-gray-900">
+                    <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">
                       {centre?.isActive ? plan?.planName || "Premium Active" : "No Active Plan"}
                     </h2>
                     <Badge variant={centre?.isActive ? "success" : "warning"}>
@@ -228,11 +228,11 @@ export default function AdminBillingPage() {
                     </Badge>
                   </div>
                   {centre?.isActive && centre.premiumUntil ? (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-slate-400">
                       Expires {formatDate(centre.premiumUntil)} · {centre.daysLeft} days left
                     </p>
                   ) : (
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-slate-400">
                       Subscribe to give all your students full access to Prepfly
                     </p>
                   )}
@@ -241,20 +241,20 @@ export default function AdminBillingPage() {
 
               <div className="flex gap-6 text-center">
                 <div>
-                  <p className="text-2xl font-bold text-gray-900">{centre?.studentCount ?? 0}</p>
-                  <p className="text-xs text-gray-500">Students</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{centre?.studentCount ?? 0}</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-400">Students</p>
                 </div>
                 {plan && (
                   <div>
-                    <p className="text-2xl font-bold text-gray-900">{plan.maxStudents}</p>
-                    <p className="text-xs text-gray-500">Max Allowed</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{plan.maxStudents}</p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">Max Allowed</p>
                   </div>
                 )}
               </div>
             </div>
 
             {centre?.isActive && centre.daysLeft <= 7 && (
-              <div className="mt-4 rounded-lg bg-amber-100 p-3 text-sm text-amber-800">
+              <div className="mt-4 rounded-lg bg-amber-100 p-3 text-sm text-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
                 Your plan expires in {centre.daysLeft} day{centre.daysLeft === 1 ? "" : "s"}. Renew now to avoid interruption for your students.
               </div>
             )}
@@ -263,7 +263,7 @@ export default function AdminBillingPage() {
 
         {/* Plan Cards */}
         <div>
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">
             {centre?.isActive ? "Renew or Upgrade Your Plan" : "Choose a Plan"}
           </h2>
           <div className="grid gap-6 lg:grid-cols-3">
@@ -290,16 +290,16 @@ export default function AdminBillingPage() {
                   <div className={`h-2 w-full bg-gradient-to-r ${p.color}`} />
 
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900">{p.name}</h3>
+                    <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">{p.name}</h3>
                     <div className="mt-2 flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-gray-900">₹{p.price.toLocaleString("en-IN")}</span>
-                      <span className="text-sm text-gray-500">/month</span>
+                      <span className="text-3xl font-extrabold text-gray-900 dark:text-slate-100">₹{p.price.toLocaleString("en-IN")}</span>
+                      <span className="text-sm text-gray-500 dark:text-slate-400">/month</span>
                     </div>
-                    <p className="mt-1 text-sm text-gray-500">Up to {p.maxStudents} students</p>
+                    <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">Up to {p.maxStudents} students</p>
 
                     <ul className="mt-5 space-y-2.5">
                       {p.features.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-sm text-gray-700">
+                        <li key={f} className="flex items-start gap-2 text-sm text-gray-700 dark:text-slate-300">
                           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
                           {f}
                         </li>
@@ -328,9 +328,9 @@ export default function AdminBillingPage() {
         </div>
 
         {/* How it works */}
-        <Card className="border-indigo-100 bg-indigo-50">
+        <Card className="border-indigo-100 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/40">
           <CardContent className="p-6">
-            <h3 className="mb-4 font-semibold text-indigo-900">How centre plans work</h3>
+            <h3 className="mb-4 font-semibold text-indigo-900 dark:text-indigo-200">How centre plans work</h3>
             <div className="grid gap-4 sm:grid-cols-3">
               {[
                 { icon: CreditCard, title: "Subscribe", desc: "Choose a plan and pay via Razorpay — UPI, card, or net banking" },
@@ -338,10 +338,10 @@ export default function AdminBillingPage() {
                 { icon: Shield, title: "Auto-renewal", desc: "Renew any time before expiry to extend without interruption" },
               ].map((item) => (
                 <div key={item.title} className="flex gap-3">
-                  <item.icon className="h-5 w-5 shrink-0 text-indigo-600 mt-0.5" />
+                  <item.icon className="h-5 w-5 shrink-0 text-indigo-600 mt-0.5 dark:text-indigo-400" />
                   <div>
-                    <p className="text-sm font-semibold text-indigo-900">{item.title}</p>
-                    <p className="text-xs text-indigo-700 mt-0.5">{item.desc}</p>
+                    <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">{item.title}</p>
+                    <p className="text-xs text-indigo-700 mt-0.5 dark:text-indigo-400">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -352,34 +352,34 @@ export default function AdminBillingPage() {
         {/* Billing History */}
         {history.length > 0 && (
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-gray-900">Billing History</h2>
+            <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Billing History</h2>
             <Card>
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-100 bg-gray-50">
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Plan</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Amount</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Start</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Expiry</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Status</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500">Payment ID</th>
+                      <tr className="border-b border-gray-100 bg-gray-50 dark:border-slate-700 dark:bg-slate-800">
+                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Plan</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Amount</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Start</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Expiry</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Status</th>
+                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Payment ID</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50">
+                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
                       {history.map((h) => (
-                        <tr key={h.id} className="hover:bg-gray-50">
-                          <td className="px-4 py-3 font-medium text-gray-900">{h.planName}</td>
-                          <td className="px-4 py-3 text-gray-700">{formatAmount(h.monthlyPrice)}</td>
-                          <td className="px-4 py-3 text-gray-600">{formatDate(h.startDate)}</td>
-                          <td className="px-4 py-3 text-gray-600">{h.endDate ? formatDate(h.endDate) : "—"}</td>
+                        <tr key={h.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40">
+                          <td className="px-4 py-3 font-medium text-gray-900 dark:text-slate-100">{h.planName}</td>
+                          <td className="px-4 py-3 text-gray-700 dark:text-slate-300">{formatAmount(h.monthlyPrice)}</td>
+                          <td className="px-4 py-3 text-gray-600 dark:text-slate-400">{formatDate(h.startDate)}</td>
+                          <td className="px-4 py-3 text-gray-600 dark:text-slate-400">{h.endDate ? formatDate(h.endDate) : "—"}</td>
                           <td className="px-4 py-3">
                             <Badge variant={h.status === "ACTIVE" ? "success" : "secondary"}>
                               {h.status}
                             </Badge>
                           </td>
-                          <td className="px-4 py-3 font-mono text-xs text-gray-400">
+                          <td className="px-4 py-3 font-mono text-xs text-gray-400 dark:text-slate-500">
                             {h.payment?.razorpayPaymentId || "—"}
                           </td>
                         </tr>

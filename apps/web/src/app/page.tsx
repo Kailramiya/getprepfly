@@ -27,15 +27,15 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md">
+      <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/80">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/">
             <Logo size="sm" />
           </Link>
           <div className="hidden items-center gap-8 md:flex">
-            <Link href="#features" className="text-sm text-gray-600 hover:text-gray-900">Features</Link>
-            <Link href="/download" className="text-sm text-gray-600 hover:text-gray-900">Download App</Link>
-            <Link href="#centres" className="text-sm text-gray-600 hover:text-gray-900">For Centres</Link>
+            <Link href="#features" className="text-sm text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Features</Link>
+            <Link href="/download" className="text-sm text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Download App</Link>
+            <Link href="#centres" className="text-sm text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">For Centres</Link>
           </div>
           <div className="flex items-center gap-3">
             <Link href="/login">
@@ -76,12 +76,12 @@ export default async function HomePage() {
       </section>
 
       {/* Stats */}
-      <section className="border-y border-gray-200 bg-white">
+      <section className="border-y border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-12 sm:px-6 md:grid-cols-4 lg:px-8">
           {stats.map((stat) => (
             <div key={stat.label} className="text-center">
               <p className="text-3xl font-bold bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent">{stat.value}</p>
-              <p className="mt-1 text-sm text-gray-600">{stat.label}</p>
+              <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">{stat.label}</p>
             </div>
           ))}
         </div>
@@ -91,17 +91,17 @@ export default async function HomePage() {
       <section id="features" className="py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h2 className="text-3xl font-bold text-gray-900">Everything you need to crack PTE</h2>
-            <p className="mt-4 text-lg text-gray-600">Practice smarter with AI-powered feedback on every question</p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Everything you need to crack PTE</h2>
+            <p className="mt-4 text-lg text-gray-600 dark:text-slate-400">Practice smarter with AI-powered feedback on every question</p>
           </div>
           <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((feature) => (
-              <div key={feature.title} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md">
-                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-teal-100">
-                  <feature.icon className="h-6 w-6 text-teal-600" />
+              <div key={feature.title} className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-teal-100 dark:bg-teal-950/30">
+                  <feature.icon className="h-6 w-6 text-teal-600 dark:text-teal-400" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold text-gray-900">{feature.title}</h3>
-                <p className="mt-2 text-sm text-gray-600">{feature.desc}</p>
+                <h3 className="mt-4 text-lg font-semibold text-gray-900 dark:text-slate-100">{feature.title}</h3>
+                <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">{feature.desc}</p>
               </div>
             ))}
           </div>
@@ -130,34 +130,34 @@ export default async function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white py-12">
+      <footer className="border-t border-gray-200 bg-white py-12 dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-8 sm:grid-cols-3">
             <div>
               <Logo size="sm" />
-              <p className="mt-3 text-sm text-gray-500">
+              <p className="mt-3 text-sm text-gray-500 dark:text-slate-400">
                 AI-powered PTE practice platform. Made in India for students who dream of going abroad.
               </p>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-gray-900">Platform</h4>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Platform</h4>
               <ul className="mt-3 space-y-2">
-                <li><Link href="/register" className="text-sm text-gray-500 hover:text-gray-900">Sign Up Free</Link></li>
-                <li><Link href="/login" className="text-sm text-gray-500 hover:text-gray-900">Log In</Link></li>
-                <li><Link href="/download" className="text-sm text-gray-500 hover:text-gray-900">Download App</Link></li>
-                <li><Link href="/register?role=centre" className="text-sm text-gray-500 hover:text-gray-900">Register Centre</Link></li>
+                <li><Link href="/register" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Sign Up Free</Link></li>
+                <li><Link href="/login" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Log In</Link></li>
+                <li><Link href="/download" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Download App</Link></li>
+                <li><Link href="/register?role=centre" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Register Centre</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-gray-900">Get the App</h4>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Get the App</h4>
               <ul className="mt-3 space-y-2">
-                <li><Link href="/download" className="text-sm text-gray-500 hover:text-gray-900">Web App (PWA)</Link></li>
-                <li><span className="text-sm text-gray-400">Android — Coming Soon</span></li>
-                <li><span className="text-sm text-gray-400">iOS — Coming Soon</span></li>
+                <li><Link href="/download" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Web App (PWA)</Link></li>
+                <li><span className="text-sm text-gray-400 dark:text-slate-500">Android — Coming Soon</span></li>
+                <li><span className="text-sm text-gray-400 dark:text-slate-500">iOS — Coming Soon</span></li>
               </ul>
             </div>
           </div>
-          <div className="mt-8 border-t border-gray-100 pt-8 text-center text-xs text-gray-400">
+          <div className="mt-8 border-t border-gray-100 pt-8 text-center text-xs text-gray-400 dark:border-slate-800 dark:text-slate-500">
             &copy; {new Date().getFullYear()} Prepfly. All rights reserved. Free during beta.
           </div>
         </div>

@@ -3,7 +3,7 @@ import Image from "next/image";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
+    <div className="flex min-h-screen dark:bg-slate-900">
       {/* Left Panel — Branding */}
       <div className="hidden w-1/2 bg-gradient-to-br from-teal-500 via-indigo-600 to-purple-700 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <Link href="/" className="flex items-center gap-3">
