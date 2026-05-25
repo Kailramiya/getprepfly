@@ -55,7 +55,8 @@ export default function SuperAdminMockTestsPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ title, mockType, section: mockType === "SECTIONAL" ? section : undefined }),
       });
-      const data = await res.json();
+      let data: any;
+      try { data = await res.json(); } catch { data = {}; }
       if (data.success) {
         setTemplates(prev => [data.data, ...prev]);
         setTitle("");
@@ -63,10 +64,10 @@ export default function SuperAdminMockTestsPage() {
         setSection("SPEAKING");
         setShowForm(false);
       } else {
-        setError(data.error || "Failed to create");
+        setError(data.error || `Server error (${res.status}). Please try again.`);
       }
-    } catch {
-      setError("Network error. Please try again.");
+    } catch (err: any) {
+      setError(err?.message || "Network error. Please try again.");
     } finally {
       setSaving(false);
     }

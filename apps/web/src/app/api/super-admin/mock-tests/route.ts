@@ -44,48 +44,52 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Invalid section for sectional test" }, { status: 400 });
   }
 
-  // Determine which sections/types to include
-  const structure = mockType === "FULL"
-    ? FULL_STRUCTURE
-    : { [section]: SECTIONAL_STRUCTURE[section] };
+  try {
+    // Determine which sections/types to include
+    const structure = mockType === "FULL"
+      ? FULL_STRUCTURE
+      : { [section]: SECTIONAL_STRUCTURE[section] };
 
-  // Pick random questions from global pool (centreId = null)
-  const questionSelections: { questionId: string; order: number }[] = [];
-  let order = 0;
+    const questionSelections: { questionId: string; order: number }[] = [];
+    let order = 0;
 
-  for (const [sec, types] of Object.entries(structure)) {
-    for (const [type, count] of Object.entries(types)) {
-      const questions = await db.question.findMany({
-        where: { section: sec as any, type: type as any, isActive: true },
-        select: { id: true },
-        take: count * 3,
-      });
-      const shuffled = questions.sort(() => Math.random() - 0.5).slice(0, Math.min(count, questions.length));
-      for (const q of shuffled) {
-        questionSelections.push({ questionId: q.id, order: order++ });
+    for (const [sec, types] of Object.entries(structure)) {
+      for (const [type, count] of Object.entries(types)) {
+        const questions = await db.question.findMany({
+          where: { section: sec as any, type: type as any, isActive: true },
+          select: { id: true },
+          take: count * 3,
+        });
+        const shuffled = questions.sort(() => Math.random() - 0.5).slice(0, Math.min(count, questions.length));
+        for (const q of shuffled) {
+          questionSelections.push({ questionId: q.id, order: order++ });
+        }
       }
     }
+
+    if (questionSelections.length === 0) {
+      return NextResponse.json({ success: false, error: "Not enough questions available. Add questions first." }, { status: 400 });
+    }
+
+    const template = await db.mockTest.create({
+      data: {
+        userId: user!.id,
+        title: title.trim(),
+        mockType,
+        section: mockType === "SECTIONAL" ? section : null,
+        isTemplate: true,
+        status: "IN_PROGRESS",
+        currentSection: (mockType === "SECTIONAL" ? section : "SPEAKING") as any,
+        questions: { create: questionSelections },
+      },
+      include: { _count: { select: { questions: true } } },
+    });
+
+    return NextResponse.json({ success: true, data: template }, { status: 201 });
+  } catch (err) {
+    console.error("Template creation error:", err);
+    return NextResponse.json({ success: false, error: "Failed to create template. Please ensure the database schema is up to date." }, { status: 500 });
   }
-
-  if (questionSelections.length === 0) {
-    return NextResponse.json({ success: false, error: "Not enough global questions to build this test. Add public questions first." }, { status: 400 });
-  }
-
-  const template = await db.mockTest.create({
-    data: {
-      userId: user!.id,
-      title: title.trim(),
-      mockType,
-      section: mockType === "SECTIONAL" ? section : null,
-      isTemplate: true,
-      status: "IN_PROGRESS",
-      currentSection: (mockType === "SECTIONAL" ? section : "SPEAKING") as any,
-      questions: { create: questionSelections },
-    },
-    include: { _count: { select: { questions: true } } },
-  });
-
-  return NextResponse.json({ success: true, data: template }, { status: 201 });
 }
 
 // DELETE /api/super-admin/mock-tests?id=xxx

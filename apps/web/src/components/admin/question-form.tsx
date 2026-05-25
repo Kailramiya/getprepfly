@@ -486,15 +486,16 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
           tags: tags.split(",").map((t: string) => t.trim()).filter(Boolean),
         }),
       });
-      const data = await res.json();
+      let data: any;
+      try { data = await res.json(); } catch { data = {}; }
       if (data.success) {
         onSave(data.data);
         onClose();
       } else {
-        setError(data.error || "Failed to save question");
+        setError(data.error || `Server error (${res.status}). Please try again.`);
       }
-    } catch {
-      setError("Network error. Please try again.");
+    } catch (err: any) {
+      setError(err?.message || "Network error. Please try again.");
     } finally {
       setSaving(false);
     }

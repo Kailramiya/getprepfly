@@ -64,8 +64,6 @@ export async function GET(req: NextRequest) {
 
   const where: any = {
     isActive: true,
-    // Students never see mock-test-only questions
-    ...(!isAdmin && { mockTestOnly: false }),
     AND: [
       { OR: visibilityConditions },
       ...(search
@@ -150,7 +148,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     section, type, difficulty, title, content, explanation,
-    modelAnswer, audioUrl, imageUrl, tags, isPrediction, marks, isPublic, mockTestOnly,
+    modelAnswer, audioUrl, imageUrl, tags, isPrediction, marks, isPublic,
   } = body;
 
   if (!section || !type || !title || !content) {
@@ -190,7 +188,6 @@ export async function POST(req: NextRequest) {
       isPrediction: isPrediction || false,
       marks: typeof marks === "number" && marks > 0 ? marks : 1,
       isPublic: autoPublic,
-      mockTestOnly: user!.role === "SUPER_ADMIN" ? (mockTestOnly === true) : false,
       // Centre-specific if centre admin, global if super admin
       centreId: user!.role === "SUPER_ADMIN" ? null : user!.centreId || null,
     },
