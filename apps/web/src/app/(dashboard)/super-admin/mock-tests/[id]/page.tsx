@@ -24,7 +24,6 @@ interface TemplateQuestion {
     type: string;
     title: string;
     difficulty: string;
-    mockTestOnly?: boolean;
     audioUrl?: string | null;
     imageUrl?: string | null;
   };
@@ -44,7 +43,6 @@ interface BankQuestion {
   type: string;
   title: string;
   difficulty: string;
-  mockTestOnly: boolean;
 }
 
 // ─── constants ───────────────────────────────────────────────────────────────
@@ -309,11 +307,6 @@ export default function TemplateDetailPage() {
                         <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium ${DIFFICULTY_COLORS[tq.question.difficulty]}`}>
                           {tq.question.difficulty}
                         </span>
-                        {tq.question.mockTestOnly && (
-                          <span className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400">
-                            Mock Only
-                          </span>
-                        )}
                       </div>
                     </div>
 
@@ -433,11 +426,6 @@ export default function TemplateDetailPage() {
                               {q.section}
                             </span>
                             <span className="text-xs text-gray-400 dark:text-slate-500">{q.type.replace(/_/g, " ")}</span>
-                            {q.mockTestOnly && (
-                              <span className="inline-flex items-center rounded px-1.5 py-0.5 text-xs font-medium bg-purple-100 text-purple-700 dark:bg-purple-950/50 dark:text-purple-400">
-                                Mock Only
-                              </span>
-                            )}
                             {already && (
                               <span className="text-xs text-gray-400 dark:text-slate-500">Already added</span>
                             )}

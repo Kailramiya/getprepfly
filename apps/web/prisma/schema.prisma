@@ -375,7 +375,6 @@ model Question {
   order         Int             @default(0) // for ordering in mock tests
   marks         Int             @default(1) // total marks for this question
   isPublic      Boolean         @default(false) // free for all users (set by super admin)
-  mockTestOnly  Boolean         @default(false) // only shown in mock tests, hidden from practice
   tags          String[]        // ["transport", "science", "graph"]
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
