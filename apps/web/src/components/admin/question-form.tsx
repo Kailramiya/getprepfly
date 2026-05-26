@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MediaUploader } from "@/components/admin/media-uploader";
@@ -331,6 +331,9 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     }
     return [""];
   });
+  const [dropdownOptions, setDropdownOptions] = useState<string>(
+    Array.isArray(initialContent.options) ? initialContent.options.join(", ") : ""
+  );
 
   // For HIGHLIGHT_INCORRECT_WORDS:
   // - transcriptText = the displayed paragraph (with WRONG words inserted by admin)
@@ -381,6 +384,19 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     next[idx] = value;
     setFillBlanksAnswers(next);
   };
+
+  // Auto-sync answer field count to number of [blank] markers in passage
+  const blankMarkerCount = (fillBlanksPassage.match(/\[blank\]/gi) || []).length;
+  useEffect(() => {
+    if (blankMarkerCount === 0) return;
+    setFillBlanksAnswers((prev) => {
+      if (prev.length === blankMarkerCount) return prev;
+      if (prev.length < blankMarkerCount) {
+        return [...prev, ...Array(blankMarkerCount - prev.length).fill("")];
+      }
+      return prev.slice(0, blankMarkerCount);
+    });
+  }, [blankMarkerCount]);
 
   const validate = (): string | null => {
     if (!title.trim()) return "Please enter a title";
@@ -440,6 +456,10 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     if (fields.has("fill-blanks")) {
       content.passage = fillBlanksPassage;
       content.blanks = fillBlanksAnswers.filter((a) => a.trim());
+      // For dropdown type, save the pool of all options (correct + distractors)
+      if (typeValue === "READING_FILL_BLANKS_DROPDOWN" && dropdownOptions.trim()) {
+        content.options = dropdownOptions.split(",").map((s: string) => s.trim()).filter(Boolean);
+      }
     }
     if (fields.has("incorrect-words")) {
       content.transcript = transcriptText;
@@ -977,9 +997,16 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                         placeholder="The cat sat on the [blank]. It was a sunny [blank]."
                         rows={5}
                       />
-                      <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">
-                        Use <code className="rounded bg-gray-100 dark:bg-slate-700 dark:text-slate-300 px-1 py-0.5">[blank]</code> where you want students to fill in a word.
-                      </p>
+                      <div className="mt-1 flex items-center justify-between">
+                        <p className="text-xs text-gray-500 dark:text-slate-500">
+                          Use <code className="rounded bg-gray-100 dark:bg-slate-700 dark:text-slate-300 px-1 py-0.5">[blank]</code> where students fill in a word.
+                        </p>
+                        {blankMarkerCount > 0 && (
+                          <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
+                            {blankMarkerCount} blank{blankMarkerCount !== 1 ? "s" : ""} detected
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div>
@@ -1005,14 +1032,36 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                             )}
                           </div>
                         ))}
-                        <button
-                          onClick={addBlankAnswer}
-                          className="flex items-center gap-1 text-xs text-indigo-600 hover:underline"
-                        >
-                          <Plus className="h-3 w-3" /> Add another blank answer
-                        </button>
+                        {blankMarkerCount === 0 && (
+                          <button
+                            onClick={addBlankAnswer}
+                            className="flex items-center gap-1 text-xs text-indigo-600 hover:underline"
+                          >
+                            <Plus className="h-3 w-3" /> Add another blank answer
+                          </button>
+                        )}
                       </div>
+                      {blankMarkerCount > 0 && fillBlanksAnswers.length !== blankMarkerCount && (
+                        <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+                          ⚠ {blankMarkerCount} blanks in passage but {fillBlanksAnswers.length} answer{fillBlanksAnswers.length !== 1 ? "s" : ""} — auto-syncing.
+                        </p>
+                      )}
                     </div>
+
+                    {/* Dropdown options (only for dropdown type) */}
+                    {typeValue === "READING_FILL_BLANKS_DROPDOWN" && (
+                      <div>
+                        <Label required>Dropdown Options (all choices, comma-separated)</Label>
+                        <Input
+                          value={dropdownOptions}
+                          onChange={(e) => setDropdownOptions(e.target.value)}
+                          placeholder="e.g. run, walk, sat, stood, morning, evening"
+                        />
+                        <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">
+                          Include the correct answers plus distractors. Students pick from these in each dropdown.
+                        </p>
+                      </div>
+                    )}
                   </>
                 )}
 
