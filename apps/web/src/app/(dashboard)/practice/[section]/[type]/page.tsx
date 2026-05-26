@@ -455,7 +455,9 @@ export default function PracticeQuestionPage() {
       </Card>
 
       {/* Model Answer — shown after submission OR when Show Answer is toggled */}
-      {(submitted || showAnswer) && currentQuestion?.modelAnswer && (
+      {/* Hidden for fill-blanks types because the per-blank Correct Answers section already shows this */}
+      {(submitted || showAnswer) && currentQuestion?.modelAnswer &&
+        !["READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS"].includes(type) && (
         <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base text-green-800 dark:text-green-300">
