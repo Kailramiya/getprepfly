@@ -481,7 +481,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
       content.passage = fillBlanksPassage;
       content.blanks = blankItems.map((b) => ({
         correctAnswer: b.options[b.correctIndex]?.trim() || "",
-        options: b.options.filter((o) => o.trim()),
+        options: b.options.map((o) => o.trim()).filter(Boolean),
       }));
     }
     if (fields.has("incorrect-words")) {

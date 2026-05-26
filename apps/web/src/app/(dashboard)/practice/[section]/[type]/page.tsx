@@ -2810,15 +2810,15 @@ function FillBlanksDrag({
                 const mistakes: ScoreResult["mistakes"] = [];
                 let correctCount = 0;
                 normalizedBlanks.forEach((b, i) => {
-                  const given = (filled[i] || "").toLowerCase();
-                  const expected = (b.correctAnswer || "").toLowerCase();
+                  const given = (filled[i] || "").trim().toLowerCase();
+                  const expected = (b.correctAnswer || "").trim().toLowerCase();
                   if (expected && given === expected) {
                     correctCount++;
                   } else {
                     mistakes.push({
                       position: i + 1,
-                      yourAnswer: filled[i] || "(empty)",
-                      correctAnswer: b.correctAnswer || "—",
+                      yourAnswer: (filled[i] || "").trim() || "(empty)",
+                      correctAnswer: (b.correctAnswer || "").trim() || "—",
                     });
                   }
                 });
@@ -2853,14 +2853,15 @@ function FillBlanksDrag({
             const mistakes: ScoreResult["mistakes"] = [];
             let correctCount = 0;
             normalizedBlanks.forEach((b, i) => {
-              const given = filled[i] || "";
-              if (given.toLowerCase() === (b.correctAnswer || "").toLowerCase()) {
+              const given = (filled[i] || "").trim();
+              const correct = (b.correctAnswer || "").trim();
+              if (given.toLowerCase() === correct.toLowerCase()) {
                 correctCount++;
               } else {
                 mistakes.push({
                   position: i + 1,
                   yourAnswer: given || "(empty)",
-                  correctAnswer: b.correctAnswer,
+                  correctAnswer: correct,
                 });
               }
             });
@@ -2922,7 +2923,7 @@ function FillBlanksDropdown({
             const blank = normalizedBlanks[thisIndex] || { correctAnswer: "", options: [] };
             const isCorrect =
               submitted && value && blank.correctAnswer &&
-              value.toLowerCase() === blank.correctAnswer.toLowerCase();
+              value.trim().toLowerCase() === blank.correctAnswer.trim().toLowerCase();
 
             return (
               <select
@@ -2946,7 +2947,7 @@ function FillBlanksDropdown({
               >
                 <option value="">— choose —</option>
                 {(blank.options || []).map((opt, j) => (
-                  <option key={j} value={opt}>{opt}</option>
+                  <option key={j} value={opt.trim()}>{opt.trim()}</option>
                 ))}
               </select>
             );
@@ -2979,13 +2980,14 @@ function FillBlanksDropdown({
           let correctCount = 0;
           normalizedBlanks.forEach((b, i) => {
             const given = (answers[i] || "").trim();
-            if (given.toLowerCase() === (b.correctAnswer || "").toLowerCase()) {
+            const correct = (b.correctAnswer || "").trim();
+            if (given.toLowerCase() === correct.toLowerCase()) {
               correctCount++;
             } else {
               mistakes.push({
                 position: i + 1,
                 yourAnswer: given || "(empty)",
-                correctAnswer: b.correctAnswer,
+                correctAnswer: correct,
               });
             }
           });
@@ -3037,7 +3039,7 @@ function FillBlanksText({
             blankIdx++;
             const thisIndex = blankIdx;
             const value = answers[thisIndex];
-            const correct = normalizedBlanks[thisIndex]?.correctAnswer;
+            const correct = normalizedBlanks[thisIndex]?.correctAnswer?.trim();
             const isCorrect =
               submitted && value && correct && value.trim().toLowerCase() === correct.toLowerCase();
 
@@ -3093,13 +3095,14 @@ function FillBlanksText({
           let correctCount = 0;
           normalizedBlanks.forEach((b, i) => {
             const given = (answers[i] || "").trim();
-            if (given.toLowerCase() === (b.correctAnswer || "").toLowerCase()) {
+            const correct = (b.correctAnswer || "").trim();
+            if (given.toLowerCase() === correct.toLowerCase()) {
               correctCount++;
             } else {
               mistakes.push({
                 position: i + 1,
                 yourAnswer: given || "(empty)",
-                correctAnswer: b.correctAnswer,
+                correctAnswer: correct,
               });
             }
           });
