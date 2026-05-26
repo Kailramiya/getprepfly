@@ -325,15 +325,15 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
   const [fillBlanksPassage, setFillBlanksPassage] = useState(
     initialContent.passage && (typeValue || "").includes("FILL_BLANKS") ? initialContent.passage : ""
   );
-  const makeEmptyBlank = (): BlankItem => ({ options: ["", "", "", ""], correctIndex: 0 });
+  const makeEmptyBlank = (): BlankItem => ({ options: ["", ""], correctIndex: 0 });
   const [blankItems, setBlankItems] = useState<BlankItem[]>(() => {
     if (Array.isArray(initialContent.blanks) && initialContent.blanks.length > 0) {
       return initialContent.blanks.map((b: any) => {
         if (typeof b === "string") {
           return { options: [b, "", "", ""], correctIndex: 0 };
         }
-        const opts: string[] = Array.isArray(b.options) ? [...b.options] : [b.correctAnswer || b.answer || ""];
-        while (opts.length < 4) opts.push("");
+        const opts: string[] = Array.isArray(b.options) ? [...b.options] : [b.correctAnswer || b.answer || "", ""];
+        if (opts.length < 2) opts.push("");
         const correct = b.correctAnswer || b.answer || "";
         const correctIndex = Math.max(0, opts.indexOf(correct));
         return { options: opts, correctIndex };
@@ -389,6 +389,17 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
   };
   const setBlankCorrect = (blankIdx: number, optIdx: number) => {
     setBlankItems((prev) => prev.map((b, i) => i !== blankIdx ? b : { ...b, correctIndex: optIdx }));
+  };
+  const addBlankOption = (blankIdx: number) => {
+    setBlankItems((prev) => prev.map((b, i) => i !== blankIdx ? b : { ...b, options: [...b.options, ""] }));
+  };
+  const removeBlankOption = (blankIdx: number, optIdx: number) => {
+    setBlankItems((prev) => prev.map((b, i) => {
+      if (i !== blankIdx) return b;
+      const options = b.options.filter((_, j) => j !== optIdx);
+      const correctIndex = b.correctIndex === optIdx ? 0 : b.correctIndex > optIdx ? b.correctIndex - 1 : b.correctIndex;
+      return { options, correctIndex };
+    }));
   };
 
   // Auto-sync blank item count to number of [blank] markers in passage
@@ -1024,7 +1035,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                     {/* Per-blank options */}
                     {blankItems.length > 0 && (
                       <div className="space-y-4">
-                        <Label>Options for each blank <span className="ml-1 text-xs font-normal text-gray-500 dark:text-slate-400">(4 options per blank — click the radio button to mark the correct one)</span></Label>
+                        <Label>Options for each blank <span className="ml-1 text-xs font-normal text-gray-500 dark:text-slate-400">(minimum 2 — click the radio button to mark the correct one)</span></Label>
                         {blankItems.map((blank, blankIdx) => (
                           <div key={blankIdx} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 p-4 space-y-2">
                             <div className="flex items-center gap-2 mb-1">
@@ -1032,6 +1043,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                                 {blankIdx + 1}
                               </span>
                               <p className="text-sm font-medium text-gray-700 dark:text-slate-300">Blank #{blankIdx + 1}</p>
+                              <span className="ml-auto text-xs text-gray-400 dark:text-slate-500">{blank.options.length} option{blank.options.length !== 1 ? "s" : ""}</span>
                             </div>
                             {blank.options.map((opt, optIdx) => (
                               <div key={optIdx} className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition ${blank.correctIndex === optIdx ? "border-green-400 bg-green-50 dark:border-green-700 dark:bg-green-950/30" : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"}`}>
@@ -1046,12 +1058,25 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                                 <Input
                                   value={opt}
                                   onChange={(e) => updateBlankOption(blankIdx, optIdx, e.target.value)}
-                                  placeholder={`Option ${optIdx + 1}${blank.correctIndex === optIdx ? " ✓ correct" : ""}`}
+                                  placeholder={blank.correctIndex === optIdx ? "Correct answer" : `Option ${optIdx + 1}`}
                                   className="border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
                                 />
+                                {blank.options.length > 2 && (
+                                  <button
+                                    onClick={() => removeBlankOption(blankIdx, optIdx)}
+                                    className="shrink-0 rounded p-1 text-gray-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                )}
                               </div>
                             ))}
-                            <p className="text-xs text-gray-400 dark:text-slate-500 pt-1">Click the radio button on the left of the correct option</p>
+                            <button
+                              onClick={() => addBlankOption(blankIdx)}
+                              className="flex items-center gap-1 pt-1 text-xs text-indigo-600 hover:underline dark:text-indigo-400"
+                            >
+                              <Plus className="h-3 w-3" /> Add option
+                            </button>
                           </div>
                         ))}
                       </div>
