@@ -269,6 +269,8 @@ const DIFFICULTIES = [
 // COMPONENT
 // ============================================================================
 
+interface BlankItem { options: string[]; correctIndex: number; }
+
 interface QuestionFormProps {
   onClose: () => void;
   onSave: (question?: any) => void;
@@ -323,17 +325,22 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
   const [fillBlanksPassage, setFillBlanksPassage] = useState(
     initialContent.passage && (typeValue || "").includes("FILL_BLANKS") ? initialContent.passage : ""
   );
-  const [fillBlanksAnswers, setFillBlanksAnswers] = useState<string[]>(() => {
+  const makeEmptyBlank = (): BlankItem => ({ options: ["", "", "", ""], correctIndex: 0 });
+  const [blankItems, setBlankItems] = useState<BlankItem[]>(() => {
     if (Array.isArray(initialContent.blanks) && initialContent.blanks.length > 0) {
-      return initialContent.blanks.map((b: any) =>
-        typeof b === "string" ? b : b?.correctAnswer || b?.answer || ""
-      );
+      return initialContent.blanks.map((b: any) => {
+        if (typeof b === "string") {
+          return { options: [b, "", "", ""], correctIndex: 0 };
+        }
+        const opts: string[] = Array.isArray(b.options) ? [...b.options] : [b.correctAnswer || b.answer || ""];
+        while (opts.length < 4) opts.push("");
+        const correct = b.correctAnswer || b.answer || "";
+        const correctIndex = Math.max(0, opts.indexOf(correct));
+        return { options: opts, correctIndex };
+      });
     }
-    return [""];
+    return [makeEmptyBlank()];
   });
-  const [dropdownOptions, setDropdownOptions] = useState<string>(
-    Array.isArray(initialContent.options) ? initialContent.options.join(", ") : ""
-  );
 
   // For HIGHLIGHT_INCORRECT_WORDS:
   // - transcriptText = the displayed paragraph (with WRONG words inserted by admin)
@@ -377,22 +384,21 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     setParagraphs(next);
   };
 
-  const addBlankAnswer = () => setFillBlanksAnswers([...fillBlanksAnswers, ""]);
-  const removeBlankAnswer = (idx: number) => setFillBlanksAnswers(fillBlanksAnswers.filter((_, i) => i !== idx));
-  const updateBlankAnswer = (idx: number, value: string) => {
-    const next = [...fillBlanksAnswers];
-    next[idx] = value;
-    setFillBlanksAnswers(next);
+  const updateBlankOption = (blankIdx: number, optIdx: number, value: string) => {
+    setBlankItems((prev) => prev.map((b, i) => i !== blankIdx ? b : { ...b, options: b.options.map((o, j) => j === optIdx ? value : o) }));
+  };
+  const setBlankCorrect = (blankIdx: number, optIdx: number) => {
+    setBlankItems((prev) => prev.map((b, i) => i !== blankIdx ? b : { ...b, correctIndex: optIdx }));
   };
 
-  // Auto-sync answer field count to number of [blank] markers in passage
+  // Auto-sync blank item count to number of [blank] markers in passage
   const blankMarkerCount = (fillBlanksPassage.match(/\[blank\]/gi) || []).length;
   useEffect(() => {
     if (blankMarkerCount === 0) return;
-    setFillBlanksAnswers((prev) => {
+    setBlankItems((prev) => {
       if (prev.length === blankMarkerCount) return prev;
       if (prev.length < blankMarkerCount) {
-        return [...prev, ...Array(blankMarkerCount - prev.length).fill("")];
+        return [...prev, ...Array(blankMarkerCount - prev.length).fill(null).map(makeEmptyBlank)];
       }
       return prev.slice(0, blankMarkerCount);
     });
@@ -418,7 +424,14 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
       if (filled < 2) return "Please add at least 2 paragraphs";
     }
 
-    if (fields.has("fill-blanks") && !fillBlanksPassage.trim()) return "Please enter the passage with [blank] markers";
+    if (fields.has("fill-blanks")) {
+      if (!fillBlanksPassage.trim()) return "Please enter the passage with [blank] markers";
+      for (let i = 0; i < blankItems.length; i++) {
+        const filled = blankItems[i].options.filter((o) => o.trim());
+        if (filled.length < 2) return `Blank #${i + 1} needs at least 2 options`;
+        if (!blankItems[i].options[blankItems[i].correctIndex]?.trim()) return `Blank #${i + 1} — mark the correct option`;
+      }
+    }
 
     if (fields.has("incorrect-words")) {
       if (!transcriptText.trim()) return "Please enter the transcript text";
@@ -455,11 +468,10 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     }
     if (fields.has("fill-blanks")) {
       content.passage = fillBlanksPassage;
-      content.blanks = fillBlanksAnswers.filter((a) => a.trim());
-      // For dropdown type, save the pool of all options (correct + distractors)
-      if (typeValue === "READING_FILL_BLANKS_DROPDOWN" && dropdownOptions.trim()) {
-        content.options = dropdownOptions.split(",").map((s: string) => s.trim()).filter(Boolean);
-      }
+      content.blanks = blankItems.map((b) => ({
+        correctAnswer: b.options[b.correctIndex]?.trim() || "",
+        options: b.options.filter((o) => o.trim()),
+      }));
     }
     if (fields.has("incorrect-words")) {
       content.transcript = transcriptText;
@@ -1003,63 +1015,45 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                         </p>
                         {blankMarkerCount > 0 && (
                           <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400">
-                            {blankMarkerCount} blank{blankMarkerCount !== 1 ? "s" : ""} detected
+                            {blankMarkerCount} blank{blankMarkerCount !== 1 ? "s" : ""} detected — {blankItems.length} configured
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <div>
-                      <Label>Correct Answers (in order)</Label>
-                      <div className="mt-2 space-y-2">
-                        {fillBlanksAnswers.map((ans, i) => (
-                          <div key={i} className="flex items-center gap-2">
-                            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 dark:bg-slate-700 text-xs font-bold text-gray-600 dark:text-slate-300">
-                              {i + 1}
-                            </span>
-                            <Input
-                              value={ans}
-                              onChange={(e) => updateBlankAnswer(i, e.target.value)}
-                              placeholder={`Answer for blank #${i + 1}`}
-                            />
-                            {fillBlanksAnswers.length > 1 && (
-                              <button
-                                onClick={() => removeBlankAnswer(i)}
-                                className="rounded-md p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            )}
+                    {/* Per-blank options */}
+                    {blankItems.length > 0 && (
+                      <div className="space-y-4">
+                        <Label>Options for each blank <span className="ml-1 text-xs font-normal text-gray-500 dark:text-slate-400">(4 options per blank — click the radio button to mark the correct one)</span></Label>
+                        {blankItems.map((blank, blankIdx) => (
+                          <div key={blankIdx} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 p-4 space-y-2">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950 text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                                {blankIdx + 1}
+                              </span>
+                              <p className="text-sm font-medium text-gray-700 dark:text-slate-300">Blank #{blankIdx + 1}</p>
+                            </div>
+                            {blank.options.map((opt, optIdx) => (
+                              <div key={optIdx} className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition ${blank.correctIndex === optIdx ? "border-green-400 bg-green-50 dark:border-green-700 dark:bg-green-950/30" : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"}`}>
+                                <input
+                                  type="radio"
+                                  name={`blank-${blankIdx}-correct`}
+                                  checked={blank.correctIndex === optIdx}
+                                  onChange={() => setBlankCorrect(blankIdx, optIdx)}
+                                  className="h-4 w-4 cursor-pointer accent-green-600"
+                                  title="Mark as correct"
+                                />
+                                <Input
+                                  value={opt}
+                                  onChange={(e) => updateBlankOption(blankIdx, optIdx, e.target.value)}
+                                  placeholder={`Option ${optIdx + 1}${blank.correctIndex === optIdx ? " ✓ correct" : ""}`}
+                                  className="border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+                                />
+                              </div>
+                            ))}
+                            <p className="text-xs text-gray-400 dark:text-slate-500 pt-1">Click the radio button on the left of the correct option</p>
                           </div>
                         ))}
-                        {blankMarkerCount === 0 && (
-                          <button
-                            onClick={addBlankAnswer}
-                            className="flex items-center gap-1 text-xs text-indigo-600 hover:underline"
-                          >
-                            <Plus className="h-3 w-3" /> Add another blank answer
-                          </button>
-                        )}
-                      </div>
-                      {blankMarkerCount > 0 && fillBlanksAnswers.length !== blankMarkerCount && (
-                        <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
-                          ⚠ {blankMarkerCount} blanks in passage but {fillBlanksAnswers.length} answer{fillBlanksAnswers.length !== 1 ? "s" : ""} — auto-syncing.
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Dropdown options (only for dropdown type) */}
-                    {typeValue === "READING_FILL_BLANKS_DROPDOWN" && (
-                      <div>
-                        <Label required>Dropdown Options (all choices, comma-separated)</Label>
-                        <Input
-                          value={dropdownOptions}
-                          onChange={(e) => setDropdownOptions(e.target.value)}
-                          placeholder="e.g. run, walk, sat, stood, morning, evening"
-                        />
-                        <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">
-                          Include the correct answers plus distractors. Students pick from these in each dropdown.
-                        </p>
                       </div>
                     )}
                   </>
