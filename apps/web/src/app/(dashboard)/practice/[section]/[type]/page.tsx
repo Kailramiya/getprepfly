@@ -434,6 +434,7 @@ export default function PracticeQuestionPage() {
             key={currentQuestion?.id}
             question={currentQuestion}
             submitted={submitted}
+            showAnswer={showAnswer}
             onSubmit={(response: any) => {
               setSubmitted(true);
               const result = response?.scoreResult as ScoreResult | undefined;
@@ -709,10 +710,11 @@ function ReorderDnD({
 // Question Renderer — renders different UI based on question type
 // ==========================================================================
 function QuestionRenderer({
-  question, submitted, onSubmit,
+  question, submitted, showAnswer = false, onSubmit,
 }: {
   question: QuestionData;
   submitted: boolean;
+  showAnswer?: boolean;
   onSubmit: (response: any) => void;
   score?: any;
 }) {
@@ -1202,6 +1204,7 @@ function QuestionRenderer({
         blanks={content.blanks || []}
         totalMarks={totalMarks}
         submitted={submitted}
+        showAnswer={showAnswer}
         onSubmit={onSubmit}
         modelAnswers={modelAnswers}
       />
@@ -1217,6 +1220,7 @@ function QuestionRenderer({
         options={content.options || content.blanks || []}
         totalMarks={totalMarks}
         submitted={submitted}
+        showAnswer={showAnswer}
         onSubmit={onSubmit}
       />
     );
@@ -1482,6 +1486,7 @@ function QuestionRenderer({
           blanks={content.blanks || []}
           totalMarks={totalMarks}
           submitted={submitted}
+          showAnswer={showAnswer}
           onSubmit={onSubmit}
         />
       </div>
@@ -2546,12 +2551,13 @@ function shuffle<T>(arr: T[]): T[] {
 
 // -------------------- DRAG-AND-DROP FILL BLANKS --------------------
 function FillBlanksDrag({
-  passage, blanks, submitted, onSubmit, totalMarks, modelAnswers = [],
+  passage, blanks, submitted, showAnswer = false, onSubmit, totalMarks, modelAnswers = [],
 }: {
   passage: string;
   blanks: any[];
   totalMarks: number;
   submitted: boolean;
+  showAnswer?: boolean;
   onSubmit: (response: any) => void;
   modelAnswers?: string[];
 }) {
@@ -2785,8 +2791,8 @@ function FillBlanksDrag({
         </div>
       )}
 
-      {/* Correct Answers (after submit) */}
-      {submitted && !useFlatMode && (
+      {/* Correct Answers (after submit OR when Show Answer is toggled) */}
+      {(submitted || showAnswer) && !useFlatMode && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -2889,13 +2895,14 @@ function FillBlanksDrag({
 
 // -------------------- DROPDOWN FILL BLANKS --------------------
 function FillBlanksDropdown({
-  passage, blanks, options, submitted, onSubmit, totalMarks,
+  passage, blanks, options, submitted, showAnswer = false, onSubmit, totalMarks,
 }: {
   passage: string;
   blanks: any[];
   options: string[];
   totalMarks: number;
   submitted: boolean;
+  showAnswer?: boolean;
   onSubmit: (response: any) => void;
 }) {
   const segments = splitPassage(passage);
@@ -2960,7 +2967,7 @@ function FillBlanksDropdown({
         })}
       </div>
 
-      {submitted && (
+      {(submitted || showAnswer) && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -3013,12 +3020,13 @@ function FillBlanksDropdown({
 
 // -------------------- TEXT INPUT FILL BLANKS (for Listening) --------------------
 function FillBlanksText({
-  passage, blanks, submitted, onSubmit, totalMarks,
+  passage, blanks, submitted, showAnswer = false, onSubmit, totalMarks,
 }: {
   passage: string;
   blanks: any[];
   totalMarks: number;
   submitted: boolean;
+  showAnswer?: boolean;
   onSubmit: (response: any) => void;
 }) {
   const segments = splitPassage(passage);
@@ -3075,7 +3083,7 @@ function FillBlanksText({
         })}
       </div>
 
-      {submitted && (
+      {(submitted || showAnswer) && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
