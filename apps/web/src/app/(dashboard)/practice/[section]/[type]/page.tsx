@@ -1741,20 +1741,20 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
   const isFailed = result.marksEarned === 0 && !result.pending;
 
   const bgColor = result.pending
-    ? "border-blue-200 bg-blue-50"
+    ? "border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40"
     : isPerfect
-      ? "border-green-200 bg-green-50"
+      ? "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40"
       : isFailed
-        ? "border-red-200 bg-red-50"
-        : "border-amber-200 bg-amber-50";
+        ? "border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/40"
+        : "border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/40";
 
   const iconBg = result.pending
-    ? "bg-blue-100 text-blue-600"
+    ? "bg-blue-100 text-blue-600 dark:bg-blue-950 dark:text-blue-400"
     : isPerfect
-      ? "bg-green-100 text-green-600"
+      ? "bg-green-100 text-green-600 dark:bg-green-950 dark:text-green-400"
       : isFailed
-        ? "bg-red-100 text-red-600"
-        : "bg-amber-100 text-amber-600";
+        ? "bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400"
+        : "bg-amber-100 text-amber-600 dark:bg-amber-950 dark:text-amber-400";
 
   return (
     <div className={`rounded-xl border-2 p-5 ${bgColor}`}>
@@ -1804,7 +1804,7 @@ function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastA
 
       {/* Progress bar */}
       {!result.pending && (
-        <div className="mt-4 h-2 w-full rounded-full bg-white">
+        <div className="mt-4 h-2 w-full rounded-full bg-white dark:bg-slate-700/60">
           <div
             className={`h-full rounded-full transition-all ${
               isPerfect ? "bg-green-500" : isFailed ? "bg-red-500" : "bg-amber-500"
