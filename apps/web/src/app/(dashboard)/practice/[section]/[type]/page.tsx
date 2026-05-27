@@ -690,7 +690,7 @@ function ReorderDnD({
               <GripVertical className="mt-0.5 h-5 w-5 shrink-0 text-gray-300 dark:text-slate-600" />
             )}
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-slate-700 dark:text-slate-300">
-              {position + 1}
+              {paraIdx + 1}
             </span>
             <p className="flex-1 text-sm text-gray-800 dark:text-slate-200">{paragraphs[paraIdx]}</p>
             {/* Arrow buttons shown only on mobile where drag isn't reliable */}
