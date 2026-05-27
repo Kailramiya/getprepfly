@@ -1064,7 +1064,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                               </div>
                             ))}
                             <p className="text-xs text-gray-400 dark:text-slate-500">
-                              The word bank shown to students is built automatically from these correct words.
+                              Each <code className="rounded bg-gray-100 dark:bg-slate-700 px-1">[blank]</code> in the passage above adds one row here. The word bank shown to students is built from these correct words.
                             </p>
                           </>
                         ) : (
