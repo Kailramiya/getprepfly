@@ -718,7 +718,19 @@ function QuestionRenderer({
   onSubmit: (response: any) => void;
   score?: any;
 }) {
-  const [response, setResponse] = useState<any>(null);
+  const [response, setResponse] = useState<any>(() => {
+    if (question?.type === "REORDER_PARAGRAPHS") {
+      const pars: string[] = (question?.content as any)?.paragraphs || [];
+      if (pars.length <= 1) return null;
+      const indices = pars.map((_: string, i: number) => i);
+      for (let i = indices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [indices[i], indices[j]] = [indices[j], indices[i]];
+      }
+      return indices;
+    }
+    return null;
+  });
   const content = question?.content as any;
 
   if (!question || !content) return null;
