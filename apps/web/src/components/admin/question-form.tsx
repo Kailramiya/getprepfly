@@ -325,16 +325,18 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
   const [fillBlanksPassage, setFillBlanksPassage] = useState(
     initialContent.passage && (typeValue || "").includes("FILL_BLANKS") ? initialContent.passage : ""
   );
-  const makeEmptyBlank = (): BlankItem => ({ options: ["", ""], correctIndex: 0 });
+  const isDragType = typeValue === "READING_FILL_BLANKS_DRAG";
+  const makeEmptyBlank = (): BlankItem => isDragType ? { options: [""], correctIndex: 0 } : { options: ["", ""], correctIndex: 0 };
   const [blankItems, setBlankItems] = useState<BlankItem[]>(() => {
     if (Array.isArray(initialContent.blanks) && initialContent.blanks.length > 0) {
       return initialContent.blanks.map((b: any) => {
         if (typeof b === "string") {
-          return { options: [b, "", "", ""], correctIndex: 0 };
+          return isDragType ? { options: [b], correctIndex: 0 } : { options: [b, "", "", ""], correctIndex: 0 };
         }
-        const opts: string[] = Array.isArray(b.options) ? [...b.options] : [b.correctAnswer || b.answer || "", ""];
-        if (opts.length < 2) opts.push("");
         const correct = b.correctAnswer || b.answer || "";
+        if (isDragType) return { options: [correct], correctIndex: 0 };
+        const opts: string[] = Array.isArray(b.options) && b.options.length > 0 ? [...b.options] : [correct, ""];
+        if (opts.length < 2) opts.push("");
         const correctIndex = Math.max(0, opts.indexOf(correct));
         return { options: opts, correctIndex };
       });
@@ -438,9 +440,13 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     if (fields.has("fill-blanks")) {
       if (!fillBlanksPassage.trim()) return "Please enter the passage with [blank] markers";
       for (let i = 0; i < blankItems.length; i++) {
-        const filled = blankItems[i].options.filter((o) => o.trim());
-        if (filled.length < 2) return `Blank #${i + 1} needs at least 2 options`;
-        if (!blankItems[i].options[blankItems[i].correctIndex]?.trim()) return `Blank #${i + 1} — mark the correct option`;
+        if (isDragType) {
+          if (!blankItems[i].options[0]?.trim()) return `Enter the correct word for blank #${i + 1}`;
+        } else {
+          const filled = blankItems[i].options.filter((o) => o.trim());
+          if (filled.length < 2) return `Blank #${i + 1} needs at least 2 options`;
+          if (!blankItems[i].options[blankItems[i].correctIndex]?.trim()) return `Blank #${i + 1} — mark the correct option`;
+        }
       }
     }
 
@@ -479,10 +485,15 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     }
     if (fields.has("fill-blanks")) {
       content.passage = fillBlanksPassage;
-      content.blanks = blankItems.map((b) => ({
-        correctAnswer: b.options[b.correctIndex]?.trim() || "",
-        options: b.options.map((o) => o.trim()).filter(Boolean),
-      }));
+      if (isDragType) {
+        // Drag: blanks are just correct answers — word bank is built from them in the practice page
+        content.blanks = blankItems.map((b) => b.options[0]?.trim() || "");
+      } else {
+        content.blanks = blankItems.map((b) => ({
+          correctAnswer: b.options[b.correctIndex]?.trim() || "",
+          options: b.options.map((o) => o.trim()).filter(Boolean),
+        }));
+      }
     }
     if (fields.has("incorrect-words")) {
       content.transcript = transcriptText;
@@ -1032,53 +1043,79 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                       </div>
                     </div>
 
-                    {/* Per-blank options */}
+                    {/* Per-blank answers */}
                     {blankItems.length > 0 && (
-                      <div className="space-y-4">
-                        <Label>Options for each blank <span className="ml-1 text-xs font-normal text-gray-500 dark:text-slate-400">(minimum 2 — click the radio button to mark the correct one)</span></Label>
-                        {blankItems.map((blank, blankIdx) => (
-                          <div key={blankIdx} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 p-4 space-y-2">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950 text-xs font-bold text-indigo-700 dark:text-indigo-300">
-                                {blankIdx + 1}
-                              </span>
-                              <p className="text-sm font-medium text-gray-700 dark:text-slate-300">Blank #{blankIdx + 1}</p>
-                              <span className="ml-auto text-xs text-gray-400 dark:text-slate-500">{blank.options.length} option{blank.options.length !== 1 ? "s" : ""}</span>
-                            </div>
-                            {blank.options.map((opt, optIdx) => (
-                              <div key={optIdx} className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition ${blank.correctIndex === optIdx ? "border-green-400 bg-green-50 dark:border-green-700 dark:bg-green-950/30" : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"}`}>
-                                <input
-                                  type="radio"
-                                  name={`blank-${blankIdx}-correct`}
-                                  checked={blank.correctIndex === optIdx}
-                                  onChange={() => setBlankCorrect(blankIdx, optIdx)}
-                                  className="h-4 w-4 cursor-pointer accent-green-600"
-                                  title="Mark as correct"
-                                />
+                      <div className="space-y-3">
+                        {isDragType ? (
+                          /* Drag & Drop: just a correct word per blank */
+                          <>
+                            <Label>Correct word for each blank</Label>
+                            {blankItems.map((blank, blankIdx) => (
+                              <div key={blankIdx} className="flex items-center gap-3 rounded-lg border border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2">
+                                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950 text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                                  {blankIdx + 1}
+                                </span>
                                 <Input
-                                  value={opt}
-                                  onChange={(e) => updateBlankOption(blankIdx, optIdx, e.target.value)}
-                                  placeholder={blank.correctIndex === optIdx ? "Correct answer" : `Option ${optIdx + 1}`}
-                                  className="border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+                                  value={blank.options[0] || ""}
+                                  onChange={(e) => updateBlankOption(blankIdx, 0, e.target.value)}
+                                  placeholder={`Correct word for blank ${blankIdx + 1}`}
+                                  className="flex-1 border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
                                 />
-                                {blank.options.length > 2 && (
-                                  <button
-                                    onClick={() => removeBlankOption(blankIdx, optIdx)}
-                                    className="shrink-0 rounded p-1 text-gray-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400"
-                                  >
-                                    <Trash2 className="h-3.5 w-3.5" />
-                                  </button>
-                                )}
                               </div>
                             ))}
-                            <button
-                              onClick={() => addBlankOption(blankIdx)}
-                              className="flex items-center gap-1 pt-1 text-xs text-indigo-600 hover:underline dark:text-indigo-400"
-                            >
-                              <Plus className="h-3 w-3" /> Add option
-                            </button>
-                          </div>
-                        ))}
+                            <p className="text-xs text-gray-400 dark:text-slate-500">
+                              The word bank shown to students is built automatically from these correct words.
+                            </p>
+                          </>
+                        ) : (
+                          /* Dropdown / Listening: per-blank options with radio to mark correct */
+                          <>
+                            <Label>Options for each blank <span className="ml-1 text-xs font-normal text-gray-500 dark:text-slate-400">(minimum 2 — click the radio to mark the correct one)</span></Label>
+                            {blankItems.map((blank, blankIdx) => (
+                              <div key={blankIdx} className="rounded-xl border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800/50 p-4 space-y-2">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950 text-xs font-bold text-indigo-700 dark:text-indigo-300">
+                                    {blankIdx + 1}
+                                  </span>
+                                  <p className="text-sm font-medium text-gray-700 dark:text-slate-300">Blank #{blankIdx + 1}</p>
+                                  <span className="ml-auto text-xs text-gray-400 dark:text-slate-500">{blank.options.length} option{blank.options.length !== 1 ? "s" : ""}</span>
+                                </div>
+                                {blank.options.map((opt, optIdx) => (
+                                  <div key={optIdx} className={`flex items-center gap-2 rounded-lg border px-3 py-2 transition ${blank.correctIndex === optIdx ? "border-green-400 bg-green-50 dark:border-green-700 dark:bg-green-950/30" : "border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-800"}`}>
+                                    <input
+                                      type="radio"
+                                      name={`blank-${blankIdx}-correct`}
+                                      checked={blank.correctIndex === optIdx}
+                                      onChange={() => setBlankCorrect(blankIdx, optIdx)}
+                                      className="h-4 w-4 cursor-pointer accent-green-600"
+                                      title="Mark as correct"
+                                    />
+                                    <Input
+                                      value={opt}
+                                      onChange={(e) => updateBlankOption(blankIdx, optIdx, e.target.value)}
+                                      placeholder={blank.correctIndex === optIdx ? "Correct answer" : `Option ${optIdx + 1}`}
+                                      className="border-0 bg-transparent p-0 text-sm shadow-none focus-visible:ring-0"
+                                    />
+                                    {blank.options.length > 2 && (
+                                      <button
+                                        onClick={() => removeBlankOption(blankIdx, optIdx)}
+                                        className="shrink-0 rounded p-1 text-gray-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400"
+                                      >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                      </button>
+                                    )}
+                                  </div>
+                                ))}
+                                <button
+                                  onClick={() => addBlankOption(blankIdx)}
+                                  className="flex items-center gap-1 pt-1 text-xs text-indigo-600 hover:underline dark:text-indigo-400"
+                                >
+                                  <Plus className="h-3 w-3" /> Add option
+                                </button>
+                              </div>
+                            ))}
+                          </>
+                        )}
                       </div>
                     )}
                   </>
