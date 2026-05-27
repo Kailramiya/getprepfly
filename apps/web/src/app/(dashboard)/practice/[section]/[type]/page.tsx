@@ -458,7 +458,7 @@ export default function PracticeQuestionPage() {
       {/* Model Answer — shown after submission OR when Show Answer is toggled */}
       {/* Hidden for fill-blanks types because the per-blank Correct Answers section already shows this */}
       {(submitted || showAnswer) && currentQuestion?.modelAnswer &&
-        !["READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS"].includes(type) && (
+        !["READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS", "REORDER_PARAGRAPHS"].includes(type) && (
         <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base text-green-800 dark:text-green-300">
@@ -1158,6 +1158,19 @@ function QuestionRenderer({
     const paragraphs: string[] = content.paragraphs || [];
     const order: number[] = response || paragraphs.map((_: string, i: number) => i);
 
+    // modelAnswer (e.g. "1, 5, 3, 2, 4") is the authoritative correct order.
+    // Convert serial numbers (1-based) to 0-based paragraph indices.
+    const correctOrder: number[] = (() => {
+      if (question.modelAnswer) {
+        const parts = question.modelAnswer
+          .split(/[\s,]+/)
+          .map(Number)
+          .filter((n: number) => Number.isInteger(n) && n >= 1 && n <= paragraphs.length);
+        if (parts.length === paragraphs.length) return parts.map((n: number) => n - 1);
+      }
+      return content.correctOrder || paragraphs.map((_: string, i: number) => i);
+    })();
+
     return (
       <div className="space-y-4">
         <p className="text-sm text-gray-500 dark:text-slate-400">
@@ -1168,11 +1181,10 @@ function QuestionRenderer({
           order={order}
           onReorder={setResponse}
           submitted={submitted}
-          correctOrder={content.correctOrder || paragraphs.map((_: string, i: number) => i)}
+          correctOrder={correctOrder}
         />
         {!submitted && (
           <Button onClick={() => {
-            const correctOrder: number[] = content.correctOrder || paragraphs.map((_: string, i: number) => i);
             const mistakes: ScoreResult["mistakes"] = [];
             let correctCount = 0;
             order.forEach((paraIdx, pos) => {
@@ -1198,6 +1210,19 @@ function QuestionRenderer({
               } as ScoreResult,
             });
           }}>Check Order</Button>
+        )}
+        {(submitted || showAnswer) && (
+          <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/40">
+            <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Order</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {correctOrder.map((paraIdx, pos) => (
+                <span key={pos} className="flex items-center gap-1.5 rounded-md border border-green-200 bg-white px-2 py-1 text-sm text-green-800 dark:border-green-800 dark:bg-slate-800 dark:text-green-300">
+                  <span className="text-xs text-green-500">#{pos + 1}</span>
+                  <span className="font-semibold">{paraIdx + 1}</span>
+                </span>
+              ))}
+            </div>
+          </div>
         )}
       </div>
     );
