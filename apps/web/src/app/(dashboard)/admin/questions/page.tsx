@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { QuestionForm } from "@/components/admin/question-form";
+import { BulkUploadModal } from "@/components/admin/bulk-upload-modal";
 import {
   Database, Plus, Search, Upload, Trash2, Edit2,
   Mic, PenTool, BookOpen, Headphones, Star,
@@ -63,6 +64,7 @@ export default function QuestionsPage() {
   const [section, setSection] = useState("");
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [editingQuestion, setEditingQuestion] = useState<any>(null);
   const [loadingEdit, setLoadingEdit] = useState<string | null>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -163,7 +165,7 @@ export default function QuestionsPage() {
           <p className="text-gray-500 dark:text-slate-400">{total} questions available</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => { setEditingQuestion(null); setShowForm(true); }}>
+          <Button variant="outline" className="gap-2" onClick={() => setShowBulkUpload(true)}>
             <Upload className="h-4 w-4" />
             Bulk Upload
           </Button>
@@ -456,6 +458,14 @@ export default function QuestionsPage() {
             setEditingQuestion(null);
             refreshQuestions();
           }}
+        />
+      )}
+
+      {/* Bulk Upload Modal */}
+      {showBulkUpload && (
+        <BulkUploadModal
+          onClose={() => setShowBulkUpload(false)}
+          onUploaded={refreshQuestions}
         />
       )}
     </div>
