@@ -422,7 +422,7 @@ export default function PracticeQuestionPage() {
           {/* Score Summary (shown after submission) */}
           {submitted && score && (
             <div className="mt-6">
-              <ScoreSummary result={score} lastAttemptScore={lastAttemptScore} />
+              <ScoreSummary result={score} lastAttemptScore={lastAttemptScore} questionType={type} />
             </div>
           )}
         </CardContent>

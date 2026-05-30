@@ -10,6 +10,7 @@ import {
   BookOpen as TemplateIcon, GripVertical,
 } from "lucide-react";
 import { WRITING_TEMPLATES, SPEAKING_TEMPLATES } from "@/lib/templates";
+import { SKILL_CONTRIBUTIONS, SKILL_KEYS, type SkillKey } from "@/lib/pte-scoring";
 
 // ─── Shared Types ─────────────────────────────────────────────────────────────
 
@@ -1206,10 +1207,23 @@ export function AudioBlock({
 // SCORE SUMMARY CARD (shown after every submission)
 // ============================================================================
 
-export function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult; lastAttemptScore: number | null }) {
+const SKILL_META: Record<SkillKey, { label: string; color: string; bg: string; bar: string; border: string }> = {
+  speaking:  { label: "Speaking",  color: "text-teal-700 dark:text-teal-400",    bg: "bg-teal-50 dark:bg-teal-950/50",    bar: "bg-teal-500",   border: "border-teal-200 dark:border-teal-800"   },
+  listening: { label: "Listening", color: "text-orange-700 dark:text-orange-400", bg: "bg-orange-50 dark:bg-orange-950/50", bar: "bg-orange-500", border: "border-orange-200 dark:border-orange-800" },
+  reading:   { label: "Reading",   color: "text-purple-700 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/50", bar: "bg-purple-500", border: "border-purple-200 dark:border-purple-800" },
+  writing:   { label: "Writing",   color: "text-blue-700 dark:text-blue-400",    bg: "bg-blue-50 dark:bg-blue-950/50",    bar: "bg-blue-500",   border: "border-blue-200 dark:border-blue-800"   },
+};
+
+export function ScoreSummary({ result, lastAttemptScore, questionType }: { result: ScoreResult; lastAttemptScore: number | null; questionType?: string }) {
   const percent = result.marksTotal > 0 ? (result.marksEarned / result.marksTotal) * 100 : 0;
   const isPerfect = result.marksEarned === result.marksTotal && result.marksTotal > 0;
   const isFailed = result.marksEarned === 0 && !result.pending;
+
+  // Overall score on 0-90 PTE scale (used for skill impact display)
+  const overallScore90 = result.pending ? 0
+    : result.aiScores?.overall != null ? Math.round(result.aiScores.overall)
+    : result.marksTotal > 0 ? Math.round((result.marksEarned / result.marksTotal) * 90)
+    : 0;
 
   const bgColor = result.pending
     ? "border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40"
@@ -1294,6 +1308,46 @@ export function ScoreSummary({ result, lastAttemptScore }: { result: ScoreResult
           </span>
         </div>
       )}
+
+      {/* Skill Impact — 4 skill scores based on cross-skill contribution model */}
+      {!result.pending && questionType && SKILL_CONTRIBUTIONS[questionType] && (() => {
+        const contrib = SKILL_CONTRIBUTIONS[questionType];
+        return (
+          <div className="mt-4 border-t border-black/5 pt-4 dark:border-white/5">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-slate-400">Skill Impact</p>
+            <div className="grid grid-cols-4 gap-2">
+              {SKILL_KEYS.map(skill => {
+                const isActive = contrib[skill] > 0;
+                const meta = SKILL_META[skill];
+                const pct = isActive ? Math.round((overallScore90 / 90) * 100) : 0;
+                return (
+                  <div
+                    key={skill}
+                    className={`rounded-lg border p-2 text-center ${
+                      isActive
+                        ? `${meta.bg} ${meta.border}`
+                        : "border-gray-100 bg-gray-50/60 dark:border-slate-700 dark:bg-slate-800/30"
+                    }`}
+                  >
+                    <p className={`text-xs font-medium ${isActive ? meta.color : "text-gray-300 dark:text-slate-600"}`}>
+                      {meta.label}
+                    </p>
+                    <p className={`mt-0.5 text-base font-bold leading-none ${isActive ? meta.color : "text-gray-300 dark:text-slate-600"}`}>
+                      {isActive ? overallScore90 : "—"}
+                    </p>
+                    {isActive && (
+                      <div className="mt-1.5 h-1 w-full rounded-full bg-black/10 dark:bg-white/10">
+                        <div className={`h-full rounded-full ${meta.bar}`} style={{ width: `${pct}%` }} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-1.5 text-xs text-gray-400 dark:text-slate-500">Scores on 0–90 PTE scale · — means this skill is not tested by this question type</p>
+          </div>
+        );
+      })()}
 
       {/* Mistakes */}
       {result.mistakes.length > 0 && (
