@@ -1,18 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth-utils";
-
-// Default prices used when no DB row exists (in paise)
-export const DEFAULT_PRICES: Record<string, { amount: number; label: string }> = {
-  MODULE_SPEAKING:  { amount: 19900,   label: "Speaking Module (per student)" },
-  MODULE_WRITING:   { amount: 19900,   label: "Writing Module (per student)" },
-  MODULE_READING:   { amount: 19900,   label: "Reading Module (per student)" },
-  MODULE_LISTENING: { amount: 19900,   label: "Listening Module (per student)" },
-  ALL_MODULES:      { amount: 59900,   label: "All 4 Modules Bundle (per student)" },
-  CENTRE_STARTER:   { amount: 299900,  label: "Centre Starter Plan (50 students)" },
-  CENTRE_GROWTH:    { amount: 699900,  label: "Centre Growth Plan (150 students)" },
-  CENTRE_PRO:       { amount: 1499900, label: "Centre Pro Plan (500 students)" },
-};
+import { DEFAULT_PRICES } from "@/lib/pricing-defaults";
 
 // GET /api/super-admin/pricing — list all plan prices
 export async function GET() {
