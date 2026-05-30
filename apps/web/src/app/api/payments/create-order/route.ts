@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { MODULE_PRICING, CENTRE_PLANS } from "@/lib/access";
-import { DEFAULT_PRICES } from "@/app/api/super-admin/pricing/route";
 
 // Merge hardcoded plan metadata with DB-overridden amounts
 async function resolvePlanAmount(planType: string): Promise<{ amount: number; label: string } | null> {

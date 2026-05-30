@@ -415,6 +415,7 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
       }
       return prev.slice(0, blankMarkerCount);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [blankMarkerCount]);
 
   const validate = (): string | null => {
