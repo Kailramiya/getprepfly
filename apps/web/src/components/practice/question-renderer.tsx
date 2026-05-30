@@ -463,21 +463,24 @@ export function QuestionRenderer({
                 key={i}
                 onClick={() => !submitted && setResponse(i)}
                 className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left text-sm transition ${
-                  isCorrect ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" :
-                  isWrong ? "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30" :
-                  isSelected ? "border-indigo-500 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30" :
-                  "border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-600 dark:hover:border-slate-500 dark:hover:bg-slate-700/40"
+                  isCorrect ? "border-green-500 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950/30 dark:text-green-300" :
+                  isWrong ? "border-red-500 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950/30 dark:text-red-300" :
+                  isSelected ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:border-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-300" :
+                  "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-300 dark:hover:border-slate-500 dark:hover:bg-slate-700/40"
                 }`}
                 disabled={submitted}
               >
                 <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-xs font-medium ${
-                  isSelected || isCorrect ? "border-indigo-500 bg-indigo-600 text-white" : "border-gray-300 text-gray-500 dark:border-slate-500 dark:text-slate-400"
+                  isCorrect ? "border-green-500 bg-green-600 text-white dark:border-green-600 dark:bg-green-700" :
+                  isWrong ? "border-red-400 bg-red-500 text-white dark:border-red-600 dark:bg-red-700" :
+                  isSelected ? "border-indigo-500 bg-indigo-600 text-white" :
+                  "border-gray-300 text-gray-500 dark:border-slate-500 dark:text-slate-400"
                 }`}>
                   {String.fromCharCode(65 + i)}
                 </span>
                 <span className="flex-1">{opt}</span>
-                {submitted && showFeedback && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-                {submitted && showFeedback && isWrong && <XCircle className="h-5 w-5 text-red-500" />}
+                {submitted && showFeedback && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />}
+                {submitted && showFeedback && isWrong && <XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />}
               </button>
             );
           })}
@@ -543,17 +546,20 @@ export function QuestionRenderer({
                   );
                 }}
                 className={`flex w-full items-center gap-3 rounded-lg border p-3 text-left text-sm transition ${
-                  isCorrect ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30" :
-                  isWrong ? "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30" :
-                  isSelected ? "border-indigo-500 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30" :
-                  "border-gray-200 hover:border-gray-300 dark:border-slate-600 dark:hover:border-slate-500"
+                  isCorrect ? "border-green-500 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950/30 dark:text-green-300" :
+                  isWrong ? "border-red-500 bg-red-50 text-red-700 dark:border-red-700 dark:bg-red-950/30 dark:text-red-300" :
+                  isSelected ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:border-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-300" :
+                  "border-gray-200 text-gray-700 hover:border-gray-300 dark:border-slate-600 dark:text-slate-300 dark:hover:border-slate-500"
                 }`}
                 disabled={submitted}
               >
                 <div className={`flex h-5 w-5 shrink-0 items-center justify-center rounded border ${
-                  isSelected ? "border-indigo-500 bg-indigo-600" : "border-gray-300 dark:border-slate-500"
+                  isCorrect ? "border-green-500 bg-green-600 dark:border-green-600 dark:bg-green-700" :
+                  isWrong ? "border-red-400 bg-red-500 dark:border-red-600 dark:bg-red-700" :
+                  isSelected ? "border-indigo-500 bg-indigo-600" :
+                  "border-gray-300 dark:border-slate-500"
                 }`}>
-                  {isSelected && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
+                  {(isSelected || isCorrect || isWrong) && <CheckCircle2 className="h-3.5 w-3.5 text-white" />}
                 </div>
                 <span className="flex-1">{opt}</span>
               </button>
@@ -2210,14 +2216,14 @@ function FillBlanksDrag({
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-gray-500 dark:text-slate-400">
         {submitted
           ? "Correct answers are shown in green. Wrong answers in red."
           : "Drag a word from the bank into a blank, or tap a word then tap a blank to place it."}
       </p>
 
       {/* Passage with blanks */}
-      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800 dark:border-slate-600 dark:bg-slate-800/60 dark:text-slate-200">
         {segments.map((seg, i) => {
           if (BLANK_MARKER_REGEX.test(seg)) {
             blankIdx++;
@@ -2240,17 +2246,17 @@ function FillBlanksDrag({
                 className={`mx-1 inline-flex min-w-[100px] cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed px-3 py-1 text-sm font-medium transition select-none ${
                   submitted && showFeedback
                     ? isCorrect
-                      ? "border-green-500 bg-green-100 text-green-800"
-                      : "border-red-400 bg-red-50 text-red-700"
+                      ? "border-green-500 bg-green-100 text-green-800 dark:border-green-600 dark:bg-green-950/60 dark:text-green-300"
+                      : "border-red-400 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-950/50 dark:text-red-300"
                     : submitted
                       ? word
-                        ? "border-gray-300 bg-gray-50 text-gray-700"
-                        : "border-gray-200 bg-white text-gray-400"
+                        ? "border-gray-300 bg-gray-50 text-gray-700 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-300"
+                        : "border-gray-200 bg-white text-gray-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-500"
                       : word
-                        ? "border-indigo-400 bg-indigo-50 text-indigo-700 cursor-grab active:cursor-grabbing"
+                        ? "border-indigo-400 bg-indigo-50 text-indigo-700 cursor-grab active:cursor-grabbing dark:border-indigo-500 dark:bg-indigo-950/50 dark:text-indigo-300"
                         : selectedWord
-                          ? "border-indigo-300 bg-indigo-50 text-gray-400 animate-pulse"
-                          : "border-gray-300 bg-white text-gray-400 hover:border-indigo-300 hover:bg-indigo-50"
+                          ? "border-indigo-300 bg-indigo-50 text-gray-400 animate-pulse dark:border-indigo-600 dark:bg-indigo-950/30 dark:text-slate-400"
+                          : "border-gray-300 bg-white text-gray-400 hover:border-indigo-300 hover:bg-indigo-50 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-400 dark:hover:border-indigo-500 dark:hover:bg-indigo-950/30"
                 }`}
                 title={word ? "Drag or tap to remove" : "Tap or drop a word here"}
               >
@@ -2260,7 +2266,7 @@ function FillBlanksDrag({
                   {submitted && showFeedback && isWrong && <XCircle className="h-3.5 w-3.5" />}
                 </span>
                 {submitted && showFeedback && isWrong && correct && (
-                  <span className="text-xs font-semibold text-green-700 mt-0.5">✓ {correct}</span>
+                  <span className="text-xs font-semibold text-green-700 mt-0.5 dark:text-green-400">✓ {correct}</span>
                 )}
               </span>
             );
@@ -2276,14 +2282,14 @@ function FillBlanksDrag({
       {/* Word Bank */}
       {!submitted && (
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase text-gray-500">Word Bank</p>
+          <p className="mb-2 text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Word Bank</p>
           <div
-            className="flex flex-wrap gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white p-4 min-h-[60px]"
+            className="flex flex-wrap gap-2 rounded-xl border-2 border-dashed border-gray-200 bg-white p-4 min-h-[60px] dark:border-slate-600 dark:bg-slate-800"
             onDragOver={handleDragOver}
             onDrop={handleDropOnBank}
           >
             {bank.length === 0 ? (
-              <p className="text-sm italic text-gray-400">All words placed. Drag or tap a blank to return a word.</p>
+              <p className="text-sm italic text-gray-400 dark:text-slate-500">All words placed. Drag or tap a blank to return a word.</p>
             ) : (
               bank.map((word, i) => (
                 <button
@@ -2294,7 +2300,7 @@ function FillBlanksDrag({
                   className={`cursor-grab rounded-lg border-2 px-3 py-1.5 text-sm font-medium transition active:cursor-grabbing active:scale-95 ${
                     selectedWord === word
                       ? "border-indigo-500 bg-indigo-600 text-white shadow-md"
-                      : "border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50"
+                      : "border-gray-200 bg-white text-gray-700 hover:border-indigo-300 hover:bg-indigo-50 dark:border-slate-600 dark:bg-slate-700 dark:text-slate-200 dark:hover:border-indigo-500 dark:hover:bg-indigo-950/40"
                   }`}
                 >
                   {word}
@@ -2307,13 +2313,13 @@ function FillBlanksDrag({
 
       {/* Correct Answers (after submit OR when Show Answer is toggled) */}
       {((submitted && showFeedback) || showAnswer) && normalizedBlanks.some(b => b.correctAnswer) && (
-        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-          <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
+          <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {normalizedBlanks.map((b, i) =>
               b.correctAnswer ? (
-                <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200">
-                  <span className="mr-1 text-xs text-green-500">#{i + 1}</span>
+                <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200 dark:bg-slate-800 dark:text-green-300 dark:border-green-700">
+                  <span className="mr-1 text-xs text-green-500 dark:text-green-500">#{i + 1}</span>
                   {b.correctAnswer}
                 </span>
               ) : null
@@ -2437,11 +2443,11 @@ function FillBlanksDropdown({
 
   return (
     <div className="space-y-5">
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-gray-500 dark:text-slate-400">
         Pick the correct word from the dropdown for each blank.
       </p>
 
-      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800 dark:border-slate-600 dark:bg-slate-800/60 dark:text-slate-200">
         {segments.map((seg, i) => {
           if (BLANK_MARKER_REGEX.test(seg)) {
             blankIdx++;
@@ -2466,13 +2472,13 @@ function FillBlanksDropdown({
                   className={`rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
                     submitted && showFeedback
                       ? isCorrect
-                        ? "border-green-500 bg-green-100 text-green-800"
-                        : "border-red-400 bg-red-50 text-red-700"
+                        ? "border-green-500 bg-green-100 text-green-800 dark:border-green-600 dark:bg-green-950/60 dark:text-green-300"
+                        : "border-red-400 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-950/50 dark:text-red-300"
                       : submitted
-                        ? "border-gray-300 bg-gray-50 text-gray-700"
+                        ? "border-gray-300 bg-gray-50 text-gray-700 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-300"
                       : value
-                        ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                        : "border-gray-300 bg-white text-gray-500"
+                        ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/50 dark:text-indigo-300"
+                        : "border-gray-300 bg-white text-gray-500 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-400"
                   }`}
                 >
                   <option value="">— choose —</option>
@@ -2481,7 +2487,7 @@ function FillBlanksDropdown({
                   ))}
                 </select>
                 {isWrongDropdown && blank.correctAnswer && (
-                  <span className="text-xs font-semibold text-green-700 mt-0.5">✓ {blank.correctAnswer}</span>
+                  <span className="text-xs font-semibold text-green-700 mt-0.5 dark:text-green-400">✓ {blank.correctAnswer}</span>
                 )}
               </span>
             );
@@ -2495,12 +2501,12 @@ function FillBlanksDropdown({
       </div>
 
       {((submitted && showFeedback) || showAnswer) && (
-        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-          <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
+          <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {normalizedBlanks.map((b, i) => (
-              <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200">
-                <span className="mr-1 text-xs text-green-500">#{i + 1}</span>
+              <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200 dark:bg-slate-800 dark:text-green-300 dark:border-green-700">
+                <span className="mr-1 text-xs text-green-500 dark:text-green-500">#{i + 1}</span>
                 {b.correctAnswer}
               </span>
             ))}
@@ -2572,7 +2578,7 @@ function FillBlanksText({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800">
+      <div className="rounded-xl border border-gray-200 bg-gray-50 p-5 text-base leading-loose text-gray-800 dark:border-slate-600 dark:bg-slate-800/60 dark:text-slate-200">
         {segments.map((seg, i) => {
           if (BLANK_MARKER_REGEX.test(seg)) {
             blankIdx++;
@@ -2598,17 +2604,17 @@ function FillBlanksText({
                   className={`inline-block w-32 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
                     submitted && showFeedback
                       ? isCorrect
-                        ? "border-green-500 bg-green-100 text-green-800"
-                        : "border-red-400 bg-red-50 text-red-700"
+                        ? "border-green-500 bg-green-100 text-green-800 dark:border-green-600 dark:bg-green-950/60 dark:text-green-300"
+                        : "border-red-400 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-950/50 dark:text-red-300"
                       : submitted
-                        ? "border-gray-300 bg-gray-50 text-gray-700"
+                        ? "border-gray-300 bg-gray-50 text-gray-700 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-300"
                       : value
-                        ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                        : "border-gray-300 bg-white text-gray-700"
+                        ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-500 dark:bg-indigo-950/50 dark:text-indigo-300"
+                        : "border-gray-300 bg-white text-gray-700 dark:border-slate-500 dark:bg-slate-700 dark:text-slate-400"
                   }`}
                 />
                 {isWrongText && correct && (
-                  <span className="text-xs font-semibold text-green-700 mt-0.5">✓ {correct}</span>
+                  <span className="text-xs font-semibold text-green-700 dark:text-green-400 mt-0.5">✓ {correct}</span>
                 )}
               </span>
             );
@@ -2622,12 +2628,12 @@ function FillBlanksText({
       </div>
 
       {((submitted && showFeedback) || showAnswer) && (
-        <div className="rounded-xl border border-green-200 bg-green-50 p-4">
-          <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
+        <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
+          <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
             {normalizedBlanks.map((b, i) => (
-              <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200">
-                <span className="mr-1 text-xs text-green-500">#{i + 1}</span>
+              <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200 dark:bg-slate-800 dark:text-green-300 dark:border-green-700">
+                <span className="mr-1 text-xs text-green-500 dark:text-green-500">#{i + 1}</span>
                 {b.correctAnswer}
               </span>
             ))}
