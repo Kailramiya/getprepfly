@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import {
   QuestionRenderer,
-  ScoreSummary,
   ScoreResult,
 } from "@/components/practice/question-renderer";
 
@@ -69,7 +68,6 @@ export default function MockTestSessionPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [score, setScore] = useState<ScoreResult | null>(null);
   const [elapsed, setElapsed] = useState(0);
   const [finishing, setFinishing] = useState(false);
 
@@ -118,7 +116,6 @@ export default function MockTestSessionPage() {
       const nextIdx = currentIdx + 1;
       setCurrentIdx(nextIdx);
       setSubmitted(false);
-      setScore(null);
       // Save position
       fetch(`/api/mock-tests/${testId}`, {
         method: "PATCH",
@@ -132,7 +129,6 @@ export default function MockTestSessionPage() {
     if (currentIdx > 0) {
       setCurrentIdx(currentIdx - 1);
       setSubmitted(false);
-      setScore(null);
     }
   };
 
@@ -141,7 +137,6 @@ export default function MockTestSessionPage() {
     if (!currentQuestion) return;
     setSubmitted(true);
     const result: ScoreResult | undefined = response?.scoreResult;
-    if (result) setScore(result);
 
     const overallScore = result && result.marksTotal > 0
       ? Math.round((result.marksEarned / result.marksTotal) * 90)
@@ -192,10 +187,10 @@ export default function MockTestSessionPage() {
     return <div className="py-20 text-center text-gray-500">Mock test not found.</div>;
   }
 
-  // Completed — show results
+  // Completed — show results + question review
   if (test.status === "COMPLETED") {
     return (
-      <div className="mx-auto max-w-2xl space-y-6">
+      <div className="mx-auto max-w-3xl space-y-6">
         <div className="text-center">
           <CheckCircle2 className="mx-auto h-16 w-16 text-green-500" />
           <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-slate-100">Test Completed!</h1>
@@ -227,6 +222,50 @@ export default function MockTestSessionPage() {
         <div className="flex justify-center gap-3">
           <Button variant="outline" onClick={() => router.push("/mock-test")}>Back to Mock Tests</Button>
           <Button onClick={() => router.push("/progress")}>View Progress</Button>
+        </div>
+
+        {/* Question Review with answers */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Question Review</h2>
+          {test.questions.map((tq, idx) => {
+            const attempt = test.attempts.find((a) => a.questionId === tq.question.id);
+            return (
+              <Card key={tq.id}>
+                <CardHeader className="flex flex-row items-center justify-between bg-gray-50 dark:bg-slate-800/50 py-3 px-4">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
+                      Q{idx + 1}: {tq.question.title}
+                    </p>
+                    <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
+                      {tq.question.type?.replace(/_/g, " ")} · {tq.question.section}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {attempt ? (
+                      <Badge variant="success">Answered</Badge>
+                    ) : (
+                      <Badge variant="secondary">Skipped</Badge>
+                    )}
+                    {attempt?.overallScore != null && (
+                      <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
+                        {attempt.overallScore}/90
+                      </span>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <QuestionRenderer
+                    key={tq.question.id}
+                    question={{ ...tq.question, isPrediction: false, marks: 1 }}
+                    submitted={true}
+                    showAnswer={true}
+                    showFeedback={true}
+                    onSubmit={() => {}}
+                  />
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       </div>
     );
@@ -301,14 +340,15 @@ export default function MockTestSessionPage() {
               }}
               submitted={submitted || !!isAttempted}
               showAnswer={false}
+              showFeedback={false}
               onSubmit={handleQuestionSubmit}
             />
           )}
 
-          {/* Score summary after submission */}
-          {submitted && score && (
-            <div className="mt-6">
-              <ScoreSummary result={score} lastAttemptScore={null} />
+          {/* No score feedback shown during the test — answers revealed after completion */}
+          {(submitted || isAttempted) && (
+            <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30 px-4 py-3 text-sm text-blue-700 dark:text-blue-300">
+              Answer recorded. Complete the test to see correct answers and scores.
             </div>
           )}
         </CardContent>

@@ -46,13 +46,14 @@ export interface ScoreResult {
 // Drag-and-drop reorder component for REORDER_PARAGRAPHS
 // ==========================================================================
 function ReorderDnD({
-  paragraphs, order, onReorder, submitted, correctOrder,
+  paragraphs, order, onReorder, submitted, correctOrder, showFeedback = true,
 }: {
   paragraphs: string[];
   order: number[];
   onReorder: (newOrder: number[]) => void;
   submitted: boolean;
   correctOrder: number[];
+  showFeedback?: boolean;
 }) {
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const dragIdxRef = useRef<number | null>(null);
@@ -95,7 +96,7 @@ function ReorderDnD({
   return (
     <div className="space-y-2">
       {order.map((paraIdx, position) => {
-        const isCorrect = submitted && correctOrder[position] === paraIdx;
+        const isCorrect = submitted && showFeedback && correctOrder[position] === paraIdx;
         const isDragOver = !submitted && dragOverIdx === position;
         const isDragging = !submitted && dragIdxRef.current === position;
 
@@ -109,9 +110,11 @@ function ReorderDnD({
             onDragEnd={handleDragEnd}
             className={`flex items-start gap-3 rounded-lg border p-3 transition-all select-none ${
               submitted
-                ? isCorrect
-                  ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30"
-                  : "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30"
+                ? showFeedback
+                  ? isCorrect
+                    ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30"
+                    : "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30"
+                  : "border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800"
                 : isDragOver
                   ? "border-indigo-400 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30 shadow-md"
                   : isDragging
@@ -143,11 +146,12 @@ function ReorderDnD({
 // Question Renderer — renders different UI based on question type
 // ==========================================================================
 export function QuestionRenderer({
-  question, submitted, showAnswer = false, onSubmit,
+  question, submitted, showAnswer = false, showFeedback = true, onSubmit,
 }: {
   question: QuestionData;
   submitted: boolean;
   showAnswer?: boolean;
+  showFeedback?: boolean;
   onSubmit: (response: any) => void;
   score?: any;
 }) {
@@ -243,7 +247,7 @@ export function QuestionRenderer({
           </div>
         )}
         {/* Reference points shown only after submission so student isn't coached during practice */}
-        {submitted && content.text && (
+        {submitted && showFeedback && content.text && (
           <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
             <span className="font-medium">Reference points: </span>{content.text}
           </div>
@@ -292,7 +296,7 @@ export function QuestionRenderer({
             {content.text}
           </div>
         )}
-        {submitted && content.correctText && (
+        {submitted && showFeedback && content.correctText && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-3">
             <p className="text-xs font-medium text-green-700">Correct answer:</p>
             <p className="text-sm text-green-900">{content.correctText}</p>
@@ -439,8 +443,8 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const isCorrect = submitted && content.correctAnswers?.includes(i);
-            const isWrong = submitted && isSelected && !isCorrect;
+            const isCorrect = submitted && showFeedback && content.correctAnswers?.includes(i);
+            const isWrong = submitted && showFeedback && isSelected && !isCorrect;
 
             return (
               <button
@@ -460,8 +464,8 @@ export function QuestionRenderer({
                   {String.fromCharCode(65 + i)}
                 </span>
                 <span className="flex-1">{opt}</span>
-                {submitted && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-                {submitted && isWrong && <XCircle className="h-5 w-5 text-red-500" />}
+                {submitted && showFeedback && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+                {submitted && showFeedback && isWrong && <XCircle className="h-5 w-5 text-red-500" />}
               </button>
             );
           })}
@@ -514,8 +518,8 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = selected.includes(i);
-            const isCorrect = submitted && content.correctAnswers?.includes(i);
-            const isWrong = submitted && isSelected && !isCorrect;
+            const isCorrect = submitted && showFeedback && content.correctAnswers?.includes(i);
+            const isWrong = submitted && showFeedback && isSelected && !isCorrect;
 
             return (
               <button
@@ -615,6 +619,7 @@ export function QuestionRenderer({
           onReorder={setResponse}
           submitted={submitted}
           correctOrder={correctOrder}
+          showFeedback={showFeedback}
         />
         {!submitted && (
           <Button onClick={() => {
@@ -644,7 +649,7 @@ export function QuestionRenderer({
             });
           }}>Check Order</Button>
         )}
-        {(submitted || showAnswer) && (
+        {((submitted && showFeedback) || showAnswer) && (
           <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/40">
             <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Order</p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -675,6 +680,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         submitted={submitted}
         showAnswer={showAnswer}
+        showFeedback={showFeedback}
         onSubmit={onSubmit}
         modelAnswers={modelAnswers}
       />
@@ -691,6 +697,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         submitted={submitted}
         showAnswer={showAnswer}
+        showFeedback={showFeedback}
         onSubmit={onSubmit}
       />
     );
@@ -718,8 +725,8 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const isCorrect = submitted && (content.correctAnswer === i || content.correctAnswers?.includes(i));
-            const isWrong = submitted && isSelected && !isCorrect;
+            const isCorrect = submitted && showFeedback && (content.correctAnswer === i || content.correctAnswers?.includes(i));
+            const isWrong = submitted && showFeedback && isSelected && !isCorrect;
             return (
               <button
                 key={i}
@@ -736,8 +743,8 @@ export function QuestionRenderer({
                   {String.fromCharCode(65 + i)}
                 </span>
                 <span className="flex-1">{opt}</span>
-                {submitted && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-                {submitted && isWrong && <XCircle className="h-5 w-5 text-red-500" />}
+                {submitted && showFeedback && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+                {submitted && showFeedback && isWrong && <XCircle className="h-5 w-5 text-red-500" />}
               </button>
             );
           })}
@@ -800,11 +807,13 @@ export function QuestionRenderer({
             const isActuallyWrong = correctSet.has(i);
             // After submit: show right/wrong/missed
             let cls = "mx-0.5 inline-block cursor-pointer rounded px-1.5 py-0.5 transition";
-            if (submitted) {
+            if (submitted && showFeedback) {
               if (isSelected && isActuallyWrong) cls += " bg-green-500 font-semibold text-white"; // correct catch
               else if (isSelected && !isActuallyWrong) cls += " bg-red-500 font-semibold text-white line-through"; // wrong selection
               else if (!isSelected && isActuallyWrong) cls += " bg-amber-200 font-semibold text-amber-900 underline decoration-wavy"; // missed
               else cls += " text-gray-800";
+            } else if (submitted) {
+              cls += isSelected ? " bg-teal-500 font-semibold text-white shadow-sm" : " text-gray-800";
             } else {
               cls += isSelected
                 ? " bg-teal-500 font-semibold text-white shadow-sm"
@@ -824,7 +833,7 @@ export function QuestionRenderer({
           })}
         </div>
 
-        {submitted && (
+        {submitted && showFeedback && (
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <span className="flex items-center gap-1">
@@ -897,8 +906,8 @@ export function QuestionRenderer({
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const isCorrect = submitted && (content.correctAnswer === i || content.correctAnswers?.includes(i));
-            const isWrong = submitted && isSelected && !isCorrect;
+            const isCorrect = submitted && showFeedback && (content.correctAnswer === i || content.correctAnswers?.includes(i));
+            const isWrong = submitted && showFeedback && isSelected && !isCorrect;
             return (
               <button
                 key={i}
@@ -957,6 +966,7 @@ export function QuestionRenderer({
           totalMarks={totalMarks}
           submitted={submitted}
           showAnswer={showAnswer}
+          showFeedback={showFeedback}
           onSubmit={onSubmit}
         />
       </div>
@@ -976,7 +986,7 @@ export function QuestionRenderer({
           onChange={(e) => setResponse(e.target.value)}
           disabled={submitted}
         />
-        {submitted && content.correctText && (
+        {submitted && showFeedback && content.correctText && (
           <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950/40">
             <p className="text-xs font-medium text-green-800 dark:text-green-300">Correct answer:</p>
             <p className="text-sm text-green-900 dark:text-green-200">{content.correctText}</p>
@@ -2021,13 +2031,14 @@ function shuffle<T>(arr: T[]): T[] {
 
 // -------------------- DRAG-AND-DROP FILL BLANKS --------------------
 function FillBlanksDrag({
-  passage, blanks, submitted, showAnswer = false, onSubmit, totalMarks, modelAnswers = [],
+  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, modelAnswers = [],
 }: {
   passage: string;
   blanks: any[];
   totalMarks: number;
   submitted: boolean;
   showAnswer?: boolean;
+  showFeedback?: boolean;
   onSubmit: (response: any) => void;
   modelAnswers?: string[];
 }) {
@@ -2190,9 +2201,9 @@ function FillBlanksDrag({
             const word = filled[thisIndex];
             const correct = normalizedBlanks[thisIndex]?.correctAnswer;
             const isCorrect =
-              submitted && word && correct && word.toLowerCase() === correct.toLowerCase();
+              submitted && showFeedback && word && correct && word.toLowerCase() === correct.toLowerCase();
             const isWrong =
-              submitted && (!word || (correct && word.toLowerCase() !== correct.toLowerCase()));
+              submitted && showFeedback && (!word || (correct && word.toLowerCase() !== correct.toLowerCase()));
 
             return (
               <span
@@ -2203,21 +2214,25 @@ function FillBlanksDrag({
                 onDrop={(e) => handleDropOnBlank(e, thisIndex)}
                 onClick={() => handleBlankClick(thisIndex)}
                 className={`mx-1 inline-flex min-w-[100px] cursor-pointer items-center justify-center rounded-md border-2 border-dashed px-3 py-1 text-sm font-medium transition select-none ${
-                  submitted
+                  submitted && showFeedback
                     ? isCorrect
                       ? "border-green-500 bg-green-100 text-green-800"
                       : "border-red-400 bg-red-50 text-red-700"
-                    : word
-                      ? "border-indigo-400 bg-indigo-50 text-indigo-700 cursor-grab active:cursor-grabbing"
-                      : selectedWord
-                        ? "border-indigo-300 bg-indigo-50 text-gray-400 animate-pulse"
-                        : "border-gray-300 bg-white text-gray-400 hover:border-indigo-300 hover:bg-indigo-50"
+                    : submitted
+                      ? word
+                        ? "border-gray-300 bg-gray-50 text-gray-700"
+                        : "border-gray-200 bg-white text-gray-400"
+                      : word
+                        ? "border-indigo-400 bg-indigo-50 text-indigo-700 cursor-grab active:cursor-grabbing"
+                        : selectedWord
+                          ? "border-indigo-300 bg-indigo-50 text-gray-400 animate-pulse"
+                          : "border-gray-300 bg-white text-gray-400 hover:border-indigo-300 hover:bg-indigo-50"
                 }`}
                 title={word ? "Drag or tap to remove" : "Tap or drop a word here"}
               >
                 {word || "drop here"}
-                {submitted && isCorrect && <CheckCircle2 className="ml-1.5 h-3.5 w-3.5" />}
-                {submitted && isWrong && <XCircle className="ml-1.5 h-3.5 w-3.5" />}
+                {submitted && showFeedback && isCorrect && <CheckCircle2 className="ml-1.5 h-3.5 w-3.5" />}
+                {submitted && showFeedback && isWrong && <XCircle className="ml-1.5 h-3.5 w-3.5" />}
               </span>
             );
           }
@@ -2262,7 +2277,7 @@ function FillBlanksDrag({
       )}
 
       {/* Correct Answers (after submit OR when Show Answer is toggled) */}
-      {(submitted || showAnswer) && !useFlatMode && (
+      {((submitted && showFeedback) || showAnswer) && !useFlatMode && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -2365,7 +2380,7 @@ function FillBlanksDrag({
 
 // -------------------- DROPDOWN FILL BLANKS --------------------
 function FillBlanksDropdown({
-  passage, blanks, options, submitted, showAnswer = false, onSubmit, totalMarks,
+  passage, blanks, options, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks,
 }: {
   passage: string;
   blanks: any[];
@@ -2373,6 +2388,7 @@ function FillBlanksDropdown({
   totalMarks: number;
   submitted: boolean;
   showAnswer?: boolean;
+  showFeedback?: boolean;
   onSubmit: (response: any) => void;
 }) {
   const segments = splitPassage(passage);
@@ -2399,7 +2415,7 @@ function FillBlanksDropdown({
             const value = answers[thisIndex];
             const blank = normalizedBlanks[thisIndex] || { correctAnswer: "", options: [] };
             const isCorrect =
-              submitted && value && blank.correctAnswer &&
+              submitted && showFeedback && value && blank.correctAnswer &&
               value.trim().toLowerCase() === blank.correctAnswer.trim().toLowerCase();
 
             return (
@@ -2413,10 +2429,12 @@ function FillBlanksDropdown({
                 }}
                 disabled={submitted}
                 className={`mx-1 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
-                  submitted
+                  submitted && showFeedback
                     ? isCorrect
                       ? "border-green-500 bg-green-100 text-green-800"
                       : "border-red-400 bg-red-50 text-red-700"
+                    : submitted
+                      ? "border-gray-300 bg-gray-50 text-gray-700"
                     : value
                       ? "border-indigo-400 bg-indigo-50 text-indigo-700"
                       : "border-gray-300 bg-white text-gray-500"
@@ -2437,7 +2455,7 @@ function FillBlanksDropdown({
         })}
       </div>
 
-      {(submitted || showAnswer) && (
+      {((submitted && showFeedback) || showAnswer) && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -2490,13 +2508,14 @@ function FillBlanksDropdown({
 
 // -------------------- TEXT INPUT FILL BLANKS (for Listening) --------------------
 function FillBlanksText({
-  passage, blanks, submitted, showAnswer = false, onSubmit, totalMarks,
+  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks,
 }: {
   passage: string;
   blanks: any[];
   totalMarks: number;
   submitted: boolean;
   showAnswer?: boolean;
+  showFeedback?: boolean;
   onSubmit: (response: any) => void;
 }) {
   const segments = splitPassage(passage);
@@ -2519,7 +2538,7 @@ function FillBlanksText({
             const value = answers[thisIndex];
             const correct = normalizedBlanks[thisIndex]?.correctAnswer?.trim();
             const isCorrect =
-              submitted && value && correct && value.trim().toLowerCase() === correct.toLowerCase();
+              submitted && showFeedback && value && correct && value.trim().toLowerCase() === correct.toLowerCase();
 
             return (
               <input
@@ -2534,10 +2553,12 @@ function FillBlanksText({
                 disabled={submitted}
                 placeholder="..."
                 className={`mx-1 inline-block w-32 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
-                  submitted
+                  submitted && showFeedback
                     ? isCorrect
                       ? "border-green-500 bg-green-100 text-green-800"
                       : "border-red-400 bg-red-50 text-red-700"
+                    : submitted
+                      ? "border-gray-300 bg-gray-50 text-gray-700"
                     : value
                       ? "border-indigo-400 bg-indigo-50 text-indigo-700"
                       : "border-gray-300 bg-white text-gray-700"
@@ -2553,7 +2574,7 @@ function FillBlanksText({
         })}
       </div>
 
-      {(submitted || showAnswer) && (
+      {((submitted && showFeedback) || showAnswer) && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
