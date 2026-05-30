@@ -2237,7 +2237,7 @@ function FillBlanksDrag({
                 onDragOver={handleDragOver}
                 onDrop={(e) => handleDropOnBlank(e, thisIndex)}
                 onClick={() => handleBlankClick(thisIndex)}
-                className={`mx-1 inline-flex min-w-[100px] cursor-pointer items-center justify-center rounded-md border-2 border-dashed px-3 py-1 text-sm font-medium transition select-none ${
+                className={`mx-1 inline-flex min-w-[100px] cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed px-3 py-1 text-sm font-medium transition select-none ${
                   submitted && showFeedback
                     ? isCorrect
                       ? "border-green-500 bg-green-100 text-green-800"
@@ -2254,9 +2254,14 @@ function FillBlanksDrag({
                 }`}
                 title={word ? "Drag or tap to remove" : "Tap or drop a word here"}
               >
-                {word || "drop here"}
-                {submitted && showFeedback && isCorrect && <CheckCircle2 className="ml-1.5 h-3.5 w-3.5" />}
-                {submitted && showFeedback && isWrong && <XCircle className="ml-1.5 h-3.5 w-3.5" />}
+                <span className="flex items-center gap-1">
+                  {word || "drop here"}
+                  {submitted && showFeedback && isCorrect && <CheckCircle2 className="h-3.5 w-3.5" />}
+                  {submitted && showFeedback && isWrong && <XCircle className="h-3.5 w-3.5" />}
+                </span>
+                {submitted && showFeedback && isWrong && correct && (
+                  <span className="text-xs font-semibold text-green-700 mt-0.5">✓ {correct}</span>
+                )}
               </span>
             );
           }
@@ -2301,16 +2306,18 @@ function FillBlanksDrag({
       )}
 
       {/* Correct Answers (after submit OR when Show Answer is toggled) */}
-      {((submitted && showFeedback) || showAnswer) && !useFlatMode && (
+      {((submitted && showFeedback) || showAnswer) && normalizedBlanks.some(b => b.correctAnswer) && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4">
           <p className="text-xs font-semibold uppercase text-green-700">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
-            {normalizedBlanks.map((b, i) => (
-              <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200">
-                <span className="mr-1 text-xs text-green-500">#{i + 1}</span>
-                {b.correctAnswer}
-              </span>
-            ))}
+            {normalizedBlanks.map((b, i) =>
+              b.correctAnswer ? (
+                <span key={i} className="rounded-md bg-white px-2 py-1 text-sm text-green-800 border border-green-200">
+                  <span className="mr-1 text-xs text-green-500">#{i + 1}</span>
+                  {b.correctAnswer}
+                </span>
+              ) : null
+            )}
           </div>
         </div>
       )}
@@ -2445,33 +2452,38 @@ function FillBlanksDropdown({
               submitted && showFeedback && value && blank.correctAnswer &&
               value.trim().toLowerCase() === blank.correctAnswer.trim().toLowerCase();
 
+            const isWrongDropdown = submitted && showFeedback && !isCorrect;
             return (
-              <select
-                key={`blank-${i}`}
-                value={value}
-                onChange={(e) => {
-                  const next = [...answers];
-                  next[thisIndex] = e.target.value;
-                  setAnswers(next);
-                }}
-                disabled={submitted}
-                className={`mx-1 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
-                  submitted && showFeedback
-                    ? isCorrect
-                      ? "border-green-500 bg-green-100 text-green-800"
-                      : "border-red-400 bg-red-50 text-red-700"
-                    : submitted
-                      ? "border-gray-300 bg-gray-50 text-gray-700"
-                    : value
-                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                      : "border-gray-300 bg-white text-gray-500"
-                }`}
-              >
-                <option value="">— choose —</option>
-                {(blank.options || []).map((opt, j) => (
-                  <option key={j} value={opt.trim()}>{opt.trim()}</option>
-                ))}
-              </select>
+              <span key={`blank-${i}`} className="mx-1 inline-flex flex-col items-center">
+                <select
+                  value={value}
+                  onChange={(e) => {
+                    const next = [...answers];
+                    next[thisIndex] = e.target.value;
+                    setAnswers(next);
+                  }}
+                  disabled={submitted}
+                  className={`rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
+                    submitted && showFeedback
+                      ? isCorrect
+                        ? "border-green-500 bg-green-100 text-green-800"
+                        : "border-red-400 bg-red-50 text-red-700"
+                      : submitted
+                        ? "border-gray-300 bg-gray-50 text-gray-700"
+                      : value
+                        ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                        : "border-gray-300 bg-white text-gray-500"
+                  }`}
+                >
+                  <option value="">— choose —</option>
+                  {(blank.options || []).map((opt, j) => (
+                    <option key={j} value={opt.trim()}>{opt.trim()}</option>
+                  ))}
+                </select>
+                {isWrongDropdown && blank.correctAnswer && (
+                  <span className="text-xs font-semibold text-green-700 mt-0.5">✓ {blank.correctAnswer}</span>
+                )}
+              </span>
             );
           }
           return (
@@ -2570,30 +2582,35 @@ function FillBlanksText({
             const isCorrect =
               submitted && showFeedback && value && correct && value.trim().toLowerCase() === correct.toLowerCase();
 
+            const isWrongText = submitted && showFeedback && !isCorrect;
             return (
-              <input
-                key={`blank-${i}`}
-                type="text"
-                value={value}
-                onChange={(e) => {
-                  const next = [...answers];
-                  next[thisIndex] = e.target.value;
-                  setAnswers(next);
-                }}
-                disabled={submitted}
-                placeholder="..."
-                className={`mx-1 inline-block w-32 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
-                  submitted && showFeedback
-                    ? isCorrect
-                      ? "border-green-500 bg-green-100 text-green-800"
-                      : "border-red-400 bg-red-50 text-red-700"
-                    : submitted
-                      ? "border-gray-300 bg-gray-50 text-gray-700"
-                    : value
-                      ? "border-indigo-400 bg-indigo-50 text-indigo-700"
-                      : "border-gray-300 bg-white text-gray-700"
-                }`}
-              />
+              <span key={`blank-${i}`} className="mx-1 inline-flex flex-col items-center">
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => {
+                    const next = [...answers];
+                    next[thisIndex] = e.target.value;
+                    setAnswers(next);
+                  }}
+                  disabled={submitted}
+                  placeholder="..."
+                  className={`inline-block w-32 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
+                    submitted && showFeedback
+                      ? isCorrect
+                        ? "border-green-500 bg-green-100 text-green-800"
+                        : "border-red-400 bg-red-50 text-red-700"
+                      : submitted
+                        ? "border-gray-300 bg-gray-50 text-gray-700"
+                      : value
+                        ? "border-indigo-400 bg-indigo-50 text-indigo-700"
+                        : "border-gray-300 bg-white text-gray-700"
+                  }`}
+                />
+                {isWrongText && correct && (
+                  <span className="text-xs font-semibold text-green-700 mt-0.5">✓ {correct}</span>
+                )}
+              </span>
             );
           }
           return (
