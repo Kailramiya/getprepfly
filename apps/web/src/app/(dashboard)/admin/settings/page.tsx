@@ -7,25 +7,27 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   CheckCircle2, Crown, AlertTriangle,
-  Zap, Shield, Loader2, CreditCard,
+  Zap, Shield, Loader2, CreditCard, Star,
 } from "lucide-react";
 
 declare global { interface Window { Razorpay: any } }
 
-const PLANS = [
+const MONTHLY_PLANS = [
   {
     key: "CENTRE_STARTER",
     name: "Starter",
     price: 2999,
     maxStudents: 50,
+    studentLabel: "Up to 50 students",
     color: "from-teal-500 to-teal-600",
-    badge: null,
+    badge: null as string | null,
     features: [
       "Up to 50 students",
       "All 4 modules for all students",
       "AI scoring — all question types",
       "Student progress tracking",
       "Batch management",
+      "30 days access",
     ],
   },
   {
@@ -33,8 +35,9 @@ const PLANS = [
     name: "Growth",
     price: 6999,
     maxStudents: 150,
+    studentLabel: "Up to 150 students",
     color: "from-indigo-500 to-purple-600",
-    badge: "Most Popular",
+    badge: "Most Popular" as string | null,
     features: [
       "Up to 150 students",
       "All 4 modules for all students",
@@ -42,6 +45,7 @@ const PLANS = [
       "Advanced analytics dashboard",
       "Batch management + leaderboard",
       "Priority support",
+      "30 days access",
     ],
   },
   {
@@ -49,8 +53,9 @@ const PLANS = [
     name: "Pro",
     price: 14999,
     maxStudents: 500,
+    studentLabel: "Up to 500 students",
     color: "from-amber-500 to-orange-600",
-    badge: "Best Value",
+    badge: "Best Value" as string | null,
     features: [
       "Up to 500 students",
       "All 4 modules for all students",
@@ -58,6 +63,63 @@ const PLANS = [
       "Full analytics + centre branding",
       "Unlimited batches",
       "Dedicated support",
+      "30 days access",
+    ],
+  },
+];
+
+const ANNUAL_PLANS = [
+  {
+    key: "ANNUAL_STARTER",
+    name: "Starter",
+    price: 11999,
+    maxStudents: 65,
+    studentLabel: "50 Students + 15 Bonus",
+    color: "from-teal-500 to-teal-600",
+    badge: null as string | null,
+    features: [
+      "50 Students + 15 Bonus (65 total)",
+      "All 4 modules for all students",
+      "AI scoring — all question types",
+      "Student progress tracking",
+      "Batch management",
+      "1 year access",
+    ],
+  },
+  {
+    key: "ANNUAL_GROWTH",
+    name: "Growth",
+    price: 29999,
+    maxStudents: 180,
+    studentLabel: "150 Students + 30 Bonus",
+    color: "from-indigo-500 to-purple-600",
+    badge: "Most Popular" as string | null,
+    features: [
+      "150 Students + 30 Bonus (180 total)",
+      "All 4 modules for all students",
+      "AI scoring — all question types",
+      "Advanced analytics dashboard",
+      "Batch management + leaderboard",
+      "Priority support",
+      "1 year access",
+    ],
+  },
+  {
+    key: "ANNUAL_UNLIMITED",
+    name: "Unlimited",
+    price: 79999,
+    maxStudents: -1,
+    studentLabel: "Unlimited Students",
+    color: "from-amber-500 to-orange-600",
+    badge: "Best Value" as string | null,
+    features: [
+      "Unlimited students",
+      "All 4 modules for all students",
+      "AI scoring — all question types",
+      "Full analytics + centre branding",
+      "Unlimited batches",
+      "Dedicated support",
+      "1 year access",
     ],
   },
 ];
@@ -95,6 +157,7 @@ export default function AdminBillingPage() {
   const [processing, setProcessing] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
 
   const fetchData = () => {
     setLoading(true);
@@ -184,7 +247,16 @@ export default function AdminBillingPage() {
   }
 
   const { centre, plan, history } = data || { centre: null, plan: null, history: [] };
-  const currentPlanKey = plan ? PLANS.find((p) => p.name === plan.planName.replace(" Plan", ""))?.key : null;
+  const PLANS = billingCycle === "annual" ? ANNUAL_PLANS : MONTHLY_PLANS;
+  const LABEL_TO_KEY: Record<string, string> = {
+    "Starter Plan": "CENTRE_STARTER",
+    "Growth Plan": "CENTRE_GROWTH",
+    "Pro Plan": "CENTRE_PRO",
+    "Annual Starter Plan": "ANNUAL_STARTER",
+    "Annual Growth Plan": "ANNUAL_GROWTH",
+    "Annual Unlimited Plan": "ANNUAL_UNLIMITED",
+  };
+  const currentPlanKey = plan ? (LABEL_TO_KEY[plan.planName] ?? null) : null;
 
   return (
     <>
@@ -246,7 +318,9 @@ export default function AdminBillingPage() {
                 </div>
                 {plan && (
                   <div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{plan.maxStudents}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+                      {plan.maxStudents === -1 ? "∞" : plan.maxStudents}
+                    </p>
                     <p className="text-xs text-gray-500 dark:text-slate-400">Max Allowed</p>
                   </div>
                 )}
@@ -263,9 +337,46 @@ export default function AdminBillingPage() {
 
         {/* Plan Cards */}
         <div>
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">
-            {centre?.isActive ? "Renew or Upgrade Your Plan" : "Choose a Plan"}
-          </h2>
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+              {centre?.isActive ? "Renew or Upgrade Your Plan" : "Choose a Plan"}
+            </h2>
+
+            {/* Billing cycle toggle */}
+            <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-slate-800">
+              <button
+                onClick={() => setBillingCycle("monthly")}
+                className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+                  billingCycle === "monthly"
+                    ? "bg-white text-gray-900 shadow dark:bg-slate-700 dark:text-slate-100"
+                    : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
+                onClick={() => setBillingCycle("annual")}
+                className={`flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+                  billingCycle === "annual"
+                    ? "bg-white text-gray-900 shadow dark:bg-slate-700 dark:text-slate-100"
+                    : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
+              >
+                Annual
+                <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/50 dark:text-green-400">
+                  Save
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {billingCycle === "annual" && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+              <Star className="h-4 w-4 shrink-0 text-amber-500" />
+              Annual plans include bonus seats and save up to 33% vs monthly billing.
+            </div>
+          )}
+
           <div className="grid gap-6 lg:grid-cols-3">
             {PLANS.map((p) => {
               const isCurrent = currentPlanKey === p.key && centre?.isActive;
@@ -273,16 +384,16 @@ export default function AdminBillingPage() {
                 <Card
                   key={p.key}
                   className={`relative overflow-hidden transition ${
-                    isCurrent ? "border-2 border-indigo-500 shadow-lg" : "border-gray-200"
+                    isCurrent ? "border-2 border-indigo-500 shadow-lg" : "border-gray-200 dark:border-slate-700"
                   }`}
                 >
-                  {p.badge && (
+                  {p.badge && !isCurrent && (
                     <div className="absolute right-4 top-4">
                       <Badge className="bg-indigo-600 text-white">{p.badge}</Badge>
                     </div>
                   )}
                   {isCurrent && (
-                    <div className="absolute left-4 top-4">
+                    <div className="absolute right-4 top-4">
                       <Badge variant="success">Current Plan</Badge>
                     </div>
                   )}
@@ -293,9 +404,11 @@ export default function AdminBillingPage() {
                     <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">{p.name}</h3>
                     <div className="mt-2 flex items-baseline gap-1">
                       <span className="text-3xl font-extrabold text-gray-900 dark:text-slate-100">₹{p.price.toLocaleString("en-IN")}</span>
-                      <span className="text-sm text-gray-500 dark:text-slate-400">/month</span>
+                      <span className="text-sm text-gray-500 dark:text-slate-400">
+                        /{billingCycle === "annual" ? "year" : "month"}
+                      </span>
                     </div>
-                    <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">Up to {p.maxStudents} students</p>
+                    <p className="mt-1 text-sm font-medium text-indigo-600 dark:text-indigo-400">{p.studentLabel}</p>
 
                     <ul className="mt-5 space-y-2.5">
                       {p.features.map((f) => (

@@ -40,8 +40,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Centre not found" }, { status: 404 });
   }
 
-  // Enforce seat limit based on active plan
-  if (latestSub) {
+  // Enforce seat limit based on active plan (-1 means unlimited)
+  if (latestSub && latestSub.maxStudents !== -1) {
     const activeSeats = await getCentreActiveSeats(centreId);
     if (activeSeats >= latestSub.maxStudents) {
       return NextResponse.json({

@@ -321,6 +321,51 @@ export const CENTRE_PLANS: Record<string, {
       "30 days access",
     ],
   },
+  // Annual institute plans
+  ANNUAL_STARTER: {
+    amount: 1199900,      // ₹11,999/year
+    label: "Annual Starter Plan",
+    maxStudents: 65,      // 50 base + 15 bonus
+    days: 365,
+    features: [
+      "50 Students + 15 Bonus (65 total)",
+      "All 4 modules unlocked for all students",
+      "AI scoring for all question types",
+      "Student progress tracking",
+      "Batch management",
+      "1 year access",
+    ],
+  },
+  ANNUAL_GROWTH: {
+    amount: 2999900,      // ₹29,999/year
+    label: "Annual Growth Plan",
+    maxStudents: 180,     // 150 base + 30 bonus
+    days: 365,
+    features: [
+      "150 Students + 30 Bonus (180 total)",
+      "All 4 modules unlocked for all students",
+      "AI scoring for all question types",
+      "Advanced analytics dashboard",
+      "Batch management + leaderboard",
+      "Priority support",
+      "1 year access",
+    ],
+  },
+  ANNUAL_UNLIMITED: {
+    amount: 7999900,      // ₹79,999/year
+    label: "Annual Unlimited Plan",
+    maxStudents: -1,      // -1 = unlimited
+    days: 365,
+    features: [
+      "Unlimited students",
+      "All 4 modules unlocked for all students",
+      "AI scoring for all question types",
+      "Full analytics + centre branding",
+      "Unlimited batches",
+      "Dedicated support",
+      "1 year access",
+    ],
+  },
 };
 
 /**
@@ -348,7 +393,7 @@ export async function activateCentrePlan(
       where: { id: centreId },
       data: { isPremiumCentre: true, premiumUntil: newPremiumUntil },
     }),
-    // Create subscription record
+    // Create subscription record (-1 stored as-is for unlimited plans)
     db.centreSubscription.create({
       data: {
         centreId,

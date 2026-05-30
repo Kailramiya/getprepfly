@@ -3,13 +3,16 @@ import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { MODULE_PRICING, CENTRE_PLANS } from "@/lib/access";
 
+function isCentrePlanKey(planType: string): boolean {
+  return planType?.startsWith("CENTRE_") || planType?.startsWith("ANNUAL_");
+}
+
 // Merge hardcoded plan metadata with DB-overridden amounts
 async function resolvePlanAmount(planType: string): Promise<{ amount: number; label: string } | null> {
   // Check DB for a custom price first
   const dbPrice = await db.pricingSetting.findUnique({ where: { key: planType } });
 
-  const isCentrePlan = planType?.startsWith("CENTRE_");
-  const hardcoded = isCentrePlan ? CENTRE_PLANS[planType] : MODULE_PRICING[planType];
+  const hardcoded = isCentrePlanKey(planType) ? CENTRE_PLANS[planType] : MODULE_PRICING[planType];
   if (!hardcoded) return null;
 
   const amount = dbPrice ? dbPrice.amount : hardcoded.amount;
@@ -24,7 +27,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const { planType, couponCode } = body;
 
-  const isCentrePlan = planType?.startsWith("CENTRE_");
+  const isCentrePlan = isCentrePlanKey(planType);
 
   // Resolve plan details (DB price overrides hardcoded)
   const plan = await resolvePlanAmount(planType);

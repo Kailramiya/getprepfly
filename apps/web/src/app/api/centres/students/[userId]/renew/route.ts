@@ -25,7 +25,8 @@ export async function POST(_req: NextRequest, { params }: { params: { userId: st
   const isNew = !seat || seat.status === "CANCELLED";
   if (isNew) {
     const latestSub = await db.centreSubscription.findFirst({ where: { centreId, status: "ACTIVE" }, orderBy: { createdAt: "desc" } });
-    if (latestSub) {
+    // -1 maxStudents means unlimited — skip seat limit check
+    if (latestSub && latestSub.maxStudents !== -1) {
       const activeSeats = await getCentreActiveSeats(centreId);
       if (activeSeats >= latestSub.maxStudents) {
         return NextResponse.json({ success: false, error: `Seat limit reached (${latestSub.maxStudents}). Upgrade your plan to add more students.` }, { status: 403 });
