@@ -112,23 +112,29 @@ function ReorderDnD({
               submitted
                 ? showFeedback
                   ? isCorrect
-                    ? "border-green-500 bg-green-50 dark:border-green-700 dark:bg-green-950/30"
-                    : "border-red-500 bg-red-50 dark:border-red-700 dark:bg-red-950/30"
-                  : "border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800"
+                    ? "border-green-600 bg-green-50 text-green-800 dark:border-green-700 dark:bg-green-950/60 dark:text-green-200"
+                    : "border-red-500 bg-red-50 text-red-800 dark:border-red-700 dark:bg-red-950/60 dark:text-red-200"
+                  : "border-gray-200 bg-white text-gray-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200"
                 : isDragOver
-                  ? "border-indigo-400 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/30 shadow-md"
+                  ? "border-indigo-400 bg-indigo-50 dark:border-indigo-600 dark:bg-indigo-950/40 shadow-md"
                   : isDragging
-                    ? "border-indigo-300 bg-indigo-50/50 dark:border-indigo-700 opacity-50"
-                    : "border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800 cursor-grab hover:border-gray-300 dark:hover:border-slate-500"
+                    ? "border-indigo-300 bg-indigo-50/50 dark:border-indigo-700 dark:bg-slate-800 opacity-50"
+                    : "border-gray-200 bg-white text-gray-700 dark:border-slate-600 dark:bg-slate-800/80 dark:text-slate-200 cursor-grab hover:border-gray-300 dark:hover:border-slate-500 dark:hover:bg-slate-700"
             }`}
           >
             {!submitted && (
-              <GripVertical className="mt-0.5 h-5 w-5 shrink-0 text-gray-300 dark:text-slate-600" />
+              <GripVertical className="mt-0.5 h-5 w-5 shrink-0 text-gray-300 dark:text-slate-500" />
             )}
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600 dark:bg-slate-700 dark:text-slate-300">
+            <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+              submitted && showFeedback
+                ? isCorrect
+                  ? "bg-green-600 text-white dark:bg-green-700"
+                  : "bg-red-500 text-white dark:bg-red-700"
+                : "bg-slate-200 text-slate-700 dark:bg-slate-600 dark:text-slate-200"
+            }`}>
               {paraIdx + 1}
             </span>
-            <p className="flex-1 text-sm text-gray-800 dark:text-slate-200">{paragraphs[paraIdx]}</p>
+            <p className="flex-1 text-sm">{paragraphs[paraIdx]}</p>
             {/* Arrow buttons shown only on mobile where drag isn't reliable */}
             {!submitted && (
               <div className="flex flex-col gap-1 sm:hidden">
@@ -455,7 +461,8 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const isCorrect = submitted && showFeedback && content.correctAnswers?.includes(i);
+            const correctIdx = content.correctAnswer ?? content.correctAnswers?.[0];
+            const isCorrect = submitted && showFeedback && (i === correctIdx || content.correctAnswers?.includes(i));
             const isWrong = submitted && showFeedback && isSelected && !isCorrect;
 
             return (
@@ -533,7 +540,7 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = selected.includes(i);
-            const isCorrect = submitted && showFeedback && content.correctAnswers?.includes(i);
+            const isCorrect = submitted && showFeedback && (content.correctAnswers?.includes(i) ?? false);
             const isWrong = submitted && showFeedback && isSelected && !isCorrect;
 
             return (
