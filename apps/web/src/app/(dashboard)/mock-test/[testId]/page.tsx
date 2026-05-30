@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   ChevronLeft, ChevronRight, Clock,
   CheckCircle2, Mic, PenTool, BookOpen, Headphones,
-  Flag, Loader2,
+  Flag, Loader2, Save,
 } from "lucide-react";
 import {
   QuestionRenderer,
@@ -46,7 +46,7 @@ interface MockTestData {
   listeningScore: number | null;
   overallScore: number | null;
   questions: TestQuestion[];
-  attempts: { questionId: string; overallScore: number | null; scores: any }[];
+  attempts: { questionId: string; overallScore: number | null; scores: any; responseText: string | null }[];
 }
 
 const SECTION_ICONS: Record<string, any> = {
@@ -70,6 +70,10 @@ export default function MockTestSessionPage() {
   const [submitted, setSubmitted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [finishing, setFinishing] = useState(false);
+  const [autoSaving, setAutoSaving] = useState(false);
+
+  // Tracks the latest in-progress response from QuestionRenderer (before explicit submit)
+  const pendingResponseRef = useRef<any>(null);
 
   // Fetch test data
   useEffect(() => {
@@ -95,12 +99,17 @@ export default function MockTestSessionPage() {
     return () => clearInterval(interval);
   }, [test]);
 
+  // Reset submitted and pending response whenever question changes
+  useEffect(() => {
+    pendingResponseRef.current = null;
+    setSubmitted(false);
+  }, [currentIdx]);
+
   const currentQuestion = test?.questions[currentIdx];
-  const qSection = currentQuestion?.question?.section || "";
   const isAttempted = test?.attempts?.some((a) => a.questionId === currentQuestion?.question?.id);
 
   const totalQuestions = test?.questions?.length || 0;
-  const attemptedCount = test?.attempts?.length || 0;
+  const attemptedCount = new Set(test?.attempts?.map((a) => a.questionId)).size;
 
   // Group questions by section
   const sectionBreakdown = test?.questions?.reduce((acc, q) => {
@@ -111,11 +120,42 @@ export default function MockTestSessionPage() {
     return acc;
   }, {} as Record<string, { total: number; attempted: number }>) || {};
 
-  const goNext = useCallback(() => {
+  // Auto-save the current pending response before navigating away
+  const autoSavePending = useCallback(async () => {
+    if (!currentQuestion || submitted) return;
+    const pending = pendingResponseRef.current;
+    if (pending === null || pending === undefined) return;
+
+    setAutoSaving(true);
+    try {
+      const responseText = typeof pending === "string"
+        ? pending
+        : JSON.stringify(pending);
+      await fetch("/api/attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          questionId: currentQuestion.question.id,
+          responseText,
+          mockTestId: testId,
+          overallScore: null,
+        }),
+      });
+      // Refresh test to update attempted count
+      const res = await fetch(`/api/mock-tests/${testId}`);
+      const data = await res.json();
+      if (data.success) setTest(data.data);
+    } catch {
+      // silent — auto-save is best-effort
+    }
+    setAutoSaving(false);
+  }, [currentQuestion, submitted, testId]);
+
+  const goNext = useCallback(async () => {
     if (currentIdx < totalQuestions - 1) {
+      await autoSavePending();
       const nextIdx = currentIdx + 1;
       setCurrentIdx(nextIdx);
-      setSubmitted(false);
       // Save position
       fetch(`/api/mock-tests/${testId}`, {
         method: "PATCH",
@@ -123,21 +163,22 @@ export default function MockTestSessionPage() {
         body: JSON.stringify({ currentIndex: nextIdx, currentSection: test?.questions[nextIdx]?.question?.section }),
       });
     }
-  }, [currentIdx, totalQuestions, testId, test]);
+  }, [currentIdx, totalQuestions, testId, test, autoSavePending]);
 
-  const goPrev = () => {
+  const goPrev = useCallback(async () => {
     if (currentIdx > 0) {
+      await autoSavePending();
       setCurrentIdx(currentIdx - 1);
-      setSubmitted(false);
     }
-  };
+  }, [currentIdx, autoSavePending]);
 
-  // Called by QuestionRenderer when student submits an answer
+  // Called by QuestionRenderer when student explicitly submits
   const handleQuestionSubmit = async (response: any) => {
     if (!currentQuestion) return;
     setSubmitted(true);
-    const result: ScoreResult | undefined = response?.scoreResult;
+    pendingResponseRef.current = null;
 
+    const result: ScoreResult | undefined = response?.scoreResult;
     const overallScore = result && result.marksTotal > 0
       ? Math.round((result.marksEarned / result.marksTotal) * 90)
       : null;
@@ -150,6 +191,7 @@ export default function MockTestSessionPage() {
         responseText: typeof response?.text === "string" ? response.text : JSON.stringify(response),
         mockTestId: testId,
         overallScore,
+        scores: result?.aiScores || null,
       }),
     });
 
@@ -159,6 +201,7 @@ export default function MockTestSessionPage() {
   };
 
   const finishTest = async () => {
+    await autoSavePending();
     setFinishing(true);
     await fetch(`/api/mock-tests/${testId}`, {
       method: "PATCH",
@@ -271,6 +314,8 @@ export default function MockTestSessionPage() {
     );
   }
 
+  const qSection = currentQuestion?.question?.section || "";
+
   // Active test — show questions
   return (
     <div className="mx-auto max-w-4xl space-y-4">
@@ -286,6 +331,11 @@ export default function MockTestSessionPage() {
           </span>
         </div>
         <div className="flex items-center gap-4">
+          {autoSaving && (
+            <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-slate-500">
+              <Save className="h-3 w-3 animate-pulse" /> Saving…
+            </span>
+          )}
           <div className="flex items-center gap-1.5 text-sm font-mono font-medium text-gray-700 dark:text-slate-300">
             <Clock className="h-4 w-4 text-gray-400 dark:text-slate-500" />
             {formatTime(elapsed)}
@@ -327,28 +377,36 @@ export default function MockTestSessionPage() {
               {currentQuestion?.question?.type?.replace(/_/g, " ")} · {currentQuestion?.question?.difficulty}
             </p>
           </div>
-          {isAttempted && <Badge variant="success">Answered</Badge>}
+          <div className="flex items-center gap-2">
+            {isAttempted && !submitted && (
+              <Badge variant="success">Previously Answered — can re-edit</Badge>
+            )}
+            {submitted && <Badge variant="success">Answered</Badge>}
+          </div>
         </CardHeader>
         <CardContent className="p-6">
           {currentQuestion?.question && (
             <QuestionRenderer
-              key={currentQuestion.question.id}
+              key={`${currentQuestion.question.id}-${currentIdx}`}
               question={{
                 ...currentQuestion.question,
                 isPrediction: false,
                 marks: 1,
               }}
-              submitted={submitted || !!isAttempted}
+              submitted={submitted}
               showAnswer={false}
               showFeedback={false}
               onSubmit={handleQuestionSubmit}
+              onResponseChange={(r) => { pendingResponseRef.current = r; }}
             />
           )}
 
-          {/* No score feedback shown during the test — answers revealed after completion */}
+          {/* Info banner — only shown after explicit submit or if previously answered */}
           {(submitted || isAttempted) && (
             <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30 px-4 py-3 text-sm text-blue-700 dark:text-blue-300">
-              Answer recorded. Complete the test to see correct answers and scores.
+              {submitted
+                ? "Answer saved. Complete the test to see correct answers and scores."
+                : "You answered this question before. You can re-submit to update your answer."}
             </div>
           )}
         </CardContent>

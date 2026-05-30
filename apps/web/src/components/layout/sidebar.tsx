@@ -26,6 +26,7 @@ import {
   Megaphone,
   AlertTriangle,
   Flag,
+  IndianRupee,
 } from "lucide-react";
 import { useState } from "react";
 import { useDarkMode } from "@/hooks/use-dark-mode";
@@ -73,6 +74,7 @@ const superAdminNav: NavItem[] = [
   { label: "Mock Tests", href: "/super-admin/mock-tests", icon: ClipboardList },
   { label: "Reports", href: "/super-admin/reports", icon: AlertTriangle },
   { label: "Coupons", href: "/super-admin/coupons", icon: CreditCard },
+  { label: "Pricing", href: "/super-admin/pricing", icon: IndianRupee },
   { label: "Analytics", href: "/super-admin/analytics", icon: BarChart3 },
 ];
 

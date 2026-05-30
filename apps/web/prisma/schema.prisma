@@ -627,6 +627,17 @@ model VocabProgress {
 }
 
 // ============================================================================
+// PRICING SETTINGS — super admin can change plan prices from the dashboard
+// ============================================================================
+
+model PricingSetting {
+  key       String   @id  // e.g. "MODULE_SPEAKING", "ALL_MODULES", "CENTRE_STARTER"
+  amount    Int           // in paise (INR × 100)
+  label     String
+  updatedAt DateTime @updatedAt
+}
+
+// ============================================================================
 // ANNOUNCEMENTS & NOTIFICATIONS
 // ============================================================================
 

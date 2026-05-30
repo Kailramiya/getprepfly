@@ -92,15 +92,24 @@ export default function PricingPage() {
   const [loading, setLoading] = useState(true);
   const [processing, setProcessing] = useState<string | null>(null);
   const [error, setError] = useState("");
+  // Dynamic prices fetched from DB (in paise); null = use hardcoded defaults
+  const [livePrices, setLivePrices] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
-    fetch("/api/access/me")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success) setAccess(data.data);
-      })
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch("/api/access/me").then(r => r.json()),
+      fetch("/api/pricing").then(r => r.json()),
+    ]).then(([accessData, priceData]) => {
+      if (accessData.success) setAccess(accessData.data);
+      if (priceData.success) setLivePrices(priceData.data);
+    }).finally(() => setLoading(false));
   }, []);
+
+  // Resolve price for a plan: DB price (in rupees) if available, else hardcoded
+  const planPrice = (planId: string, defaultRupees: number): number => {
+    if (!livePrices) return defaultRupees;
+    return Math.round((livePrices[planId] ?? defaultRupees * 100) / 100);
+  };
 
   const handlePurchase = async (planId: string) => {
     setError("");
@@ -261,26 +270,36 @@ export default function PricingPage() {
               </div>
             </div>
             <div className="text-center lg:text-right">
-              <div className="mb-1 text-xs font-medium text-gray-500 line-through dark:text-slate-400">₹796 separately</div>
-              <div className="flex items-baseline justify-center gap-1 lg:justify-end">
-                <span className="text-4xl font-bold text-gray-900 dark:text-slate-100">₹599</span>
-                <span className="text-sm text-gray-500 dark:text-slate-400">/ 30 days</span>
-              </div>
-              <p className="mt-1 text-xs text-green-600 font-medium">Save ₹197</p>
-              {hasAccess("ALL_MODULES") ? (
-                <Button disabled className="mt-4 w-full gap-2 lg:w-auto" size="lg">
-                  <Check className="h-4 w-4" /> Active until {formatExpiry("ALL_MODULES")}
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => handlePurchase("ALL_MODULES")}
-                  loading={processing === "ALL_MODULES"}
-                  className="mt-4 w-full gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 lg:w-auto"
-                  size="lg"
-                >
-                  Unlock Everything for ₹599
-                </Button>
-              )}
+              {(() => {
+                const modulePrice = planPrice("MODULE_SPEAKING", 199);
+                const bundlePrice = planPrice("ALL_MODULES", 599);
+                const separately = modulePrice * 4;
+                const save = separately - bundlePrice;
+                return (
+                  <>
+                    <div className="mb-1 text-xs font-medium text-gray-500 line-through dark:text-slate-400">₹{separately} separately</div>
+                    <div className="flex items-baseline justify-center gap-1 lg:justify-end">
+                      <span className="text-4xl font-bold text-gray-900 dark:text-slate-100">₹{bundlePrice}</span>
+                      <span className="text-sm text-gray-500 dark:text-slate-400">/ 30 days</span>
+                    </div>
+                    {save > 0 && <p className="mt-1 text-xs text-green-600 font-medium">Save ₹{save}</p>}
+                    {hasAccess("ALL_MODULES") ? (
+                      <Button disabled className="mt-4 w-full gap-2 lg:w-auto" size="lg">
+                        <Check className="h-4 w-4" /> Active until {formatExpiry("ALL_MODULES")}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={() => handlePurchase("ALL_MODULES")}
+                        loading={processing === "ALL_MODULES"}
+                        className="mt-4 w-full gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 lg:w-auto"
+                        size="lg"
+                      >
+                        Unlock Everything for ₹{bundlePrice}
+                      </Button>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </CardContent>
@@ -298,6 +317,7 @@ export default function PricingPage() {
             const Icon = plan.icon;
             const owned = hasAccess(plan.id);
             const expiry = formatExpiry(plan.id);
+            const price = planPrice(plan.id, plan.price);
             return (
               <Card key={plan.id} className={`relative transition ${owned ? "border-green-300 bg-green-50/40" : "hover:shadow-lg"}`}>
                 <CardContent className="p-5">
@@ -311,7 +331,7 @@ export default function PricingPage() {
                   </div>
                   <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-slate-100">{plan.title}</h3>
                   <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">₹{plan.price}</span>
+                    <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">₹{price}</span>
                     <span className="text-xs text-gray-500 dark:text-slate-400">/ 30 days</span>
                   </div>
 
@@ -335,7 +355,7 @@ export default function PricingPage() {
                       className="mt-4 w-full"
                       variant="outline"
                     >
-                      Buy for ₹{plan.price}
+                      Buy for ₹{price}
                     </Button>
                   )}
                 </CardContent>

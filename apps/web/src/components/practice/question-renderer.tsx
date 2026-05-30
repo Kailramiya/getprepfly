@@ -146,13 +146,14 @@ function ReorderDnD({
 // Question Renderer — renders different UI based on question type
 // ==========================================================================
 export function QuestionRenderer({
-  question, submitted, showAnswer = false, showFeedback = true, onSubmit,
+  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange,
 }: {
   question: QuestionData;
   submitted: boolean;
   showAnswer?: boolean;
   showFeedback?: boolean;
   onSubmit: (response: any) => void;
+  onResponseChange?: (response: any) => void;
   score?: any;
 }) {
   const [response, setResponse] = useState<any>(() => {
@@ -169,6 +170,14 @@ export function QuestionRenderer({
     return null;
   });
   const content = question?.content as any;
+
+  // Fire onResponseChange whenever the response state changes (used by mock test auto-save)
+  useEffect(() => {
+    if (response !== null && response !== undefined) {
+      onResponseChange?.(response);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response]);
 
   if (!question || !content) return null;
 

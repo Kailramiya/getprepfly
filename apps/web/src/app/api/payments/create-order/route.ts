@@ -2,6 +2,21 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { MODULE_PRICING, CENTRE_PLANS } from "@/lib/access";
+import { DEFAULT_PRICES } from "@/app/api/super-admin/pricing/route";
+
+// Merge hardcoded plan metadata with DB-overridden amounts
+async function resolvePlanAmount(planType: string): Promise<{ amount: number; label: string } | null> {
+  // Check DB for a custom price first
+  const dbPrice = await db.pricingSetting.findUnique({ where: { key: planType } });
+
+  const isCentrePlan = planType?.startsWith("CENTRE_");
+  const hardcoded = isCentrePlan ? CENTRE_PLANS[planType] : MODULE_PRICING[planType];
+  if (!hardcoded) return null;
+
+  const amount = dbPrice ? dbPrice.amount : hardcoded.amount;
+  const label = dbPrice ? dbPrice.label : hardcoded.label;
+  return { amount, label };
+}
 
 export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
@@ -12,8 +27,8 @@ export async function POST(req: NextRequest) {
 
   const isCentrePlan = planType?.startsWith("CENTRE_");
 
-  // Resolve plan details
-  const plan = isCentrePlan ? CENTRE_PLANS[planType] : MODULE_PRICING[planType];
+  // Resolve plan details (DB price overrides hardcoded)
+  const plan = await resolvePlanAmount(planType);
   if (!plan) {
     return NextResponse.json(
       { success: false, error: "Invalid plan type" },

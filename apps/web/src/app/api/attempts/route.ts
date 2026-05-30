@@ -57,24 +57,57 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const attempt = await db.attempt.create({
-    data: {
-      userId: user!.id,
-      questionId,
-      responseText: responseText || null,
-      responseAudio: responseAudio || null,
-      scores: scores || null,
-      overallScore: overallScore || null,
-      timeTaken: timeTaken || null,
-      feedback: feedback || null,
-      mockTestId: mockTestId || null,
-    },
-    include: {
-      question: {
-        select: { id: true, title: true, type: true, section: true },
+  let attempt;
+  if (mockTestId) {
+    // Upsert: update existing attempt for this question in this mock test
+    const existing = await db.attempt.findFirst({
+      where: { userId: user!.id, questionId, mockTestId },
+    });
+    if (existing) {
+      attempt = await db.attempt.update({
+        where: { id: existing.id },
+        data: {
+          responseText: responseText || null,
+          responseAudio: responseAudio || null,
+          scores: scores || null,
+          overallScore: overallScore ?? existing.overallScore,
+          timeTaken: timeTaken || null,
+          feedback: feedback || null,
+        },
+        include: { question: { select: { id: true, title: true, type: true, section: true } } },
+      });
+    } else {
+      attempt = await db.attempt.create({
+        data: {
+          userId: user!.id,
+          questionId,
+          responseText: responseText || null,
+          responseAudio: responseAudio || null,
+          scores: scores || null,
+          overallScore: overallScore || null,
+          timeTaken: timeTaken || null,
+          feedback: feedback || null,
+          mockTestId,
+        },
+        include: { question: { select: { id: true, title: true, type: true, section: true } } },
+      });
+    }
+  } else {
+    attempt = await db.attempt.create({
+      data: {
+        userId: user!.id,
+        questionId,
+        responseText: responseText || null,
+        responseAudio: responseAudio || null,
+        scores: scores || null,
+        overallScore: overallScore || null,
+        timeTaken: timeTaken || null,
+        feedback: feedback || null,
+        mockTestId: null,
       },
-    },
-  });
+      include: { question: { select: { id: true, title: true, type: true, section: true } } },
+    });
+  }
 
   return NextResponse.json(
     { success: true, data: attempt },
