@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { IndianRupee, RotateCcw, Save, Mic, PenTool, BookOpen, Headphones, Layers, Building2 } from "lucide-react";
+import { IndianRupee, RotateCcw, Save, Mic, PenTool, BookOpen, Headphones, Layers, Building2, CalendarDays } from "lucide-react";
 
 interface PricingRow {
   key: string;
@@ -16,14 +16,25 @@ interface PricingRow {
 }
 
 const PLAN_META: Record<string, { icon: any; color: string; bg: string; group: string }> = {
-  MODULE_SPEAKING:  { icon: Mic,        color: "text-teal-600",   bg: "bg-teal-50 dark:bg-teal-950/30",   group: "Student Plans" },
-  MODULE_WRITING:   { icon: PenTool,    color: "text-blue-600",   bg: "bg-blue-50 dark:bg-blue-950/30",   group: "Student Plans" },
-  MODULE_READING:   { icon: BookOpen,   color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/30", group: "Student Plans" },
-  MODULE_LISTENING: { icon: Headphones, color: "text-orange-600", bg: "bg-orange-50 dark:bg-orange-950/30", group: "Student Plans" },
-  ALL_MODULES:      { icon: Layers,     color: "text-indigo-600", bg: "bg-indigo-50 dark:bg-indigo-950/30", group: "Student Plans" },
-  CENTRE_STARTER:   { icon: Building2,  color: "text-green-600",  bg: "bg-green-50 dark:bg-green-950/30",  group: "Centre Plans" },
-  CENTRE_GROWTH:    { icon: Building2,  color: "text-emerald-600",bg: "bg-emerald-50 dark:bg-emerald-950/30", group: "Centre Plans" },
-  CENTRE_PRO:       { icon: Building2,  color: "text-cyan-600",   bg: "bg-cyan-50 dark:bg-cyan-950/30",   group: "Centre Plans" },
+  MODULE_SPEAKING:   { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Student Plans" },
+  MODULE_WRITING:    { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",      group: "Student Plans" },
+  MODULE_READING:    { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans" },
+  MODULE_LISTENING:  { icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans" },
+  ALL_MODULES:       { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans" },
+  CENTRE_STARTER:    { icon: Building2,    color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Centre Plans (Monthly)" },
+  CENTRE_GROWTH:     { icon: Building2,    color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Centre Plans (Monthly)" },
+  CENTRE_PRO:        { icon: Building2,    color: "text-cyan-600",    bg: "bg-cyan-50 dark:bg-cyan-950/30",      group: "Centre Plans (Monthly)" },
+  ANNUAL_STARTER:    { icon: CalendarDays, color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Annual Institute Plans" },
+  ANNUAL_GROWTH:     { icon: CalendarDays, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Annual Institute Plans" },
+  ANNUAL_UNLIMITED:  { icon: CalendarDays, color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/30",    group: "Annual Institute Plans" },
+};
+
+const DEFAULT_RUPEES: Record<string, string> = {
+  MODULE_SPEAKING: "199", MODULE_WRITING: "199",
+  MODULE_READING: "199",  MODULE_LISTENING: "199",
+  ALL_MODULES: "599",
+  CENTRE_STARTER: "2999", CENTRE_GROWTH: "6999",  CENTRE_PRO: "14999",
+  ANNUAL_STARTER: "11999", ANNUAL_GROWTH: "29999", ANNUAL_UNLIMITED: "79999",
 };
 
 export default function SuperAdminPricingPage() {
@@ -86,7 +97,7 @@ export default function SuperAdminPricingPage() {
     setResetting(null);
   };
 
-  const groups = ["Student Plans", "Centre Plans"];
+  const groups = ["Student Plans", "Centre Plans (Monthly)", "Annual Institute Plans"];
 
   return (
     <div className="space-y-6">
@@ -168,14 +179,7 @@ export default function SuperAdminPricingPage() {
                                 size="sm"
                                 variant="ghost"
                                 onClick={() => {
-                                  // Find default amount from the original key
-                                  const defaults: Record<string, string> = {
-                                    MODULE_SPEAKING: "199", MODULE_WRITING: "199",
-                                    MODULE_READING: "199", MODULE_LISTENING: "199",
-                                    ALL_MODULES: "599",
-                                    CENTRE_STARTER: "2999", CENTRE_GROWTH: "6999", CENTRE_PRO: "14999",
-                                  };
-                                  handleReset(row.key, defaults[row.key] ?? row.amountRupees);
+                                  handleReset(row.key, DEFAULT_RUPEES[row.key] ?? row.amountRupees);
                                 }}
                                 loading={resetting === row.key}
                                 className="gap-1.5 text-gray-400"
