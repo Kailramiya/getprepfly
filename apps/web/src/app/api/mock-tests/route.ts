@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
+import { getUserAccess } from "@/lib/access";
 
 const MOCK_TEST_STRUCTURE: Record<string, Record<string, number>> = {
   SPEAKING: { READ_ALOUD: 6, REPEAT_SENTENCE: 10, DESCRIBE_IMAGE: 3, RETELL_LECTURE: 2, ANSWER_SHORT_QUESTION: 5, RESPOND_TO_SITUATION: 2 },
@@ -41,6 +42,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json().catch(() => ({}));
     const { templateId } = body;
 
+    // Fetch user access for all paths
+    const access = await getUserAccess(user!.id);
+
     // --- Start from a super-admin template: copy its questions ---
     if (templateId) {
       const template = await db.mockTest.findUnique({
@@ -48,6 +52,25 @@ export async function POST(req: NextRequest) {
         include: { questions: { orderBy: { order: "asc" } } },
       });
       if (!template) return NextResponse.json({ success: false, error: "Template not found" }, { status: 404 });
+
+      // Access check — free templates are open to everyone
+      if (!(template as any).isFree) {
+        if (template.mockType === "FULL" && !access.hasAllAccess) {
+          return NextResponse.json(
+            { success: false, error: "Full mock tests require all 4 sections. Please purchase the All Modules plan.", locked: true },
+            { status: 403 }
+          );
+        }
+        if (template.mockType === "SECTIONAL" && template.section) {
+          const hasSection = access.hasAllAccess || access.modules.has(template.section as any);
+          if (!hasSection) {
+            return NextResponse.json(
+              { success: false, error: `This ${template.section.toLowerCase()} mock test requires the ${template.section.charAt(0) + template.section.slice(1).toLowerCase()} module. Please purchase it to continue.`, locked: true },
+              { status: 403 }
+            );
+          }
+        }
+      }
 
       const mockTest = await db.mockTest.create({
         data: {
@@ -68,7 +91,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, data: mockTest }, { status: 201 });
     }
 
-    // --- Random full mock test ---
+    // --- Random full mock test — requires all 4 sections ---
+    if (!access.hasAllAccess) {
+      return NextResponse.json(
+        { success: false, error: "Full mock tests require all 4 sections. Please purchase the All Modules plan.", locked: true },
+        { status: 403 }
+      );
+    }
     const questionSelections: { questionId: string; order: number }[] = [];
     let order = 0;
 

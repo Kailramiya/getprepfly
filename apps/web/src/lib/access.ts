@@ -258,11 +258,11 @@ export async function grantModuleAccess(
  * Student module pricing (in paise — Razorpay uses smallest unit).
  */
 export const MODULE_PRICING: Record<string, { amount: number; label: string; section: PTESection | null }> = {
-  MODULE_SPEAKING: { amount: 9900, label: "Speaking Module", section: "SPEAKING" },
-  MODULE_WRITING: { amount: 9900, label: "Writing Module", section: "WRITING" },
-  MODULE_READING: { amount: 9900, label: "Reading Module", section: "READING" },
-  MODULE_LISTENING: { amount: 9900, label: "Listening Module", section: "LISTENING" },
-  ALL_MODULES: { amount: 29900, label: "All Modules (Best Value)", section: null },
+  MODULE_SPEAKING: { amount: 19900, label: "Speaking Module", section: "SPEAKING" },
+  MODULE_WRITING: { amount: 19900, label: "Writing Module", section: "WRITING" },
+  MODULE_READING: { amount: 19900, label: "Reading Module", section: "READING" },
+  MODULE_LISTENING: { amount: 19900, label: "Listening Module", section: "LISTENING" },
+  ALL_MODULES: { amount: 59900, label: "All Modules (Best Value)", section: null },
 };
 
 /**

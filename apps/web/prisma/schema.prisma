@@ -538,6 +538,9 @@ model MockTest {
   mockType        String  @default("FULL")   // "FULL" | "SECTIONAL"
   section         String? // null for FULL, section name for SECTIONAL
 
+  // Free access — isFree=true templates are available to all students without any subscription
+  isFree          Boolean @default(false)
+
   // Relations
   questions   MockTestQuestion[]
   attempts    Attempt[]

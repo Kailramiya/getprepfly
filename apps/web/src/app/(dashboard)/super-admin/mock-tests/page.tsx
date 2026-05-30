@@ -6,13 +6,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ClipboardList, Plus, Trash2, X, Mic, PenTool, BookOpen, Headphones, Layers, Settings2 } from "lucide-react";
+import { ClipboardList, Plus, Trash2, X, Mic, PenTool, BookOpen, Headphones, Layers, Settings2, Gift } from "lucide-react";
 
 interface MockTemplate {
   id: string;
   title: string;
   mockType: string;
   section: string | null;
+  isFree: boolean;
   createdAt: string;
   _count: { questions: number };
 }
@@ -32,6 +33,7 @@ export default function SuperAdminMockTestsPage() {
   const [title, setTitle] = useState("");
   const [mockType, setMockType] = useState<"FULL" | "SECTIONAL">("FULL");
   const [section, setSection] = useState("SPEAKING");
+  const [isFree, setIsFree] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
@@ -53,7 +55,7 @@ export default function SuperAdminMockTestsPage() {
       const res = await fetch("/api/super-admin/mock-tests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, mockType, section: mockType === "SECTIONAL" ? section : undefined }),
+        body: JSON.stringify({ title, mockType, section: mockType === "SECTIONAL" ? section : undefined, isFree }),
       });
       let data: any;
       try { data = await res.json(); } catch { data = {}; }
@@ -62,6 +64,7 @@ export default function SuperAdminMockTestsPage() {
         setTitle("");
         setMockType("FULL");
         setSection("SPEAKING");
+        setIsFree(false);
         setShowForm(false);
       } else {
         setError(data.error || `Server error (${res.status}). Please try again.`);
@@ -161,6 +164,11 @@ export default function SuperAdminMockTestsPage() {
                           <Badge variant={isFull ? "default" : "secondary"}>
                             {isFull ? "Full Mock" : `Sectional — ${t.section}`}
                           </Badge>
+                          {t.isFree && (
+                            <Badge className="bg-green-600 text-white gap-1">
+                              <Gift className="h-3 w-3" /> Free
+                            </Badge>
+                          )}
                         </div>
                         <p className="mt-0.5 text-xs text-gray-400 dark:text-slate-500">
                           {t._count.questions} questions · Created {new Date(t.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
@@ -261,6 +269,26 @@ export default function SuperAdminMockTestsPage() {
                   </div>
                 </div>
               )}
+
+              {/* Free access toggle */}
+              <div className="flex items-center justify-between rounded-xl border-2 border-dashed border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/30 px-4 py-3">
+                <div className="flex items-center gap-2.5">
+                  <Gift className="h-5 w-5 text-green-600 dark:text-green-400" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-slate-100">Free for all students</p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">Mark this as the 1 free mock test available to everyone</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsFree(v => !v)}
+                  className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors ${
+                    isFree ? "bg-green-500" : "bg-gray-200 dark:bg-slate-600"
+                  }`}
+                >
+                  <span className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition-transform ${isFree ? "translate-x-5" : "translate-x-0"}`} />
+                </button>
+              </div>
 
               {error && (
                 <p className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">⚠ {error}</p>

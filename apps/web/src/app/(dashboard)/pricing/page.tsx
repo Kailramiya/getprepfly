@@ -30,7 +30,7 @@ const PLANS = [
   {
     id: "MODULE_SPEAKING",
     title: "Speaking Module",
-    price: 99,
+    price: 199,
     icon: Mic,
     color: "from-teal-500 to-teal-600",
     features: [
@@ -45,7 +45,7 @@ const PLANS = [
   {
     id: "MODULE_WRITING",
     title: "Writing Module",
-    price: 99,
+    price: 199,
     icon: PenTool,
     color: "from-blue-500 to-blue-600",
     features: [
@@ -59,7 +59,7 @@ const PLANS = [
   {
     id: "MODULE_READING",
     title: "Reading Module",
-    price: 99,
+    price: 199,
     icon: BookOpen,
     color: "from-purple-500 to-purple-600",
     features: [
@@ -73,7 +73,7 @@ const PLANS = [
   {
     id: "MODULE_LISTENING",
     title: "Listening Module",
-    price: 99,
+    price: 199,
     icon: Headphones,
     color: "from-orange-500 to-orange-600",
     features: [
@@ -261,12 +261,12 @@ export default function PricingPage() {
               </div>
             </div>
             <div className="text-center lg:text-right">
-              <div className="mb-1 text-xs font-medium text-gray-500 line-through dark:text-slate-400">₹396 separately</div>
+              <div className="mb-1 text-xs font-medium text-gray-500 line-through dark:text-slate-400">₹796 separately</div>
               <div className="flex items-baseline justify-center gap-1 lg:justify-end">
-                <span className="text-4xl font-bold text-gray-900 dark:text-slate-100">₹299</span>
+                <span className="text-4xl font-bold text-gray-900 dark:text-slate-100">₹599</span>
                 <span className="text-sm text-gray-500 dark:text-slate-400">/ 30 days</span>
               </div>
-              <p className="mt-1 text-xs text-green-600 font-medium">Save ₹97</p>
+              <p className="mt-1 text-xs text-green-600 font-medium">Save ₹197</p>
               {hasAccess("ALL_MODULES") ? (
                 <Button disabled className="mt-4 w-full gap-2 lg:w-auto" size="lg">
                   <Check className="h-4 w-4" /> Active until {formatExpiry("ALL_MODULES")}
@@ -278,7 +278,7 @@ export default function PricingPage() {
                   className="mt-4 w-full gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 lg:w-auto"
                   size="lg"
                 >
-                  Unlock Everything for ₹299
+                  Unlock Everything for ₹599
                 </Button>
               )}
             </div>

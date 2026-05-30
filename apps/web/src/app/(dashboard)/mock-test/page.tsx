@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   ClipboardList, Play, Clock, Trophy,
-  Mic, PenTool, BookOpen, Headphones,
+  Mic, PenTool, BookOpen, Headphones, Lock, Gift,
 } from "lucide-react";
 
 interface MockTestSummary {
@@ -30,7 +30,15 @@ interface GlobalTemplate {
   title: string;
   mockType: string;
   section: string | null;
+  isFree: boolean;
   _count: { questions: number };
+}
+
+interface AccessData {
+  hasAllAccess: boolean;
+  modules: string[];
+  isTrial?: boolean;
+  trialExpired?: boolean;
 }
 
 export default function MockTestPage() {
@@ -38,6 +46,7 @@ export default function MockTestPage() {
   const [tests, setTests] = useState<MockTestSummary[]>([]);
   const [assignedTests, setAssignedTests] = useState<{ id: string; title: string; createdAt: string }[]>([]);
   const [globalTemplates, setGlobalTemplates] = useState<GlobalTemplate[]>([]);
+  const [access, setAccess] = useState<AccessData | null>(null);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [startingId, setStartingId] = useState<string | null>(null);
@@ -46,6 +55,7 @@ export default function MockTestPage() {
     fetchTests();
     fetch("/api/mock-tests/assigned").then(r => r.json()).then(d => { if (d.success) setAssignedTests(d.data); });
     fetch("/api/mock-tests/global-templates").then(r => r.json()).then(d => { if (d.success) setGlobalTemplates(d.data); });
+    fetch("/api/access/me").then(r => r.json()).then(d => { if (d.success) setAccess(d.data); });
   }, []);
 
   const fetchTests = async () => {
@@ -55,25 +65,48 @@ export default function MockTestPage() {
     setLoading(false);
   };
 
+  // Determine if a template is accessible to this user
+  const canAccess = (t: GlobalTemplate): boolean => {
+    if (t.isFree) return true;
+    if (!access) return false;
+    if (access.hasAllAccess) return true;
+    if (t.mockType === "SECTIONAL" && t.section) return access.modules.includes(t.section);
+    return false;
+  };
+
+  const canStartFullTest = (): boolean => {
+    if (!access) return false;
+    return access.hasAllAccess;
+  };
+
   const startNewTest = async () => {
+    if (!canStartFullTest()) {
+      router.push("/pricing");
+      return;
+    }
     setCreating(true);
     try {
       const res = await fetch("/api/mock-tests", { method: "POST" });
       const data = await res.json();
       if (data.success) router.push(`/mock-test/${data.data.id}`);
+      else alert(data.error || "Failed to create test. Please try again.");
     } catch {
       alert("Failed to create test. Please try again.");
     }
     setCreating(false);
   };
 
-  const startTemplate = async (templateId: string) => {
-    setStartingId(templateId);
+  const startTemplate = async (template: GlobalTemplate) => {
+    if (!canAccess(template)) {
+      router.push("/pricing");
+      return;
+    }
+    setStartingId(template.id);
     try {
       const res = await fetch("/api/mock-tests", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ templateId }),
+        body: JSON.stringify({ templateId: template.id }),
       });
       const data = await res.json();
       if (data.success) router.push(`/mock-test/${data.data.id}`);
@@ -90,6 +123,8 @@ export default function MockTestPage() {
     return h > 0 ? `${h}h ${m}m` : `${m}m`;
   };
 
+  const fullAccessLocked = access !== null && !access.hasAllAccess;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -97,10 +132,26 @@ export default function MockTestPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Mock Tests</h1>
           <p className="text-gray-500 dark:text-slate-400">Simulate the real PTE Academic exam</p>
         </div>
-        <Button onClick={startNewTest} loading={creating} size="lg" className="gap-2">
-          <Play className="h-5 w-5" />
-          Start New Mock Test
-        </Button>
+        <div className="flex items-center gap-3">
+          {fullAccessLocked && (
+            <span className="text-sm text-gray-500 dark:text-slate-400">
+              Full tests need all 4 modules.{" "}
+              <button onClick={() => router.push("/pricing")} className="text-indigo-600 underline dark:text-indigo-400">
+                Upgrade
+              </button>
+            </span>
+          )}
+          <Button
+            onClick={startNewTest}
+            loading={creating}
+            size="lg"
+            className="gap-2"
+            variant={fullAccessLocked ? "outline" : "default"}
+          >
+            {fullAccessLocked ? <Lock className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+            {fullAccessLocked ? "Unlock Full Test" : "Start New Mock Test"}
+          </Button>
+        </div>
       </div>
 
       {/* Test Info Card */}
@@ -108,22 +159,28 @@ export default function MockTestPage() {
         <CardContent className="p-5">
           <div className="grid gap-4 sm:grid-cols-4">
             {[
-              { icon: Mic, label: "Speaking", info: "28 questions", color: "text-teal-600" },
-              { icon: PenTool, label: "Writing", info: "3 questions", color: "text-blue-600" },
-              { icon: BookOpen, label: "Reading", info: "11 questions", color: "text-purple-600" },
-              { icon: Headphones, label: "Listening", info: "14 questions", color: "text-orange-600" },
-            ].map((s) => (
-              <div key={s.label} className="flex items-center gap-3">
-                <s.icon className={`h-5 w-5 ${s.color}`} />
-                <div>
-                  <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{s.label}</p>
-                  <p className="text-xs text-gray-500 dark:text-slate-400">{s.info}</p>
+              { icon: Mic, label: "Speaking", info: "28 questions", color: "text-teal-600", section: "SPEAKING" },
+              { icon: PenTool, label: "Writing", info: "3 questions", color: "text-blue-600", section: "WRITING" },
+              { icon: BookOpen, label: "Reading", info: "11 questions", color: "text-purple-600", section: "READING" },
+              { icon: Headphones, label: "Listening", info: "14 questions", color: "text-orange-600", section: "LISTENING" },
+            ].map((s) => {
+              const sectionAccess = access?.hasAllAccess || access?.modules.includes(s.section);
+              return (
+                <div key={s.label} className="flex items-center gap-3">
+                  <s.icon className={`h-5 w-5 ${s.color}`} />
+                  <div>
+                    <p className="text-sm font-medium text-gray-900 dark:text-slate-100 flex items-center gap-1">
+                      {s.label}
+                      {access && !sectionAccess && <Lock className="h-3 w-3 text-gray-400" />}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">{s.info}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <p className="mt-3 text-xs text-indigo-700 dark:text-indigo-400">
-            Full mock test: 56 questions across 4 sections. Estimated time: 2-3 hours.
+            Full mock test: 56 questions across 4 sections. Estimated time: 2-3 hours. Purchase all 4 modules to unlock.
           </p>
         </CardContent>
       </Card>
@@ -138,7 +195,9 @@ export default function MockTestPage() {
                 <CardContent className="flex items-center justify-between p-4">
                   <div>
                     <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5 dark:text-slate-500">Assigned {new Date(t.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
+                    <p className="text-xs text-gray-400 mt-0.5 dark:text-slate-500">
+                      Assigned {new Date(t.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                    </p>
                   </div>
                   <Button size="sm" onClick={() => router.push(`/mock-test/${t.id}`)}>
                     <Play className="h-4 w-4 mr-1" /> Start
@@ -150,41 +209,64 @@ export default function MockTestPage() {
         </div>
       )}
 
-      {/* Global Templates from Super Admin */}
+      {/* Global Templates */}
       {globalTemplates.length > 0 && (
         <div>
           <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-slate-100">Available Tests</h2>
           <div className="space-y-2">
-            {globalTemplates.map(t => (
-              <Card key={t.id}>
-                <CardContent className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                      t.mockType === "FULL" ? "bg-indigo-100 dark:bg-indigo-950/50" :
-                      t.section === "SPEAKING" ? "bg-teal-100 dark:bg-teal-950/50" :
-                      t.section === "WRITING" ? "bg-blue-100 dark:bg-blue-950/50" :
-                      t.section === "READING" ? "bg-purple-100 dark:bg-purple-950/50" :
-                      "bg-orange-100 dark:bg-orange-950/50"
-                    }`}>
-                      {t.mockType === "FULL" ? <ClipboardList className="h-5 w-5 text-indigo-600" /> :
-                       t.section === "SPEAKING" ? <Mic className="h-5 w-5 text-teal-600" /> :
-                       t.section === "WRITING" ? <PenTool className="h-5 w-5 text-blue-600" /> :
-                       t.section === "READING" ? <BookOpen className="h-5 w-5 text-purple-600" /> :
-                       <Headphones className="h-5 w-5 text-orange-600" />}
+            {globalTemplates.map(t => {
+              const accessible = canAccess(t);
+              return (
+                <Card key={t.id} className={accessible ? "" : "opacity-80"}>
+                  <CardContent className="flex items-center justify-between p-4">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
+                        !accessible ? "bg-gray-100 dark:bg-slate-700" :
+                        t.mockType === "FULL" ? "bg-indigo-100 dark:bg-indigo-950/50" :
+                        t.section === "SPEAKING" ? "bg-teal-100 dark:bg-teal-950/50" :
+                        t.section === "WRITING" ? "bg-blue-100 dark:bg-blue-950/50" :
+                        t.section === "READING" ? "bg-purple-100 dark:bg-purple-950/50" :
+                        "bg-orange-100 dark:bg-orange-950/50"
+                      }`}>
+                        {!accessible ? <Lock className="h-5 w-5 text-gray-400" /> :
+                         t.mockType === "FULL" ? <ClipboardList className="h-5 w-5 text-indigo-600" /> :
+                         t.section === "SPEAKING" ? <Mic className="h-5 w-5 text-teal-600" /> :
+                         t.section === "WRITING" ? <PenTool className="h-5 w-5 text-blue-600" /> :
+                         t.section === "READING" ? <BookOpen className="h-5 w-5 text-purple-600" /> :
+                         <Headphones className="h-5 w-5 text-orange-600" />}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
+                          {t.isFree && (
+                            <Badge className="bg-green-600 text-white gap-1 text-xs py-0">
+                              <Gift className="h-3 w-3" /> Free
+                            </Badge>
+                          )}
+                          {!accessible && (
+                            <Badge variant="secondary" className="text-xs py-0">
+                              {t.mockType === "FULL" ? "Needs all 4 modules" : `Needs ${t.section?.toLowerCase()} module`}
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-xs text-gray-400 dark:text-slate-500">
+                          {t.mockType === "FULL" ? "Full Mock Test" : `Sectional — ${t.section}`} · {t._count.questions} questions
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
-                      <p className="text-xs text-gray-400 dark:text-slate-500">
-                        {t.mockType === "FULL" ? "Full Mock Test" : `Sectional — ${t.section}`} · {t._count.questions} questions
-                      </p>
-                    </div>
-                  </div>
-                  <Button size="sm" loading={startingId === t.id} onClick={() => startTemplate(t.id)}>
-                    <Play className="h-4 w-4 mr-1" /> Start
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
+                    {accessible ? (
+                      <Button size="sm" loading={startingId === t.id} onClick={() => startTemplate(t)}>
+                        <Play className="h-4 w-4 mr-1" /> Start
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" onClick={() => router.push("/pricing")}>
+                        <Lock className="h-4 w-4 mr-1" /> Unlock
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
           </div>
         </div>
       )}
@@ -243,7 +325,6 @@ export default function MockTestPage() {
                     </div>
                   </div>
 
-                  {/* Scores */}
                   {test.overallScore !== null && (
                     <div className="hidden items-center gap-4 sm:flex">
                       {[

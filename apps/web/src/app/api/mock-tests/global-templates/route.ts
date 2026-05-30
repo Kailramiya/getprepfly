@@ -14,6 +14,7 @@ export async function GET() {
       title: true,
       mockType: true,
       section: true,
+      isFree: true,
       createdAt: true,
       _count: { select: { questions: true } },
     },

@@ -36,7 +36,7 @@ export async function POST(req: NextRequest) {
   if (error) return error;
 
   const body = await req.json();
-  const { title, mockType, section } = body;
+  const { title, mockType, section, isFree } = body;
 
   if (!title?.trim()) return NextResponse.json({ success: false, error: "Title is required" }, { status: 400 });
   if (!["FULL", "SECTIONAL"].includes(mockType)) return NextResponse.json({ success: false, error: "Invalid mock type" }, { status: 400 });
@@ -78,6 +78,7 @@ export async function POST(req: NextRequest) {
         mockType,
         section: mockType === "SECTIONAL" ? section : null,
         isTemplate: true,
+        isFree: isFree === true,
         status: "IN_PROGRESS",
         currentSection: (mockType === "SECTIONAL" ? section : "SPEAKING") as any,
         questions: { create: questionSelections },
