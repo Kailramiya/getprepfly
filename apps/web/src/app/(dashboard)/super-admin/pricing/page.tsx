@@ -16,24 +16,39 @@ interface PricingRow {
 }
 
 const PLAN_META: Record<string, { icon: any; color: string; bg: string; group: string }> = {
-  MODULE_SPEAKING:   { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Student Plans" },
-  MODULE_WRITING:    { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",      group: "Student Plans" },
-  MODULE_READING:    { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans" },
-  MODULE_LISTENING:  { icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans" },
-  ALL_MODULES:       { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans" },
-  CENTRE_STARTER:    { icon: Building2,    color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Centre Plans (Monthly)" },
-  CENTRE_GROWTH:     { icon: Building2,    color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Centre Plans (Monthly)" },
-  CENTRE_PRO:        { icon: Building2,    color: "text-cyan-600",    bg: "bg-cyan-50 dark:bg-cyan-950/30",      group: "Centre Plans (Monthly)" },
-  ANNUAL_STARTER:    { icon: CalendarDays, color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Annual Institute Plans" },
-  ANNUAL_GROWTH:     { icon: CalendarDays, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Annual Institute Plans" },
-  ANNUAL_UNLIMITED:  { icon: CalendarDays, color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/30",    group: "Annual Institute Plans" },
+  // Student — 1 month
+  MODULE_SPEAKING:    { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Student Plans (1 Month)" },
+  MODULE_WRITING:     { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",      group: "Student Plans (1 Month)" },
+  MODULE_READING:     { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans (1 Month)" },
+  MODULE_LISTENING:   { icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans (1 Month)" },
+  ALL_MODULES:        { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans (1 Month)" },
+  // Student — 6 months
+  MODULE_SPEAKING_6M: { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Student Plans (6 Months)" },
+  MODULE_WRITING_6M:  { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",      group: "Student Plans (6 Months)" },
+  MODULE_READING_6M:  { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans (6 Months)" },
+  MODULE_LISTENING_6M:{ icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans (6 Months)" },
+  ALL_MODULES_6M:     { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans (6 Months)" },
+  // Student — 1 year
+  MODULE_SPEAKING_1Y: { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Student Plans (1 Year)" },
+  MODULE_WRITING_1Y:  { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",      group: "Student Plans (1 Year)" },
+  MODULE_READING_1Y:  { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans (1 Year)" },
+  MODULE_LISTENING_1Y:{ icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans (1 Year)" },
+  ALL_MODULES_1Y:     { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans (1 Year)" },
+  // Centre — 6 months
+  CENTRE_STARTER:     { icon: Building2,    color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Centre Plans (6 Months)" },
+  CENTRE_GROWTH:      { icon: Building2,    color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Centre Plans (6 Months)" },
+  CENTRE_PRO:         { icon: Building2,    color: "text-cyan-600",    bg: "bg-cyan-50 dark:bg-cyan-950/30",      group: "Centre Plans (6 Months)" },
+  // Annual institute plans
+  ANNUAL_STARTER:     { icon: CalendarDays, color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Annual Institute Plans" },
+  ANNUAL_GROWTH:      { icon: CalendarDays, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Annual Institute Plans" },
+  ANNUAL_UNLIMITED:   { icon: CalendarDays, color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/30",    group: "Annual Institute Plans" },
 };
 
 const DEFAULT_RUPEES: Record<string, string> = {
-  MODULE_SPEAKING: "199", MODULE_WRITING: "199",
-  MODULE_READING: "199",  MODULE_LISTENING: "199",
-  ALL_MODULES: "599",
-  CENTRE_STARTER: "2999", CENTRE_GROWTH: "6999",  CENTRE_PRO: "14999",
+  MODULE_SPEAKING: "199",    MODULE_WRITING: "199",    MODULE_READING: "199",    MODULE_LISTENING: "199",    ALL_MODULES: "599",
+  MODULE_SPEAKING_6M: "999", MODULE_WRITING_6M: "999", MODULE_READING_6M: "999", MODULE_LISTENING_6M: "999", ALL_MODULES_6M: "2999",
+  MODULE_SPEAKING_1Y: "1799",MODULE_WRITING_1Y: "1799",MODULE_READING_1Y: "1799",MODULE_LISTENING_1Y: "1799",ALL_MODULES_1Y: "4999",
+  CENTRE_STARTER: "2999", CENTRE_GROWTH: "6999", CENTRE_PRO: "14999",
   ANNUAL_STARTER: "11999", ANNUAL_GROWTH: "29999", ANNUAL_UNLIMITED: "79999",
 };
 
@@ -97,7 +112,13 @@ export default function SuperAdminPricingPage() {
     setResetting(null);
   };
 
-  const groups = ["Student Plans", "Centre Plans (Monthly)", "Annual Institute Plans"];
+  const groups = [
+    "Student Plans (1 Month)",
+    "Student Plans (6 Months)",
+    "Student Plans (1 Year)",
+    "Centre Plans (6 Months)",
+    "Annual Institute Plans",
+  ];
 
   return (
     <div className="space-y-6">

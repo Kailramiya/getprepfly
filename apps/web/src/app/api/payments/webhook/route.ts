@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     const plan = MODULE_PRICING[planType];
     const userNote = event.payload?.payment?.entity?.notes?.userId;
     if (userNote) {
-      await grantModuleAccess(userNote, plan.section as PTESection | null, updatedPayment.id, 30);
+      await grantModuleAccess(userNote, plan.section as PTESection | null, updatedPayment.id, plan.days);
     }
   }
 

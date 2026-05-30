@@ -256,13 +256,27 @@ export async function grantModuleAccess(
 
 /**
  * Student module pricing (in paise — Razorpay uses smallest unit).
+ * Each entry now carries a `days` field so verify/webhook pass the right duration.
  */
-export const MODULE_PRICING: Record<string, { amount: number; label: string; section: PTESection | null }> = {
-  MODULE_SPEAKING: { amount: 19900, label: "Speaking Module", section: "SPEAKING" },
-  MODULE_WRITING: { amount: 19900, label: "Writing Module", section: "WRITING" },
-  MODULE_READING: { amount: 19900, label: "Reading Module", section: "READING" },
-  MODULE_LISTENING: { amount: 19900, label: "Listening Module", section: "LISTENING" },
-  ALL_MODULES: { amount: 59900, label: "All Modules (Best Value)", section: null },
+export const MODULE_PRICING: Record<string, { amount: number; label: string; section: PTESection | null; days: number }> = {
+  // 1 month (30 days)
+  MODULE_SPEAKING:    { amount: 19900,  label: "Speaking Module (1 Month)",   section: "SPEAKING",  days: 30 },
+  MODULE_WRITING:     { amount: 19900,  label: "Writing Module (1 Month)",    section: "WRITING",   days: 30 },
+  MODULE_READING:     { amount: 19900,  label: "Reading Module (1 Month)",    section: "READING",   days: 30 },
+  MODULE_LISTENING:   { amount: 19900,  label: "Listening Module (1 Month)",  section: "LISTENING", days: 30 },
+  ALL_MODULES:        { amount: 59900,  label: "All Modules (1 Month)",       section: null,        days: 30 },
+  // 6 months (180 days)
+  MODULE_SPEAKING_6M: { amount: 99900,  label: "Speaking Module (6 Months)",  section: "SPEAKING",  days: 180 },
+  MODULE_WRITING_6M:  { amount: 99900,  label: "Writing Module (6 Months)",   section: "WRITING",   days: 180 },
+  MODULE_READING_6M:  { amount: 99900,  label: "Reading Module (6 Months)",   section: "READING",   days: 180 },
+  MODULE_LISTENING_6M:{ amount: 99900,  label: "Listening Module (6 Months)", section: "LISTENING", days: 180 },
+  ALL_MODULES_6M:     { amount: 299900, label: "All Modules (6 Months)",      section: null,        days: 180 },
+  // 1 year (365 days)
+  MODULE_SPEAKING_1Y: { amount: 179900, label: "Speaking Module (1 Year)",    section: "SPEAKING",  days: 365 },
+  MODULE_WRITING_1Y:  { amount: 179900, label: "Writing Module (1 Year)",     section: "WRITING",   days: 365 },
+  MODULE_READING_1Y:  { amount: 179900, label: "Reading Module (1 Year)",     section: "READING",   days: 365 },
+  MODULE_LISTENING_1Y:{ amount: 179900, label: "Listening Module (1 Year)",   section: "LISTENING", days: 365 },
+  ALL_MODULES_1Y:     { amount: 499900, label: "All Modules (1 Year)",        section: null,        days: 365 },
 };
 
 /**
@@ -278,24 +292,24 @@ export const CENTRE_PLANS: Record<string, {
   features: string[];
 }> = {
   CENTRE_STARTER: {
-    amount: 299900,       // ₹2,999/month
+    amount: 299900,       // ₹2,999 / 6 months
     label: "Starter Plan",
     maxStudents: 50,
-    days: 30,
+    days: 180,
     features: [
       "Up to 50 students",
       "All 4 modules unlocked for all students",
       "AI scoring for all question types",
       "Student progress tracking",
       "Batch management",
-      "30 days access",
+      "6 months access",
     ],
   },
   CENTRE_GROWTH: {
-    amount: 699900,       // ₹6,999/month
+    amount: 699900,       // ₹6,999 / 6 months
     label: "Growth Plan",
     maxStudents: 150,
-    days: 30,
+    days: 180,
     features: [
       "Up to 150 students",
       "All 4 modules unlocked for all students",
@@ -303,14 +317,14 @@ export const CENTRE_PLANS: Record<string, {
       "Advanced analytics dashboard",
       "Batch management + leaderboard",
       "Priority support",
-      "30 days access",
+      "6 months access",
     ],
   },
   CENTRE_PRO: {
-    amount: 1499900,      // ₹14,999/month
+    amount: 1499900,      // ₹14,999 / 6 months
     label: "Pro Plan",
     maxStudents: 500,
-    days: 30,
+    days: 180,
     features: [
       "Up to 500 students",
       "All 4 modules unlocked for all students",
@@ -318,7 +332,7 @@ export const CENTRE_PLANS: Record<string, {
       "Full analytics + centre branding",
       "Unlimited batches",
       "Dedicated support",
-      "30 days access",
+      "6 months access",
     ],
   },
   // Annual institute plans

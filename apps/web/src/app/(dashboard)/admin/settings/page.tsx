@@ -352,7 +352,7 @@ export default function AdminBillingPage() {
                     : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
                 }`}
               >
-                Monthly
+                6 Months
               </button>
               <button
                 onClick={() => setBillingCycle("annual")}
@@ -373,7 +373,7 @@ export default function AdminBillingPage() {
           {billingCycle === "annual" && (
             <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
               <Star className="h-4 w-4 shrink-0 text-amber-500" />
-              Annual plans include bonus seats and save up to 33% vs monthly billing.
+              Annual plans include bonus seats and save vs the 6-month billing.
             </div>
           )}
 
@@ -405,7 +405,7 @@ export default function AdminBillingPage() {
                     <div className="mt-2 flex items-baseline gap-1">
                       <span className="text-3xl font-extrabold text-gray-900 dark:text-slate-100">₹{p.price.toLocaleString("en-IN")}</span>
                       <span className="text-sm text-gray-500 dark:text-slate-400">
-                        /{billingCycle === "annual" ? "year" : "month"}
+                        /{billingCycle === "annual" ? "year" : "6 months"}
                       </span>
                     </div>
                     <p className="mt-1 text-sm font-medium text-indigo-600 dark:text-indigo-400">{p.studentLabel}</p>

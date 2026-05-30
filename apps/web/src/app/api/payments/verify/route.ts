@@ -97,11 +97,11 @@ export async function POST(req: NextRequest) {
 
   // Student module plan
   const plan = MODULE_PRICING[planType!];
-  await grantModuleAccess(user!.id, plan.section as PTESection | null, updatedPayment.id, 30);
+  await grantModuleAccess(user!.id, plan.section as PTESection | null, updatedPayment.id, plan.days);
 
   return NextResponse.json({
     success: true,
     message: `Access granted for ${plan.label}`,
-    data: { planType, label: plan.label, daysGranted: 30, isCentrePlan: false },
+    data: { planType, label: plan.label, daysGranted: plan.days, isCentrePlan: false },
   });
 }
