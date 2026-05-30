@@ -26,6 +26,7 @@ export async function GET(
           overallScore: true,
           scores: true,
           timeTaken: true,
+          responseText: true,
         },
       },
     },

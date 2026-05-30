@@ -146,7 +146,7 @@ function ReorderDnD({
 // Question Renderer — renders different UI based on question type
 // ==========================================================================
 export function QuestionRenderer({
-  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange,
+  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse,
 }: {
   question: QuestionData;
   submitted: boolean;
@@ -154,9 +154,12 @@ export function QuestionRenderer({
   showFeedback?: boolean;
   onSubmit: (response: any) => void;
   onResponseChange?: (response: any) => void;
+  initialResponse?: any;
   score?: any;
 }) {
   const [response, setResponse] = useState<any>(() => {
+    // Pre-fill with a previously saved answer (review mode)
+    if (initialResponse !== undefined && initialResponse !== null) return initialResponse;
     if (question?.type === "REORDER_PARAGRAPHS") {
       const pars: string[] = (question?.content as any)?.paragraphs || [];
       if (pars.length <= 1) return null;
@@ -692,6 +695,7 @@ export function QuestionRenderer({
         showFeedback={showFeedback}
         onSubmit={onSubmit}
         modelAnswers={modelAnswers}
+        initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
       />
     );
   }
@@ -708,6 +712,7 @@ export function QuestionRenderer({
         showAnswer={showAnswer}
         showFeedback={showFeedback}
         onSubmit={onSubmit}
+        initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
       />
     );
   }
@@ -977,6 +982,7 @@ export function QuestionRenderer({
           showAnswer={showAnswer}
           showFeedback={showFeedback}
           onSubmit={onSubmit}
+          initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
         />
       </div>
     );
@@ -2040,7 +2046,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 // -------------------- DRAG-AND-DROP FILL BLANKS --------------------
 function FillBlanksDrag({
-  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, modelAnswers = [],
+  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, modelAnswers = [], initialAnswers,
 }: {
   passage: string;
   blanks: any[];
@@ -2050,6 +2056,7 @@ function FillBlanksDrag({
   showFeedback?: boolean;
   onSubmit: (response: any) => void;
   modelAnswers?: string[];
+  initialAnswers?: (string | null)[];
 }) {
   const segments = splitPassage(passage);
   const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
@@ -2093,10 +2100,18 @@ function FillBlanksDrag({
     return normalizedBlanks.map((b) => b.correctAnswer).filter(Boolean);
   })();
 
-  const [filled, setFilled] = useState<(string | null)[]>(
-    Array(Math.max(blankCount, normalizedBlanks.length)).fill(null)
-  );
-  const [bank, setBank] = useState<string[]>(() => shuffle(wordBank));
+  const [filled, setFilled] = useState<(string | null)[]>(() => {
+    if (initialAnswers && initialAnswers.length > 0) return initialAnswers;
+    return Array(Math.max(blankCount, normalizedBlanks.length)).fill(null);
+  });
+  const [bank, setBank] = useState<string[]>(() => {
+    if (initialAnswers && initialAnswers.length > 0) {
+      // Remove pre-filled answers from the bank
+      const usedWords = new Set(initialAnswers.filter(Boolean) as string[]);
+      return shuffle(wordBank.filter(w => !usedWords.has(w)));
+    }
+    return shuffle(wordBank);
+  });
   const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [draggedWord, setDraggedWord] = useState<string | null>(null);
   const [dragSource, setDragSource] = useState<"bank" | number | null>(null);
@@ -2389,7 +2404,7 @@ function FillBlanksDrag({
 
 // -------------------- DROPDOWN FILL BLANKS --------------------
 function FillBlanksDropdown({
-  passage, blanks, options, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks,
+  passage, blanks, options, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, initialAnswers,
 }: {
   passage: string;
   blanks: any[];
@@ -2399,12 +2414,15 @@ function FillBlanksDropdown({
   showAnswer?: boolean;
   showFeedback?: boolean;
   onSubmit: (response: any) => void;
+  initialAnswers?: string[];
 }) {
   const segments = splitPassage(passage);
   const normalizedBlanks = blanks.map((b) => normalizeBlank(b, options));
   const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
-  const [answers, setAnswers] = useState<string[]>(
-    Array(Math.max(blankCount, normalizedBlanks.length)).fill("")
+  const [answers, setAnswers] = useState<string[]>(() =>
+    initialAnswers && initialAnswers.length > 0
+      ? initialAnswers
+      : Array(Math.max(blankCount, normalizedBlanks.length)).fill("")
   );
 
   let blankIdx = -1;
@@ -2517,7 +2535,7 @@ function FillBlanksDropdown({
 
 // -------------------- TEXT INPUT FILL BLANKS (for Listening) --------------------
 function FillBlanksText({
-  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks,
+  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, initialAnswers,
 }: {
   passage: string;
   blanks: any[];
@@ -2526,12 +2544,15 @@ function FillBlanksText({
   showAnswer?: boolean;
   showFeedback?: boolean;
   onSubmit: (response: any) => void;
+  initialAnswers?: string[];
 }) {
   const segments = splitPassage(passage);
   const normalizedBlanks = blanks.map((b) => normalizeBlank(b, []));
   const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
-  const [answers, setAnswers] = useState<string[]>(
-    Array(Math.max(blankCount, normalizedBlanks.length)).fill("")
+  const [answers, setAnswers] = useState<string[]>(() =>
+    initialAnswers && initialAnswers.length > 0
+      ? initialAnswers
+      : Array(Math.max(blankCount, normalizedBlanks.length)).fill("")
   );
 
   let blankIdx = -1;

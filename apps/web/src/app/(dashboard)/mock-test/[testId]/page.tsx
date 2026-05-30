@@ -49,6 +49,32 @@ interface MockTestData {
   attempts: { questionId: string; overallScore: number | null; scores: any; responseText: string | null }[];
 }
 
+// Extract the student's saved answer from stored responseText for pre-filling review
+function extractInitialResponse(questionType: string, responseText: string | null): any {
+  if (!responseText) return null;
+  try {
+    const parsed = JSON.parse(responseText);
+    if (["READING_MCQ_SINGLE", "LISTENING_MCQ_SINGLE", "HIGHLIGHT_CORRECT_SUMMARY", "SELECT_MISSING_WORD"].includes(questionType)) {
+      return parsed.answer ?? null;
+    }
+    if (["READING_MCQ_MULTIPLE", "LISTENING_MCQ_MULTIPLE"].includes(questionType)) {
+      return parsed.answers ?? null;
+    }
+    if (questionType === "REORDER_PARAGRAPHS") {
+      return parsed.order ?? null;
+    }
+    if (["READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS"].includes(questionType)) {
+      return parsed.answers ?? null;
+    }
+    if (["WRITE_ESSAY", "SUMMARIZE_WRITTEN_TEXT", "SUMMARIZE_SPOKEN_TEXT", "WRITE_FROM_DICTATION"].includes(questionType)) {
+      return parsed.text ?? null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 const SECTION_ICONS: Record<string, any> = {
   SPEAKING: Mic, WRITING: PenTool, READING: BookOpen, LISTENING: Headphones,
 };
@@ -304,6 +330,7 @@ export default function MockTestSessionPage() {
                     showAnswer={true}
                     showFeedback={true}
                     onSubmit={() => {}}
+                    initialResponse={attempt ? extractInitialResponse(tq.question.type, attempt.responseText) : null}
                   />
                 </CardContent>
               </Card>
