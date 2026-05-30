@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
+import { calculateSkillScores } from "@/lib/pte-scoring";
 
 // GET /api/mock-tests/:testId — get mock test with questions
 export async function GET(
@@ -74,41 +75,31 @@ export async function PATCH(
     updateData.status = "COMPLETED";
     updateData.completedAt = new Date();
 
-    // Calculate section scores from attempts
+    // Calculate section scores from attempts using cross-skill weighting
     const attempts = await db.attempt.findMany({
       where: { mockTestId: params.testId },
       include: {
-        question: { select: { section: true } },
+        question: { select: { section: true, type: true } },
       },
     });
 
-    const sectionScores: Record<string, number[]> = {
-      SPEAKING: [],
-      WRITING: [],
-      READING: [],
-      LISTENING: [],
-    };
+    const skillScores = calculateSkillScores(
+      attempts.map((a) => ({
+        overallScore: a.overallScore,
+        questionType: a.question.type,
+        questionSection: a.question.section,
+      }))
+    );
 
-    for (const attempt of attempts) {
-      if (attempt.overallScore !== null) {
-        sectionScores[attempt.question.section]?.push(attempt.overallScore);
-      }
-    }
+    updateData.speakingScore  = skillScores.speaking;
+    updateData.writingScore   = skillScores.writing;
+    updateData.readingScore   = skillScores.reading;
+    updateData.listeningScore = skillScores.listening;
 
-    const avg = (arr: number[]) => arr.length > 0 ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
-
-    updateData.speakingScore = Math.round(avg(sectionScores.SPEAKING));
-    updateData.writingScore = Math.round(avg(sectionScores.WRITING));
-    updateData.readingScore = Math.round(avg(sectionScores.READING));
-    updateData.listeningScore = Math.round(avg(sectionScores.LISTENING));
-
-    const allScores = [
-      updateData.speakingScore,
-      updateData.writingScore,
-      updateData.readingScore,
-      updateData.listeningScore,
-    ].filter((s) => s > 0);
-    updateData.overallScore = Math.round(avg(allScores));
+    const nonZero = Object.values(skillScores).filter((s) => s > 0);
+    updateData.overallScore = nonZero.length > 0
+      ? Math.round(nonZero.reduce((a, b) => a + b, 0) / nonZero.length)
+      : 0;
 
     // Calculate total time
     const startTime = await db.mockTest.findUnique({
