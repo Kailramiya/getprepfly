@@ -200,8 +200,10 @@ export function QuestionRenderer({
     return (
       <SpeakingQuestion
         instructionText="Read the text above aloud, clearly and naturally."
-        prepTime={5}
+        prepTime={0}
         maxDuration={40}
+        mountAutoStart={true}
+        autoStartDelay={35}
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
@@ -233,7 +235,7 @@ export function QuestionRenderer({
         expectedText={content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen carefully"
-        autoStartDelay={5}
+        autoStartDelay={3}
       />
     );
   }
@@ -244,8 +246,10 @@ export function QuestionRenderer({
     return (
       <SpeakingQuestion
         instructionText="Look at the image carefully and describe it in detail. Mention the main elements, trends, or key data."
-        prepTime={25}
+        prepTime={0}
         maxDuration={40}
+        mountAutoStart={true}
+        autoStartDelay={25}
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
@@ -284,8 +288,9 @@ export function QuestionRenderer({
     return (
       <SpeakingQuestion
         instructionText="Listen to the lecture, then retell the main points in your own words."
-        prepTime={10}
+        prepTime={0}
         maxDuration={40}
+        autoStartDelay={5}
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
@@ -304,8 +309,9 @@ export function QuestionRenderer({
     return (
       <SpeakingQuestion
         instructionText="Answer the question in one or two words."
-        prepTime={3}
+        prepTime={0}
         maxDuration={10}
+        autoStartDelay={2}
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
@@ -358,8 +364,9 @@ export function QuestionRenderer({
     return (
       <SpeakingQuestion
         instructionText="Listen to the group discussion, then summarize the key points and differing viewpoints in your own words."
-        prepTime={5}
+        prepTime={0}
         maxDuration={40}
+        autoStartDelay={5}
         submitted={submitted}
         onSubmit={onSubmit}
         totalMarks={totalMarks}
@@ -1470,7 +1477,7 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
 function SpeakingQuestion({
   children, instructionText, prepTime, maxDuration, submitted, onSubmit,
   totalMarks = 1, questionId, questionType, expectedText = "",
-  audioSrc, audioLabel, autoStartDelay = 0, playOnce,
+  audioSrc, audioLabel, autoStartDelay = 0, playOnce, mountAutoStart = false,
 }: {
   children?: React.ReactNode;
   instructionText: string;
@@ -1489,6 +1496,8 @@ function SpeakingQuestion({
   // Seconds to wait after prompt audio ends before auto-starting recording (0 = disabled)
   playOnce?: boolean;
   autoStartDelay?: number;
+  // Auto-start countdown immediately on mount (for types with no audio prompt, e.g. Read Aloud, Describe Image)
+  mountAutoStart?: boolean;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -1496,6 +1505,41 @@ function SpeakingQuestion({
   const [audioDurationSec, setAudioDurationSec] = useState<number | null>(null);
   const [promptAudioEnded, setPromptAudioEnded] = useState(false);
   const [showSpeakingTemplate, setShowSpeakingTemplate] = useState(false);
+  const [preRecordCountdown, setPreRecordCountdown] = useState<number | null>(null);
+  const [readyToRecord, setReadyToRecord] = useState(false);
+
+  // Mount-based auto-start: for question types with no audio prompt (Read Aloud, Describe Image)
+  useEffect(() => {
+    if (mountAutoStart && !submitted) setPromptAudioEnded(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // No-audio fallback: if autoStartDelay is set but no audio src, trigger immediately on mount
+  useEffect(() => {
+    if (autoStartDelay > 0 && !mountAutoStart && (!audioSrc || audioSrc.length <= 5) && !submitted) {
+      setPromptAudioEnded(true);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // When auto-start triggers, run a visible countdown then flip readyToRecord
+  useEffect(() => {
+    if (!promptAudioEnded || submitted) return;
+    if (autoStartDelay <= 0) { setReadyToRecord(true); return; }
+    setPreRecordCountdown(autoStartDelay);
+    const interval = setInterval(() => {
+      setPreRecordCountdown((prev) => {
+        if (prev === null || prev <= 1) {
+          clearInterval(interval);
+          setReadyToRecord(true);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptAudioEnded]);
 
   const speakingTemplate = questionType === "DESCRIBE_IMAGE"
     ? SPEAKING_TEMPLATES.DESCRIBE_IMAGE[0]
@@ -1633,12 +1677,35 @@ function SpeakingQuestion({
         <AudioBlock
           src={audioSrc}
           label={audioLabel}
-          onDuration={(sec) => setAudioDurationSec(sec)}
+          onDuration={(sec) => {
+            setAudioDurationSec(sec);
+            // If audio has 0 duration (broken/empty file), trigger auto-start immediately
+            if (sec === 0 && autoStartDelay > 0) setPromptAudioEnded(true);
+          }}
           onEnded={autoStartDelay > 0 ? () => setPromptAudioEnded(true) : undefined}
           playOnce={playOnce}
         />
       )}
       {children}
+
+      {/* Pre-recording countdown banner */}
+      {!submitted && autoStartDelay > 0 && (
+        preRecordCountdown !== null && preRecordCountdown > 0 ? (
+          <div className="flex flex-col items-center gap-2 rounded-xl border-2 border-amber-300 bg-amber-50 p-5 text-center dark:border-amber-700 dark:bg-amber-950/30">
+            <p className="text-xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-500">Recording starts in</p>
+            <p className="text-5xl font-bold tabular-nums text-amber-600 dark:text-amber-400">{preRecordCountdown}</p>
+            <p className="text-xs text-amber-500 dark:text-amber-600">seconds — get ready to speak</p>
+          </div>
+        ) : !promptAudioEnded && audioSrc && audioSrc.length > 5 ? (
+          <div className="flex items-center gap-3 rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-950/30">
+            <span className="text-xl">🎤</span>
+            <div>
+              <p className="text-sm font-medium text-indigo-700 dark:text-indigo-400">Recording starts automatically</p>
+              <p className="text-xs text-indigo-600 dark:text-indigo-500">{autoStartDelay}s after audio finishes playing</p>
+            </div>
+          </div>
+        ) : null
+      )}
 
       {/* Speaking Template */}
       {speakingTemplate && !submitted && (
@@ -1659,6 +1726,9 @@ function SpeakingQuestion({
         <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
           📌 {instructionText}
           {prepTime > 0 && ` You have ${prepTime}s to prepare.`}
+          {mountAutoStart && autoStartDelay > 0 && ` Recording starts automatically in ${autoStartDelay}s.`}
+          {!mountAutoStart && autoStartDelay > 0 && audioSrc && ` Recording starts automatically ${autoStartDelay}s after audio ends.`}
+          {!mountAutoStart && autoStartDelay > 0 && (!audioSrc || audioSrc.length <= 5) && ` Recording starts automatically in ${autoStartDelay}s.`}
           {audioSrc && audioDurationSec
             ? ` Max recording time: ${effectiveMaxDuration}s (audio length ${Math.ceil(audioDurationSec)}s + 15s).`
             : ` Maximum recording time: ${effectiveMaxDuration}s.`}
@@ -1670,8 +1740,8 @@ function SpeakingQuestion({
           maxDuration={effectiveMaxDuration}
           prepTime={prepTime}
           onRecordingComplete={handleRecordingComplete}
-          autoStart={promptAudioEnded}
-          autoStartDelay={autoStartDelay}
+          autoStart={readyToRecord}
+          autoStartDelay={0}
         />
       )}
 
@@ -1815,8 +1885,12 @@ function SummarizeWrittenTextQuestion({
 }) {
   const [text, setText] = useState("");
   const [scoring, setScoring] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(10 * 60); // 10 minutes
+  const hasAutoSubmitted = useRef(false);
 
   const currentWords = text.trim().split(/\s+/).filter(Boolean).length;
+
+  const fmtTime = (secs: number) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
 
   const handleSubmit = async () => {
     const mistakes: ScoreResult["mistakes"] = [];
@@ -1884,25 +1958,51 @@ function SummarizeWrittenTextQuestion({
     }
   };
 
+  // Countdown — stops when submitted
+  useEffect(() => {
+    if (submitted) return;
+    const interval = setInterval(() => setTimeLeft((t) => Math.max(0, t - 1)), 1000);
+    return () => clearInterval(interval);
+  }, [submitted]);
+
+  // Auto-submit when timer hits 0
+  useEffect(() => {
+    if (submitted || hasAutoSubmitted.current || timeLeft > 0) return;
+    hasAutoSubmitted.current = true;
+    handleSubmit();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, submitted]);
+
   return (
     <div className="space-y-4">
-      <div className="max-h-64 overflow-y-auto rounded-lg bg-gray-50 p-4">
-        <p className="text-sm leading-relaxed text-gray-800">{content.passage}</p>
+      <div className="max-h-64 overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-slate-800/50">
+        <p className="text-sm leading-relaxed text-gray-800 dark:text-slate-200">{content.passage}</p>
       </div>
       <textarea
-        className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+        className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
         placeholder="Write a one-sentence summary (5-75 words)..."
         value={text}
         onChange={(e) => setText(e.target.value)}
         disabled={submitted || scoring}
       />
-      <div className="flex items-center justify-between">
-        <span className="text-sm text-gray-500">Words: {currentWords} / 75</span>
-        {!submitted && (
-          <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
-            {scoring ? "AI is scoring..." : "Submit Summary"}
-          </Button>
-        )}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <span className="text-sm text-gray-500 dark:text-slate-400">Words: {currentWords} / 75</span>
+        <div className="flex items-center gap-3">
+          {!submitted && (
+            <span className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-mono font-bold tabular-nums ${
+              timeLeft <= 60 ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400" :
+              timeLeft <= 3 * 60 ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400" :
+              "bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300"
+            }`}>
+              ⏱ {fmtTime(timeLeft)}
+            </span>
+          )}
+          {!submitted && (
+            <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
+              {scoring ? "AI is scoring..." : "Submit Summary"}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -1928,6 +2028,10 @@ function WriteEssayQuestion({
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(20 * 60); // 20 minutes
+  const hasAutoSubmitted = useRef(false);
+
+  const fmtTime = (secs: number) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
 
   const minW = content.minWords || 200;
   const maxW = content.maxWords || 300;
@@ -1945,6 +2049,13 @@ function WriteEssayQuestion({
     }, 30000);
     return () => clearTimeout(timer);
   }, [text, submitted, DRAFT_KEY]);
+
+  // Countdown — stops when submitted
+  useEffect(() => {
+    if (submitted) return;
+    const interval = setInterval(() => setTimeLeft((t) => Math.max(0, t - 1)), 1000);
+    return () => clearInterval(interval);
+  }, [submitted]);
 
   // Clear draft on submit
   const clearDraft = () => { try { localStorage.removeItem(DRAFT_KEY); } catch {} };
@@ -2013,6 +2124,14 @@ function WriteEssayQuestion({
     }
   };
 
+  // Auto-submit when timer hits 0
+  useEffect(() => {
+    if (submitted || hasAutoSubmitted.current || timeLeft > 0) return;
+    hasAutoSubmitted.current = true;
+    handleSubmit();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, submitted]);
+
   const essayTemplates = WRITING_TEMPLATES.WRITE_ESSAY;
 
   return (
@@ -2060,8 +2179,8 @@ function WriteEssayQuestion({
         onChange={(e) => setText(e.target.value)}
         disabled={submitted || scoring}
       />
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-3 flex-wrap">
           <span className={`text-sm font-medium ${
             currentWords === 0 ? "text-gray-400" :
             withinRange ? "text-green-600" : "text-amber-600"
@@ -2074,11 +2193,22 @@ function WriteEssayQuestion({
             </span>
           )}
         </div>
-        {!submitted && (
-          <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
-            {scoring ? "AI is scoring..." : "Submit Essay"}
-          </Button>
-        )}
+        <div className="flex items-center gap-3">
+          {!submitted && (
+            <span className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-mono font-bold tabular-nums ${
+              timeLeft <= 60 ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400" :
+              timeLeft <= 5 * 60 ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400" :
+              "bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300"
+            }`}>
+              ⏱ {fmtTime(timeLeft)}
+            </span>
+          )}
+          {!submitted && (
+            <Button onClick={handleSubmit} disabled={!text.trim() || scoring} loading={scoring}>
+              {scoring ? "AI is scoring..." : "Submit Essay"}
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
