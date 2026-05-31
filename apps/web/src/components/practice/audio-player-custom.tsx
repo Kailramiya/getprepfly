@@ -9,6 +9,7 @@ interface AudioPlayerProps {
   onLoadedMetadata?: (durationSec: number) => void;
   onError?: () => void;
   onEnded?: () => void;
+  playOnce?: boolean; // if true: no seek, no replay after audio ends
 }
 
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
@@ -27,6 +28,7 @@ export function AudioPlayerCustom({
   onLoadedMetadata,
   onError,
   onEnded,
+  playOnce = false,
 }: AudioPlayerProps) {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -38,6 +40,7 @@ export function AudioPlayerCustom({
   const [voice, setVoice] = useState(defaultVoice);
   const [showRateMenu, setShowRateMenu] = useState(false);
   const [showVoiceMenu, setShowVoiceMenu] = useState(false);
+  const [hasPlayed, setHasPlayed] = useState(false); // used when playOnce=true
 
   // Sync audio element with state
   useEffect(() => {
@@ -53,6 +56,7 @@ export function AudioPlayerCustom({
   }, [volume, muted]);
 
   const togglePlay = () => {
+    if (playOnce && hasPlayed) return; // can't replay
     const audio = audioRef.current;
     if (!audio) return;
     if (isPlaying) {
@@ -63,6 +67,7 @@ export function AudioPlayerCustom({
   };
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (playOnce) return; // seeking disabled in play-once mode
     const audio = audioRef.current;
     if (!audio) return;
     const t = (parseFloat(e.target.value) / 100) * duration;
@@ -80,7 +85,7 @@ export function AudioPlayerCustom({
         preload="metadata"
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
-        onEnded={() => { setIsPlaying(false); onEnded?.(); }}
+        onEnded={() => { setIsPlaying(false); if (playOnce) setHasPlayed(true); onEnded?.(); }}
         onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
         onLoadedMetadata={() => {
           const d = audioRef.current?.duration || 0;
@@ -90,11 +95,24 @@ export function AudioPlayerCustom({
         onError={onError}
       />
 
+      {/* Play-once "already played" banner */}
+      {playOnce && hasPlayed && (
+        <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-700 dark:bg-amber-950/40 dark:border-amber-800 dark:text-amber-300">
+          <span>⚠</span>
+          <span>Audio has been played. In the mock test, audio can only be played once.</span>
+        </div>
+      )}
+
       <div className="flex items-center gap-3">
         {/* Play/Pause */}
         <button
           onClick={togglePlay}
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-500 text-teal-600 transition hover:bg-teal-50"
+          disabled={playOnce && hasPlayed}
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 transition ${
+            playOnce && hasPlayed
+              ? "border-gray-300 text-gray-300 cursor-not-allowed dark:border-slate-600 dark:text-slate-600"
+              : "border-teal-500 text-teal-600 hover:bg-teal-50"
+          }`}
           aria-label={isPlaying ? "Pause" : "Play"}
         >
           {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
@@ -109,7 +127,8 @@ export function AudioPlayerCustom({
             step={0.1}
             value={progressPct}
             onChange={handleSeek}
-            className="flex-1 cursor-pointer accent-teal-500"
+            disabled={playOnce}
+            className={`flex-1 accent-teal-500 ${playOnce ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
           />
           <span className="font-mono text-xs text-gray-600 whitespace-nowrap dark:text-slate-400">
             {formatTime(currentTime)} / {formatTime(duration)}

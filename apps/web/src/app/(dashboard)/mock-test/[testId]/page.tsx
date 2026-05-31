@@ -425,6 +425,7 @@ export default function MockTestSessionPage() {
               showFeedback={false}
               onSubmit={handleQuestionSubmit}
               onResponseChange={(r) => { pendingResponseRef.current = r; }}
+              playOnce={true}
             />
           )}
 

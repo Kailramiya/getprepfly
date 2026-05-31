@@ -153,7 +153,7 @@ function ReorderDnD({
 // Question Renderer — renders different UI based on question type
 // ==========================================================================
 export function QuestionRenderer({
-  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse,
+  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false,
 }: {
   question: QuestionData;
   submitted: boolean;
@@ -163,6 +163,7 @@ export function QuestionRenderer({
   onResponseChange?: (response: any) => void;
   initialResponse?: any;
   score?: any;
+  playOnce?: boolean;
 }) {
   const [response, setResponse] = useState<any>(() => {
     // Pre-fill with a previously saved answer (review mode)
@@ -206,6 +207,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         questionId={question.id}
         questionType={type}
+        playOnce={playOnce}
         expectedText={content.text || ""}
       >
         <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-lg leading-relaxed text-gray-800 dark:text-slate-100">
@@ -227,6 +229,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         questionId={question.id}
         questionType={type}
+        playOnce={playOnce}
         expectedText={content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen carefully"
@@ -248,6 +251,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         questionId={question.id}
         questionType={type}
+        playOnce={playOnce}
         expectedText={content.text || ""}
       >
         {imgSrc ? (
@@ -287,6 +291,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         questionId={question.id}
         questionType={type}
+        playOnce={playOnce}
         expectedText={content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the lecture"
@@ -306,6 +311,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         questionId={question.id}
         questionType={type}
+        playOnce={playOnce}
         expectedText={content.correctText || content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the question"
@@ -337,6 +343,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         questionId={question.id}
         questionType={type}
+        playOnce={playOnce}
         expectedText={content.text || ""}
       >
         <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-base text-gray-800 dark:text-slate-100">
@@ -358,6 +365,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         questionId={question.id}
         questionType={type}
+        playOnce={playOnce}
         expectedText={content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the group discussion"
@@ -451,7 +459,7 @@ export function QuestionRenderer({
     return (
       <div className="space-y-4">
         {isListening && (
-          <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
+          <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
         )}
         {content.passage && (
           <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-slate-800/50">
@@ -529,7 +537,7 @@ export function QuestionRenderer({
     return (
       <div className="space-y-4">
         {isListening && (
-          <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
+          <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
         )}
         {content.passage && (
           <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-slate-800/50">
@@ -740,6 +748,7 @@ export function QuestionRenderer({
         totalMarks={totalMarks}
         submitted={submitted}
         onSubmit={onSubmit}
+        playOnce={playOnce}
       />
     );
   }
@@ -748,7 +757,7 @@ export function QuestionRenderer({
   if (type === "HIGHLIGHT_CORRECT_SUMMARY") {
     return (
       <div className="space-y-4">
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
         <p className="font-medium text-gray-900">{content.question || "Which summary best matches the audio?"}</p>
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
@@ -827,7 +836,7 @@ export function QuestionRenderer({
 
     return (
       <div className="space-y-4">
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully and find the wrong words" />
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully and find the wrong words" playOnce={playOnce} />
         <div className="rounded-lg border border-gray-200 bg-white p-5 leading-loose">
           {tokens.map((tok, i) => {
             if (!wordIndicesSet.has(i)) return <span key={i}>{tok}</span>;
@@ -929,7 +938,7 @@ export function QuestionRenderer({
   if (type === "SELECT_MISSING_WORD") {
     return (
       <div className="space-y-4">
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen — last word is missing" />
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen — last word is missing" playOnce={playOnce} />
         <p className="font-medium text-gray-900">Pick the word that completes the audio:</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {content.options?.map((opt: string, i: number) => {
@@ -986,7 +995,7 @@ export function QuestionRenderer({
   if (type === "LISTENING_FILL_BLANKS") {
     return (
       <div className="space-y-4">
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" />
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
         <p className="text-sm text-gray-500 dark:text-slate-400">Listen to the audio and fill in the blanks below:</p>
         <FillBlanksText
           passage={content.passage || ""}
@@ -1006,7 +1015,7 @@ export function QuestionRenderer({
   if (type === "WRITE_FROM_DICTATION") {
     return (
       <div className="space-y-4">
-        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully — audio plays once" />
+        <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully — audio plays once" playOnce={playOnce} />
         <p className="text-sm text-gray-500 dark:text-slate-400">Listen to the audio and type the exact sentence you hear.</p>
         <textarea
           className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
@@ -1133,11 +1142,13 @@ export function AudioBlock({
   label,
   onDuration,
   onEnded,
+  playOnce,
 }: {
   src: string;
   label?: string;
   onDuration?: (seconds: number) => void;
   onEnded?: () => void;
+  playOnce?: boolean;
 }) {
   const audioSrc = normalizeAudioSrc((src || "").toString());
   const hasAudio = audioSrc.length > 5;
@@ -1169,6 +1180,7 @@ export function AudioBlock({
             }}
             onError={() => setLoadError(true)}
             onEnded={onEnded}
+            playOnce={playOnce}
           />
           {loadError && (
             <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-700">
@@ -1458,7 +1470,7 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
 function SpeakingQuestion({
   children, instructionText, prepTime, maxDuration, submitted, onSubmit,
   totalMarks = 1, questionId, questionType, expectedText = "",
-  audioSrc, audioLabel, autoStartDelay = 0,
+  audioSrc, audioLabel, autoStartDelay = 0, playOnce,
 }: {
   children?: React.ReactNode;
   instructionText: string;
@@ -1475,6 +1487,7 @@ function SpeakingQuestion({
   audioSrc?: string;
   audioLabel?: string;
   // Seconds to wait after prompt audio ends before auto-starting recording (0 = disabled)
+  playOnce?: boolean;
   autoStartDelay?: number;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
@@ -1622,6 +1635,7 @@ function SpeakingQuestion({
           label={audioLabel}
           onDuration={(sec) => setAudioDurationSec(sec)}
           onEnded={autoStartDelay > 0 ? () => setPromptAudioEnded(true) : undefined}
+          playOnce={playOnce}
         />
       )}
       {children}
@@ -1695,13 +1709,14 @@ function SpeakingQuestion({
 // SUMMARIZE SPOKEN TEXT — AI scored on submit
 // ============================================================================
 function SummarizeSpokenTextQuestion({
-  question, content, totalMarks, submitted, onSubmit,
+  question, content, totalMarks, submitted, onSubmit, playOnce,
 }: {
   question: QuestionData;
   content: any;
   totalMarks: number;
   submitted: boolean;
   onSubmit: (response: any) => void;
+  playOnce?: boolean;
 }) {
   const [text, setText] = useState("");
   const [scoring, setScoring] = useState(false);
@@ -1763,7 +1778,7 @@ function SummarizeSpokenTextQuestion({
 
   return (
     <div className="space-y-4">
-      <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio carefully" />
+      <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio carefully" playOnce={playOnce} />
       <p className="text-sm text-gray-500">Write a 50–70 word summary of what you heard in your own words.</p>
       <textarea
         className="min-h-[140px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
