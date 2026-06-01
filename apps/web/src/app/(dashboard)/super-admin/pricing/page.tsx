@@ -5,13 +5,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { IndianRupee, RotateCcw, Save, Mic, PenTool, BookOpen, Headphones, Layers, Building2, CalendarDays } from "lucide-react";
+import { IndianRupee, RotateCcw, Save, Mic, PenTool, BookOpen, Headphones, Layers, Building2, CalendarDays, Users } from "lucide-react";
 
 interface PricingRow {
   key: string;
   label: string;
   amount: number;
   amountRupees: string;
+  maxStudents: number | null;
   isCustom: boolean;
 }
 
@@ -56,10 +57,17 @@ const DEFAULT_RUPEES: Record<string, string> = {
   ANNUAL_STARTER: "11999", ANNUAL_GROWTH: "29999", ANNUAL_UNLIMITED: "79999",
 };
 
+const DEFAULT_MAX_STUDENTS: Record<string, number> = {
+  CENTRE_MINI: 5, CENTRE_SMALL: 20,
+  CENTRE_STARTER: 50, CENTRE_GROWTH: 150, CENTRE_PRO: 500,
+  ANNUAL_STARTER: 65, ANNUAL_GROWTH: 180, ANNUAL_UNLIMITED: -1,
+};
+
 export default function SuperAdminPricingPage() {
   const [rows, setRows] = useState<PricingRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [edits, setEdits] = useState<Record<string, string>>({});
+  const [priceEdits, setPriceEdits] = useState<Record<string, string>>({});
+  const [studentsEdits, setStudentsEdits] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState<string | null>(null);
   const [resetting, setResetting] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
@@ -75,44 +83,65 @@ export default function SuperAdminPricingPage() {
     const data = await res.json();
     if (data.success) {
       setRows(data.data);
-      // Initialise edit values to current prices
-      const initial: Record<string, string> = {};
-      for (const r of data.data) initial[r.key] = r.amountRupees;
-      setEdits(initial);
+      const initialPrices: Record<string, string> = {};
+      const initialStudents: Record<string, string> = {};
+      for (const r of data.data) {
+        initialPrices[r.key] = r.amountRupees;
+        if (r.maxStudents !== null) {
+          initialStudents[r.key] = String(r.maxStudents);
+        }
+      }
+      setPriceEdits(initialPrices);
+      setStudentsEdits(initialStudents);
     }
     setLoading(false);
   };
 
   useEffect(() => { fetchPrices(); }, []);
 
-  const handleSave = async (key: string) => {
-    const val = edits[key];
+  const handleSave = async (key: string, hasMaxStudents: boolean) => {
+    const val = priceEdits[key];
     if (!val || isNaN(Number(val))) return;
     setSaving(key);
+    const body: Record<string, unknown> = { key, amountRupees: val };
+    if (hasMaxStudents) {
+      const s = studentsEdits[key];
+      if (s !== undefined && s !== "" && !isNaN(Number(s))) {
+        body.maxStudents = Number(s);
+      }
+    }
     const res = await fetch("/api/super-admin/pricing", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ key, amountRupees: val }),
+      body: JSON.stringify(body),
     });
     const data = await res.json();
     if (data.success) {
       setRows(prev => prev.map(r => r.key === key
-        ? { ...r, amount: data.data.amount, amountRupees: data.data.amountRupees, isCustom: true }
+        ? { ...r, amount: data.data.amount, amountRupees: data.data.amountRupees, maxStudents: data.data.maxStudents ?? r.maxStudents, isCustom: true }
         : r
       ));
-      showToast("Price updated successfully");
+      showToast("Plan updated successfully");
     } else {
-      showToast(data.error || "Failed to update price");
+      showToast(data.error || "Failed to update plan");
     }
     setSaving(null);
   };
 
-  const handleReset = async (key: string, defaultRupees: string) => {
+  const handleReset = async (key: string) => {
     setResetting(key);
     await fetch(`/api/super-admin/pricing?key=${key}`, { method: "DELETE" });
-    setRows(prev => prev.map(r => r.key === key ? { ...r, isCustom: false, amountRupees: defaultRupees } : r));
-    setEdits(prev => ({ ...prev, [key]: defaultRupees }));
-    showToast("Reset to default price");
+    const defaultRupees = DEFAULT_RUPEES[key] ?? "";
+    const defaultMax = DEFAULT_MAX_STUDENTS[key];
+    setRows(prev => prev.map(r => r.key === key
+      ? { ...r, isCustom: false, amountRupees: defaultRupees, maxStudents: defaultMax ?? r.maxStudents }
+      : r
+    ));
+    setPriceEdits(prev => ({ ...prev, [key]: defaultRupees }));
+    if (defaultMax !== undefined) {
+      setStudentsEdits(prev => ({ ...prev, [key]: String(defaultMax) }));
+    }
+    showToast("Reset to default values");
     setResetting(null);
   };
 
@@ -131,7 +160,7 @@ export default function SuperAdminPricingPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Pricing Management</h1>
         <p className="text-sm text-gray-500 dark:text-slate-400">
-          Set prices for all subscription plans. Changes take effect immediately for new purchases.
+          Set prices and student limits for all subscription plans. Changes take effect immediately for new purchases.
         </p>
       </div>
 
@@ -158,10 +187,14 @@ export default function SuperAdminPricingPage() {
                     {groupRows.map(row => {
                       const meta = PLAN_META[row.key];
                       const Icon = meta?.icon ?? IndianRupee;
-                      const isDirty = edits[row.key] !== row.amountRupees;
+                      const hasMaxStudents = row.maxStudents !== null;
+                      const currentMax = row.maxStudents === -1 ? "∞" : String(row.maxStudents ?? "");
+                      const isPriceDirty = priceEdits[row.key] !== row.amountRupees;
+                      const isStudentsDirty = hasMaxStudents && studentsEdits[row.key] !== String(row.maxStudents);
+                      const isDirty = isPriceDirty || isStudentsDirty;
 
                       return (
-                        <div key={row.key} className="flex items-center justify-between gap-4 p-4">
+                        <div key={row.key} className="flex flex-wrap items-center justify-between gap-3 p-4">
                           <div className="flex items-center gap-3 min-w-0">
                             <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${meta?.bg}`}>
                               <Icon className={`h-5 w-5 ${meta?.color}`} />
@@ -174,25 +207,47 @@ export default function SuperAdminPricingPage() {
                                 )}
                               </div>
                               <p className="text-xs text-gray-400 dark:text-slate-500">
-                                Current: ₹{row.amountRupees}
+                                ₹{row.amountRupees}
+                                {hasMaxStudents && (
+                                  <> · {currentMax === "∞" ? "Unlimited" : `${currentMax} students`}</>
+                                )}
                               </p>
                             </div>
                           </div>
 
-                          <div className="flex items-center gap-2 shrink-0">
+                          <div className="flex items-center gap-2 shrink-0 flex-wrap">
+                            {/* Price input */}
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
                               <Input
                                 type="number"
                                 min="0"
-                                value={edits[row.key] ?? row.amountRupees}
-                                onChange={e => setEdits(prev => ({ ...prev, [row.key]: e.target.value }))}
+                                value={priceEdits[row.key] ?? row.amountRupees}
+                                onChange={e => setPriceEdits(prev => ({ ...prev, [row.key]: e.target.value }))}
                                 className="w-32 pl-7"
+                                placeholder="Price"
                               />
                             </div>
+
+                            {/* Students input — only for centre/annual plans */}
+                            {hasMaxStudents && (
+                              <div className="relative">
+                                <Users className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
+                                <Input
+                                  type="number"
+                                  min="-1"
+                                  value={studentsEdits[row.key] ?? String(row.maxStudents)}
+                                  onChange={e => setStudentsEdits(prev => ({ ...prev, [row.key]: e.target.value }))}
+                                  className="w-24 pl-7"
+                                  placeholder="Students"
+                                  title="-1 for unlimited"
+                                />
+                              </div>
+                            )}
+
                             <Button
                               size="sm"
-                              onClick={() => handleSave(row.key)}
+                              onClick={() => handleSave(row.key, hasMaxStudents)}
                               loading={saving === row.key}
                               disabled={!isDirty && !saving}
                               className="gap-1.5"
@@ -204,9 +259,7 @@ export default function SuperAdminPricingPage() {
                               <Button
                                 size="sm"
                                 variant="ghost"
-                                onClick={() => {
-                                  handleReset(row.key, DEFAULT_RUPEES[row.key] ?? row.amountRupees);
-                                }}
+                                onClick={() => handleReset(row.key)}
                                 loading={resetting === row.key}
                                 className="gap-1.5 text-gray-400"
                               >
@@ -227,7 +280,7 @@ export default function SuperAdminPricingPage() {
       )}
 
       <p className="text-xs text-gray-400 dark:text-slate-500">
-        All prices are in Indian Rupees (INR). Changes apply to new purchases only — existing subscriptions are unaffected.
+        All prices are in Indian Rupees (INR). Set students to -1 for unlimited. Changes apply to new purchases only.
       </p>
     </div>
   );

@@ -631,10 +631,11 @@ model VocabProgress {
 // ============================================================================
 
 model PricingSetting {
-  key       String   @id  // e.g. "MODULE_SPEAKING", "ALL_MODULES", "CENTRE_STARTER"
-  amount    Int           // in paise (INR × 100)
-  label     String
-  updatedAt DateTime @updatedAt
+  key         String   @id  // e.g. "MODULE_SPEAKING", "ALL_MODULES", "CENTRE_STARTER"
+  amount      Int           // in paise (INR × 100)
+  label       String
+  maxStudents Int?          // override for centre/annual plans; null = use hardcoded default
+  updatedAt   DateTime @updatedAt
 }
 
 // ============================================================================

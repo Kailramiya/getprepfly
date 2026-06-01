@@ -424,8 +424,15 @@ export async function activateCentrePlan(
 
   const now = new Date();
 
-  // Get existing premiumUntil to extend if still active
-  const centre = await db.centre.findUnique({ where: { id: centreId }, select: { premiumUntil: true } });
+  // Check for super-admin overrides (price + maxStudents)
+  const [centre, dbSetting] = await Promise.all([
+    db.centre.findUnique({ where: { id: centreId }, select: { premiumUntil: true } }),
+    db.pricingSetting.findUnique({ where: { key: planKey } }),
+  ]);
+
+  const maxStudents = dbSetting?.maxStudents != null ? dbSetting.maxStudents : plan.maxStudents;
+  const amount = dbSetting?.amount != null ? dbSetting.amount : plan.amount;
+
   const base = centre?.premiumUntil && centre.premiumUntil > now ? centre.premiumUntil : now;
   const newPremiumUntil = new Date(base);
   newPremiumUntil.setDate(newPremiumUntil.getDate() + plan.days);
@@ -441,8 +448,8 @@ export async function activateCentrePlan(
       data: {
         centreId,
         planName: plan.label,
-        maxStudents: plan.maxStudents,
-        monthlyPrice: plan.amount,
+        maxStudents,
+        monthlyPrice: amount,
         status: "ACTIVE",
         startDate: now,
         endDate: newPremiumUntil,
