@@ -7,7 +7,72 @@ import { getCurrentUser } from "@/lib/auth-utils";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
+  title: "Prepfly — AI-Powered PTE Academic Practice Platform",
+  description:
+    "Score 79+ in PTE Academic with Prepfly. Practice all 20+ question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback. Free during beta.",
   alternates: { canonical: "/" },
+  openGraph: {
+    title: "Prepfly — AI-Powered PTE Academic Practice Platform",
+    description:
+      "Score 79+ in PTE Academic with Prepfly. Practice all 20+ question types with AI-powered instant feedback. Free during beta.",
+    url: "https://getprepfly.com",
+    type: "website",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://getprepfly.com/#organization",
+      name: "Prepfly",
+      url: "https://getprepfly.com",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://getprepfly.com/icons/logo.svg",
+      },
+      description: "AI-powered PTE Academic practice platform for students preparing for the Pearson Test of English.",
+      foundingLocation: "India",
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://getprepfly.com/#website",
+      url: "https://getprepfly.com",
+      name: "Prepfly",
+      publisher: { "@id": "https://getprepfly.com/#organization" },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: { "@type": "EntryPoint", urlTemplate: "https://getprepfly.com/register" },
+        "query-input": "required name=search_term_string",
+      },
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://getprepfly.com/#app",
+      name: "Prepfly",
+      url: "https://getprepfly.com",
+      applicationCategory: "EducationApplication",
+      operatingSystem: "Web, Android, iOS",
+      offers: {
+        "@type": "Offer",
+        price: "0",
+        priceCurrency: "INR",
+        description: "Free during beta — all features unlocked",
+      },
+      publisher: { "@id": "https://getprepfly.com/#organization" },
+      description:
+        "Practice PTE Academic with AI-powered scoring across Speaking, Writing, Reading and Listening. Full mock tests included.",
+      featureList: [
+        "AI-powered speaking scoring",
+        "Writing feedback with grammar analysis",
+        "All 20+ PTE question types",
+        "Full timed mock tests",
+        "Progress analytics",
+        "Coaching centre management",
+      ],
+    },
+  ],
 };
 
 const features = [
@@ -30,6 +95,11 @@ export default async function HomePage() {
   const user = await getCurrentUser();
   if (user) redirect("/dashboard");
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
     <div className="min-h-screen">
       {/* Navbar */}
       <nav className="sticky top-0 z-50 border-b border-gray-200 bg-white/80 backdrop-blur-md dark:border-slate-700 dark:bg-slate-900/80">
@@ -168,5 +238,6 @@ export default async function HomePage() {
         </div>
       </footer>
     </div>
+    </>
   );
 }

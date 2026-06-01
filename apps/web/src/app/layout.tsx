@@ -12,20 +12,41 @@ const inter = Inter({
   preload: true,
 });
 
+const SITE_NAME = "Prepfly";
+const SITE_URL = "https://getprepfly.com";
+const SITE_DESCRIPTION =
+  "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Free during beta.";
+
 export const metadata: Metadata = {
-  metadataBase: new URL("https://getprepfly.com"),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Prepfly — AI-Powered PTE Practice Platform",
     template: "%s | Prepfly",
   },
-  description:
-    "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Free during beta.",
-  keywords: ["PTE", "PTE Academic", "PTE practice", "PTE mock test", "Prepfly", "getprepfly", "PTE India"],
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "PTE", "PTE Academic", "PTE practice", "PTE mock test", "PTE preparation",
+    "PTE score 79", "Prepfly", "getprepfly", "PTE India", "AI PTE practice",
+    "PTE speaking practice", "PTE writing practice",
+  ],
   manifest: "/manifest.json",
   openGraph: {
-    siteName: "Prepfly",
-    url: "https://getprepfly.com",
+    siteName: SITE_NAME,
+    url: SITE_URL,
     type: "website",
+    title: "Prepfly — AI-Powered PTE Practice Platform",
+    description: SITE_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Prepfly — AI-Powered PTE Practice Platform",
+    description: SITE_DESCRIPTION,
+    site: "@getprepfly",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" },
   },
 };
 
