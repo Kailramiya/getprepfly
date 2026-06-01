@@ -4,6 +4,11 @@ import { BookOpen, Mic, Headphones, PenTool, BarChart3, Users, Zap } from "lucid
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth-utils";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
+};
 
 const features = [
   { icon: Mic, title: "Speaking Practice", desc: "AI-powered pronunciation and fluency scoring for all 6 speaking question types" },

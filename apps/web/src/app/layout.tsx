@@ -22,9 +22,6 @@ export const metadata: Metadata = {
     "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Free during beta.",
   keywords: ["PTE", "PTE Academic", "PTE practice", "PTE mock test", "Prepfly", "getprepfly", "PTE India"],
   manifest: "/manifest.json",
-  alternates: {
-    canonical: "https://getprepfly.com",
-  },
   openGraph: {
     siteName: "Prepfly",
     url: "https://getprepfly.com",

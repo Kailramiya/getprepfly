@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 export const metadata = {
   title: "Download Prepfly App",
   description: "Get Prepfly on Android, iOS, or install the web app. Practice PTE anywhere.",
+  alternates: { canonical: "/download" },
 };
 
 const platforms = [
