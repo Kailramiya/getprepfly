@@ -718,6 +718,7 @@ export function QuestionRenderer({
       <FillBlanksDrag
         passage={content.passage || ""}
         blanks={content.blanks || []}
+        extraOptions={content.extraOptions || []}
         totalMarks={totalMarks}
         submitted={submitted}
         showAnswer={showAnswer}
@@ -2258,10 +2259,11 @@ function shuffle<T>(arr: T[]): T[] {
 
 // -------------------- DRAG-AND-DROP FILL BLANKS --------------------
 function FillBlanksDrag({
-  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, modelAnswers = [], initialAnswers,
+  passage, blanks, extraOptions = [], submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, modelAnswers = [], initialAnswers,
 }: {
   passage: string;
   blanks: any[];
+  extraOptions?: string[];
   totalMarks: number;
   submitted: boolean;
   showAnswer?: boolean;
@@ -2302,14 +2304,16 @@ function FillBlanksDrag({
 
   // Build word bank
   const wordBank = (() => {
-    if (useFlatMode) return flatWords;
+    const extras = extraOptions.filter(Boolean);
+    if (useFlatMode) return [...flatWords, ...extras];
     const hasPerBlankOptions = normalizedBlanks.some((b) => b.options && b.options.length > 0);
     if (hasPerBlankOptions) {
       const allOpts = new Set<string>();
       normalizedBlanks.forEach((b) => b.options.forEach((o: string) => allOpts.add(o)));
+      extras.forEach((o) => allOpts.add(o));
       return Array.from(allOpts);
     }
-    return normalizedBlanks.map((b) => b.correctAnswer).filter(Boolean);
+    return [...normalizedBlanks.map((b) => b.correctAnswer).filter(Boolean), ...extras];
   })();
 
   const [filled, setFilled] = useState<(string | null)[]>(() => {

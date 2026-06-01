@@ -327,6 +327,9 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
   );
   const isDragType = typeValue === "READING_FILL_BLANKS_DRAG";
   const makeEmptyBlank = (): BlankItem => isDragType ? { options: [""], correctIndex: 0 } : { options: ["", ""], correctIndex: 0 };
+  const [dragExtraOptions, setDragExtraOptions] = useState<string[]>(() =>
+    isDragType && Array.isArray(initialContent.extraOptions) ? initialContent.extraOptions : []
+  );
   const [blankItems, setBlankItems] = useState<BlankItem[]>(() => {
     if (Array.isArray(initialContent.blanks) && initialContent.blanks.length > 0) {
       return initialContent.blanks.map((b: any) => {
@@ -487,8 +490,10 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
     if (fields.has("fill-blanks")) {
       content.passage = fillBlanksPassage;
       if (isDragType) {
-        // Drag: blanks are just correct answers — word bank is built from them in the practice page
+        // Drag: blanks are correct answers; extraOptions are distractor words added to the word bank
         content.blanks = blankItems.map((b) => b.options[0]?.trim() || "");
+        const extras = dragExtraOptions.map(s => s.trim()).filter(Boolean);
+        if (extras.length > 0) content.extraOptions = extras;
       } else {
         content.blanks = blankItems.map((b) => ({
           correctAnswer: b.options[b.correctIndex]?.trim() || "",
@@ -1065,8 +1070,44 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                               </div>
                             ))}
                             <p className="text-xs text-gray-400 dark:text-slate-500">
-                              Each <code className="rounded bg-gray-100 dark:bg-slate-700 px-1">[blank]</code> in the passage above adds one row here. The word bank shown to students is built from these correct words.
+                              Each <code className="rounded bg-gray-100 dark:bg-slate-700 px-1">[blank]</code> in the passage above adds one row here. The word bank shown to students is built from these correct words plus any extra options below.
                             </p>
+
+                            {/* Extra distractor options */}
+                            <div className="mt-1 rounded-xl border border-dashed border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/20 p-3 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <p className="text-xs font-medium text-amber-800 dark:text-amber-300">
+                                  Extra options (distractors)
+                                </p>
+                                <p className="text-xs text-amber-600 dark:text-amber-400">
+                                  Added to the word bank but not correct answers
+                                </p>
+                              </div>
+                              {dragExtraOptions.map((opt, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                  <Input
+                                    value={opt}
+                                    onChange={e => setDragExtraOptions(prev => prev.map((o, j) => j === i ? e.target.value : o))}
+                                    placeholder={`Distractor word ${i + 1}`}
+                                    className="flex-1 text-sm"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setDragExtraOptions(prev => prev.filter((_, j) => j !== i))}
+                                    className="shrink-0 rounded p-1 text-gray-300 hover:text-red-500 dark:text-slate-600 dark:hover:text-red-400"
+                                  >
+                                    <Trash2 className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() => setDragExtraOptions(prev => [...prev, ""])}
+                                className="flex items-center gap-1 text-xs text-amber-700 hover:underline dark:text-amber-400"
+                              >
+                                <Plus className="h-3 w-3" /> Add distractor option
+                              </button>
+                            </div>
                           </>
                         ) : (
                           /* Dropdown / Listening: per-blank options with radio to mark correct */
