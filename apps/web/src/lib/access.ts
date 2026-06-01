@@ -291,6 +291,35 @@ export const CENTRE_PLANS: Record<string, {
   days: number;          // subscription duration
   features: string[];
 }> = {
+  // Monthly plans (30 days)
+  CENTRE_MINI: {
+    amount: 119900,       // ₹1,199 / month
+    label: "Mini Plan",
+    maxStudents: 5,
+    days: 30,
+    features: [
+      "Up to 5 students",
+      "All 4 modules unlocked for all students",
+      "AI scoring for all question types",
+      "Student progress tracking",
+      "Batch management",
+      "30 days access",
+    ],
+  },
+  CENTRE_SMALL: {
+    amount: 299900,       // ₹2,999 / month
+    label: "Small Plan",
+    maxStudents: 20,
+    days: 30,
+    features: [
+      "Up to 20 students",
+      "All 4 modules unlocked for all students",
+      "AI scoring for all question types",
+      "Student progress tracking",
+      "Batch management",
+      "30 days access",
+    ],
+  },
   CENTRE_STARTER: {
     amount: 299900,       // ₹2,999 / 6 months
     label: "Starter Plan",

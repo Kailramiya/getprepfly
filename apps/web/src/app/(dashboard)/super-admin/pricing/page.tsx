@@ -34,6 +34,9 @@ const PLAN_META: Record<string, { icon: any; color: string; bg: string; group: s
   MODULE_READING_1Y:  { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans (1 Year)" },
   MODULE_LISTENING_1Y:{ icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans (1 Year)" },
   ALL_MODULES_1Y:     { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans (1 Year)" },
+  // Centre — monthly
+  CENTRE_MINI:        { icon: Building2,    color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Centre Plans (Monthly)" },
+  CENTRE_SMALL:       { icon: Building2,    color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Centre Plans (Monthly)" },
   // Centre — 6 months
   CENTRE_STARTER:     { icon: Building2,    color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Centre Plans (6 Months)" },
   CENTRE_GROWTH:      { icon: Building2,    color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Centre Plans (6 Months)" },
@@ -48,6 +51,7 @@ const DEFAULT_RUPEES: Record<string, string> = {
   MODULE_SPEAKING: "199",    MODULE_WRITING: "199",    MODULE_READING: "199",    MODULE_LISTENING: "199",    ALL_MODULES: "599",
   MODULE_SPEAKING_6M: "999", MODULE_WRITING_6M: "999", MODULE_READING_6M: "999", MODULE_LISTENING_6M: "999", ALL_MODULES_6M: "2999",
   MODULE_SPEAKING_1Y: "1799",MODULE_WRITING_1Y: "1799",MODULE_READING_1Y: "1799",MODULE_LISTENING_1Y: "1799",ALL_MODULES_1Y: "4999",
+  CENTRE_MINI: "1199", CENTRE_SMALL: "2999",
   CENTRE_STARTER: "2999", CENTRE_GROWTH: "6999", CENTRE_PRO: "14999",
   ANNUAL_STARTER: "11999", ANNUAL_GROWTH: "29999", ANNUAL_UNLIMITED: "79999",
 };
@@ -116,6 +120,7 @@ export default function SuperAdminPricingPage() {
     "Student Plans (1 Month)",
     "Student Plans (6 Months)",
     "Student Plans (1 Year)",
+    "Centre Plans (Monthly)",
     "Centre Plans (6 Months)",
     "Annual Institute Plans",
   ];

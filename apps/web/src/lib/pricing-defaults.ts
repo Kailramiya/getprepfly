@@ -19,6 +19,9 @@ export const DEFAULT_PRICES: Record<string, { amount: number; label: string }> =
   MODULE_READING_1Y:  { amount: 179900,  label: "Reading Module (1 Year)" },
   MODULE_LISTENING_1Y:{ amount: 179900,  label: "Listening Module (1 Year)" },
   ALL_MODULES_1Y:     { amount: 499900,  label: "All 4 Modules Bundle (1 Year)" },
+  // Centre plans — monthly (30 days)
+  CENTRE_MINI:        { amount: 119900,  label: "Centre Mini Plan (5 students, 1 month)" },
+  CENTRE_SMALL:       { amount: 299900,  label: "Centre Small Plan (20 students, 1 month)" },
   // Centre plans — 6 months
   CENTRE_STARTER:     { amount: 299900,  label: "Centre Starter Plan (50 students, 6 months)" },
   CENTRE_GROWTH:      { amount: 699900,  label: "Centre Growth Plan (150 students, 6 months)" },

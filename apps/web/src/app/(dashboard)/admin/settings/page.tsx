@@ -12,6 +12,43 @@ import {
 
 declare global { interface Window { Razorpay: any } }
 
+const TRUE_MONTHLY_PLANS = [
+  {
+    key: "CENTRE_MINI",
+    name: "Mini",
+    price: 1199,
+    maxStudents: 5,
+    studentLabel: "Up to 5 students",
+    color: "from-teal-500 to-teal-600",
+    badge: null as string | null,
+    features: [
+      "Up to 5 students",
+      "All 4 modules for all students",
+      "AI scoring — all question types",
+      "Student progress tracking",
+      "Batch management",
+      "30 days access",
+    ],
+  },
+  {
+    key: "CENTRE_SMALL",
+    name: "Small",
+    price: 2999,
+    maxStudents: 20,
+    studentLabel: "Up to 20 students",
+    color: "from-indigo-500 to-purple-600",
+    badge: "Most Popular" as string | null,
+    features: [
+      "Up to 20 students",
+      "All 4 modules for all students",
+      "AI scoring — all question types",
+      "Student progress tracking",
+      "Batch management",
+      "30 days access",
+    ],
+  },
+];
+
 const MONTHLY_PLANS = [
   {
     key: "CENTRE_STARTER",
@@ -157,7 +194,7 @@ export default function AdminBillingPage() {
   const [processing, setProcessing] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
+  const [billingCycle, setBillingCycle] = useState<"1month" | "monthly" | "annual">("annual");
 
   const fetchData = () => {
     setLoading(true);
@@ -247,8 +284,10 @@ export default function AdminBillingPage() {
   }
 
   const { centre, plan, history } = data || { centre: null, plan: null, history: [] };
-  const PLANS = billingCycle === "annual" ? ANNUAL_PLANS : MONTHLY_PLANS;
+  const PLANS = billingCycle === "annual" ? ANNUAL_PLANS : billingCycle === "monthly" ? MONTHLY_PLANS : TRUE_MONTHLY_PLANS;
   const LABEL_TO_KEY: Record<string, string> = {
+    "Mini Plan": "CENTRE_MINI",
+    "Small Plan": "CENTRE_SMALL",
     "Starter Plan": "CENTRE_STARTER",
     "Growth Plan": "CENTRE_GROWTH",
     "Pro Plan": "CENTRE_PRO",
@@ -345,6 +384,16 @@ export default function AdminBillingPage() {
             {/* Billing cycle toggle */}
             <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-slate-800">
               <button
+                onClick={() => setBillingCycle("1month")}
+                className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+                  billingCycle === "1month"
+                    ? "bg-white text-gray-900 shadow dark:bg-slate-700 dark:text-slate-100"
+                    : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                }`}
+              >
+                Monthly
+              </button>
+              <button
                 onClick={() => setBillingCycle("monthly")}
                 className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
                   billingCycle === "monthly"
@@ -376,6 +425,12 @@ export default function AdminBillingPage() {
               Annual plans include bonus seats and save vs the 6-month billing.
             </div>
           )}
+          {billingCycle === "1month" && (
+            <div className="mb-4 flex items-center gap-2 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-800 dark:border-teal-800 dark:bg-teal-950/30 dark:text-teal-300">
+              <Star className="h-4 w-4 shrink-0 text-teal-500" />
+              Monthly plans renew every 30 days. Great for smaller centres getting started.
+            </div>
+          )}
 
           <div className="grid gap-6 lg:grid-cols-3">
             {PLANS.map((p) => {
@@ -405,7 +460,7 @@ export default function AdminBillingPage() {
                     <div className="mt-2 flex items-baseline gap-1">
                       <span className="text-3xl font-extrabold text-gray-900 dark:text-slate-100">₹{p.price.toLocaleString("en-IN")}</span>
                       <span className="text-sm text-gray-500 dark:text-slate-400">
-                        /{billingCycle === "annual" ? "year" : "6 months"}
+                        /{billingCycle === "annual" ? "year" : billingCycle === "monthly" ? "6 months" : "month"}
                       </span>
                     </div>
                     <p className="mt-1 text-sm font-medium text-indigo-600 dark:text-indigo-400">{p.studentLabel}</p>
