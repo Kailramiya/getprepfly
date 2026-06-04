@@ -154,27 +154,29 @@ export function AudioPlayerCustom({
           </span>
         </div>
 
-        {/* Volume */}
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => setMuted(!muted)}
-            className="rounded-full border border-teal-200 p-2 text-teal-600 hover:bg-teal-50"
-            aria-label={muted ? "Unmute" : "Mute"}
-          >
-            {muted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
-          </button>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={muted ? 0 : volume * 100}
-            onChange={(e) => {
-              setVolume(parseFloat(e.target.value) / 100);
-              setMuted(false);
-            }}
-            className="hidden w-16 cursor-pointer accent-teal-500 sm:block"
-          />
-        </div>
+        {/* Volume — hidden in mock test */}
+        {!playOnce && (
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setMuted(!muted)}
+              className="rounded-full border border-teal-200 p-2 text-teal-600 hover:bg-teal-50"
+              aria-label={muted ? "Unmute" : "Mute"}
+            >
+              {muted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </button>
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={muted ? 0 : volume * 100}
+              onChange={(e) => {
+                setVolume(parseFloat(e.target.value) / 100);
+                setMuted(false);
+              }}
+              className="hidden w-16 cursor-pointer accent-teal-500 sm:block"
+            />
+          </div>
+        )}
 
         {/* Playback speed — hidden in mock test (playOnce mode) */}
         {!playOnce && (
@@ -204,30 +206,32 @@ export function AudioPlayerCustom({
           </div>
         )}
 
-        {/* Voice / accent */}
-        <div className="relative">
-          <button
-            onClick={() => { setShowVoiceMenu(!showVoiceMenu); setShowRateMenu(false); }}
-            className="flex items-center gap-1 rounded-full border border-teal-200 px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50"
-          >
-            {voice} ▾
-          </button>
-          {showVoiceMenu && (
-            <div className="absolute right-0 top-full z-20 mt-1 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-              {VOICES.map((v) => (
-                <button
-                  key={v}
-                  onClick={() => { setVoice(v); setShowVoiceMenu(false); }}
-                  className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-slate-700 ${
-                    voice === v ? "font-semibold text-teal-600" : "text-gray-700 dark:text-slate-300"
-                  }`}
-                >
-                  {v} {voice === v && "✓"}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Voice / accent — hidden in mock test */}
+        {!playOnce && (
+          <div className="relative">
+            <button
+              onClick={() => { setShowVoiceMenu(!showVoiceMenu); setShowRateMenu(false); }}
+              className="flex items-center gap-1 rounded-full border border-teal-200 px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50"
+            >
+              {voice} ▾
+            </button>
+            {showVoiceMenu && (
+              <div className="absolute right-0 top-full z-20 mt-1 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                {VOICES.map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => { setVoice(v); setShowVoiceMenu(false); }}
+                    className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-slate-700 ${
+                      voice === v ? "font-semibold text-teal-600" : "text-gray-700 dark:text-slate-300"
+                    }`}
+                  >
+                    {v} {voice === v && "✓"}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
