@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  ChevronLeft, ChevronRight, Clock,
+  ChevronRight, Clock,
   CheckCircle2, Mic, PenTool, BookOpen, Headphones,
   Flag, Loader2, Save,
 } from "lucide-react";
@@ -195,17 +195,6 @@ export default function MockTestSessionPage() {
       });
     }
   }, [currentIdx, totalQuestions, testId, test, autoSavePending, submitted]);
-
-  const goPrev = useCallback(async () => {
-    if (currentIdx > 0) {
-      if (!submitted && autoSubmitRef.current) {
-        autoSubmitRef.current();
-      } else {
-        await autoSavePending();
-      }
-      setCurrentIdx(currentIdx - 1);
-    }
-  }, [currentIdx, autoSavePending, submitted]);
 
   // Called by QuestionRenderer when student explicitly submits
   const handleQuestionSubmit = async (response: any) => {
