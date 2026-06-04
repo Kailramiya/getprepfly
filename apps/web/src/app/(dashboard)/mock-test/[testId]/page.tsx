@@ -454,12 +454,8 @@ export default function MockTestSessionPage() {
         </CardContent>
       </Card>
 
-      {/* Navigation */}
-      <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={goPrev} disabled={currentIdx === 0} className="gap-2">
-          <ChevronLeft className="h-4 w-4" /> Previous
-        </Button>
-
+      {/* Navigation — no Previous in mock test */}
+      <div className="flex justify-end">
         <Button onClick={goNext} disabled={currentIdx === totalQuestions - 1} className="gap-2">
           Next <ChevronRight className="h-4 w-4" />
         </Button>

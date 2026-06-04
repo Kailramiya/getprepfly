@@ -42,6 +42,20 @@ export function AudioPlayerCustom({
   const [showVoiceMenu, setShowVoiceMenu] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false); // used when playOnce=true
 
+  // In mock test (playOnce), auto-play when audio is ready — no play button is shown
+  useEffect(() => {
+    if (!playOnce) return;
+    const audio = audioRef.current;
+    if (!audio) return;
+    const tryPlay = () => { audio.play().catch(() => {}); };
+    if (audio.readyState >= 2) {
+      tryPlay();
+    } else {
+      audio.addEventListener("canplay", tryPlay, { once: true });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playOnce]);
+
   // Sync audio element with state
   useEffect(() => {
     if (audioRef.current) {
@@ -104,19 +118,16 @@ export function AudioPlayerCustom({
       )}
 
       <div className="flex items-center gap-3">
-        {/* Play/Pause */}
-        <button
-          onClick={togglePlay}
-          disabled={playOnce && hasPlayed}
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 transition ${
-            playOnce && hasPlayed
-              ? "border-gray-300 text-gray-300 cursor-not-allowed dark:border-slate-600 dark:text-slate-600"
-              : "border-teal-500 text-teal-600 hover:bg-teal-50"
-          }`}
-          aria-label={isPlaying ? "Pause" : "Play"}
-        >
-          {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
-        </button>
+        {/* Play/Pause — hidden in mock test (playOnce mode) */}
+        {!playOnce && (
+          <button
+            onClick={togglePlay}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border-2 border-teal-500 text-teal-600 transition hover:bg-teal-50"
+            aria-label={isPlaying ? "Pause" : "Play"}
+          >
+            {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
+          </button>
+        )}
 
         {/* Seek bar / progress — interactive in practice, read-only in mock test */}
         <div className="flex flex-1 items-center gap-2">
