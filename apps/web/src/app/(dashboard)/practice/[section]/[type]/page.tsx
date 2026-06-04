@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -41,6 +41,7 @@ export default function PracticeQuestionPage() {
   const [attemptHistory, setAttemptHistory] = useState<Array<{ date: string; score: number }>>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const currentQuestion = questions[currentIndex];
+  const autoSubmitRef = useRef<(() => void) | null>(null);
 
   // Fetch user's access info to know if they actually have access to this section
   useEffect(() => {
@@ -130,16 +131,24 @@ export default function PracticeQuestionPage() {
       .finally(() => setHistoryLoading(false));
   }, [currentQuestion?.id]);
 
+  const triggerAutoSubmit = useCallback(() => {
+    if (!submitted && autoSubmitRef.current) {
+      autoSubmitRef.current();
+    }
+  }, [submitted]);
+
   const goToNext = useCallback(() => {
     if (currentIndex < questions.length - 1) {
+      triggerAutoSubmit();
       setCurrentIndex(currentIndex + 1);
       setSubmitted(false);
       setScore(null);
     }
-  }, [currentIndex, questions.length]);
+  }, [currentIndex, questions.length, triggerAutoSubmit]);
 
   const goToPrev = () => {
     if (currentIndex > 0) {
+      triggerAutoSubmit();
       setCurrentIndex(currentIndex - 1);
       setSubmitted(false);
       setScore(null);
@@ -234,6 +243,7 @@ export default function PracticeQuestionPage() {
   }
 
   const jumpToQuestion = (index: number) => {
+    triggerAutoSubmit();
     setCurrentIndex(index);
     setSubmitted(false);
     setScore(null);
@@ -408,6 +418,7 @@ export default function PracticeQuestionPage() {
             question={currentQuestion}
             submitted={submitted}
             showAnswer={showAnswer}
+            submitRef={autoSubmitRef}
             onSubmit={(response: any) => {
               setSubmitted(true);
               const result = response?.scoreResult as ScoreResult | undefined;
