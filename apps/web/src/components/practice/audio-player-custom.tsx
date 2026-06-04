@@ -118,18 +118,26 @@ export function AudioPlayerCustom({
           {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="ml-0.5 h-5 w-5" />}
         </button>
 
-        {/* Seek bar + time */}
+        {/* Seek bar / progress — interactive in practice, read-only in mock test */}
         <div className="flex flex-1 items-center gap-2">
-          <input
-            type="range"
-            min={0}
-            max={100}
-            step={0.1}
-            value={progressPct}
-            onChange={handleSeek}
-            disabled={playOnce}
-            className={`flex-1 accent-teal-500 ${playOnce ? "cursor-not-allowed opacity-60" : "cursor-pointer"}`}
-          />
+          {playOnce ? (
+            <div className="flex-1 h-2 rounded-full bg-gray-200 dark:bg-slate-700 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-teal-500 transition-all"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          ) : (
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={0.1}
+              value={progressPct}
+              onChange={handleSeek}
+              className="flex-1 cursor-pointer accent-teal-500"
+            />
+          )}
           <span className="font-mono text-xs text-gray-600 whitespace-nowrap dark:text-slate-400">
             {formatTime(currentTime)} / {formatTime(duration)}
           </span>
@@ -157,31 +165,33 @@ export function AudioPlayerCustom({
           />
         </div>
 
-        {/* Playback speed */}
-        <div className="relative">
-          <button
-            onClick={() => { setShowRateMenu(!showRateMenu); setShowVoiceMenu(false); }}
-            className="flex items-center gap-1 rounded-full border border-teal-200 px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50"
-          >
-            <Gauge className="h-3.5 w-3.5" />
-            {playbackRate}x
-          </button>
-          {showRateMenu && (
-            <div className="absolute right-0 top-full z-20 mt-1 w-24 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-              {PLAYBACK_RATES.map((r) => (
-                <button
-                  key={r}
-                  onClick={() => { setPlaybackRate(r); setShowRateMenu(false); }}
-                  className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-slate-700 ${
-                    playbackRate === r ? "font-semibold text-teal-600" : "text-gray-700 dark:text-slate-300"
-                  }`}
-                >
-                  {r}x {playbackRate === r && "✓"}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Playback speed — hidden in mock test (playOnce mode) */}
+        {!playOnce && (
+          <div className="relative">
+            <button
+              onClick={() => { setShowRateMenu(!showRateMenu); setShowVoiceMenu(false); }}
+              className="flex items-center gap-1 rounded-full border border-teal-200 px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50"
+            >
+              <Gauge className="h-3.5 w-3.5" />
+              {playbackRate}x
+            </button>
+            {showRateMenu && (
+              <div className="absolute right-0 top-full z-20 mt-1 w-24 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
+                {PLAYBACK_RATES.map((r) => (
+                  <button
+                    key={r}
+                    onClick={() => { setPlaybackRate(r); setShowRateMenu(false); }}
+                    className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-slate-700 ${
+                      playbackRate === r ? "font-semibold text-teal-600" : "text-gray-700 dark:text-slate-300"
+                    }`}
+                  >
+                    {r}x {playbackRate === r && "✓"}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Voice / accent */}
         <div className="relative">
