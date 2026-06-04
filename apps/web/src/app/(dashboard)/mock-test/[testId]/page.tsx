@@ -100,6 +100,8 @@ export default function MockTestSessionPage() {
 
   // Tracks the latest in-progress response from QuestionRenderer (before explicit submit)
   const pendingResponseRef = useRef<any>(null);
+  // Ref to QuestionRenderer's current submit function — triggered on Next/Prev
+  const autoSubmitRef = useRef<(() => void) | null>(null);
 
   // Fetch test data
   useEffect(() => {
@@ -179,24 +181,31 @@ export default function MockTestSessionPage() {
 
   const goNext = useCallback(async () => {
     if (currentIdx < totalQuestions - 1) {
-      await autoSavePending();
+      if (!submitted && autoSubmitRef.current) {
+        autoSubmitRef.current();
+      } else {
+        await autoSavePending();
+      }
       const nextIdx = currentIdx + 1;
       setCurrentIdx(nextIdx);
-      // Save position
       fetch(`/api/mock-tests/${testId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ currentIndex: nextIdx, currentSection: test?.questions[nextIdx]?.question?.section }),
       });
     }
-  }, [currentIdx, totalQuestions, testId, test, autoSavePending]);
+  }, [currentIdx, totalQuestions, testId, test, autoSavePending, submitted]);
 
   const goPrev = useCallback(async () => {
     if (currentIdx > 0) {
-      await autoSavePending();
+      if (!submitted && autoSubmitRef.current) {
+        autoSubmitRef.current();
+      } else {
+        await autoSavePending();
+      }
       setCurrentIdx(currentIdx - 1);
     }
-  }, [currentIdx, autoSavePending]);
+  }, [currentIdx, autoSavePending, submitted]);
 
   // Called by QuestionRenderer when student explicitly submits
   const handleQuestionSubmit = async (response: any) => {
@@ -227,7 +236,11 @@ export default function MockTestSessionPage() {
   };
 
   const finishTest = async () => {
-    await autoSavePending();
+    if (!submitted && autoSubmitRef.current) {
+      autoSubmitRef.current();
+    } else {
+      await autoSavePending();
+    }
     setFinishing(true);
     await fetch(`/api/mock-tests/${testId}`, {
       method: "PATCH",
@@ -425,6 +438,7 @@ export default function MockTestSessionPage() {
               showFeedback={false}
               onSubmit={handleQuestionSubmit}
               onResponseChange={(r) => { pendingResponseRef.current = r; }}
+              submitRef={autoSubmitRef}
               playOnce={true}
             />
           )}
