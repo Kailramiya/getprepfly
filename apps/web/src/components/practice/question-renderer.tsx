@@ -152,6 +152,52 @@ function ReorderDnD({
 
 // Question Renderer — renders different UI based on question type
 // ==========================================================================
+// ─── Per-question-type instructions shown to students ─────────────────────────
+
+const QUESTION_INSTRUCTIONS: Record<string, string> = {
+  WRITE_ESSAY:
+    "Read the prompt carefully and write your essay in 200–300 words. Present a clear argument with well-structured supporting points.",
+  SUMMARIZE_WRITTEN_TEXT:
+    "Read the passage below. In one sentence of 5–75 words, write a summary that covers the main point of the passage.",
+  READING_MCQ_SINGLE:
+    "Read the passage below and select the single best answer to the question.",
+  READING_MCQ_MULTIPLE:
+    "Read the passage below. There is more than one correct answer — select all options that apply.",
+  REORDER_PARAGRAPHS:
+    "The text boxes below are in random order. Drag them to arrange them into a logical and coherent sequence.",
+  READING_FILL_BLANKS_DRAG:
+    "Read the passage below. Drag words from the word bank to fill in the blanks.",
+  READING_FILL_BLANKS_DROPDOWN:
+    "Read the passage below. For each blank, select the most appropriate word from the dropdown list.",
+  SUMMARIZE_SPOKEN_TEXT:
+    "You will hear a recording. After listening, write a 50–70 word summary covering the main points in your own words.",
+  HIGHLIGHT_CORRECT_SUMMARY:
+    "You will hear a recording. Then select the paragraph below that best summarises what you heard.",
+  HIGHLIGHT_INCORRECT_WORDS:
+    "You will hear a recording. As you listen, click on every word in the text that differs from what the speaker says.",
+  SELECT_MISSING_WORD:
+    "You will hear a recording in which the last word or phrase is replaced by a beep. Select the option that best completes the recording.",
+  LISTENING_MCQ_SINGLE:
+    "You will hear a recording. Listen carefully and select the single best answer to the question.",
+  LISTENING_MCQ_MULTIPLE:
+    "You will hear a recording. There is more than one correct answer — select all options that apply.",
+  LISTENING_FILL_BLANKS:
+    "You will hear a recording. Type the missing words in the blanks as you listen.",
+  WRITE_FROM_DICTATION:
+    "You will hear a sentence. Listen carefully and type the sentence exactly as you hear it, including correct spelling and punctuation.",
+};
+
+function QuestionInstruction({ type }: { type: string }) {
+  const text = QUESTION_INSTRUCTIONS[type];
+  if (!text) return null;
+  return (
+    <div className="flex items-start gap-2.5 rounded-lg border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-800 dark:border-blue-900/60 dark:bg-blue-950/30 dark:text-blue-300">
+      <span className="mt-0.5 shrink-0 text-base">📋</span>
+      <p>{text}</p>
+    </div>
+  );
+}
+
 export function QuestionRenderer({
   question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false,
 }: {
@@ -383,13 +429,16 @@ export function QuestionRenderer({
   // ---- WRITE ESSAY ----
   if (type === "WRITE_ESSAY") {
     return (
-      <WriteEssayQuestion
-        question={question}
-        content={content}
-        totalMarks={totalMarks}
-        submitted={submitted}
-        onSubmit={onSubmit}
-      />
+      <>
+        <QuestionInstruction type={type} />
+        <WriteEssayQuestion
+          question={question}
+          content={content}
+          totalMarks={totalMarks}
+          submitted={submitted}
+          onSubmit={onSubmit}
+        />
+      </>
     );
   }
 
@@ -450,13 +499,16 @@ export function QuestionRenderer({
   // ---- SUMMARIZE WRITTEN TEXT ----
   if (type === "SUMMARIZE_WRITTEN_TEXT") {
     return (
-      <SummarizeWrittenTextQuestion
-        question={question}
-        content={content}
-        totalMarks={totalMarks}
-        submitted={submitted}
-        onSubmit={onSubmit}
-      />
+      <>
+        <QuestionInstruction type={type} />
+        <SummarizeWrittenTextQuestion
+          question={question}
+          content={content}
+          totalMarks={totalMarks}
+          submitted={submitted}
+          onSubmit={onSubmit}
+        />
+      </>
     );
   }
 
@@ -465,6 +517,7 @@ export function QuestionRenderer({
     const isListening = type === "LISTENING_MCQ_SINGLE";
     return (
       <div className="space-y-4">
+        <QuestionInstruction type={type} />
         {isListening && (
           <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
         )}
@@ -543,6 +596,7 @@ export function QuestionRenderer({
     const isListening = type === "LISTENING_MCQ_MULTIPLE";
     return (
       <div className="space-y-4">
+        <QuestionInstruction type={type} />
         {isListening && (
           <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
         )}
@@ -651,9 +705,7 @@ export function QuestionRenderer({
 
     return (
       <div className="space-y-4">
-        <p className="text-sm text-gray-500 dark:text-slate-400">
-          Drag the paragraphs to arrange them in the correct order:
-        </p>
+        <QuestionInstruction type={type} />
         <ReorderDnD
           paragraphs={paragraphs}
           order={order}
@@ -709,55 +761,63 @@ export function QuestionRenderer({
 
   // ---- READING FILL BLANKS (DRAG) ----
   if (type === "READING_FILL_BLANKS_DRAG") {
-    // Parse modelAnswer to get ordered correct answers (used when blanks data is a flat word list)
     const modelAnswers = (question.modelAnswer || "")
       .split(/[\n,]+/)
       .map((s: string) => s.trim())
       .filter((s: string) => s && !/correct answers?/i.test(s) && !/model answer/i.test(s));
     return (
-      <FillBlanksDrag
-        passage={content.passage || ""}
-        blanks={content.blanks || []}
-        extraOptions={content.extraOptions || []}
-        totalMarks={totalMarks}
-        submitted={submitted}
-        showAnswer={showAnswer}
-        showFeedback={showFeedback}
-        onSubmit={onSubmit}
-        modelAnswers={modelAnswers}
-        initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
-      />
+      <>
+        <QuestionInstruction type={type} />
+        <FillBlanksDrag
+          passage={content.passage || ""}
+          blanks={content.blanks || []}
+          extraOptions={content.extraOptions || []}
+          totalMarks={totalMarks}
+          submitted={submitted}
+          showAnswer={showAnswer}
+          showFeedback={showFeedback}
+          onSubmit={onSubmit}
+          modelAnswers={modelAnswers}
+          initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
+        />
+      </>
     );
   }
 
   // ---- READING FILL BLANKS (DROPDOWN) ----
   if (type === "READING_FILL_BLANKS_DROPDOWN") {
     return (
-      <FillBlanksDropdown
-        passage={content.passage || ""}
-        blanks={content.blanks || []}
-        options={content.options || content.blanks || []}
-        totalMarks={totalMarks}
-        submitted={submitted}
-        showAnswer={showAnswer}
-        showFeedback={showFeedback}
-        onSubmit={onSubmit}
-        initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
-      />
+      <>
+        <QuestionInstruction type={type} />
+        <FillBlanksDropdown
+          passage={content.passage || ""}
+          blanks={content.blanks || []}
+          options={content.options || content.blanks || []}
+          totalMarks={totalMarks}
+          submitted={submitted}
+          showAnswer={showAnswer}
+          showFeedback={showFeedback}
+          onSubmit={onSubmit}
+          initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
+        />
+      </>
     );
   }
 
   // ---- SUMMARIZE SPOKEN TEXT ----
   if (type === "SUMMARIZE_SPOKEN_TEXT") {
     return (
-      <SummarizeSpokenTextQuestion
-        question={question}
-        content={content}
-        totalMarks={totalMarks}
-        submitted={submitted}
-        onSubmit={onSubmit}
-        playOnce={playOnce}
-      />
+      <>
+        <QuestionInstruction type={type} />
+        <SummarizeSpokenTextQuestion
+          question={question}
+          content={content}
+          totalMarks={totalMarks}
+          submitted={submitted}
+          onSubmit={onSubmit}
+          playOnce={playOnce}
+        />
+      </>
     );
   }
 
@@ -765,6 +825,7 @@ export function QuestionRenderer({
   if (type === "HIGHLIGHT_CORRECT_SUMMARY") {
     return (
       <div className="space-y-4">
+        <QuestionInstruction type={type} />
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
         <p className="font-medium text-gray-900">{content.question || "Which summary best matches the audio?"}</p>
         <div className="space-y-2">
@@ -844,6 +905,7 @@ export function QuestionRenderer({
 
     return (
       <div className="space-y-4">
+        <QuestionInstruction type={type} />
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully and find the wrong words" playOnce={playOnce} />
         <div className="rounded-lg border border-gray-200 bg-white p-5 leading-loose">
           {tokens.map((tok, i) => {
@@ -946,8 +1008,8 @@ export function QuestionRenderer({
   if (type === "SELECT_MISSING_WORD") {
     return (
       <div className="space-y-4">
+        <QuestionInstruction type={type} />
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen — last word is missing" playOnce={playOnce} />
-        <p className="font-medium text-gray-900">Pick the word that completes the audio:</p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
@@ -1003,8 +1065,8 @@ export function QuestionRenderer({
   if (type === "LISTENING_FILL_BLANKS") {
     return (
       <div className="space-y-4">
+        <QuestionInstruction type={type} />
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
-        <p className="text-sm text-gray-500 dark:text-slate-400">Listen to the audio and fill in the blanks below:</p>
         <FillBlanksText
           passage={content.passage || ""}
           blanks={content.blanks || []}
@@ -1023,8 +1085,8 @@ export function QuestionRenderer({
   if (type === "WRITE_FROM_DICTATION") {
     return (
       <div className="space-y-4">
+        <QuestionInstruction type={type} />
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully — audio plays once" playOnce={playOnce} />
-        <p className="text-sm text-gray-500 dark:text-slate-400">Listen to the audio and type the exact sentence you hear.</p>
         <textarea
           className="min-h-[80px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
           placeholder="Type what you hear..."
