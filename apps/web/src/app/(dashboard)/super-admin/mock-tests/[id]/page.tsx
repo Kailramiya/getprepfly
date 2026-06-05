@@ -108,6 +108,7 @@ export default function TemplateDetailPage() {
 
   // Add from bank modal
   const [showBank, setShowBank] = useState(false);
+  const [bankMode, setBankMode] = useState<"mocktest" | "practice">("practice");
   const [bankQuestions, setBankQuestions] = useState<BankQuestion[]>([]);
   const [bankLoading, setBankLoading] = useState(false);
   const [bankSearch, setBankSearch] = useState("");
@@ -117,6 +118,16 @@ export default function TemplateDetailPage() {
   const [bankTotal, setBankTotal] = useState(0);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [adding, setAdding] = useState(false);
+
+  const openBank = (mode: "mocktest" | "practice") => {
+    setBankMode(mode);
+    setBankSearch("");
+    setBankSection("ALL");
+    setBankType("");
+    setBankPage(1);
+    setSelected(new Set());
+    setShowBank(true);
+  };
 
   // Create question modal
   const [showCreate, setShowCreate] = useState(false);
@@ -149,6 +160,7 @@ export default function TemplateDetailPage() {
         ...(bankSearch && { search: bankSearch }),
         ...(bankSection !== "ALL" && { section: bankSection }),
         ...(bankType && { type: bankType }),
+        ...(bankMode === "mocktest" && { mockTestOnly: "true" }),
       });
       const res = await fetch(`/api/questions?${params}`);
       const data = await res.json();
@@ -161,7 +173,7 @@ export default function TemplateDetailPage() {
     } finally {
       setBankLoading(false);
     }
-  }, [bankPage, bankSearch, bankSection, bankType]);
+  }, [bankPage, bankSearch, bankSection, bankType, bankMode]);
 
   useEffect(() => {
     if (showBank) fetchBank();
@@ -280,9 +292,12 @@ export default function TemplateDetailPage() {
             {template.questions.length} questions in this template
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => setShowBank(true)} className="gap-2">
-            <Search className="h-4 w-4" /> Add from Bank
+        <div className="flex items-center gap-2 flex-wrap">
+          <Button variant="outline" onClick={() => openBank("mocktest")} className="gap-2">
+            <ClipboardList className="h-4 w-4" /> Mock Test Bank
+          </Button>
+          <Button variant="outline" onClick={() => openBank("practice")} className="gap-2">
+            <Search className="h-4 w-4" /> Practice Bank
           </Button>
           <Button onClick={() => setShowCreate(true)} className="gap-2">
             <Plus className="h-4 w-4" /> Create Question
@@ -299,9 +314,12 @@ export default function TemplateDetailPage() {
             <p className="mt-1 text-sm text-gray-400 dark:text-slate-500">
               Add from the question bank or create new mock-test-only questions
             </p>
-            <div className="mt-4 flex justify-center gap-3">
-              <Button variant="outline" onClick={() => setShowBank(true)} className="gap-2">
-                <Search className="h-4 w-4" /> Add from Bank
+            <div className="mt-4 flex flex-wrap justify-center gap-2">
+              <Button variant="outline" onClick={() => openBank("mocktest")} className="gap-2">
+                <ClipboardList className="h-4 w-4" /> Mock Test Bank
+              </Button>
+              <Button variant="outline" onClick={() => openBank("practice")} className="gap-2">
+                <Search className="h-4 w-4" /> Practice Bank
               </Button>
               <Button onClick={() => setShowCreate(true)} className="gap-2">
                 <Plus className="h-4 w-4" /> Create Question
@@ -385,7 +403,18 @@ export default function TemplateDetailPage() {
             {/* Modal header */}
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-700 px-6 py-4">
               <div>
-                <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">Add Questions from Bank</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                    {bankMode === "mocktest" ? "Add from Mock Test Bank" : "Add from Practice Bank"}
+                  </h2>
+                  <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold ${
+                    bankMode === "mocktest"
+                      ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
+                      : "bg-teal-100 text-teal-700 dark:bg-teal-950/50 dark:text-teal-300"
+                  }`}>
+                    {bankMode === "mocktest" ? "Mock Test Questions" : "Practice Questions"}
+                  </span>
+                </div>
                 <p className="text-sm text-gray-500 dark:text-slate-400">
                   {selected.size > 0 ? `${selected.size} selected` : "Select questions to add to this template"}
                 </p>
@@ -513,11 +542,19 @@ export default function TemplateDetailPage() {
             )}
 
             {/* Footer */}
-            <div className="flex justify-end gap-3 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 px-6 py-4 rounded-b-2xl">
-              <Button variant="outline" onClick={() => { setShowBank(false); setSelected(new Set()); }}>Cancel</Button>
-              <Button onClick={addSelected} loading={adding} disabled={selected.size === 0}>
-                Add Selected ({selected.size})
-              </Button>
+            <div className="flex items-center justify-between gap-3 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 px-6 py-4 rounded-b-2xl">
+              <button
+                className="text-xs text-gray-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 underline"
+                onClick={() => openBank(bankMode === "mocktest" ? "practice" : "mocktest")}
+              >
+                Switch to {bankMode === "mocktest" ? "Practice Bank" : "Mock Test Bank"}
+              </button>
+              <div className="flex gap-3">
+                <Button variant="outline" onClick={() => { setShowBank(false); setSelected(new Set()); }}>Cancel</Button>
+                <Button onClick={addSelected} loading={adding} disabled={selected.size === 0}>
+                  Add Selected ({selected.size})
+                </Button>
+              </div>
             </div>
           </div>
         </div>
