@@ -3,7 +3,7 @@ import { requireRole } from "@/lib/auth-utils";
 
 // Max file sizes (bytes)
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
-const MAX_AUDIO_SIZE = 15 * 1024 * 1024; // 15 MB
+const MAX_AUDIO_SIZE = 50 * 1024 * 1024; // 50 MB
 
 // POST /api/upload-file — upload file (image or audio) for questions.
 // Uses Vercel Blob if BLOB_READ_WRITE_TOKEN is configured,
@@ -26,7 +26,20 @@ export async function POST(req: NextRequest) {
     }
 
     const isImage = file.type.startsWith("image/");
-    const isAudio = file.type.startsWith("audio/");
+
+    // Browsers sometimes report audio files (especially .mpeg) as video/mpeg or video/mp4.
+    // Also accept by file extension as a fallback when MIME is generic/wrong.
+    const AUDIO_EXTENSIONS = new Set([
+      ".mp3", ".wav", ".ogg", ".m4a", ".aac", ".flac",
+      ".mpeg", ".mpg", ".weba", ".wma", ".opus", ".aiff", ".aif", ".mp4",
+    ]);
+    const fileExt = "." + (file.name.split(".").pop() || "").toLowerCase();
+    const isAudio =
+      file.type.startsWith("audio/") ||
+      file.type === "video/mpeg" ||
+      file.type === "video/mp4" ||
+      file.type === "video/x-m4v" ||
+      (!isImage && AUDIO_EXTENSIONS.has(fileExt));
 
     if (!isImage && !isAudio) {
       return NextResponse.json(
@@ -35,20 +48,43 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Normalize obscure audio MIME types to browser-friendly ones.
-    // Some recording apps tag AAC files as audio/vnd.dlna.adts, which browsers
-    // refuse to play even though the underlying data is just AAC.
+    // Normalize non-standard / browser-inconsistent audio MIME types to
+    // browser-friendly equivalents so the player can handle them.
     let normalizedType = file.type;
     const audioMimeRemap: Record<string, string> = {
+      // Standard alias fixes
+      "audio/mp3": "audio/mpeg",
+      "audio/x-mp3": "audio/mpeg",
+      "audio/x-mpeg": "audio/mpeg",
+      "audio/mpeg3": "audio/mpeg",
+      // AAC variants
       "audio/vnd.dlna.adts": "audio/aac",
       "audio/x-aac": "audio/aac",
+      // M4A / MP4 audio
       "audio/x-m4a": "audio/mp4",
+      // WAV variants
       "audio/x-wav": "audio/wav",
-      "audio/x-mpeg": "audio/mpeg",
-      "audio/x-mp3": "audio/mpeg",
+      "audio/wave": "audio/wav",
+      // Video MIME types that carry audio-only content (.mpeg files)
+      "video/mpeg": "audio/mpeg",
+      "video/mp4": "audio/mp4",
+      "video/x-m4v": "audio/mp4",
+      // OGG variants
+      "audio/x-ogg": "audio/ogg",
     };
     if (audioMimeRemap[file.type]) {
       normalizedType = audioMimeRemap[file.type];
+    }
+    // If still unknown (e.g. application/octet-stream) and extension is known audio, guess from ext
+    if (!normalizedType.startsWith("audio/") && !normalizedType.startsWith("image/") && isAudio) {
+      const extMimeMap: Record<string, string> = {
+        ".mp3": "audio/mpeg", ".mpeg": "audio/mpeg", ".mpg": "audio/mpeg",
+        ".wav": "audio/wav", ".ogg": "audio/ogg", ".aac": "audio/aac",
+        ".m4a": "audio/mp4", ".mp4": "audio/mp4", ".flac": "audio/flac",
+        ".opus": "audio/opus", ".weba": "audio/webm", ".wma": "audio/x-ms-wma",
+        ".aiff": "audio/aiff", ".aif": "audio/aiff",
+      };
+      normalizedType = extMimeMap[fileExt] || "audio/mpeg";
     }
 
     const maxSize = isImage ? MAX_IMAGE_SIZE : MAX_AUDIO_SIZE;

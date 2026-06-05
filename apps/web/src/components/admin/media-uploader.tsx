@@ -19,8 +19,25 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
   const [error, setError] = useState("");
   const [warning, setWarning] = useState("");
 
-  const accept = kind === "image" ? "image/*" : "audio/*";
-  const maxSizeMB = kind === "image" ? 5 : 15;
+  // Accept all audio MIME types + video/mpeg & video/mp4 (browsers often tag .mpeg/.mp4 as video/*)
+  // Also list explicit extensions so the OS file picker shows them
+  const accept = kind === "image"
+    ? "image/*"
+    : "audio/*,video/mpeg,video/mp4,.mp3,.wav,.ogg,.m4a,.aac,.flac,.mpeg,.mpg,.weba,.wma,.opus,.aiff,.aif";
+  const maxSizeMB = kind === "image" ? 5 : 50;
+
+  // Extensions that are known-audio even when the browser reports a non-audio MIME
+  const AUDIO_EXTENSIONS = new Set([
+    ".mp3", ".wav", ".ogg", ".m4a", ".aac", ".flac",
+    ".mpeg", ".mpg", ".weba", ".wma", ".opus", ".aiff", ".aif", ".mp4",
+  ]);
+
+  const isAudioFile = (file: File) => {
+    if (file.type.startsWith("audio/")) return true;
+    if (file.type === "video/mpeg" || file.type === "video/mp4" || file.type === "video/x-m4v") return true;
+    const ext = "." + (file.name.split(".").pop() || "").toLowerCase();
+    return AUDIO_EXTENSIONS.has(ext);
+  };
 
   const handleFile = async (file: File) => {
     setError("");
@@ -30,8 +47,8 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
       setError("Please select an image file");
       return;
     }
-    if (kind === "audio" && !file.type.startsWith("audio/")) {
-      setError("Please select an audio file");
+    if (kind === "audio" && !isAudioFile(file)) {
+      setError("Please select an audio file (MP3, WAV, AAC, OGG, MPEG, FLAC, etc.)");
       return;
     }
 
@@ -185,7 +202,7 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
             )}
           </div>
           <p className="mt-1 text-xs text-gray-500 dark:text-slate-500">
-            Max {maxSizeMB} MB. {kind === "image" ? "JPG, PNG, WebP" : "MP3, WAV, OGG, WebM"}.
+            Max {maxSizeMB} MB. {kind === "image" ? "JPG, PNG, WebP" : "MP3, WAV, OGG, AAC, MPEG, FLAC, M4A, OPUS and more"}.
           </p>
         </div>
       )}
