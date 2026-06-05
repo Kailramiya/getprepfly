@@ -57,13 +57,13 @@ export function MediaUploader({ kind, value, onChange, folder = "questions" }: M
       return;
     }
 
-    // For audio: enforce 2-minute (120 sec) maximum duration
+    // For audio: enforce 5-minute (300 sec) maximum duration
     if (kind === "audio") {
       try {
         const duration = await getAudioDuration(file);
-        if (duration > 120) {
+        if (duration > 300) {
           setError(
-            `Audio is ${duration.toFixed(1)} seconds long. Maximum allowed is 2 minutes (120 seconds). Please trim it first.`
+            `Audio is ${duration.toFixed(1)} seconds long. Maximum allowed is 5 minutes (300 seconds). Please trim it first.`
           );
           return;
         }
