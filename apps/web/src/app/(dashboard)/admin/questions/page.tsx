@@ -19,6 +19,39 @@ const SECTION_ICONS: Record<string, any> = {
   LISTENING: Headphones,
 };
 
+const QUESTION_TYPES_BY_SECTION: Record<string, { value: string; label: string }[]> = {
+  SPEAKING: [
+    { value: "READ_ALOUD", label: "Read Aloud" },
+    { value: "REPEAT_SENTENCE", label: "Repeat Sentence" },
+    { value: "DESCRIBE_IMAGE", label: "Describe Image" },
+    { value: "RETELL_LECTURE", label: "Retell Lecture" },
+    { value: "ANSWER_SHORT_QUESTION", label: "Answer Short Question" },
+    { value: "RESPOND_TO_SITUATION", label: "Respond to Situation" },
+    { value: "SUMMARIZE_GROUP_DISCUSSION", label: "Summarize Group Discussion" },
+  ],
+  WRITING: [
+    { value: "WRITE_ESSAY", label: "Write Essay" },
+    { value: "SUMMARIZE_WRITTEN_TEXT", label: "Summarize Written Text" },
+  ],
+  READING: [
+    { value: "READING_MCQ_SINGLE", label: "MCQ Single" },
+    { value: "READING_MCQ_MULTIPLE", label: "MCQ Multiple" },
+    { value: "REORDER_PARAGRAPHS", label: "Reorder Paragraphs" },
+    { value: "READING_FILL_BLANKS_DRAG", label: "Fill Blanks (Drag)" },
+    { value: "READING_FILL_BLANKS_DROPDOWN", label: "Fill Blanks (Dropdown)" },
+  ],
+  LISTENING: [
+    { value: "SUMMARIZE_SPOKEN_TEXT", label: "Summarize Spoken Text" },
+    { value: "HIGHLIGHT_CORRECT_SUMMARY", label: "Highlight Correct Summary" },
+    { value: "HIGHLIGHT_INCORRECT_WORDS", label: "Highlight Incorrect Words" },
+    { value: "SELECT_MISSING_WORD", label: "Select Missing Word" },
+    { value: "LISTENING_MCQ_SINGLE", label: "MCQ Single" },
+    { value: "LISTENING_MCQ_MULTIPLE", label: "MCQ Multiple" },
+    { value: "LISTENING_FILL_BLANKS", label: "Fill Blanks" },
+    { value: "WRITE_FROM_DICTATION", label: "Write From Dictation" },
+  ],
+};
+
 const SECTION_COLORS: Record<string, string> = {
   SPEAKING: "bg-teal-100 text-teal-700",
   WRITING: "bg-blue-100 text-blue-700",
@@ -62,6 +95,7 @@ export default function QuestionsPage() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [section, setSection] = useState("");
+  const [questionType, setQuestionType] = useState("");
   const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [showBulkUpload, setShowBulkUpload] = useState(false);
@@ -141,6 +175,7 @@ export default function QuestionsPage() {
         pageSize: "20",
         ...(search && { search }),
         ...(section && { section }),
+        ...(questionType && { type: questionType }),
       });
       const res = await fetch(`/api/questions?${params}`);
       const data = await res.json();
@@ -151,7 +186,7 @@ export default function QuestionsPage() {
       setLoading(false);
     };
     fetchQuestions();
-  }, [page, search, section]);
+  }, [page, search, section, questionType]);
 
   const formatType = (type: string) =>
     type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
@@ -191,7 +226,7 @@ export default function QuestionsPage() {
           {["", "SPEAKING", "WRITING", "READING", "LISTENING"].map((s) => (
             <button
               key={s}
-              onClick={() => { setSection(s); setPage(1); }}
+              onClick={() => { setSection(s); setQuestionType(""); setPage(1); }}
               className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
                 section === s
                   ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
@@ -203,6 +238,36 @@ export default function QuestionsPage() {
           ))}
         </div>
       </div>
+
+      {/* Type sub-filter */}
+      {section && QUESTION_TYPES_BY_SECTION[section] && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-medium text-gray-400 dark:text-slate-500">Type:</span>
+          <button
+            onClick={() => { setQuestionType(""); setPage(1); }}
+            className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+              questionType === ""
+                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
+                : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+            }`}
+          >
+            All types
+          </button>
+          {QUESTION_TYPES_BY_SECTION[section].map((t) => (
+            <button
+              key={t.value}
+              onClick={() => { setQuestionType(t.value); setPage(1); }}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                questionType === t.value
+                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
+                  : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Questions List */}
       <Card>

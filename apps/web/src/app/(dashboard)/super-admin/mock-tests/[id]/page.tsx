@@ -58,6 +58,39 @@ const SECTION_ICONS: Record<string, any> = {
   SPEAKING: Mic, WRITING: PenTool, READING: BookOpen, LISTENING: Headphones,
 };
 
+const QUESTION_TYPES_BY_SECTION: Record<string, { value: string; label: string }[]> = {
+  SPEAKING: [
+    { value: "READ_ALOUD", label: "Read Aloud" },
+    { value: "REPEAT_SENTENCE", label: "Repeat Sentence" },
+    { value: "DESCRIBE_IMAGE", label: "Describe Image" },
+    { value: "RETELL_LECTURE", label: "Retell Lecture" },
+    { value: "ANSWER_SHORT_QUESTION", label: "Answer Short Question" },
+    { value: "RESPOND_TO_SITUATION", label: "Respond to Situation" },
+    { value: "SUMMARIZE_GROUP_DISCUSSION", label: "Summarize Group Discussion" },
+  ],
+  WRITING: [
+    { value: "WRITE_ESSAY", label: "Write Essay" },
+    { value: "SUMMARIZE_WRITTEN_TEXT", label: "Summarize Written Text" },
+  ],
+  READING: [
+    { value: "READING_MCQ_SINGLE", label: "MCQ Single" },
+    { value: "READING_MCQ_MULTIPLE", label: "MCQ Multiple" },
+    { value: "REORDER_PARAGRAPHS", label: "Reorder Paragraphs" },
+    { value: "READING_FILL_BLANKS_DRAG", label: "Fill Blanks (Drag)" },
+    { value: "READING_FILL_BLANKS_DROPDOWN", label: "Fill Blanks (Dropdown)" },
+  ],
+  LISTENING: [
+    { value: "SUMMARIZE_SPOKEN_TEXT", label: "Summarize Spoken Text" },
+    { value: "HIGHLIGHT_CORRECT_SUMMARY", label: "Highlight Correct Summary" },
+    { value: "HIGHLIGHT_INCORRECT_WORDS", label: "Highlight Incorrect Words" },
+    { value: "SELECT_MISSING_WORD", label: "Select Missing Word" },
+    { value: "LISTENING_MCQ_SINGLE", label: "MCQ Single" },
+    { value: "LISTENING_MCQ_MULTIPLE", label: "MCQ Multiple" },
+    { value: "LISTENING_FILL_BLANKS", label: "Fill Blanks" },
+    { value: "WRITE_FROM_DICTATION", label: "Write From Dictation" },
+  ],
+};
+
 const DIFFICULTY_COLORS: Record<string, string> = {
   EASY: "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400",
   MEDIUM: "bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-400",
@@ -79,6 +112,7 @@ export default function TemplateDetailPage() {
   const [bankLoading, setBankLoading] = useState(false);
   const [bankSearch, setBankSearch] = useState("");
   const [bankSection, setBankSection] = useState("ALL");
+  const [bankType, setBankType] = useState("");
   const [bankPage, setBankPage] = useState(1);
   const [bankTotal, setBankTotal] = useState(0);
   const [selected, setSelected] = useState<Set<string>>(new Set());
@@ -114,6 +148,7 @@ export default function TemplateDetailPage() {
         pageSize: "20",
         ...(bankSearch && { search: bankSearch }),
         ...(bankSection !== "ALL" && { section: bankSection }),
+        ...(bankType && { type: bankType }),
       });
       const res = await fetch(`/api/questions?${params}`);
       const data = await res.json();
@@ -126,14 +161,14 @@ export default function TemplateDetailPage() {
     } finally {
       setBankLoading(false);
     }
-  }, [bankPage, bankSearch, bankSection]);
+  }, [bankPage, bankSearch, bankSection, bankType]);
 
   useEffect(() => {
     if (showBank) fetchBank();
   }, [showBank, fetchBank]);
 
   // reset page when filters change
-  useEffect(() => { setBankPage(1); }, [bankSearch, bankSection]);
+  useEffect(() => { setBankPage(1); }, [bankSearch, bankSection, bankType]);
 
   // ── reorder ─────────────────────────────────────────────────────────────
 
@@ -375,7 +410,7 @@ export default function TemplateDetailPage() {
                 {["ALL", "SPEAKING", "WRITING", "READING", "LISTENING"].map((s) => (
                   <button
                     key={s}
-                    onClick={() => setBankSection(s)}
+                    onClick={() => { setBankSection(s); setBankType(""); }}
                     className={`rounded-full px-3 py-1 text-xs font-medium transition ${
                       bankSection === s
                         ? "bg-indigo-600 text-white"
@@ -386,6 +421,36 @@ export default function TemplateDetailPage() {
                   </button>
                 ))}
               </div>
+
+              {/* Question type sub-filter */}
+              {bankSection !== "ALL" && QUESTION_TYPES_BY_SECTION[bankSection] && (
+                <div className="flex flex-wrap items-center gap-1.5">
+                  <span className="text-xs font-medium text-gray-400 dark:text-slate-500">Type:</span>
+                  <button
+                    onClick={() => setBankType("")}
+                    className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition ${
+                      bankType === ""
+                        ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
+                        : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                    }`}
+                  >
+                    All
+                  </button>
+                  {QUESTION_TYPES_BY_SECTION[bankSection].map((t) => (
+                    <button
+                      key={t.value}
+                      onClick={() => setBankType(t.value)}
+                      className={`rounded-full px-2.5 py-0.5 text-xs font-medium transition ${
+                        bankType === t.value
+                          ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
+                          : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Question list */}
