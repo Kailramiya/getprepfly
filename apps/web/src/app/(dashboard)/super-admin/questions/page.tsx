@@ -9,7 +9,7 @@ import { QuestionForm } from "@/components/admin/question-form";
 import {
   Database, Plus, Search, Trash2, Edit2,
   Mic, PenTool, BookOpen, Headphones, Star,
-  Building2, Calendar, ArrowUpDown, LayoutGrid, List as ListIcon,
+  Building2, Calendar, ArrowUpDown, LayoutGrid, List as ListIcon, ClipboardList,
 } from "lucide-react";
 
 const SECTION_ICONS: Record<string, any> = {
@@ -75,6 +75,7 @@ export default function SuperAdminQuestionsPage() {
   const [centreFilter, setCentreFilter] = useState<string>(""); // "" = all, "global" = unassigned, or centreId
   const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
   const [groupByCentre, setGroupByCentre] = useState<boolean>(false);
+  const [mockTestOnly, setMockTestOnly] = useState<boolean>(false);
   const [centres, setCentres] = useState<CentreOption[]>([]);
 
   // Load centre list once for the filter dropdown
@@ -135,6 +136,7 @@ export default function SuperAdminQuestionsPage() {
       ...(search && { search }),
       ...(section && { section }),
       ...(centreFilter && { centreId: centreFilter }),
+      ...(mockTestOnly && { mockTestOnly: "true" }),
       sort: "createdAt",
       order: sortOrder,
     });
@@ -150,7 +152,7 @@ export default function SuperAdminQuestionsPage() {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchQuestions(); }, [page, search, section, centreFilter, sortOrder, groupByCentre]);
+  useEffect(() => { fetchQuestions(); }, [page, search, section, centreFilter, sortOrder, groupByCentre, mockTestOnly]);
 
   const deleteQuestion = async (id: string) => {
     if (!confirm("Delete this question?")) return;
@@ -419,6 +421,20 @@ export default function SuperAdminQuestionsPage() {
           <Calendar className="h-3.5 w-3.5" />
           {sortOrder === "desc" ? "Newest first" : "Oldest first"}
           <ArrowUpDown className="h-3.5 w-3.5 text-gray-400" />
+        </button>
+
+        {/* Mock test only toggle */}
+        <button
+          onClick={() => { setMockTestOnly(!mockTestOnly); setPage(1); }}
+          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition ${
+            mockTestOnly
+              ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-300"
+              : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+          }`}
+          title="Show only questions used in mock tests"
+        >
+          <ClipboardList className="h-3.5 w-3.5" />
+          Mock test only
         </button>
 
         {/* View toggle: List vs Grouped */}

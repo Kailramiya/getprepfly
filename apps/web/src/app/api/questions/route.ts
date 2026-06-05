@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
   const search = url.searchParams.get("search") || "";
   const full = url.searchParams.get("full") === "1"; // include content + URLs in list
   const centreFilter = url.searchParams.get("centreId"); // filter by specific centre (super admin only)
+  const mockTestOnly = url.searchParams.get("mockTestOnly") === "true"; // only questions used in mock tests
   const sortBy = url.searchParams.get("sort") || "createdAt"; // createdAt | title
   const sortOrder = url.searchParams.get("order") === "asc" ? "asc" : "desc";
 
@@ -85,6 +86,8 @@ export async function GET(req: NextRequest) {
       : centreFilter && isAdmin
         ? { centreId: centreFilter }
         : {}),
+    // Filter to only questions assigned to at least one mock test
+    ...(mockTestOnly && isSuperAdmin && { mockTestQuestions: { some: {} } }),
   };
 
   const [questions, total] = await Promise.all([
