@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,8 @@ export default function PracticeQuestionPage() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const currentQuestion = questions[currentIndex];
   const autoSubmitRef = useRef<(() => void) | null>(null);
+  const { data: session } = useSession();
+  const isSuperAdmin = session?.user?.role === "SUPER_ADMIN";
 
   // Fetch user's access info to know if they actually have access to this section
   useEffect(() => {
@@ -419,6 +422,7 @@ export default function PracticeQuestionPage() {
             submitted={submitted}
             showAnswer={showAnswer}
             submitRef={autoSubmitRef}
+            allowCopyPaste={isSuperAdmin}
             onSubmit={(response: any) => {
               setSubmitted(true);
               const result = response?.scoreResult as ScoreResult | undefined;
@@ -472,6 +476,11 @@ export default function PracticeQuestionPage() {
           <ChevronLeft className="h-4 w-4" /> Previous
         </Button>
         <div className="flex gap-2">
+          {!submitted && (
+            <Button onClick={triggerAutoSubmit} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+              <CheckCircle2 className="h-4 w-4" /> Check Answer
+            </Button>
+          )}
           {submitted && (
             <Button variant="ghost" onClick={resetQuestion} className="gap-2">
               <RotateCcw className="h-4 w-4" /> Retry

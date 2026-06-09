@@ -199,7 +199,7 @@ function QuestionInstruction({ type }: { type: string }) {
 }
 
 export function QuestionRenderer({
-  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false, submitRef,
+  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false, submitRef, allowCopyPaste = false,
 }: {
   question: QuestionData;
   submitted: boolean;
@@ -211,6 +211,7 @@ export function QuestionRenderer({
   score?: any;
   playOnce?: boolean;
   submitRef?: React.MutableRefObject<(() => void) | null>;
+  allowCopyPaste?: boolean;
 }) {
   const [response, setResponse] = useState<any>(() => {
     // Pre-fill with a previously saved answer (review mode)
@@ -240,6 +241,11 @@ export function QuestionRenderer({
   // Internal submit fn — each type branch sets this before returning.
   // The parent can trigger it via submitRef (e.g. on Next click).
   const internalSubmitFn = useRef<(() => void) | null>(null);
+
+  // Block copy/paste/cut for non-super-admin users on writing inputs
+  const blockCP = !allowCopyPaste
+    ? (e: React.ClipboardEvent) => e.preventDefault()
+    : undefined;
 
   if (!question || !content) return null;
 
@@ -446,6 +452,7 @@ export function QuestionRenderer({
           submitted={submitted}
           onSubmit={onSubmit}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
+          allowCopyPaste={allowCopyPaste}
         />
       </>
     );
@@ -517,6 +524,7 @@ export function QuestionRenderer({
           submitted={submitted}
           onSubmit={onSubmit}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
+          allowCopyPaste={allowCopyPaste}
         />
       </>
     );
@@ -690,11 +698,26 @@ export function QuestionRenderer({
     })();
 
     internalSubmitFn.current = () => {
+      const n = correctOrder.length;
+      // Adjacent-pairs scoring (PTE standard): award credit for each pair of
+      // paragraphs that appear in the correct relative order in the student's answer.
+      const correctPosMap = new Map<number, number>();
+      correctOrder.forEach((item, pos) => correctPosMap.set(item, pos));
+      let correctPairs = 0;
+      const totalPairs = n * (n - 1) / 2;
+      for (let i = 0; i < n - 1; i++) {
+        for (let j = i + 1; j < n; j++) {
+          const ci = correctPosMap.get(order[i]) ?? -1;
+          const cj = correctPosMap.get(order[j]) ?? -1;
+          if (ci !== -1 && cj !== -1 && ci < cj) correctPairs++;
+        }
+      }
+      // Also compute position-based for feedback display
       const mistakes: ScoreResult["mistakes"] = [];
-      let correctCount = 0;
+      let correctPositions = 0;
       order.forEach((paraIdx, pos) => {
         if (correctOrder[pos] === paraIdx) {
-          correctCount++;
+          correctPositions++;
         } else {
           mistakes.push({
             position: pos + 1,
@@ -703,14 +726,14 @@ export function QuestionRenderer({
           });
         }
       });
-      const ratio = correctOrder.length > 0 ? correctCount / correctOrder.length : 0;
+      const ratio = totalPairs > 0 ? correctPairs / totalPairs : 0;
       onSubmit({
         order,
         scoreResult: {
           marksEarned: Math.round(totalMarks * ratio * 10) / 10,
           marksTotal: totalMarks,
-          correct: correctCount,
-          total: correctOrder.length,
+          correct: correctPairs,
+          total: totalPairs,
           mistakes,
         } as ScoreResult,
       });
@@ -802,6 +825,7 @@ export function QuestionRenderer({
           onSubmit={onSubmit}
           playOnce={playOnce}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
+          allowCopyPaste={allowCopyPaste}
         />
       </>
     );
@@ -1083,6 +1107,9 @@ export function QuestionRenderer({
           value={response || ""}
           onChange={(e) => setResponse(e.target.value)}
           disabled={submitted}
+          onPaste={blockCP}
+          onCopy={blockCP}
+          onCut={blockCP}
         />
         {submitted && showFeedback && content.correctText && (
           <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950/40">
@@ -1772,7 +1799,7 @@ function SpeakingQuestion({
 // SUMMARIZE SPOKEN TEXT — AI scored on submit
 // ============================================================================
 function SummarizeSpokenTextQuestion({
-  question, content, totalMarks, submitted, onSubmit, playOnce, onRegisterSubmit,
+  question, content, totalMarks, submitted, onSubmit, playOnce, onRegisterSubmit, allowCopyPaste = false,
 }: {
   question: QuestionData;
   content: any;
@@ -1781,6 +1808,7 @@ function SummarizeSpokenTextQuestion({
   onSubmit: (response: any) => void;
   playOnce?: boolean;
   onRegisterSubmit?: (fn: () => void) => void;
+  allowCopyPaste?: boolean;
 }) {
   const [text, setText] = useState("");
   const [scoring, setScoring] = useState(false);
@@ -1855,6 +1883,9 @@ function SummarizeSpokenTextQuestion({
         value={text}
         onChange={(e) => setText(e.target.value)}
         disabled={submitted || scoring}
+        onPaste={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
+        onCopy={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
+        onCut={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
       />
       <div className="flex items-center justify-between">
         <span className={`text-sm font-medium ${withinRange ? "text-green-600" : currentWords === 0 ? "text-gray-400" : "text-amber-600"}`}>
@@ -1869,7 +1900,7 @@ function SummarizeSpokenTextQuestion({
 // SUMMARIZE WRITTEN TEXT — AI scored on submit
 // ============================================================================
 function SummarizeWrittenTextQuestion({
-  question, content, totalMarks, submitted, onSubmit, onRegisterSubmit,
+  question, content, totalMarks, submitted, onSubmit, onRegisterSubmit, allowCopyPaste = false,
 }: {
   question: QuestionData;
   content: any;
@@ -1877,6 +1908,7 @@ function SummarizeWrittenTextQuestion({
   submitted: boolean;
   onSubmit: (response: any) => void;
   onRegisterSubmit?: (fn: () => void) => void;
+  allowCopyPaste?: boolean;
 }) {
   const [text, setText] = useState("");
   const [scoring, setScoring] = useState(false);
@@ -1984,6 +2016,9 @@ function SummarizeWrittenTextQuestion({
         value={text}
         onChange={(e) => setText(e.target.value)}
         disabled={submitted || scoring}
+        onPaste={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
+        onCopy={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
+        onCut={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
       />
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <span className="text-sm text-gray-500 dark:text-slate-400">Words: {currentWords} / 75</span>
@@ -2005,7 +2040,7 @@ function SummarizeWrittenTextQuestion({
 // WRITE ESSAY — AI scored on submit
 // ============================================================================
 function WriteEssayQuestion({
-  question, content, totalMarks, submitted, onSubmit, onRegisterSubmit,
+  question, content, totalMarks, submitted, onSubmit, onRegisterSubmit, allowCopyPaste = false,
 }: {
   question: QuestionData;
   content: any;
@@ -2013,6 +2048,7 @@ function WriteEssayQuestion({
   submitted: boolean;
   onSubmit: (response: any) => void;
   onRegisterSubmit?: (fn: () => void) => void;
+  allowCopyPaste?: boolean;
 }) {
   const DRAFT_KEY = `essay_draft_${question.id}`;
   const [text, setText] = useState(() => {
@@ -2177,6 +2213,9 @@ function WriteEssayQuestion({
         value={text}
         onChange={(e) => setText(e.target.value)}
         disabled={submitted || scoring}
+        onPaste={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
+        onCopy={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
+        onCut={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
       />
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div className="flex items-center gap-3 flex-wrap">
