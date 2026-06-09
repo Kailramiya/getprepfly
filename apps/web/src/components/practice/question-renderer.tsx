@@ -1829,6 +1829,7 @@ function SummarizeSpokenTextQuestion({
           responseText: text,
           questionType: "SUMMARIZE_SPOKEN_TEXT",
           prompt: content.topic || content.text || question.title || "",
+          modelAnswer: question.modelAnswer || "",
         }),
       });
       const data = await res.json();
@@ -1936,6 +1937,7 @@ function SummarizeWrittenTextQuestion({
           responseText: text,
           questionType: "SUMMARIZE_WRITTEN_TEXT",
           prompt: content.passage || "",
+          modelAnswer: question.modelAnswer || "",
         }),
       });
       const data = await res.json();
