@@ -416,6 +416,8 @@ export default function PracticeQuestionPage() {
         <CardContent className="p-6">
           {/* Render based on question type — key forces remount on question change so all
               local state (textarea, audio recording, MCQ selection, etc.) resets cleanly. */}
+          {/* Block copying question text for non-super-admins */}
+          <div onCopy={!isSuperAdmin ? (e) => e.preventDefault() : undefined}>
           <QuestionRenderer
             key={currentQuestion?.id}
             question={currentQuestion}
@@ -440,6 +442,7 @@ export default function PracticeQuestionPage() {
               <ScoreSummary result={score} lastAttemptScore={lastAttemptScore} questionType={type} />
             </div>
           )}
+          </div>
         </CardContent>
       </Card>
 
