@@ -712,13 +712,10 @@ export function QuestionRenderer({
           if (ci !== -1 && cj !== -1 && ci < cj) correctPairs++;
         }
       }
-      // Also compute position-based for feedback display
+      // Position-based mistakes for feedback display
       const mistakes: ScoreResult["mistakes"] = [];
-      let correctPositions = 0;
       order.forEach((paraIdx, pos) => {
-        if (correctOrder[pos] === paraIdx) {
-          correctPositions++;
-        } else {
+        if (correctOrder[pos] !== paraIdx) {
           mistakes.push({
             position: pos + 1,
             yourAnswer: `Paragraph ${paraIdx + 1} placed at position ${pos + 1}`,
@@ -726,6 +723,7 @@ export function QuestionRenderer({
           });
         }
       });
+
       const ratio = totalPairs > 0 ? correctPairs / totalPairs : 0;
       onSubmit({
         order,
