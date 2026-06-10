@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X } from "lucide-react";
 
-// Sample vocabulary — in production this comes from the API
+// Fallback vocabulary — used until words are added via the admin Vocabulary page
 const SAMPLE_VOCAB = [
   { word: "Ubiquitous", meaning: "Present, appearing, or found everywhere", example: "Mobile phones have become ubiquitous in modern society.", category: "academic", difficulty: "MEDIUM" },
   { word: "Pragmatic", meaning: "Dealing with things sensibly and realistically", example: "A pragmatic approach to solving environmental issues.", category: "academic", difficulty: "MEDIUM" },
@@ -20,17 +20,35 @@ const SAMPLE_VOCAB = [
   { word: "Implications", meaning: "The effect or consequence of an action", example: "The implications of the new policy are far-reaching.", category: "academic", difficulty: "EASY" },
 ];
 
+interface VocabWord {
+  word: string;
+  meaning: string;
+  example: string;
+  category: string | null;
+  difficulty: string;
+}
+
 export default function VocabularyPage() {
+  const [vocab, setVocab] = useState<VocabWord[]>(SAMPLE_VOCAB);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showMeaning, setShowMeaning] = useState(false);
   const [mastered, setMastered] = useState<Set<number>>(new Set());
   const [mode, setMode] = useState<"list" | "flashcard">("list");
 
-  const current = SAMPLE_VOCAB[currentIndex];
+  useEffect(() => {
+    fetch("/api/vocabulary?pageSize=100")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success && d.data.items.length > 0) setVocab(d.data.items);
+      })
+      .catch(() => {});
+  }, []);
+
+  const current = vocab[currentIndex];
 
   const handleNext = () => {
     setShowMeaning(false);
-    setCurrentIndex((prev) => (prev + 1) % SAMPLE_VOCAB.length);
+    setCurrentIndex((prev) => (prev + 1) % vocab.length);
   };
 
   const handleMastered = () => {
@@ -43,7 +61,7 @@ export default function VocabularyPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Vocabulary Builder</h1>
-          <p className="text-gray-500 dark:text-slate-400">Learn PTE-essential words — {mastered.size}/{SAMPLE_VOCAB.length} mastered</p>
+          <p className="text-gray-500 dark:text-slate-400">Learn PTE-essential words — {mastered.size}/{vocab.length} mastered</p>
         </div>
         <div className="flex gap-2">
           <Button
@@ -67,7 +85,7 @@ export default function VocabularyPage() {
       <div className="h-2 rounded-full bg-gray-200 dark:bg-slate-700">
         <div
           className="h-full rounded-full bg-indigo-500 transition-all"
-          style={{ width: `${(mastered.size / SAMPLE_VOCAB.length) * 100}%` }}
+          style={{ width: `${(mastered.size / vocab.length) * 100}%` }}
         />
       </div>
 
@@ -120,28 +138,28 @@ export default function VocabularyPage() {
           </Card>
 
           <p className="mt-4 text-center text-sm text-gray-500 dark:text-slate-400">
-            Card {currentIndex + 1} of {SAMPLE_VOCAB.length}
+            Card {currentIndex + 1} of {vocab.length}
           </p>
         </div>
       ) : (
         /* List Mode */
         <div className="space-y-3">
-          {SAMPLE_VOCAB.map((vocab, i) => (
-            <Card key={vocab.word} className={mastered.has(i) ? "opacity-60" : ""}>
+          {vocab.map((v, i) => (
+            <Card key={v.word} className={mastered.has(i) ? "opacity-60" : ""}>
               <CardContent className="flex items-center justify-between p-4">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{vocab.word}</h3>
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{v.word}</h3>
                     <Badge variant={
-                      vocab.difficulty === "EASY" ? "success" :
-                      vocab.difficulty === "HARD" ? "destructive" : "default"
+                      v.difficulty === "EASY" ? "success" :
+                      v.difficulty === "HARD" ? "destructive" : "default"
                     } className="text-xs">
-                      {vocab.difficulty}
+                      {v.difficulty}
                     </Badge>
                     {mastered.has(i) && <Check className="h-4 w-4 text-green-500" />}
                   </div>
-                  <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">{vocab.meaning}</p>
-                  <p className="mt-1 text-xs italic text-gray-400 dark:text-slate-500">&ldquo;{vocab.example}&rdquo;</p>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">{v.meaning}</p>
+                  <p className="mt-1 text-xs italic text-gray-400 dark:text-slate-500">&ldquo;{v.example}&rdquo;</p>
                 </div>
               </CardContent>
             </Card>
