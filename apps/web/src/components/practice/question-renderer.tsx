@@ -344,7 +344,7 @@ function QuestionInstruction({ type }: { type: string }) {
 }
 
 export function QuestionRenderer({
-  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false, submitRef, allowCopyPaste = false, isMockTest = false,
+  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false, submitRef, allowCopyPaste = false, isMockTest = false, onScoringChange,
 }: {
   question: QuestionData;
   submitted: boolean;
@@ -358,6 +358,7 @@ export function QuestionRenderer({
   submitRef?: React.MutableRefObject<(() => void) | null>;
   allowCopyPaste?: boolean;
   isMockTest?: boolean;
+  onScoringChange?: (scoring: boolean) => void;
 }) {
   const [response, setResponse] = useState<any>(() => {
     // Pre-fill with a previously saved answer (review mode)
@@ -606,6 +607,7 @@ export function QuestionRenderer({
           onSubmit={onSubmit}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
           allowCopyPaste={allowCopyPaste}
+          onScoringChange={onScoringChange}
         />
       </>
     );
@@ -678,6 +680,7 @@ export function QuestionRenderer({
           onSubmit={onSubmit}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
           allowCopyPaste={allowCopyPaste}
+          onScoringChange={onScoringChange}
         />
       </>
     );
@@ -986,6 +989,7 @@ export function QuestionRenderer({
           playOnce={playOnce}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
           allowCopyPaste={allowCopyPaste}
+          onScoringChange={onScoringChange}
         />
       </>
     );
@@ -1959,7 +1963,7 @@ function SpeakingQuestion({
 // SUMMARIZE SPOKEN TEXT — AI scored on submit
 // ============================================================================
 function SummarizeSpokenTextQuestion({
-  question, content, totalMarks, submitted, onSubmit, playOnce, onRegisterSubmit, allowCopyPaste = false,
+  question, content, totalMarks, submitted, onSubmit, playOnce, onRegisterSubmit, allowCopyPaste = false, onScoringChange,
 }: {
   question: QuestionData;
   content: any;
@@ -1969,9 +1973,12 @@ function SummarizeSpokenTextQuestion({
   playOnce?: boolean;
   onRegisterSubmit?: (fn: () => void) => void;
   allowCopyPaste?: boolean;
+  onScoringChange?: (scoring: boolean) => void;
 }) {
   const [text, setText] = useState("");
   const [scoring, setScoring] = useState(false);
+
+  useEffect(() => { onScoringChange?.(scoring); }, [scoring]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const currentWords = text.trim().split(/\s+/).filter(Boolean).length;
   const withinRange = currentWords >= 50 && currentWords <= 70;
@@ -2061,7 +2068,7 @@ function SummarizeSpokenTextQuestion({
 // SUMMARIZE WRITTEN TEXT — AI scored on submit
 // ============================================================================
 function SummarizeWrittenTextQuestion({
-  question, content, totalMarks, submitted, onSubmit, onRegisterSubmit, allowCopyPaste = false,
+  question, content, totalMarks, submitted, onSubmit, onRegisterSubmit, allowCopyPaste = false, onScoringChange,
 }: {
   question: QuestionData;
   content: any;
@@ -2070,10 +2077,13 @@ function SummarizeWrittenTextQuestion({
   onSubmit: (response: any) => void;
   onRegisterSubmit?: (fn: () => void) => void;
   allowCopyPaste?: boolean;
+  onScoringChange?: (scoring: boolean) => void;
 }) {
   const [text, setText] = useState("");
   const [scoring, setScoring] = useState(false);
   const [timeLeft, setTimeLeft] = useState(10 * 60); // 10 minutes
+
+  useEffect(() => { onScoringChange?.(scoring); }, [scoring]); // eslint-disable-line react-hooks/exhaustive-deps
   const hasAutoSubmitted = useRef(false);
 
   const currentWords = text.trim().split(/\s+/).filter(Boolean).length;
@@ -2202,7 +2212,7 @@ function SummarizeWrittenTextQuestion({
 // WRITE ESSAY — AI scored on submit
 // ============================================================================
 function WriteEssayQuestion({
-  question, content, totalMarks, submitted, onSubmit, onRegisterSubmit, allowCopyPaste = false,
+  question, content, totalMarks, submitted, onSubmit, onRegisterSubmit, allowCopyPaste = false, onScoringChange,
 }: {
   question: QuestionData;
   content: any;
@@ -2211,12 +2221,15 @@ function WriteEssayQuestion({
   onSubmit: (response: any) => void;
   onRegisterSubmit?: (fn: () => void) => void;
   allowCopyPaste?: boolean;
+  onScoringChange?: (scoring: boolean) => void;
 }) {
   const DRAFT_KEY = `essay_draft_${question.id}`;
   const [text, setText] = useState(() => {
     try { return localStorage.getItem(DRAFT_KEY) || ""; } catch { return ""; }
   });
   const [scoring, setScoring] = useState(false);
+
+  useEffect(() => { onScoringChange?.(scoring); }, [scoring]); // eslint-disable-line react-hooks/exhaustive-deps
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [showTemplates, setShowTemplates] = useState(false);
   const [activeTemplate, setActiveTemplate] = useState(0);

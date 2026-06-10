@@ -41,6 +41,7 @@ export default function PracticeQuestionPage() {
   const [lastAttemptScore, setLastAttemptScore] = useState<number | null>(null);
   const [attemptHistory, setAttemptHistory] = useState<Array<{ date: string; score: number }>>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [checkingAnswer, setCheckingAnswer] = useState(false);
   const currentQuestion = questions[currentIndex];
   const autoSubmitRef = useRef<(() => void) | null>(null);
   const { data: session } = useSession();
@@ -434,6 +435,7 @@ export default function PracticeQuestionPage() {
               }
             }}
             score={score}
+            onScoringChange={setCheckingAnswer}
           />
 
           {/* Score Summary (shown after submission) */}
@@ -480,7 +482,7 @@ export default function PracticeQuestionPage() {
         </Button>
         <div className="flex gap-2">
           {!submitted && (
-            <Button onClick={triggerAutoSubmit} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+            <Button onClick={triggerAutoSubmit} loading={checkingAnswer} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
               <CheckCircle2 className="h-4 w-4" /> Check Answer
             </Button>
           )}
