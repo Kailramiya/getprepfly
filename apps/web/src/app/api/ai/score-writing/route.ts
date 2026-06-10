@@ -130,18 +130,38 @@ A common, officially-acceptable technique is to pick 2-4 key sentences/clauses D
   - The selected lines collectively represent the passage's main idea + key supporting points (not just minor/random details).
   - The connectors join them into ONE grammatically correct sentence.
 
-SCORING RULES (PTE Academic official rubric):
+CRITICAL: Score each criterion INDEPENDENTLY. A weakness in one criterion (e.g. grammar) must NOT drag down the score of another criterion (e.g. content, vocabulary, spelling). Base every score on the official PTE point bands below, converted to the 0-90 scale (0/2→0-10, 1/2→45-65, 2/2→80-90; 0/1→0-30, 1/1→80-90).
+
 Form check FIRST:
 - Should be exactly ONE sentence (ends with a single full stop). If the response has multiple sentences/full stops, do NOT zero out structure — instead apply a partial penalty proportional to how many extra sentences there are (e.g. 2 sentences: moderate penalty; 3+ sentences: larger penalty), and reduce overall moderately. Still award content/grammar/vocabulary marks normally for what was written.
 - Ideal length is 50-75 words (PTE allows 5-75, but 50-75 using the copy+connect technique is the expected target). Outside the 5-75 range: penalise overall significantly.
 
-Score each on 0-90:
-- content (weight 40%): Does the summary capture the MAIN idea/thesis of the passage AND its key supporting points? Compare against the passage text directly. Award high marks (including for verbatim lines from the passage) if the selected content represents the core message. Penalise only if the selection covers minor/irrelevant details or misses the main point entirely.
-- grammar (weight 25%): Grammatical accuracy of the single combined sentence — correct tense, subject-verb agreement, and correct use of the connector(s) joining the clauses.
-- vocabulary (weight 20%): Range and appropriateness of vocabulary. Using the passage's own academic vocabulary (via the copy+connect technique) is acceptable and should score well. Only penalise genuinely poor, vague, or repetitive word choice.
-- structure (weight 15%): Single-sentence format, logical flow, appropriate use of connectors/subordination to merge the chosen lines smoothly.
-- spelling: Spelling accuracy (minor weight).
-- overall: Weighted sum: content*0.40 + grammar*0.25 + vocabulary*0.20 + structure*0.15. Then apply form penalties if applicable.
+Score each on 0-90, using these official PTE descriptors as anchors:
+
+- content (weight 40%) — PTE "Content" (0-2 pts):
+  * 2/2 (≈80-90): Captures the main idea AND at least one key supporting point from the passage. Verbatim lines from the passage count fully — do not require paraphrasing.
+  * 1/2 (≈45-65): Captures the main idea but misses most supporting points, OR only captures supporting details without the main idea.
+  * 0/2 (≈0-10): Main idea is missing or misrepresented; only trivial/irrelevant details included.
+
+- grammar (weight 25%) — PTE "Grammar" (0-2 pts), judge ONLY the grammatical correctness of the sentence(s) actually written:
+  * 2/2 (≈80-90): No grammatical errors, or none that a careful reader would notice.
+  * 1/2 (≈45-65): Occasional errors (e.g. one subject-verb agreement slip, a missing article, an awkward connector) but the sentence structure is still correct and meaning is clear.
+  * 0/2 (≈0-15): Multiple/serious errors that make the sentence structurally broken or hard to understand.
+
+- vocabulary (weight 20%) — PTE "Vocabulary" (0-2 pts):
+  * 2/2 (≈80-90): Word choice is appropriate and academic — including vocabulary copied directly from the passage via the copy+connect technique.
+  * 1/2 (≈45-65): Occasional inappropriate/awkward word choice, but meaning still clear.
+  * 0/2 (≈0-15): Frequent inappropriate or incorrect word choice that obscures meaning.
+
+- structure (weight 15%) — PTE "Form" (0-1 pt): Is it ONE sentence, 5-75 words (ideally 50-75), using connectors/subordination to merge ideas?
+  * (≈80-90): Single sentence within the word limit, connectors used to join ideas — score this highly even if grammar/vocabulary elsewhere has issues.
+  * (≈0-30): Not a single sentence (apply the proportional penalty above), or badly outside the word limit.
+
+- spelling: Score based ONLY on actual misspelled words present in the response (≈80-90 if zero spelling errors, regardless of other issues; reduce roughly 15-20 points per misspelled word).
+
+- overall: Weighted sum: content*0.40 + grammar*0.25 + vocabulary*0.20 + structure*0.15. Then apply form/word-count penalties if applicable.
+
+CALIBRATION EXAMPLE (apply this same standard): A 50-word single-sentence response that joins 2-3 lines copied/lightly adapted from the passage with simple connectors ("and", "also", "while"), covers the main idea plus a supporting point, has zero spelling errors, and contains exactly one minor grammar slip (e.g. a subject-verb agreement error) should score approximately: content ~85, grammar ~55, vocabulary ~85, structure ~85, spelling ~90, overall ~78. Do NOT score such a response below 50 overall.
 
 Provide:
 - feedback: 2-3 specific, actionable sentences. Mention if main idea was captured or missed. Suggest vocabulary improvements if needed.
