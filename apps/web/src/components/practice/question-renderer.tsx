@@ -40,6 +40,57 @@ export interface ScoreResult {
   transcription?: string;
 }
 
+// Speak a single word aloud using an Indian English voice (where available)
+function speakWordIndianAccent(word: string) {
+  if (typeof window === "undefined" || !window.speechSynthesis) return;
+  const synth = window.speechSynthesis;
+
+  const speak = () => {
+    const utter = new SpeechSynthesisUtterance(word);
+    utter.lang = "en-IN";
+    utter.rate = 0.85;
+    const voices = synth.getVoices();
+    const indianVoice =
+      voices.find((v) => v.lang === "en-IN") ||
+      voices.find((v) => v.lang?.toLowerCase() === "en-in") ||
+      voices.find((v) => v.lang?.startsWith("en"));
+    if (indianVoice) utter.voice = indianVoice;
+    synth.cancel();
+    synth.speak(utter);
+  };
+
+  if (synth.getVoices().length === 0) {
+    synth.onvoiceschanged = speak;
+  } else {
+    speak();
+  }
+}
+
+// Renders text with each word individually clickable to hear its pronunciation.
+// Used for Read Aloud passages in practice mode (not mock tests).
+function ClickableWords({ text, className }: { text: string; className?: string }) {
+  const parts = text.split(/(\s+)/);
+  return (
+    <div className={className}>
+      {parts.map((part, i) => {
+        if (/^\s+$/.test(part)) return part;
+        const cleanWord = part.replace(/^[^a-zA-Z0-9']+|[^a-zA-Z0-9']+$/g, "");
+        if (!cleanWord) return part;
+        return (
+          <span
+            key={i}
+            onClick={() => speakWordIndianAccent(cleanWord)}
+            className="cursor-pointer rounded transition-colors hover:bg-indigo-100 hover:text-indigo-700 dark:hover:bg-indigo-900/50 dark:hover:text-indigo-300"
+            title="Click to hear pronunciation"
+          >
+            {part}
+          </span>
+        );
+      })}
+    </div>
+  );
+}
+
 // ─── Components ───────────────────────────────────────────────────────────────
 
 // ==========================================================================
@@ -199,7 +250,7 @@ function QuestionInstruction({ type }: { type: string }) {
 }
 
 export function QuestionRenderer({
-  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false, submitRef, allowCopyPaste = false,
+  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false, submitRef, allowCopyPaste = false, isMockTest = false,
 }: {
   question: QuestionData;
   submitted: boolean;
@@ -212,6 +263,7 @@ export function QuestionRenderer({
   playOnce?: boolean;
   submitRef?: React.MutableRefObject<(() => void) | null>;
   allowCopyPaste?: boolean;
+  isMockTest?: boolean;
 }) {
   const [response, setResponse] = useState<any>(() => {
     // Pre-fill with a previously saved answer (review mode)
@@ -272,9 +324,16 @@ export function QuestionRenderer({
         playOnce={playOnce}
         expectedText={content.text || ""}
       >
-        <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-lg leading-relaxed text-gray-800 dark:text-slate-100">
-          {content.text}
-        </div>
+        {isMockTest ? (
+          <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-lg leading-relaxed text-gray-800 dark:text-slate-100">
+            {content.text}
+          </div>
+        ) : (
+          <ClickableWords
+            text={content.text || ""}
+            className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-lg leading-relaxed text-gray-800 dark:text-slate-100"
+          />
+        )}
       </SpeakingQuestion>
     );
   }

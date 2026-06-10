@@ -333,6 +333,7 @@ export default function MockTestSessionPage() {
                     showFeedback={true}
                     onSubmit={() => {}}
                     initialResponse={attempt ? extractInitialResponse(tq.question.type, attempt.responseText) : null}
+                    isMockTest={true}
                   />
                 </CardContent>
               </Card>
@@ -429,6 +430,7 @@ export default function MockTestSessionPage() {
               onResponseChange={(r) => { pendingResponseRef.current = r; }}
               submitRef={autoSubmitRef}
               playOnce={true}
+              isMockTest={true}
             />
           )}
 
