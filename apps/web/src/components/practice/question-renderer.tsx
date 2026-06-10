@@ -7,7 +7,7 @@ import { AudioRecorder } from "@/components/practice/audio-recorder";
 import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   CheckCircle2, XCircle, Loader2, Volume2,
-  BookOpen as TemplateIcon, GripVertical,
+  BookOpen as TemplateIcon, GripVertical, X,
 } from "lucide-react";
 import { WRITING_TEMPLATES, SPEAKING_TEMPLATES } from "@/lib/templates";
 import { SKILL_CONTRIBUTIONS, SKILL_KEYS, type SkillKey } from "@/lib/pte-scoring";
@@ -91,6 +91,95 @@ function ClickableWords({ text, className }: { text: string; className?: string 
   );
 }
 
+// Popover showing a word's English + Hindi meaning and an example sentence,
+// fetched from /api/vocabulary/lookup. Positioned near the clicked word.
+function WordMeaningPopover({ word, x, y, onClose }: { word: string; x: number; y: number; onClose: () => void }) {
+  const [data, setData] = useState<{ meaning: string; meaningHi: string | null; example: string } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(false);
+    setData(null);
+    fetch(`/api/vocabulary/lookup?word=${encodeURIComponent(word)}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (cancelled) return;
+        if (d.success) setData(d.data);
+        else setError(true);
+      })
+      .catch(() => { if (!cancelled) setError(true); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [word]);
+
+  const popoverWidth = 288; // matches w-72
+  const left = typeof window !== "undefined"
+    ? Math.min(Math.max(x, 8), window.innerWidth - popoverWidth - 8)
+    : x;
+
+  return (
+    <>
+      <div className="fixed inset-0 z-40" onClick={onClose} />
+      <div
+        className="fixed z-50 w-72 max-w-[85vw] rounded-lg border border-indigo-200 bg-white p-3 text-sm shadow-xl dark:border-indigo-800 dark:bg-slate-800"
+        style={{ left, top: y }}
+      >
+        <div className="mb-1.5 flex items-center justify-between">
+          <p className="font-semibold capitalize text-indigo-700 dark:text-indigo-300">{word}</p>
+          <button onClick={onClose} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-slate-700 dark:hover:text-slate-300">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+        {loading && <p className="text-gray-400 dark:text-slate-500">Loading meaning…</p>}
+        {error && <p className="text-red-500 dark:text-red-400">Couldn&apos;t load the meaning. Please try again.</p>}
+        {data && (
+          <div className="space-y-1.5 text-gray-700 dark:text-slate-200">
+            <p><span className="font-medium text-gray-500 dark:text-slate-400">English: </span>{data.meaning}</p>
+            {data.meaningHi && <p><span className="font-medium text-gray-500 dark:text-slate-400">Hindi: </span>{data.meaningHi}</p>}
+            <p className="italic text-gray-500 dark:text-slate-400">e.g., &ldquo;{data.example}&rdquo;</p>
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+// Renders text with each word individually clickable to show its meaning
+// (English + Hindi + example) in a popover. Used for Reading passages in
+// practice mode (not mock tests).
+function ClickableMeaningText({ text, className }: { text: string; className?: string }) {
+  const [popover, setPopover] = useState<{ word: string; x: number; y: number } | null>(null);
+  const parts = text.split(/(\s+)/);
+  return (
+    <div className={className}>
+      {parts.map((part, i) => {
+        if (/^\s+$/.test(part)) return part;
+        const cleanWord = part.replace(/^[^a-zA-Z'-]+|[^a-zA-Z'-]+$/g, "");
+        if (!cleanWord) return part;
+        return (
+          <span
+            key={i}
+            onClick={(e) => {
+              const rect = e.currentTarget.getBoundingClientRect();
+              setPopover({ word: cleanWord, x: rect.left, y: rect.bottom + 4 });
+            }}
+            className="cursor-pointer rounded transition-colors hover:bg-indigo-100 hover:text-indigo-700 dark:hover:bg-indigo-900/50 dark:hover:text-indigo-300"
+            title="Click for meaning"
+          >
+            {part}
+          </span>
+        );
+      })}
+      {popover && (
+        <WordMeaningPopover word={popover.word} x={popover.x} y={popover.y} onClose={() => setPopover(null)} />
+      )}
+    </div>
+  );
+}
+
 // ─── Components ───────────────────────────────────────────────────────────────
 
 // ==========================================================================
@@ -98,7 +187,7 @@ function ClickableWords({ text, className }: { text: string; className?: string 
 // Drag-and-drop reorder component for REORDER_PARAGRAPHS
 // ==========================================================================
 function ReorderDnD({
-  paragraphs, order, onReorder, submitted, correctOrder, showFeedback = true,
+  paragraphs, order, onReorder, submitted, correctOrder, showFeedback = true, isMockTest = false,
 }: {
   paragraphs: string[];
   order: number[];
@@ -106,6 +195,7 @@ function ReorderDnD({
   submitted: boolean;
   correctOrder: number[];
   showFeedback?: boolean;
+  isMockTest?: boolean;
 }) {
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const dragIdxRef = useRef<number | null>(null);
@@ -186,7 +276,11 @@ function ReorderDnD({
             }`}>
               {paraIdx + 1}
             </span>
-            <p className="flex-1 text-sm">{paragraphs[paraIdx]}</p>
+            {isMockTest ? (
+              <p className="flex-1 text-sm">{paragraphs[paraIdx]}</p>
+            ) : (
+              <ClickableMeaningText text={paragraphs[paraIdx]} className="flex-1 text-sm" />
+            )}
             {/* Arrow buttons shown only on mobile where drag isn't reliable */}
             {!submitted && (
               <div className="flex flex-col gap-1 sm:hidden">
@@ -615,7 +709,11 @@ export function QuestionRenderer({
         )}
         {content.passage && (
           <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-slate-800/50">
-            <p className="text-sm leading-relaxed text-gray-800 dark:text-slate-200">{content.passage}</p>
+            {!isListening && !isMockTest ? (
+              <ClickableMeaningText text={content.passage} className="text-sm leading-relaxed text-gray-800 dark:text-slate-200" />
+            ) : (
+              <p className="text-sm leading-relaxed text-gray-800 dark:text-slate-200">{content.passage}</p>
+            )}
           </div>
         )}
         <p className="font-medium text-gray-900 dark:text-slate-100">{content.question}</p>
@@ -693,7 +791,11 @@ export function QuestionRenderer({
         )}
         {content.passage && (
           <div className="max-h-48 overflow-y-auto rounded-lg bg-gray-50 p-4 dark:bg-slate-800/50">
-            <p className="text-sm leading-relaxed text-gray-800 dark:text-slate-200">{content.passage}</p>
+            {!isListening && !isMockTest ? (
+              <ClickableMeaningText text={content.passage} className="text-sm leading-relaxed text-gray-800 dark:text-slate-200" />
+            ) : (
+              <p className="text-sm leading-relaxed text-gray-800 dark:text-slate-200">{content.passage}</p>
+            )}
           </div>
         )}
         <p className="font-medium text-gray-900 dark:text-slate-100">{content.question}</p>
@@ -805,6 +907,7 @@ export function QuestionRenderer({
           submitted={submitted}
           correctOrder={correctOrder}
           showFeedback={showFeedback}
+          isMockTest={isMockTest}
         />
         {((submitted && showFeedback) || showAnswer) && (
           <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/40">
