@@ -55,7 +55,7 @@ export default function StudentsPage() {
   };
 
   const renewSeat = async (studentId: string, studentName: string) => {
-    if (!confirm(`Renew 90-day access for "${studentName}"?`)) return;
+    if (!confirm(`Renew access for "${studentName}" for 1 month (30 days)?`)) return;
     setRenewingSeat(studentId);
     try {
       const res = await fetch(`/api/centres/students/${studentId}/renew`, { method: "POST" });
@@ -72,7 +72,7 @@ export default function StudentsPage() {
   };
 
   const cancelSeat = async (studentId: string, studentName: string) => {
-    if (!confirm(`Cancel access for "${studentName}"?\n\nThis will revoke their 3-month access immediately. No refund will be issued.`)) return;
+    if (!confirm(`Cancel access for "${studentName}"?\n\nThis will revoke their current month's access immediately. No refund will be issued.`)) return;
     setCancelingSeat(studentId);
     try {
       const res = await fetch(`/api/centres/students/${studentId}`, { method: "DELETE" });
@@ -335,7 +335,7 @@ export default function StudentsPage() {
                               onClick={() => renewSeat(student.id, student.name)}
                               disabled={renewingSeat === student.id}
                               className="h-8 w-8 p-0 text-gray-400 dark:text-slate-500 hover:text-green-600 dark:hover:text-green-400"
-                              title="Renew 90-day access"
+                              title="Renew access for 1 month"
                             >
                               {renewingSeat === student.id
                                 ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-green-600" />

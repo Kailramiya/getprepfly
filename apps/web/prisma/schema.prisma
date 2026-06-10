@@ -175,7 +175,7 @@ model User {
 }
 
 // ============================================================================
-// CENTRE STUDENT SEATS — per-student 90-day access granted by centre admin
+// CENTRE STUDENT SEATS — per-student 30-day (monthly) access granted by centre admin
 // ============================================================================
 model CentreStudentSeat {
   id        String   @id @default(cuid())
@@ -184,7 +184,7 @@ model CentreStudentSeat {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   startDate DateTime @default(now())
-  endDate   DateTime // startDate + 90 days
+  endDate   DateTime // startDate + 30 days (1 month)
   status    String   @default("ACTIVE") // ACTIVE, CANCELLED
   createdAt DateTime @default(now())
 

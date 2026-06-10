@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
       });
     });
 
-    // Mark invitation as accepted + grant 90-day centre seat if one was used
+    // Mark invitation as accepted + grant 30-day (1 month) centre seat if one was used
     if (centreId && !isCentre) {
       await db.centreInvitation.updateMany({
         where: { email: emailLower, centreId, status: "PENDING" },

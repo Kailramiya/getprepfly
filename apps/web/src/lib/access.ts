@@ -96,7 +96,7 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
     return baseResult;
   }
 
-  // ---- Priority 1: Active Centre Seat (per-student 90-day access) ----
+  // ---- Priority 1: Active Centre Seat (per-student 30-day/monthly access) ----
   if (user.centreId) {
     try {
       const seat = await (db as any).centreStudentSeat?.findUnique({

@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "This student is already associated with another centre" }, { status: 409 });
     }
 
-    // Link to centre + grant 90-day seat
+    // Link to centre + grant 30-day (1 month) seat
     await db.user.update({ where: { id: existingUser.id }, data: { centreId } });
     await grantCentreSeat(centreId, existingUser.id);
 
@@ -81,7 +81,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({
       success: true,
-      data: { status: "linked", message: `${existingUser.name} has been added with 90 days of access.` },
+      data: { status: "linked", message: `${existingUser.name} has been added with 1 month (30 days) of access.` },
     });
   }
 

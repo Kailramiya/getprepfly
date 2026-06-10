@@ -1,12 +1,13 @@
 import { db } from "./db";
 
 /**
- * Grant a 90-day centre seat to a student.
+ * Grant a 30-day (1 month) centre seat to a student.
  * Safe to call multiple times — updates expiry if seat already exists.
+ * Centre admins must manually renew this each month.
  */
 export async function grantCentreSeat(centreId: string, userId: string): Promise<void> {
   const endDate = new Date();
-  endDate.setDate(endDate.getDate() + 90);
+  endDate.setDate(endDate.getDate() + 30);
 
   await db.centreStudentSeat.upsert({
     where: { centreId_userId: { centreId, userId } },

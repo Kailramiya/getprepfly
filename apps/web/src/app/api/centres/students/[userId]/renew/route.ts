@@ -3,7 +3,7 @@ import { requireAuth } from "@/lib/auth-utils";
 import { grantCentreSeat, getCentreActiveSeats } from "@/lib/centre-access";
 import { db } from "@/lib/db";
 
-// POST /api/centres/students/[userId]/renew — renew (reset to 90 days) a student's seat
+// POST /api/centres/students/[userId]/renew — renew (reset to 30 days / 1 month) a student's seat
 export async function POST(_req: NextRequest, { params }: { params: { userId: string } }) {
   const { user, error } = await requireAuth();
   if (error) return error;
@@ -36,5 +36,5 @@ export async function POST(_req: NextRequest, { params }: { params: { userId: st
 
   await grantCentreSeat(centreId, params.userId);
 
-  return NextResponse.json({ success: true, data: { message: `${student.name}'s access renewed for 90 days.` } });
+  return NextResponse.json({ success: true, data: { message: `${student.name}'s access renewed for 1 month (30 days).` } });
 }
