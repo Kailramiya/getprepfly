@@ -75,7 +75,7 @@ Score on 0-90:
 - spelling: Spelling accuracy
 - content: Captures the main points of the spoken text, key ideas covered. If a model answer is provided, compare coverage of key ideas against it.
 - structure: Clear organization, logical flow, appropriate use of linking words
-- vocabulary: Range and appropriateness of vocabulary used. Penalise for copying exact phrases when paraphrasing was possible.
+- vocabulary: Range and appropriateness of vocabulary used. Note: picking key phrases/sentences directly from the spoken content and joining them with connectors is a VALID, commonly-taught strategy — do NOT penalise this. Only penalise genuinely poor or repetitive word choice.
 - overall: Weighted average (content 40%, grammar 25%, vocabulary 20%, structure 15%)
 
 Word count check:
@@ -125,16 +125,21 @@ ${modelAnswer ? `\nREFERENCE MODEL ANSWER (ideal summary for this passage):\n"${
 STUDENT'S SUMMARY (${wordCount} words):
 "${responseText}"
 
+IMPORTANT — VALID STUDENT STRATEGY:
+A common, officially-acceptable technique is to pick 2-4 key sentences/clauses DIRECTLY from the passage above (e.g. the topic sentence of each paragraph, or the main claim + key supporting points) and join them into a single sentence using connectors (e.g. "while", "moreover", "in addition", "as a result", "although", "which"). This is NOT plagiarism or weak paraphrasing — treat it as a legitimate, well-scoring approach. Do NOT penalise vocabulary or content just because the wording matches the passage. Score this approach highly as long as:
+  - The selected lines collectively represent the passage's main idea + key supporting points (not just minor/random details).
+  - The connectors join them into ONE grammatically correct sentence.
+
 SCORING RULES (PTE Academic official rubric):
 Form check FIRST:
 - Must be exactly ONE sentence (ends with a single full stop). If multiple sentences: structure = 0, penalise overall heavily.
-- Must be 5-75 words. Outside range: penalise overall significantly.
+- Ideal length is 50-75 words (PTE allows 5-75, but 50-75 using the copy+connect technique is the expected target). Outside the 5-75 range: penalise overall significantly.
 
 Score each on 0-90:
-- content (weight 40%): Does the summary capture the MAIN idea/thesis of the passage above? Compare against the passage text directly — not just topic keywords. Award high marks if the central argument is present, even if phrased differently. Penalise if only minor details are mentioned or the main point is missing.
-- grammar (weight 25%): Grammatical accuracy, correct use of tense, subject-verb agreement, clause structure.
-- vocabulary (weight 20%): Range and appropriateness of vocabulary. Award marks for academic/varied word choice. Penalise for repeated use of exact passage phrases (shows no paraphrasing skill).
-- structure (weight 15%): Single-sentence format, logical flow, appropriate use of connectors/subordination.
+- content (weight 40%): Does the summary capture the MAIN idea/thesis of the passage AND its key supporting points? Compare against the passage text directly. Award high marks (including for verbatim lines from the passage) if the selected content represents the core message. Penalise only if the selection covers minor/irrelevant details or misses the main point entirely.
+- grammar (weight 25%): Grammatical accuracy of the single combined sentence — correct tense, subject-verb agreement, and correct use of the connector(s) joining the clauses.
+- vocabulary (weight 20%): Range and appropriateness of vocabulary. Using the passage's own academic vocabulary (via the copy+connect technique) is acceptable and should score well. Only penalise genuinely poor, vague, or repetitive word choice.
+- structure (weight 15%): Single-sentence format, logical flow, appropriate use of connectors/subordination to merge the chosen lines smoothly.
 - spelling: Spelling accuracy (minor weight).
 - overall: Weighted sum: content*0.40 + grammar*0.25 + vocabulary*0.20 + structure*0.15. Then apply form penalties if applicable.
 
