@@ -1480,7 +1480,7 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
 
       {/* Message at bottom if any */}
       {!result.pending && result.message && (
-        <p className="mt-3 rounded-md bg-white/70 p-2 text-xs text-gray-700">
+        <p className="mt-3 rounded-md bg-white p-2 text-xs text-gray-700 dark:bg-slate-800 dark:text-slate-200">
           💡 {result.message}
         </p>
       )}
