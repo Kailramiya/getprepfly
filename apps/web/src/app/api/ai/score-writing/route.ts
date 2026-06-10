@@ -132,7 +132,7 @@ A common, officially-acceptable technique is to pick 2-4 key sentences/clauses D
 
 SCORING RULES (PTE Academic official rubric):
 Form check FIRST:
-- Must be exactly ONE sentence (ends with a single full stop). If multiple sentences: structure = 0, penalise overall heavily.
+- Should be exactly ONE sentence (ends with a single full stop). If the response has multiple sentences/full stops, do NOT zero out structure — instead apply a partial penalty proportional to how many extra sentences there are (e.g. 2 sentences: moderate penalty; 3+ sentences: larger penalty), and reduce overall moderately. Still award content/grammar/vocabulary marks normally for what was written.
 - Ideal length is 50-75 words (PTE allows 5-75, but 50-75 using the copy+connect technique is the expected target). Outside the 5-75 range: penalise overall significantly.
 
 Score each on 0-90:
