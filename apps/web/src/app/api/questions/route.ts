@@ -13,11 +13,11 @@ export async function GET(req: NextRequest) {
   const type = url.searchParams.get("type");
   const difficulty = url.searchParams.get("difficulty");
   const prediction = url.searchParams.get("prediction");
-  const page = parseInt(url.searchParams.get("page") || "1");
-  const pageSize = parseInt(url.searchParams.get("pageSize") || "20");
-  const fetchAll = url.searchParams.get("all") === "1";
+  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
+  const requestedPageSize = Math.max(1, parseInt(url.searchParams.get("pageSize") || "20"));
+  const requestedFetchAll = url.searchParams.get("all") === "1";
   const search = url.searchParams.get("search") || "";
-  const full = url.searchParams.get("full") === "1"; // include content + URLs in list
+  const requestedFull = url.searchParams.get("full") === "1"; // include content + URLs in list
   const centreFilter = url.searchParams.get("centreId"); // filter by specific centre (super admin only)
   const mockTestOnly = url.searchParams.get("mockTestOnly") === "true"; // only questions used in mock tests
   const sortBy = url.searchParams.get("sort") || "createdAt"; // createdAt | title
@@ -30,6 +30,9 @@ export async function GET(req: NextRequest) {
   const isSuperAdmin = user!.role === "SUPER_ADMIN";
   const isCentreStaff = user!.role === "CENTRE_ADMIN" || user!.role === "TEACHER";
   const isAdmin = isSuperAdmin || isCentreStaff;
+  const pageSize = Math.min(requestedPageSize, isAdmin ? 100 : 20);
+  const fetchAll = isAdmin && requestedFetchAll;
+  const full = isAdmin && requestedFull;
 
   let visibilityConditions: any[] = [];
 
@@ -106,16 +109,20 @@ export async function GET(req: NextRequest) {
         audioUrl: true,
         marks: true,
         createdAt: true,
-        centreId: true,
-        // Include centre info so super admin can group/filter
-        centre: { select: { id: true, name: true, slug: true } },
+        ...(isAdmin && {
+          centreId: true,
+          // Include centre info so admins can group/filter
+          centre: { select: { id: true, name: true, slug: true } },
+        }),
         // Only include heavy fields when explicitly requested
         ...(full && {
           content: true,
           explanation: true,
           modelAnswer: true,
         }),
-        _count: { select: { attempts: true } },
+        ...(isAdmin && {
+          _count: { select: { attempts: true } },
+        }),
       },
       ...(fetchAll ? {} : { skip: (page - 1) * pageSize, take: pageSize }),
       orderBy:
@@ -139,7 +146,8 @@ export async function GET(req: NextRequest) {
 
   // No HTTP cache — admin pages need fresh data after edits/deletes.
   // (Optimistic UI updates handle perceived speed; browser-cached lists hide deletions.)
-  res.headers.set("Cache-Control", "no-store");
+  res.headers.set("Cache-Control", isAdmin ? "no-store" : "private, max-age=60");
+  res.headers.set("Vary", "Cookie");
   return res;
 }
 

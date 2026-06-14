@@ -23,7 +23,10 @@ export async function GET() {
     // Recent attempts (last 10)
     db.attempt.findMany({
       where: { userId },
-      include: {
+      select: {
+        id: true,
+        overallScore: true,
+        createdAt: true,
         question: { select: { type: true, section: true, title: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -53,7 +56,12 @@ export async function GET() {
   // Calculate section averages from attempts with question info
   const attemptsWithSection = await db.attempt.findMany({
     where: { userId, overallScore: { not: null } },
-    include: { question: { select: { section: true, type: true } } },
+    select: {
+      overallScore: true,
+      question: { select: { section: true, type: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 500,
   });
 
   const sectionScores: Record<string, number[]> = {
@@ -131,7 +139,7 @@ export async function GET() {
     : 0;
   const estimatedPTEScore = hasData ? Math.round(10 + (weightedPractice / 90) * 80) : null;
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     success: true,
     data: {
       totalAttempts,
@@ -157,4 +165,7 @@ export async function GET() {
       strongAreas,
     },
   });
+  res.headers.set("Cache-Control", "private, max-age=30");
+  res.headers.set("Vary", "Cookie");
+  return res;
 }

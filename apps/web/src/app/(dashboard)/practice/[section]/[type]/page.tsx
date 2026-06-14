@@ -24,7 +24,11 @@ export default function PracticeQuestionPage() {
 
   const [questions, setQuestions] = useState<QuestionData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
+  const [questionPage, setQuestionPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [questionLoading, setQuestionLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<ScoreResult | null>(null);
   const [accessInfo, setAccessInfo] = useState<{ hasAllAccess: boolean; modules: string[]; isStaff: boolean } | null>(null);
@@ -41,6 +45,7 @@ export default function PracticeQuestionPage() {
   const [lastAttemptScore, setLastAttemptScore] = useState<number | null>(null);
   const [attemptHistory, setAttemptHistory] = useState<Array<{ date: string; score: number }>>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+  const [historyLoaded, setHistoryLoaded] = useState(false);
   const [checkingAnswer, setCheckingAnswer] = useState(false);
   const currentQuestion = questions[currentIndex];
   const autoSubmitRef = useRef<(() => void) | null>(null);
@@ -90,50 +95,99 @@ export default function PracticeQuestionPage() {
     }
   };
 
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      setLoading(true);
-      // Single API call with full=1 returns content + audioUrl + imageUrl in one shot
-      const res = await fetch(`/api/questions?section=${section}&type=${type}&all=1&full=1`);
+  const fetchQuestionPage = useCallback(async (page: number, replace = false) => {
+    const pageSize = 20;
+    if (replace) setLoading(true);
+    else setLoadingMore(true);
+
+    try {
+      const res = await fetch(`/api/questions?section=${section}&type=${type}&page=${page}&pageSize=${pageSize}`);
       const data = await res.json();
-      if (data.success && data.data.items.length > 0) {
-        const items = data.data.items;
-        setQuestions(items);
-        // Fetch flags for all questions in one call
-        const ids = items.map((q: QuestionData) => q.id).join(",");
-        fetch(`/api/questions/flag?questionIds=${ids}`)
-          .then(r => r.json())
-          .then(d => { if (d.success) setFlags(d.data); })
-          .catch(() => {});
+      if (data.success) {
+        const items = data.data.items as QuestionData[];
+        setTotalQuestions(data.data.total || items.length);
+        setQuestionPage(page);
+        setQuestions(prev => replace ? items : [...prev, ...items]);
+
+        const ids = items.map((q) => q.id).join(",");
+        if (ids) {
+          fetch(`/api/questions/flag?questionIds=${ids}`)
+            .then(r => r.json())
+            .then(d => { if (d.success) setFlags(prev => ({ ...prev, ...d.data })); })
+            .catch(() => {});
+        }
+
+        return items.length > 0;
       }
-      setLoading(false);
-    };
-    if (section && type) fetchQuestions();
+    } catch {
+      // Keep the currently loaded page usable if pagination fails.
+    } finally {
+      if (replace) setLoading(false);
+      else setLoadingMore(false);
+    }
+    return false;
   }, [section, type]);
+
+  useEffect(() => {
+    if (!section || !type) return;
+    setQuestions([]);
+    setCurrentIndex(0);
+    setTotalQuestions(0);
+    setQuestionPage(1);
+    setFlags({});
+    fetchQuestionPage(1, true);
+  }, [section, type, fetchQuestionPage]);
 
   useEffect(() => {
     if (!currentQuestion?.id) return;
     setShowAnswer(false);
     setAttemptHistory([]);
     setLastAttemptScore(null);
-    setHistoryLoading(true);
+    setHistoryLoaded(false);
     setQuestionStartTime(Date.now());
-    fetch(`/api/attempts?questionId=${currentQuestion.id}&pageSize=10`)
+    autoSubmitRef.current = null;
+
+    if (currentQuestion.content) {
+      setQuestionLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    setQuestionLoading(true);
+    fetch(`/api/questions/${currentQuestion.id}`)
       .then(r => r.json())
       .then(d => {
-        if (d.success) {
-          const items = d.data.items.filter((a: any) => a.overallScore !== null);
-          const history = items.map((a: any) => ({
-            date: new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
-            score: Math.round(a.overallScore),
-          })).reverse();
-          setAttemptHistory(history);
-          if (items.length > 0) setLastAttemptScore(Math.round(items[0].overallScore));
-        }
+        if (cancelled || !d.success) return;
+        setQuestions(prev => prev.map(q => q.id === currentQuestion.id ? { ...q, ...d.data } : q));
       })
       .catch(() => {})
-      .finally(() => setHistoryLoading(false));
-  }, [currentQuestion?.id]);
+      .finally(() => {
+        if (!cancelled) setQuestionLoading(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [currentQuestion?.id, currentQuestion?.content]);
+
+  const loadAttemptHistory = async () => {
+    if (!currentQuestion?.id) return;
+    setHistoryLoading(true);
+    try {
+      const res = await fetch(`/api/attempts?questionId=${currentQuestion.id}&pageSize=10`);
+      const d = await res.json();
+      if (d.success) {
+        const items = d.data.items.filter((a: any) => a.overallScore !== null);
+        const history = items.map((a: any) => ({
+          date: new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+          score: Math.round(a.overallScore),
+        })).reverse();
+        setAttemptHistory(history);
+        if (items.length > 0) setLastAttemptScore(Math.round(items[0].overallScore));
+      }
+      setHistoryLoaded(true);
+    } finally {
+      setHistoryLoading(false);
+    }
+  };
 
   const triggerAutoSubmit = useCallback(() => {
     if (!submitted && autoSubmitRef.current) {
@@ -141,14 +195,20 @@ export default function PracticeQuestionPage() {
     }
   }, [submitted]);
 
-  const goToNext = useCallback(() => {
-    if (currentIndex < questions.length - 1) {
-      triggerAutoSubmit();
-      setCurrentIndex(currentIndex + 1);
-      setSubmitted(false);
-      setScore(null);
+  const goToNext = useCallback(async () => {
+    if (currentIndex >= totalQuestions - 1) return;
+
+    triggerAutoSubmit();
+
+    if (currentIndex >= questions.length - 1) {
+      const loaded = await fetchQuestionPage(questionPage + 1);
+      if (!loaded) return;
     }
-  }, [currentIndex, questions.length, triggerAutoSubmit]);
+
+    setCurrentIndex(currentIndex + 1);
+    setSubmitted(false);
+    setScore(null);
+  }, [currentIndex, fetchQuestionPage, questionPage, questions.length, totalQuestions, triggerAutoSubmit]);
 
   const goToPrev = () => {
     if (currentIndex > 0) {
@@ -308,7 +368,9 @@ export default function PracticeQuestionPage() {
             <div className="flex items-center justify-between border-b px-4 py-3 dark:border-slate-700">
               <div>
                 <p className="font-semibold text-gray-900 dark:text-slate-100">{formatType(type)}</p>
-                <p className="text-xs text-gray-500 dark:text-slate-400">{questions.length} questions</p>
+                <p className="text-xs text-gray-500 dark:text-slate-400">
+                  {questions.length} of {totalQuestions || questions.length} loaded
+                </p>
               </div>
               <button onClick={() => setShowList(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300">
                 <X className="h-5 w-5" />
@@ -352,6 +414,15 @@ export default function PracticeQuestionPage() {
                 </button>
               );
               })}
+              {questions.length < totalQuestions && (
+                <button
+                  onClick={() => fetchQuestionPage(questionPage + 1)}
+                  disabled={loadingMore}
+                  className="mt-2 flex w-full items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  {loadingMore ? "Loading..." : "Load more questions"}
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -362,7 +433,7 @@ export default function PracticeQuestionPage() {
         <div>
           <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{formatType(type)}</h1>
           <div className="flex items-center gap-2">
-            <p className="text-sm text-gray-500 dark:text-slate-400">Question {currentIndex + 1} of {questions.length}</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">Question {currentIndex + 1} of {totalQuestions || questions.length}</p>
             {lastAttemptScore !== null && (
               <span className="text-xs text-gray-400 dark:text-slate-500">· Last: <span className="font-semibold text-gray-600 dark:text-slate-300">{lastAttemptScore}/90</span></span>
             )}
@@ -386,7 +457,7 @@ export default function PracticeQuestionPage() {
 
       {/* Progress dots */}
       <div className="flex gap-1">
-        {questions.map((_, i) => (
+        {Array.from({ length: totalQuestions || questions.length }).map((_, i) => (
           <div
             key={i}
             className={`h-1.5 flex-1 rounded-full transition ${
@@ -407,6 +478,7 @@ export default function PracticeQuestionPage() {
             <CardTitle className="text-base dark:text-slate-100">{currentQuestion?.title}</CardTitle>
             <button
               onClick={() => setShowAnswer(a => !a)}
+              disabled={questionLoading || !currentQuestion?.content}
               className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
             >
               {showAnswer ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
@@ -419,24 +491,30 @@ export default function PracticeQuestionPage() {
               local state (textarea, audio recording, MCQ selection, etc.) resets cleanly. */}
           {/* Block copying question text for non-super-admins */}
           <div onCopy={!isSuperAdmin ? (e) => e.preventDefault() : undefined}>
-          <QuestionRenderer
-            key={currentQuestion?.id}
-            question={currentQuestion}
-            submitted={submitted}
-            showAnswer={showAnswer}
-            submitRef={autoSubmitRef}
-            allowCopyPaste={isSuperAdmin}
-            onSubmit={(response: any) => {
-              setSubmitted(true);
-              const result = response?.scoreResult as ScoreResult | undefined;
-              if (result) {
-                setScore(result);
-                saveAttempt(currentQuestion, result, response);
-              }
-            }}
-            score={score}
-            onScoringChange={setCheckingAnswer}
-          />
+          {questionLoading || !currentQuestion?.content ? (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+            </div>
+          ) : (
+            <QuestionRenderer
+              key={currentQuestion?.id}
+              question={currentQuestion}
+              submitted={submitted}
+              showAnswer={showAnswer}
+              submitRef={autoSubmitRef}
+              allowCopyPaste={isSuperAdmin}
+              onSubmit={(response: any) => {
+                setSubmitted(true);
+                const result = response?.scoreResult as ScoreResult | undefined;
+                if (result) {
+                  setScore(result);
+                  saveAttempt(currentQuestion, result, response);
+                }
+              }}
+              score={score}
+              onScoringChange={setCheckingAnswer}
+            />
+          )}
 
           {/* Score Summary (shown after submission) */}
           {submitted && score && (
@@ -482,7 +560,12 @@ export default function PracticeQuestionPage() {
         </Button>
         <div className="flex gap-2">
           {!submitted && (
-            <Button onClick={triggerAutoSubmit} loading={checkingAnswer} className="gap-2 bg-green-600 hover:bg-green-700 text-white">
+            <Button
+              onClick={triggerAutoSubmit}
+              loading={checkingAnswer}
+              disabled={questionLoading || !currentQuestion?.content}
+              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+            >
               <CheckCircle2 className="h-4 w-4" /> Check Answer
             </Button>
           )}
@@ -494,7 +577,8 @@ export default function PracticeQuestionPage() {
         </div>
         <Button
           onClick={goToNext}
-          disabled={currentIndex === questions.length - 1}
+          disabled={currentIndex >= totalQuestions - 1 || loadingMore}
+          loading={loadingMore}
           className="gap-2"
         >
           Next <ChevronRight className="h-4 w-4" />
@@ -502,7 +586,7 @@ export default function PracticeQuestionPage() {
       </div>
 
       {/* Score History */}
-      {(attemptHistory.length > 0 || historyLoading) && (
+      {(historyLoaded || historyLoading) ? (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-sm text-gray-700 dark:text-slate-300">
@@ -514,6 +598,8 @@ export default function PracticeQuestionPage() {
           <CardContent className="pt-0">
             {historyLoading ? (
               <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-indigo-400" /></div>
+            ) : attemptHistory.length === 0 ? (
+              <p className="py-6 text-center text-sm text-gray-500 dark:text-slate-400">No previous scored attempts for this question.</p>
             ) : (
               <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={attemptHistory} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
@@ -537,6 +623,12 @@ export default function PracticeQuestionPage() {
             <p className="mt-1 text-center text-xs text-gray-400 dark:text-slate-500">Green ≥ 60 · Amber ≥ 30 · Red &lt; 30</p>
           </CardContent>
         </Card>
+      ) : (
+        <div className="flex justify-center">
+          <Button variant="outline" size="sm" onClick={loadAttemptHistory} className="gap-2">
+            <BarChart2 className="h-4 w-4" /> Load score history
+          </Button>
+        </div>
       )}
 
       {/* Report Modal */}
@@ -605,4 +697,4 @@ export default function PracticeQuestionPage() {
     </div>
   );
 }
-
+

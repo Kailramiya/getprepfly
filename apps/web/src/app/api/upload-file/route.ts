@@ -3,7 +3,7 @@ import { requireRole } from "@/lib/auth-utils";
 
 // Max file sizes (bytes)
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
-const MAX_AUDIO_SIZE = 50 * 1024 * 1024; // 50 MB
+const MAX_AUDIO_SIZE = 4 * 1024 * 1024; // 4 MB serverless-safe upload limit
 
 // POST /api/upload-file — upload file (image or audio) for questions.
 // Uses Vercel Blob if BLOB_READ_WRITE_TOKEN is configured,
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: `File too large. Max ${isImage ? "5 MB" : "15 MB"} allowed.`,
+          error: `File too large. Max ${isImage ? "5 MB" : "4 MB"} allowed.`,
         },
         { status: 400 }
       );
