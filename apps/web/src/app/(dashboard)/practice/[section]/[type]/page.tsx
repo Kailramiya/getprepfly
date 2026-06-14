@@ -17,12 +17,16 @@ import {
   QuestionData, ScoreResult,
 } from "@/components/practice/question-renderer";
 
+type PracticeQuestionData = QuestionData & {
+  source?: "MY_CENTRE" | "PUBLIC";
+};
+
 export default function PracticeQuestionPage() {
   const params = useParams();
   const section = (params.section as string)?.toUpperCase();
   const type = (params.type as string)?.toUpperCase();
 
-  const [questions, setQuestions] = useState<QuestionData[]>([]);
+  const [questions, setQuestions] = useState<PracticeQuestionData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [questionPage, setQuestionPage] = useState(1);
@@ -31,7 +35,7 @@ export default function PracticeQuestionPage() {
   const [questionLoading, setQuestionLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [score, setScore] = useState<ScoreResult | null>(null);
-  const [accessInfo, setAccessInfo] = useState<{ hasAllAccess: boolean; modules: string[]; isStaff: boolean } | null>(null);
+  const [accessInfo, setAccessInfo] = useState<{ hasAllAccess: boolean; modules: string[]; isStaff: boolean; centreId: string | null } | null>(null);
   const [showList, setShowList] = useState(false);
   const [flags, setFlags] = useState<Record<string, string>>({});
   const [showAnswer, setShowAnswer] = useState(false);
@@ -41,6 +45,7 @@ export default function PracticeQuestionPage() {
   const [reportSubmitting, setReportSubmitting] = useState(false);
   const [reportDone, setReportDone] = useState<Set<string>>(() => new Set());
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
+  const [selectedSource, setSelectedSource] = useState<"all" | "my-centre" | "public">("all");
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
   const [lastAttemptScore, setLastAttemptScore] = useState<number | null>(null);
   const [attemptHistory, setAttemptHistory] = useState<Array<{ date: string; score: number }>>([]);
@@ -62,6 +67,7 @@ export default function PracticeQuestionPage() {
             hasAllAccess: data.data.hasAllAccess,
             modules: data.data.modules || [],
             isStaff: !!data.data.isStaff,
+            centreId: data.data.centreId || null,
           });
         }
       })
@@ -101,10 +107,11 @@ export default function PracticeQuestionPage() {
     else setLoadingMore(true);
 
     try {
-      const res = await fetch(`/api/questions?section=${section}&type=${type}&page=${page}&pageSize=${pageSize}`);
+      const sourceParam = selectedSource !== "all" ? `&source=${selectedSource}` : "";
+      const res = await fetch(`/api/questions?section=${section}&type=${type}&page=${page}&pageSize=${pageSize}${sourceParam}`);
       const data = await res.json();
       if (data.success) {
-        const items = data.data.items as QuestionData[];
+        const items = data.data.items as PracticeQuestionData[];
         setTotalQuestions(data.data.total || items.length);
         setQuestionPage(page);
         setQuestions(prev => replace ? items : [...prev, ...items]);
@@ -126,7 +133,7 @@ export default function PracticeQuestionPage() {
       else setLoadingMore(false);
     }
     return false;
-  }, [section, type]);
+  }, [section, type, selectedSource]);
 
   useEffect(() => {
     if (!section || !type) return;
@@ -136,7 +143,7 @@ export default function PracticeQuestionPage() {
     setQuestionPage(1);
     setFlags({});
     fetchQuestionPage(1, true);
-  }, [section, type, fetchQuestionPage]);
+  }, [section, type, selectedSource, fetchQuestionPage]);
 
   useEffect(() => {
     if (!currentQuestion?.id) return;
@@ -376,6 +383,26 @@ export default function PracticeQuestionPage() {
                 <X className="h-5 w-5" />
               </button>
             </div>
+            {!accessInfo?.isStaff && accessInfo?.centreId && (
+              <div className="flex flex-wrap gap-1.5 border-b px-3 py-2 dark:border-slate-700">
+                {[
+                  { key: "all", label: "All" },
+                  { key: "my-centre", label: "My Centre" },
+                  { key: "public", label: "Public" },
+                ].map(({ key, label }) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setSelectedSource(key as "all" | "my-centre" | "public");
+                      setSelectedTopic("all");
+                    }}
+                    className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${selectedSource === key ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
             {/* Topic filter inside list panel */}
             {allTopics.length > 0 && (
               <div className="flex flex-wrap gap-1.5 border-b px-3 py-2 dark:border-slate-700">

@@ -119,6 +119,22 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
     }
   }
 
+  // ---- Priority 1b: Centre-linked student ----
+  // Business rule: if a student has been added to a centre, they are treated
+  // as subscribed while they remain associated with that centre.
+  if (user.role === "STUDENT" && user.centreId) {
+    baseResult.hasAllAccess = true;
+    const farFuture = new Date("2099-12-31");
+    baseResult.expiresAt["ALL"] = farFuture;
+    ["SPEAKING", "WRITING", "READING", "LISTENING"].forEach((s) => {
+      baseResult.modules.add(s as PTESection);
+      baseResult.expiresAt[s] = farFuture;
+    });
+    baseResult.freeSpeakingScoringsRemaining = Infinity;
+    baseResult.reason = "Centre student - full access";
+    return baseResult;
+  }
+
   // ---- Priority 2: Legacy Premium Centre (isPremiumCentre flag — for backward compat) ----
   if (user.centre?.isPremiumCentre) {
     const premiumUntil = user.centre.premiumUntil;

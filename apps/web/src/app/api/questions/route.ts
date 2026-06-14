@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
   const search = url.searchParams.get("search") || "";
   const requestedFull = url.searchParams.get("full") === "1"; // include content + URLs in list
   const centreFilter = url.searchParams.get("centreId"); // filter by specific centre (super admin only)
+  const sourceFilter = url.searchParams.get("source"); // students: all | my-centre | public
   const mockTestOnly = url.searchParams.get("mockTestOnly") === "true"; // only questions used in mock tests
   const sortBy = url.searchParams.get("sort") || "createdAt"; // createdAt | title
   const sortOrder = url.searchParams.get("order") === "asc" ? "asc" : "desc";
@@ -33,6 +34,14 @@ export async function GET(req: NextRequest) {
   const pageSize = Math.min(requestedPageSize, isAdmin ? 100 : 20);
   const fetchAll = isAdmin && requestedFetchAll;
   const full = isAdmin && requestedFull;
+  const studentSourceCondition =
+    !isAdmin && sourceFilter === "my-centre"
+      ? user!.centreId
+        ? { centreId: user!.centreId }
+        : { id: "__no-centre__" }
+      : !isAdmin && sourceFilter === "public" && user!.centreId
+        ? { OR: [{ centreId: null }, { centreId: { not: user!.centreId } }] }
+        : {};
 
   let visibilityConditions: any[] = [];
 
@@ -70,6 +79,7 @@ export async function GET(req: NextRequest) {
     isActive: true,
     AND: [
       { OR: visibilityConditions },
+      studentSourceCondition,
       ...(search
         ? [{
             OR: [
@@ -109,8 +119,8 @@ export async function GET(req: NextRequest) {
         audioUrl: true,
         marks: true,
         createdAt: true,
+        centreId: true,
         ...(isAdmin && {
-          centreId: true,
           // Include centre info so admins can group/filter
           centre: { select: { id: true, name: true, slug: true } },
         }),
@@ -133,10 +143,24 @@ export async function GET(req: NextRequest) {
     db.question.count({ where }),
   ]);
 
+  const items = isAdmin
+    ? questions
+    : questions.map((q: any) => {
+        const safeQuestion = { ...q };
+        const questionCentreId = safeQuestion.centreId;
+        delete safeQuestion.centreId;
+        delete safeQuestion.centre;
+        delete safeQuestion._count;
+        return {
+          ...safeQuestion,
+          source: user!.centreId && questionCentreId === user!.centreId ? "MY_CENTRE" : "PUBLIC",
+        };
+      });
+
   const res = NextResponse.json({
     success: true,
     data: {
-      items: questions,
+      items,
       total,
       page,
       pageSize,

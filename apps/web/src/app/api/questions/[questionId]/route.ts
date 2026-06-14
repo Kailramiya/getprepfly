@@ -53,7 +53,18 @@ export async function GET(
     );
   }
 
-  return NextResponse.json({ success: true, data: question });
+  if (isSuperAdmin || isCentreStaff) {
+    return NextResponse.json({ success: true, data: question });
+  }
+
+  const { centreId, ...safeQuestion } = question;
+  return NextResponse.json({
+    success: true,
+    data: {
+      ...safeQuestion,
+      source: user!.centreId && centreId === user!.centreId ? "MY_CENTRE" : "PUBLIC",
+    },
+  });
 }
 
 // PATCH /api/questions/:id — update question

@@ -17,7 +17,7 @@ export async function GET() {
       expiresAt: access.expiresAt,
       centreId: user!.centreId || null,
       role: user!.role,
-      isStaff: user!.role === "SUPER_ADMIN",
+      isStaff: ["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"].includes(user!.role),
       isTrial: access.isTrial,
       trialEndsAt: access.trialEndsAt,
       trialExpired: access.trialExpired,
