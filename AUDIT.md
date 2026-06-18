@@ -33,7 +33,7 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 - [x] **P1** Daily practice goal + today's progress bar on dashboard (User.dailyGoal, settings to change). *(dashboard + settings + profile API)*
 - [x] **P1** Exam-day countdown (User.examDate set in settings → countdown widget on dashboard). *(settings + dashboard + profile API)*
 - [x] **P1** Centre leaderboard (avg score, min 5 attempts, top 20 + your rank, privacy-safe names). *(api/leaderboard + /leaderboard page + sidebar)*
-- [ ] **P1** Attempt review: compare your last answers vs model on a question; history surfaced.
+- [x] **P1** Attempt review: compare your last answers vs model on a question; history surfaced. *(api/attempts/[id] + /progress/attempts/[id] page + clickable recent attempts)*
 - [ ] **P2** Re-engagement email ("you haven't practiced in 7 days", "you improved this week"). *(needs cron/Resend)*
 - [~] **P2** "Focus areas" study-plan card on dashboard from weakest question types (deep-links to practice). Prediction/high-frequency surfacing still pending. *(dashboard + dashboard API)*
 - [x] **P2** Model-answer audio (TTS) for shadowing on speaking/read-aloud. *(api/ai/tts/preview + SpeakingQuestion post-submit)*

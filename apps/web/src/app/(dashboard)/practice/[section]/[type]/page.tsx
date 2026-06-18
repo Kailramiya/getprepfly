@@ -89,11 +89,14 @@ export default function PracticeQuestionPage() {
             marksEarned: result.marksEarned,
             marksTotal: result.marksTotal,
             mistakes: result.mistakes,
+            ...(result.aiScores && { aiScores: result.aiScores }),
+            ...(result.transcription && { transcription: result.transcription }),
           },
           overallScore: result.marksTotal > 0
             ? Math.round((result.marksEarned / result.marksTotal) * 90)
             : 0,
           timeTaken,
+          feedback: result.message || null,
         }),
       });
     } catch {

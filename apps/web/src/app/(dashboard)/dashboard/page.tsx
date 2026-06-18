@@ -320,38 +320,40 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-2">
             {data.recentAttempts.slice(0, 5).map((attempt) => (
-              <Card key={attempt.id}>
-                <CardContent className="flex items-center justify-between p-3">
-                  <div className="flex items-center gap-3">
-                    <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white ${
-                      attempt.section === "SPEAKING" ? "bg-teal-500" :
-                      attempt.section === "WRITING" ? "bg-blue-500" :
-                      attempt.section === "READING" ? "bg-purple-500" : "bg-orange-500"
-                    }`}>
-                      {attempt.section[0]}
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{attempt.title}</p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">{formatType(attempt.questionType)}</p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    {attempt.score !== null ? (
-                      <p className={`text-sm font-bold ${
-                        attempt.score >= 70 ? "text-green-600" :
-                        attempt.score >= 40 ? "text-amber-600" : "text-red-600"
+              <Link key={attempt.id} href={`/progress/attempts/${attempt.id}`}>
+                <Card className="cursor-pointer hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
+                  <CardContent className="flex items-center justify-between p-3">
+                    <div className="flex items-center gap-3">
+                      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white ${
+                        attempt.section === "SPEAKING" ? "bg-teal-500" :
+                        attempt.section === "WRITING" ? "bg-blue-500" :
+                        attempt.section === "READING" ? "bg-purple-500" : "bg-orange-500"
                       }`}>
-                        {attempt.score}/90
+                        {attempt.section[0]}
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{attempt.title}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400">{formatType(attempt.questionType)}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      {attempt.score !== null ? (
+                        <p className={`text-sm font-bold ${
+                          attempt.score >= 70 ? "text-green-600" :
+                          attempt.score >= 40 ? "text-amber-600" : "text-red-600"
+                        }`}>
+                          {attempt.score}/90
+                        </p>
+                      ) : (
+                        <p className="text-xs text-gray-400 dark:text-slate-500">Pending</p>
+                      )}
+                      <p className="text-xs text-gray-400 dark:text-slate-500">
+                        {new Date(attempt.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                       </p>
-                    ) : (
-                      <p className="text-xs text-gray-400 dark:text-slate-500">Pending</p>
-                    )}
-                    <p className="text-xs text-gray-400 dark:text-slate-500">
-                      {new Date(attempt.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
             ))}
           </div>
         </div>

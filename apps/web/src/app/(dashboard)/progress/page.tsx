@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
   BarChart3, TrendingUp, Target, Clock, Flame,
-  ArrowUp, ArrowDown, Mic, PenTool, BookOpen, Headphones,
+  ArrowUp, ArrowDown, Mic, PenTool, BookOpen, Headphones, ChevronRight,
 } from "lucide-react";
 
 const SECTION_CONFIG: Record<string, { icon: any; color: string; bg: string }> = {
@@ -196,7 +197,11 @@ export default function ProgressPage() {
               {data.recentAttempts.map((attempt: any) => {
                 const config = SECTION_CONFIG[attempt.section];
                 return (
-                  <div key={attempt.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-700/50">
+                  <Link
+                    key={attempt.id}
+                    href={`/progress/attempts/${attempt.id}`}
+                    className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-700/50 hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
                       <div className={`flex h-8 w-8 items-center justify-center rounded-lg ${config?.bg || "bg-gray-200"}`}>
                         {config?.icon && <config.icon className={`h-4 w-4 ${config.color}`} />}
@@ -209,15 +214,18 @@ export default function ProgressPage() {
                         </p>
                       </div>
                     </div>
-                    {attempt.score !== null && (
-                      <span className={`text-sm font-bold ${
-                        attempt.score >= 79 ? "text-green-600" :
-                        attempt.score >= 50 ? "text-amber-600" : "text-red-600"
-                      }`}>
-                        {Math.round(attempt.score)}/90
-                      </span>
-                    )}
-                  </div>
+                    <div className="flex items-center gap-2">
+                      {attempt.score !== null && (
+                        <span className={`text-sm font-bold ${
+                          attempt.score >= 79 ? "text-green-600" :
+                          attempt.score >= 50 ? "text-amber-600" : "text-red-600"
+                        }`}>
+                          {Math.round(attempt.score)}/90
+                        </span>
+                      )}
+                      <ChevronRight className="h-4 w-4 text-gray-400 dark:text-slate-500" />
+                    </div>
+                  </Link>
                 );
               })}
             </div>
