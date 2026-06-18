@@ -39,6 +39,9 @@ interface DashboardData {
   }>;
   weakAreas: Array<{ type: string; averageScore: number; count: number }>;
   strongAreas: Array<{ type: string; averageScore: number; count: number }>;
+  examDate: string | null;
+  dailyGoal: number;
+  todayCount: number;
 }
 
 const practiceCards = [
@@ -184,6 +187,73 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
+
+      {/* Exam countdown + daily goal */}
+      {!loading && data && (
+        <div className="grid gap-4 sm:grid-cols-2">
+          {/* Exam-day countdown */}
+          {(() => {
+            if (!data.examDate) {
+              return (
+                <Card>
+                  <CardContent className="flex items-center justify-between gap-4 p-4">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Set your exam date</p>
+                      <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">Add it to see a countdown and stay on track.</p>
+                    </div>
+                    <Link href="/settings"><Button variant="outline" size="sm">Set date</Button></Link>
+                  </CardContent>
+                </Card>
+              );
+            }
+            const days = Math.ceil((new Date(data.examDate).getTime() - Date.now()) / 86400000);
+            return (
+              <Card>
+                <CardContent className="flex items-center gap-4 p-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/40">
+                    <Clock className="h-6 w-6 text-indigo-500" />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                      {days > 0 ? `${days} day${days === 1 ? "" : "s"} to go` : days === 0 ? "Exam is today — good luck!" : "Exam date passed"}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-slate-400">
+                      PTE exam: {new Date(data.examDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
+                      {" · "}<Link href="/settings" className="text-indigo-600 hover:underline dark:text-indigo-400">change</Link>
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })()}
+
+          {/* Daily goal progress */}
+          {(() => {
+            const goal = data.dailyGoal || 20;
+            const done = data.todayCount || 0;
+            const pct = Math.min(100, Math.round((done / goal) * 100));
+            const met = done >= goal;
+            return (
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Today&apos;s goal</p>
+                    <p className={`text-sm font-bold ${met ? "text-green-600" : "text-gray-900 dark:text-slate-100"}`}>
+                      {done}/{goal}{met ? " ✓" : ""}
+                    </p>
+                  </div>
+                  <div className="mt-2 h-2.5 w-full rounded-full bg-gray-100 dark:bg-slate-700">
+                    <div className={`h-full rounded-full transition-all ${met ? "bg-green-500" : "bg-gradient-to-r from-teal-500 to-indigo-500"}`} style={{ width: `${pct}%` }} />
+                  </div>
+                  <p className="mt-1.5 text-xs text-gray-500 dark:text-slate-400">
+                    {met ? "Goal reached — keep your streak going!" : `${goal - done} more question${goal - done === 1 ? "" : "s"} to hit today's goal`}
+                  </p>
+                </CardContent>
+              </Card>
+            );
+          })()}
+        </div>
+      )}
 
       {/* Practice Sections — Inspired by DSIC design with modern cards */}
       <div>

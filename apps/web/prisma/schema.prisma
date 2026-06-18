@@ -153,6 +153,10 @@ model User {
   isActive      Boolean   @default(true)
   emailVerified DateTime?
 
+  // Engagement: student's target exam date (for countdown) + daily practice goal.
+  examDate      DateTime?
+  dailyGoal     Int       @default(20)
+
   // Single active session — new logins invalidate old sessions on other devices
   activeSessionId String?
   createdAt     DateTime  @default(now())

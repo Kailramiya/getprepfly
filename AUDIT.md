@@ -30,8 +30,8 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 - [ ] **P3** Gold-standard calibration set + drift logging; "How we score" methodology page.
 
 ## Track C — Student engagement & retention
-- [ ] **P1** Daily practice goal + progress + streak-loss warning. (Streak already computed.) *(dashboard)*
-- [ ] **P1** Exam-day countdown (student sets exam date). *(settings + dashboard)*
+- [x] **P1** Daily practice goal + today's progress bar on dashboard (User.dailyGoal, settings to change). *(dashboard + settings + profile API)*
+- [x] **P1** Exam-day countdown (User.examDate set in settings → countdown widget on dashboard). *(settings + dashboard + profile API)*
 - [ ] **P1** Batch/centre leaderboard.
 - [ ] **P1** Attempt review: compare your last answers vs model on a question; history surfaced.
 - [ ] **P2** Re-engagement email ("you haven't practiced in 7 days", "you improved this week"). *(needs cron/Resend)*

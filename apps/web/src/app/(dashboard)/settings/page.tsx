@@ -16,7 +16,7 @@ export default function SettingsPage() {
   const { user, isCentreAdmin } = useAuth();
 
   // Profile state
-  const [profile, setProfile] = useState({ name: "", phone: "", language: "EN" });
+  const [profile, setProfile] = useState({ name: "", phone: "", language: "EN", examDate: "", dailyGoal: 20 });
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileSaved, setProfileSaved] = useState(false);
 
@@ -44,6 +44,8 @@ export default function SettingsPage() {
             name: data.data.name || "",
             phone: data.data.phone || "",
             language: data.data.language || "EN",
+            examDate: data.data.examDate ? data.data.examDate.slice(0, 10) : "",
+            dailyGoal: data.data.dailyGoal ?? 20,
           });
           if (data.data.centre) {
             setCentre({
@@ -175,6 +177,34 @@ export default function SettingsPage() {
               <option value="PA">Punjabi</option>
             </select>
           </div>
+          {user?.role === "STUDENT" && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="examDate" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">PTE exam date</label>
+                <input
+                  id="examDate"
+                  type="date"
+                  value={profile.examDate}
+                  onChange={(e) => setProfile({ ...profile, examDate: e.target.value })}
+                  className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                />
+                <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Shows a countdown on your dashboard. Leave blank to clear.</p>
+              </div>
+              <div>
+                <label htmlFor="dailyGoal" className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Daily goal (questions)</label>
+                <input
+                  id="dailyGoal"
+                  type="number"
+                  min={1}
+                  max={200}
+                  value={profile.dailyGoal}
+                  onChange={(e) => setProfile({ ...profile, dailyGoal: Number(e.target.value) })}
+                  className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                />
+                <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Tracked daily on your dashboard.</p>
+              </div>
+            </div>
+          )}
           {user?.centreName && (
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700 dark:text-slate-300">Coaching Centre</p>

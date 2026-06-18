@@ -19,6 +19,8 @@ export async function GET() {
       avatar: true,
       role: true,
       language: true,
+      examDate: true,
+      dailyGoal: true,
       createdAt: true,
       centre: {
         select: { id: true, name: true, slug: true, logo: true, primaryColor: true, city: true, state: true },
@@ -38,7 +40,7 @@ export async function PATCH(req: NextRequest) {
   if (error) return error;
 
   const body = await req.json();
-  const { name, phone, avatar, language, currentPassword, newPassword } = body;
+  const { name, phone, avatar, language, currentPassword, newPassword, examDate, dailyGoal } = body;
 
   const updateData: any = {};
 
@@ -46,6 +48,28 @@ export async function PATCH(req: NextRequest) {
   if (phone !== undefined) updateData.phone = phone || null;
   if (avatar !== undefined) updateData.avatar = avatar || null;
   if (language && ["EN", "HI", "PA"].includes(language)) updateData.language = language;
+
+  // Exam date (engagement countdown) — accept ISO/date string or null to clear.
+  if (examDate !== undefined) {
+    if (!examDate) {
+      updateData.examDate = null;
+    } else {
+      const d = new Date(examDate);
+      if (isNaN(d.getTime())) {
+        return NextResponse.json({ success: false, error: "Invalid exam date" }, { status: 400 });
+      }
+      updateData.examDate = d;
+    }
+  }
+
+  // Daily practice goal — clamp to a sane range.
+  if (dailyGoal !== undefined) {
+    const n = Math.round(Number(dailyGoal));
+    if (!Number.isFinite(n) || n < 1 || n > 200) {
+      return NextResponse.json({ success: false, error: "Daily goal must be between 1 and 200" }, { status: 400 });
+    }
+    updateData.dailyGoal = n;
+  }
 
   // Password change
   if (newPassword) {

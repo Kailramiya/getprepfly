@@ -9,6 +9,8 @@ export async function GET() {
 
   const userId = user!.id;
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
 
   // Parallel queries for performance
   const [
@@ -16,6 +18,8 @@ export async function GET() {
     recentAttempts,
     mockTests,
     weeklyScores,
+    profile,
+    todayCount,
   ] = await Promise.all([
     // Total attempts count
     db.attempt.count({ where: { userId } }),
@@ -51,6 +55,12 @@ export async function GET() {
       select: { overallScore: true, createdAt: true },
       orderBy: { createdAt: "asc" },
     }),
+
+    // Engagement: exam date + daily goal
+    db.user.findUnique({ where: { id: userId }, select: { examDate: true, dailyGoal: true } }),
+
+    // Attempts done today (for daily-goal progress)
+    db.attempt.count({ where: { userId, createdAt: { gte: todayStart } } }),
   ]);
 
   // Calculate section averages from attempts with question info
@@ -145,6 +155,9 @@ export async function GET() {
       totalAttempts,
       totalPracticeTime: timeResult._sum.timeTaken || 0,
       streak,
+      examDate: profile?.examDate ? profile.examDate.toISOString() : null,
+      dailyGoal: profile?.dailyGoal ?? 20,
+      todayCount,
       averageScore: avg(attemptsWithSection.filter((a) => a.overallScore !== null).map((a) => a.overallScore!)),
       estimatedPTEScore,
       scoresBySection: secAvg,
