@@ -11,7 +11,13 @@ const RegisterSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(120),
   email: emailSchema,
   password: passwordSchema,
-  phone: z.string().trim().max(20).optional(),
+  // Phone is mandatory. Normalize to digits (with optional leading +) so the
+  // unique constraint can't be bypassed by inconsistent formatting.
+  phone: z
+    .string()
+    .trim()
+    .transform((v) => v.replace(/[^\d+]/g, ""))
+    .refine((v) => /^\+?\d{10,15}$/.test(v), "Enter a valid phone number (10–15 digits)"),
   role: z.string().optional(),
   centreName: z.string().trim().max(120).optional(),
   centreReferralCode: z.string().trim().max(60).optional(),

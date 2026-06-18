@@ -84,8 +84,14 @@ function RegisterForm() {
       return;
     }
 
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters");
+    if (form.password.length < 8 || !/[A-Za-z]/.test(form.password) || !/[0-9]/.test(form.password)) {
+      setError("Password must be at least 8 characters and include a letter and a number");
+      return;
+    }
+
+    const cleanedPhone = form.phone.replace(/[^\d+]/g, "");
+    if (!/^\+?\d{10,15}$/.test(cleanedPhone)) {
+      setError("Please enter a valid phone number (10–15 digits)");
       return;
     }
 
@@ -113,7 +119,7 @@ function RegisterForm() {
         body: JSON.stringify({
           name: form.name,
           email: form.email,
-          phone: form.phone || undefined,
+          phone: form.phone,
           password: form.password,
           role: isCentreRegistration ? "centre" : "student",
           centreName: isCentreRegistration ? form.centreName : undefined,
@@ -194,10 +200,11 @@ function RegisterForm() {
           <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             type="tel"
-            placeholder="Phone number (optional)"
+            placeholder="Phone number"
             value={form.phone}
             onChange={(e) => updateForm("phone", e.target.value)}
             className="pl-10"
+            required
           />
         </div>
 
@@ -244,7 +251,7 @@ function RegisterForm() {
           <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
           <Input
             type={showPassword ? "text" : "password"}
-            placeholder="Password (min 6 characters)"
+            placeholder="Password (min 8, incl. a letter & number)"
             value={form.password}
             onChange={(e) => updateForm("password", e.target.value)}
             className="pl-10 pr-10"
