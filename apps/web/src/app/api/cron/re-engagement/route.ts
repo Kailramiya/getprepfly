@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 // Vercel Cron Job — runs daily at 03:30 UTC (09:00 IST)
@@ -156,7 +157,7 @@ export async function GET(req: NextRequest) {
         none: { createdAt: { gte: sevenEnd } },
       },
     },
-    select: { email: true, name: true, examDate: true },
+    select: { email: true, name: true },
     take: 50,
   });
 
@@ -166,7 +167,7 @@ export async function GET(req: NextRequest) {
       await sendEmail({
         to: u.email,
         subject: "You haven't practised in a week — let's fix that",
-        html: inactiveEmailHtml(name, 7, u.examDate),
+        html: inactiveEmailHtml(name, 7, null),
       });
       results.inactive7++;
     } catch { results.errors++; }
@@ -184,7 +185,7 @@ export async function GET(req: NextRequest) {
         none: { createdAt: { gte: fourteenEnd } },
       },
     },
-    select: { email: true, name: true, examDate: true },
+    select: { email: true, name: true },
     take: 50,
   });
 
@@ -194,7 +195,7 @@ export async function GET(req: NextRequest) {
       await sendEmail({
         to: u.email,
         subject: "2 weeks without practice — your exam prep needs you",
-        html: inactiveEmailHtml(name, 14, u.examDate),
+        html: inactiveEmailHtml(name, 14, null),
       });
       results.inactive14++;
     } catch { results.errors++; }
