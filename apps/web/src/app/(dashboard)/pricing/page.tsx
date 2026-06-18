@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Script from "next/script";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -414,6 +415,14 @@ export default function PricingPage() {
       </Card>
 
       {loading && <p className="text-center text-sm text-gray-500">Loading your access details...</p>}
+
+      <p className="text-center text-xs text-gray-400 dark:text-slate-500">
+        By purchasing, you agree to our{" "}
+        <Link href="/terms" target="_blank" className="underline hover:text-gray-600 dark:hover:text-slate-300">Terms</Link>
+        {" "}and{" "}
+        <Link href="/refund-policy" target="_blank" className="underline hover:text-gray-600 dark:hover:text-slate-300">Refund &amp; Cancellation Policy</Link>.
+        Payments are processed securely by Razorpay.
+      </p>
     </div>
   );
 }

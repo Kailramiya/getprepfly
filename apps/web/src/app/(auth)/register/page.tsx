@@ -278,6 +278,13 @@ function RegisterForm() {
           />
         </div>
 
+        <p className="text-center text-xs text-gray-500 dark:text-slate-400">
+          By creating an account, you agree to our{" "}
+          <Link href="/terms" target="_blank" className="font-medium text-indigo-600 hover:text-indigo-500">Terms</Link>
+          {" "}and{" "}
+          <Link href="/privacy" target="_blank" className="font-medium text-indigo-600 hover:text-indigo-500">Privacy Policy</Link>.
+        </p>
+
         <Button type="submit" className="w-full" size="lg" loading={loading}>
           {isCentreRegistration ? "Register Centre" : "Create Account"}
         </Button>

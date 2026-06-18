@@ -205,6 +205,18 @@ export function Sidebar() {
             </div>
           </div>
         )}
+
+        {!collapsed && (
+          <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 px-3 text-[11px] text-gray-400 dark:text-slate-500">
+            <Link href="/terms" className="hover:text-gray-600 dark:hover:text-slate-300">Terms</Link>
+            <span>·</span>
+            <Link href="/privacy" className="hover:text-gray-600 dark:hover:text-slate-300">Privacy</Link>
+            <span>·</span>
+            <Link href="/refund-policy" className="hover:text-gray-600 dark:hover:text-slate-300">Refunds</Link>
+            <span>·</span>
+            <Link href="/contact" className="hover:text-gray-600 dark:hover:text-slate-300">Contact</Link>
+          </div>
+        )}
       </div>
     </aside>
   );
