@@ -27,6 +27,7 @@ import {
   AlertTriangle,
   Flag,
   IndianRupee,
+  Trophy,
 } from "lucide-react";
 import { useState } from "react";
 import { useDarkMode } from "@/hooks/use-dark-mode";
@@ -48,6 +49,7 @@ const studentNav: NavItem[] = [
   { label: "Mock Test", href: "/mock-test", icon: ClipboardList },
   { label: "My Flagged", href: "/my-flags", icon: Flag },
   { label: "Progress", href: "/progress", icon: BarChart3 },
+  { label: "Leaderboard", href: "/leaderboard", icon: Trophy },
   { label: "Study Guides", href: "/study-guides", icon: GraduationCap },
   { label: "Vocabulary", href: "/vocabulary", icon: BookMarked },
   { label: "Upgrade", href: "/pricing", icon: CreditCard },
