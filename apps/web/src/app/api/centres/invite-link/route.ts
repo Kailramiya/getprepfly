@@ -9,7 +9,7 @@ const LINK_TTL_MS = 60 * 60 * 1000; // 1 hour
 // POST /api/centres/invite-link
 // Centre admin generates a single-use join link to copy & send to one student.
 // Consumed by the first student who registers via it; expires after 1 hour.
-export async function POST(req: NextRequest) {
+export async function POST(_req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
 
