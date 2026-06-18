@@ -284,8 +284,8 @@ function ReorderDnD({
             {/* Arrow buttons shown only on mobile where drag isn't reliable */}
             {!submitted && (
               <div className="flex flex-col gap-1 sm:hidden">
-                <button onClick={() => moveUp(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▲</button>
-                <button onClick={() => moveDown(position)} className="rounded p-0.5 text-gray-400 hover:bg-gray-100 dark:text-slate-500 dark:hover:bg-slate-700">▼</button>
+                <button type="button" aria-label="Move paragraph up" disabled={position === 0} onClick={() => moveUp(position)} className="rounded p-1 text-gray-500 hover:bg-gray-100 disabled:opacity-30 dark:text-slate-400 dark:hover:bg-slate-700">▲</button>
+                <button type="button" aria-label="Move paragraph down" disabled={position === order.length - 1} onClick={() => moveDown(position)} className="rounded p-1 text-gray-500 hover:bg-gray-100 disabled:opacity-30 dark:text-slate-400 dark:hover:bg-slate-700">▼</button>
               </div>
             )}
           </div>

@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "next-auth/react";
-import { Bell, LogOut, Menu, Sparkles, MessageSquare, User, Settings, ChevronDown } from "lucide-react";
+import { LogOut, Menu, Sparkles, MessageSquare, User, Settings, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 
@@ -33,7 +33,8 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       <div className="flex items-center gap-3">
         <button
           onClick={onMenuClick}
-          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 lg:hidden"
+          aria-label="Open menu"
+          className="rounded-md p-2 text-gray-500 hover:bg-gray-100 dark:text-slate-300 dark:hover:bg-slate-800 lg:hidden"
         >
           <Menu className="h-5 w-5" />
         </button>
@@ -60,15 +61,12 @@ export function Topbar({ onMenuClick }: TopbarProps) {
           </button>
         </Link>
 
-        {/* Notifications */}
-        <button className="relative rounded-md p-2 text-gray-400 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600">
-          <Bell className="h-5 w-5" />
-        </button>
-
         {/* Profile Dropdown */}
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setDropdownOpen(!dropdownOpen)}
+            aria-label="Account menu"
+            aria-expanded={dropdownOpen}
             className="flex items-center gap-2 rounded-lg p-1.5 transition hover:bg-gray-100 dark:hover:bg-slate-800"
           >
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 text-sm font-bold text-white">

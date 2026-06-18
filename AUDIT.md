@@ -12,9 +12,9 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 - [x] **P1** Mock-test scoring: unanswered/unscored questions now count as 0 (fair); FULL averages all 4 skills; reuses startedAt (one fewer query). *(api/mock-tests/[testId]/route.ts)*
 - [x] **P1** Mock-test report: dropped arbitrary `≥45=correct`; now shows honest Answered + pending count. *(report route + report page)*
 - [x] **P1** Score breakdown already shown; added PTE band descriptor + "AI-estimated" trust caption. ("better than X%" percentile deferred → needs aggregation endpoint, Track C.) *(score-display.tsx)*
-- [ ] **P1** Mobile touch support for drag-and-drop (reorder paragraphs, drag fill-blanks). *(question-renderer.tsx)*
-- [ ] **P1** A11y quick wins: form labels/`htmlFor`, `aria-label` on icon buttons (password eye, bell, sidebar toggle), image `alt`. 
-- [ ] **P1** Dark-mode contrast: bump `text-gray-400`/`gray-500` on dark to readable (WCAG AA).
+- [x] **P1** Mobile touch DnD — ALREADY supported (reorder has up/down buttons; drag-fill has tap-to-place). Polished reorder arrows w/ aria-labels + disabled states. *(question-renderer.tsx)*
+- [~] **P1** A11y: aria-labels on password toggles (login/register/reset), topbar menu/account buttons, reorder arrows; removed dead notification bell. *(more icon buttons/inputs across admin pages still pending — Track F)*
+- [ ] **P1** Dark-mode contrast: bump `text-gray-400`/`gray-500` on dark to readable (WCAG AA). *(Track F)*
 - [ ] **P2** Empty states + skeletons on dashboard/progress/practice/mock-test lists.
 - [x] **P2** Remove dead dependency `react-beautiful-dnd` (~60KB, unused). *(apps/web/package.json)*
 - [ ] **P2** Confirmation + toast on destructive actions (logout, deletes). *(topbar.tsx)*
