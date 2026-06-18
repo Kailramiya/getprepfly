@@ -47,6 +47,14 @@ export async function POST(req: NextRequest) {
     data: { status: "SUCCESS", razorpayPaymentId, method: "razorpay" },
   });
 
+  // Redeem coupon once (guarded by the status check above).
+  if (payment.couponCode) {
+    await db.coupon.updateMany({
+      where: { code: payment.couponCode },
+      data: { usedCount: { increment: 1 } },
+    });
+  }
+
   if (isCentrePlan && planType) {
     // Find the centre admin who created this order via notes
     const centreNote = event.payload?.payment?.entity?.notes?.centreId;

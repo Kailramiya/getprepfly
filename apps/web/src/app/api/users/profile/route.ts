@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
 import bcrypt from "bcryptjs";
+import { passwordSchema } from "@/lib/validation";
 
 // GET /api/users/profile — get current user profile
 export async function GET() {
@@ -75,9 +76,10 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    if (newPassword.length < 6) {
+    const pw = passwordSchema.safeParse(newPassword);
+    if (!pw.success) {
       return NextResponse.json(
-        { success: false, error: "New password must be at least 6 characters" },
+        { success: false, error: pw.error.issues[0]?.message || "Invalid password" },
         { status: 400 }
       );
     }

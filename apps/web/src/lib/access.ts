@@ -23,17 +23,22 @@ export interface UserAccess {
 }
 
 /**
- * Count today's AI-scored speaking attempts (for daily limit enforcement).
+ * Count today's AI-scored SPEAKING attempts (for daily free-limit enforcement).
+ *
+ * Must scope to Speaking + actually-scored attempts — counting every attempt
+ * (reading/writing/listening/mock) would exhaust the free speaking quota with
+ * unrelated practice. question.section is indexed, so the join is cheap.
  */
 async function getTodaySpeakingScoringCount(userId: string): Promise<number> {
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
 
-  // Use raw count — much faster than nested where clause
   return db.attempt.count({
     where: {
       userId,
       createdAt: { gte: todayStart },
+      overallScore: { not: null }, // AI scoring completed
+      question: { section: "SPEAKING" },
     },
   });
 }
@@ -119,23 +124,12 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
     }
   }
 
-  // ---- Priority 1b: Centre-linked student ----
-  // Business rule: if a student has been added to a centre, they are treated
-  // as subscribed while they remain associated with that centre.
-  if (user.role === "STUDENT" && user.centreId) {
-    baseResult.hasAllAccess = true;
-    const farFuture = new Date("2099-12-31");
-    baseResult.expiresAt["ALL"] = farFuture;
-    ["SPEAKING", "WRITING", "READING", "LISTENING"].forEach((s) => {
-      baseResult.modules.add(s as PTESection);
-      baseResult.expiresAt[s] = farFuture;
-    });
-    baseResult.freeSpeakingScoringsRemaining = Infinity;
-    baseResult.reason = "Centre student - full access";
-    return baseResult;
-  }
+  // NOTE: Being merely *linked* to a centre no longer grants free full access.
+  // Access for centre students now comes from an active CentreStudentSeat
+  // (Priority 1 above) or a Premium Centre (Priority 1c below). This is what
+  // enforces the paywall — admins must grant/renew seats or subscribe.
 
-  // ---- Priority 2: Legacy Premium Centre (isPremiumCentre flag — for backward compat) ----
+  // ---- Priority 1c: Premium Centre (isPremiumCentre flag) ----
   if (user.centre?.isPremiumCentre) {
     const premiumUntil = user.centre.premiumUntil;
     const stillPremium = !premiumUntil || premiumUntil > now;

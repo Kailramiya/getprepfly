@@ -207,7 +207,7 @@ export default async function HomePage() {
       {/* Footer */}
       <footer className="border-t border-gray-200 bg-white py-12 dark:border-slate-700 dark:bg-slate-900">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-8 sm:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <Logo size="sm" />
               <p className="mt-3 text-sm text-gray-500 dark:text-slate-400">
@@ -229,6 +229,15 @@ export default async function HomePage() {
                 <li><Link href="/download" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Web App (PWA)</Link></li>
                 <li><span className="text-sm text-gray-400 dark:text-slate-500">Android — Coming Soon</span></li>
                 <li><span className="text-sm text-gray-400 dark:text-slate-500">iOS — Coming Soon</span></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Legal</h4>
+              <ul className="mt-3 space-y-2">
+                <li><Link href="/terms" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Terms of Service</Link></li>
+                <li><Link href="/privacy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Privacy Policy</Link></li>
+                <li><Link href="/refund-policy" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Refund &amp; Cancellation</Link></li>
+                <li><Link href="/contact" className="text-sm text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Contact Us</Link></li>
               </ul>
             </div>
           </div>

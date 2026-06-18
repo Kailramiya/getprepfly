@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 const WORD_REGEX = /^[a-zA-Z'-]{1,40}$/;
 
@@ -8,8 +9,12 @@ const WORD_REGEX = /^[a-zA-Z'-]{1,40}$/;
 // with an example sentence. Checks the Vocabulary table first, then falls back
 // to AI and caches the result for future lookups.
 export async function GET(req: NextRequest) {
-  const { error } = await requireAuth();
+  const { user, error } = await requireAuth();
   if (error) return error;
+
+  // GPT fallback can be expensive — throttle per user.
+  const limited = await enforceRateLimit("lookup", user!.id);
+  if (limited) return limited;
 
   const url = new URL(req.url);
   const raw = (url.searchParams.get("word") || "").trim();

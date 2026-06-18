@@ -2,7 +2,9 @@ import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { db } from "./db";
+import { isRateLimited } from "./rate-limit";
 
 
 export const authOptions: NextAuthOptions = {
@@ -27,9 +29,16 @@ export const authOptions: NextAuthOptions = {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, req) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Email and password are required");
+        }
+
+        // Brute-force protection: throttle login attempts per IP.
+        const fwd = (req?.headers?.["x-forwarded-for"] as string | undefined) || "";
+        const ip = fwd.split(",")[0]?.trim() || "unknown";
+        if (await isRateLimited("auth", `login:${ip}`)) {
+          throw new Error("Too many login attempts. Please wait a minute and try again.");
         }
 
         const user = await db.user.findUnique({
@@ -57,6 +66,22 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid password");
         }
 
+        // Email must be verified before first login. Existing accounts were
+        // grandfathered (emailVerified backfilled) by the migration, so only
+        // new self-registered users hit this gate.
+        if (!user.emailVerified) {
+          throw new Error("Please verify your email first. Check your inbox for the verification link.");
+        }
+
+        // Single active session: mint a new session id and persist it.
+        // Any device holding an older activeSessionId is invalidated on its
+        // next jwt re-validation (see jwt callback below).
+        const sessionId = crypto.randomUUID();
+        await db.user.update({
+          where: { id: user.id },
+          data: { activeSessionId: sessionId },
+        });
+
         return {
           id: user.id,
           name: user.name,
@@ -67,6 +92,7 @@ export const authOptions: NextAuthOptions = {
           centreName: user.centre?.name,
           centreSlug: user.centre?.slug,
           planType: user.studentPlan?.planType || "FREE",
+          activeSessionId: sessionId,
         } as any;
       },
     }),
@@ -140,12 +166,20 @@ export const authOptions: NextAuthOptions = {
             },
           });
 
+          // Single active session — mint + persist a fresh id for this login.
+          const sessionId = crypto.randomUUID();
+          await db.user.update({
+            where: { id: fullUser!.id },
+            data: { activeSessionId: sessionId },
+          });
+
           (user as any).id = fullUser!.id;
           (user as any).role = fullUser!.role;
           (user as any).centreId = fullUser!.centreId || undefined;
           (user as any).centreName = fullUser!.centre?.name;
           (user as any).centreSlug = fullUser!.centre?.slug;
           (user as any).planType = fullUser!.studentPlan?.planType || "FREE";
+          (user as any).activeSessionId = sessionId;
         }
       }
       return true;
@@ -181,10 +215,33 @@ export const authOptions: NextAuthOptions = {
         token.centreId = session.centreId || token.centreId;
       }
 
+      // Single active session enforcement.
+      // On every non-initial-sign-in pass, confirm the token's session id still
+      // matches the one stored on the user. A newer login on another device
+      // rotates User.activeSessionId, so the stale token is flagged invalid.
+      // (Tokens minted before this feature have no activeSessionId — skip them
+      // so existing users aren't mass-logged-out on deploy.)
+      if (!user && token.id && token.activeSessionId) {
+        const current = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { activeSessionId: true },
+        });
+        if (current && current.activeSessionId && current.activeSessionId !== token.activeSessionId) {
+          token.sessionInvalid = true;
+        }
+      }
+
       return token;
     },
 
     async session({ session, token }) {
+      // Invalidated by a newer login elsewhere — return a session with no user
+      // so the client SessionWatcher signs this device out.
+      if (token.sessionInvalid) {
+        (session as any).user = undefined;
+        return session;
+      }
+
       if (session.user) {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;

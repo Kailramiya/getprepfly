@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth, requireRole } from "@/lib/auth-utils";
 import { getUserAccess, PTESection } from "@/lib/access";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 // GET /api/questions/:id — get full question with content
 export async function GET(
@@ -10,6 +11,10 @@ export async function GET(
 ) {
   const { user, error } = await requireAuth();
   if (error) return error;
+
+  // Anti-scraping: bound per-question fetches per user.
+  const limited = await enforceRateLimit("questions", user!.id);
+  if (limited) return limited;
 
   const question = await db.question.findUnique({
     where: { id: params.questionId },

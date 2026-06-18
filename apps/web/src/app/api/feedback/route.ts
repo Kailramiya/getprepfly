@@ -1,22 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
 import { sendEmail, feedbackEmailTemplate } from "@/lib/email";
+import { parseBody } from "@/lib/validation";
+
+const FeedbackSchema = z.object({
+  category: z.enum(["bug", "feature", "scoring", "question", "general"]).optional(),
+  message: z.string().trim().min(1, "Message is required").max(5000),
+  rating: z.coerce.number().int().min(0).max(5).optional(),
+  userName: z.string().trim().max(120).optional(),
+  userEmail: z.string().trim().max(200).optional(),
+  centreName: z.string().trim().max(120).optional(),
+});
 
 // POST /api/feedback — submit user feedback + email notification
 export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
 
-  const body = await req.json();
-  const { category, message, rating, userName, userEmail, centreName } = body;
-
-  if (!message) {
-    return NextResponse.json(
-      { success: false, error: "Message is required" },
-      { status: 400 }
-    );
-  }
+  const parsed = await parseBody(req, FeedbackSchema);
+  if (!parsed.ok) return parsed.response;
+  const { category, message, rating, userName, userEmail, centreName } = parsed.data;
 
   const feedbackUserName = userName || user!.name || "Unknown";
   const feedbackUserEmail = userEmail || user!.email || "Unknown";

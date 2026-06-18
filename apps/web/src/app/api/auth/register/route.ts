@@ -1,37 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { db } from "@/lib/db";
 import { grantCentreSeat } from "@/lib/centre-access";
+import { enforceRateLimit, clientIp } from "@/lib/rate-limit";
+import { parseBody, passwordSchema, emailSchema } from "@/lib/validation";
+import { sendVerificationEmail } from "@/lib/email-verification";
+
+const RegisterSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  email: emailSchema,
+  password: passwordSchema,
+  phone: z.string().trim().max(20).optional(),
+  role: z.string().optional(),
+  centreName: z.string().trim().max(120).optional(),
+  centreReferralCode: z.string().trim().max(60).optional(),
+});
 
 export async function POST(req: NextRequest) {
+  // Per-IP throttle — prevents automated mass account creation.
+  const limited = await enforceRateLimit("auth", clientIp(req));
+  if (limited) return limited;
+
   try {
-    const body = await req.json();
-    const {
-      name,
-      email,
-      password,
-      phone,
-      role,
-      centreName,
-      centreReferralCode,
-    } = body;
+    const parsed = await parseBody(req, RegisterSchema);
+    if (!parsed.ok) return parsed.response;
+    const { name, email, password, phone, role, centreName, centreReferralCode } = parsed.data;
 
-    // Validation
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { success: false, error: "Name, email, and password are required" },
-        { status: 400 }
-      );
-    }
-
-    if (password.length < 6) {
-      return NextResponse.json(
-        { success: false, error: "Password must be at least 6 characters" },
-        { status: 400 }
-      );
-    }
-
-    const emailLower = email.toLowerCase().trim();
+    const emailLower = email; // normalized (trimmed + lowercased) by the schema
     const isCentre = role === "centre";
 
     // Centre-specific validation
@@ -84,7 +80,7 @@ export async function POST(req: NextRequest) {
     // For centre registration: check duplicate centre name + referral code
     let referralSlug: string | undefined;
     if (isCentre) {
-      const centreNameTrimmed = centreName.trim();
+      const centreNameTrimmed = centreName!.trim();
       const existingCentreName = await db.centre.findFirst({
         where: {
           name: { equals: centreNameTrimmed, mode: "insensitive" },
@@ -97,7 +93,7 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      referralSlug = centreReferralCode
+      referralSlug = centreReferralCode!
         .toLowerCase()
         .trim()
         .replace(/[^a-z0-9-]/g, "-")
@@ -130,6 +126,10 @@ export async function POST(req: NextRequest) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
+    // Admin-invited students are vouched for — auto-verify them. Everyone else
+    // (self-registered students and centre admins) must verify by email.
+    const isInvited = !!centreId && !isCentre;
+
     // Create in transaction: centre (if applicable) + user
     const user = await db.$transaction(async (tx) => {
       let newCentreId = centreId;
@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
       if (isCentre) {
         const newCentre = await tx.centre.create({
           data: {
-            name: centreName.trim(),
+            name: centreName!.trim(),
             slug: referralSlug!,
             email: emailLower,
             phone: phone || null,
@@ -154,6 +154,7 @@ export async function POST(req: NextRequest) {
           passwordHash,
           role: isCentre ? "CENTRE_ADMIN" : "STUDENT",
           centreId: newCentreId || null,
+          emailVerified: isInvited ? new Date() : null,
           studentPlan: {
             create: { planType: "FREE" },
           },
@@ -168,16 +169,28 @@ export async function POST(req: NextRequest) {
     });
 
     // Mark invitation as accepted + grant 30-day (1 month) centre seat if one was used
-    if (centreId && !isCentre) {
+    if (isInvited) {
       await db.centreInvitation.updateMany({
         where: { email: emailLower, centreId, status: "PENDING" },
         data: { status: "ACCEPTED" },
       });
-      await grantCentreSeat(centreId, user.id);
+      await grantCentreSeat(centreId!, user.id);
+    } else {
+      // Send the verification email (best-effort — never fail registration on it).
+      sendVerificationEmail(emailLower, user.name).catch((e) =>
+        console.error("[register] verification email failed:", e)
+      );
     }
 
     return NextResponse.json(
-      { success: true, data: user, message: "Account created successfully" },
+      {
+        success: true,
+        data: user,
+        requiresVerification: !isInvited,
+        message: isInvited
+          ? "Account created successfully"
+          : "Account created. Please check your email to verify your account before logging in.",
+      },
       { status: 201 }
     );
   } catch (error) {

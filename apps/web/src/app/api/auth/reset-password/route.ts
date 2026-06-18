@@ -1,17 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import { z } from "zod";
 import { db } from "@/lib/db";
+import { enforceRateLimit, clientIp } from "@/lib/rate-limit";
+import { parseBody, passwordSchema } from "@/lib/validation";
+
+const ResetSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  password: passwordSchema,
+});
 
 export async function POST(req: NextRequest) {
-  const { token, password } = await req.json();
+  // Per-IP throttle — prevents brute-forcing reset tokens.
+  const limited = await enforceRateLimit("auth", clientIp(req));
+  if (limited) return limited;
 
-  if (!token || !password) {
-    return NextResponse.json({ success: false, error: "Token and password are required" }, { status: 400 });
-  }
-
-  if (password.length < 8) {
-    return NextResponse.json({ success: false, error: "Password must be at least 8 characters" }, { status: 400 });
-  }
+  const parsed = await parseBody(req, ResetSchema);
+  if (!parsed.ok) return parsed.response;
+  const { token, password } = parsed.data;
 
   const resetToken = await db.passwordResetToken.findUnique({ where: { token } });
 

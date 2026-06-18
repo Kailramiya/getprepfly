@@ -2,11 +2,16 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth, requireRole } from "@/lib/auth-utils";
 import { getUserAccess, PTESection } from "@/lib/access";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 // GET /api/questions — list questions with filters (respects user's module access)
 export async function GET(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
+
+  // Anti-scraping: bound how fast the question bank can be paged through.
+  const limited = await enforceRateLimit("questions", user!.id);
+  if (limited) return limited;
 
   const url = new URL(req.url);
   const section = url.searchParams.get("section");

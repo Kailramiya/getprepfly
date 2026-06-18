@@ -1,6 +1,23 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 
+/**
+ * ⚠️ PRE-RELEASE — NOT PRODUCTION READY ⚠️
+ *
+ * This mobile client is an MVP scaffold and its auth is NOT wired to the
+ * backend. The web backend authenticates with NextAuth *cookie sessions*; this
+ * client expects *bearer tokens* and calls POST /api/auth/login, which does not
+ * exist. The production app ships as a PWA (native apps are "Coming Soon").
+ *
+ * To make this app functional, the backend needs a token-based auth path:
+ *   1. A POST /api/auth/mobile-login route that verifies credentials and
+ *      returns a signed JWT.
+ *   2. Bearer-token acceptance in lib/auth-utils (requireAuth) alongside the
+ *      existing cookie-session check.
+ * Until then, login is intentionally disabled below so it fails clearly.
+ */
+const MOBILE_BACKEND_AUTH_READY = false;
+
 const API_BASE = process.env.EXPO_PUBLIC_API_URL || "http://localhost:3000";
 
 const api = axios.create({
@@ -32,8 +49,18 @@ api.interceptors.response.use(
 
 // Auth
 export const authApi = {
-  login: (email: string, password: string) =>
-    api.post("/auth/login", { email, password }),
+  login: (email: string, password: string) => {
+    if (!MOBILE_BACKEND_AUTH_READY) {
+      return Promise.reject(
+        new Error(
+          "Mobile login is not available yet. The mobile app is pre-release — please use the web app at " +
+            API_BASE +
+            "."
+        )
+      );
+    }
+    return api.post("/auth/mobile-login", { email, password });
+  },
   register: (data: { name: string; email: string; password: string; phone?: string; centreSlug?: string }) =>
     api.post("/auth/register", data),
 };

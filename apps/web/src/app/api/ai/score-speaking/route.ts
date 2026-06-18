@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { getUserAccess, FREE_DAILY_SPEAKING_SCORINGS } from "@/lib/access";
+import { enforceRateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 60; // seconds — required for Whisper + GPT pipeline
 
@@ -11,6 +12,10 @@ export const maxDuration = 60; // seconds — required for Whisper + GPT pipelin
 export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
+
+  // Throttle expensive OpenAI calls per user.
+  const limited = await enforceRateLimit("ai", user!.id);
+  if (limited) return limited;
 
   const body = await req.json();
   const { questionId, audioBase64, expectedText, questionType } = body;

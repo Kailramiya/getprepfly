@@ -223,6 +223,17 @@ model PasswordResetToken {
   @@index([token])
 }
 
+model EmailVerificationToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}
+
 // ============================================================================
 // MODULE ACCESS — per-section purchases (Speaking, Writing, Reading, Listening)
 // ============================================================================
@@ -344,6 +355,10 @@ model Payment {
 
   // What was purchased (for module purchases)
   planType             String?       // "MODULE_SPEAKING", "MODULE_WRITING", etc., or "ALL_MODULES"
+
+  // Coupon applied at order creation (uppercased code). Used to increment
+  // Coupon.usedCount exactly once, on the PENDING -> SUCCESS transition.
+  couponCode           String?
 
   @@index([razorpayOrderId])
 }

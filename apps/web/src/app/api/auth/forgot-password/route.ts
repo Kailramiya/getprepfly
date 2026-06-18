@@ -2,8 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { db } from "@/lib/db";
 import { sendEmail, resetPasswordEmailTemplate } from "@/lib/email";
+import { enforceRateLimit, clientIp } from "@/lib/rate-limit";
 
 export async function POST(req: NextRequest) {
+  // Per-IP throttle — prevents reset-email flooding / enumeration probing.
+  const limited = await enforceRateLimit("auth", clientIp(req));
+  if (limited) return limited;
+
   const { email } = await req.json();
 
   if (!email || typeof email !== "string") {

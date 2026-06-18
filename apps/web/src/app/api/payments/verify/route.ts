@@ -80,6 +80,15 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  // Redeem coupon — runs once, on the PENDING -> SUCCESS transition (the
+  // payment.status === "SUCCESS" guard above makes this idempotent).
+  if (payment.couponCode) {
+    await db.coupon.updateMany({
+      where: { code: payment.couponCode },
+      data: { usedCount: { increment: 1 } },
+    });
+  }
+
   // Centre plan — activate premium for the entire centre
   if (isCentrePlan) {
     const centreId = user!.centreId;

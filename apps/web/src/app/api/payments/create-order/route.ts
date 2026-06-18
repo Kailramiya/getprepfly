@@ -1,7 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { MODULE_PRICING, CENTRE_PLANS } from "@/lib/access";
+import { parseBody } from "@/lib/validation";
+
+const CreateOrderSchema = z.object({
+  planType: z.string().min(1, "planType is required").max(60),
+  couponCode: z.string().trim().max(60).optional(),
+});
 
 function isCentrePlanKey(planType: string): boolean {
   return planType?.startsWith("CENTRE_") || planType?.startsWith("ANNUAL_");
@@ -24,8 +31,9 @@ export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
 
-  const body = await req.json();
-  const { planType, couponCode } = body;
+  const parsed = await parseBody(req, CreateOrderSchema);
+  if (!parsed.ok) return parsed.response;
+  const { planType, couponCode } = parsed.data;
 
   const isCentrePlan = isCentrePlanKey(planType);
 
@@ -49,12 +57,14 @@ export async function POST(req: NextRequest) {
   }
 
   let finalPrice = plan.amount;
+  let appliedCoupon: string | null = null;
 
   // Apply coupon (student plans only)
   if (couponCode && !isCentrePlan) {
     const coupon = await db.coupon.findUnique({ where: { code: couponCode.toUpperCase() } });
     if (coupon && coupon.isActive && coupon.usedCount < coupon.maxUses && new Date() < coupon.validUntil) {
       finalPrice = Math.round(plan.amount * (1 - coupon.discountPercent / 100));
+      appliedCoupon = coupon.code; // persisted so usedCount is bumped on success
     }
   }
 
@@ -86,7 +96,7 @@ export async function POST(req: NextRequest) {
     }
 
     await db.payment.create({
-      data: { amount: finalPrice, status: "PENDING", razorpayOrderId: order.id, planType },
+      data: { amount: finalPrice, status: "PENDING", razorpayOrderId: order.id, planType, couponCode: appliedCoupon },
     });
 
     return NextResponse.json({

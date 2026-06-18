@@ -25,8 +25,12 @@ export function useAuth() {
     isTeacher: session?.user?.role === "TEACHER",
     isCentreAdmin: session?.user?.role === "CENTRE_ADMIN",
     isSuperAdmin: session?.user?.role === "SUPER_ADMIN",
-    // Year 1: Everything free for all users
-    isPremium: true,
+    // Rough client-side hint only. The authoritative entitlement check is the
+    // server's getUserAccess (exposed via GET /api/access/me) — gate features on
+    // that, not on this flag.
+    isPremium:
+      session?.user?.role === "SUPER_ADMIN" ||
+      (!!session?.user?.planType && session.user.planType !== "FREE"),
     updateSession: update,
   };
 }

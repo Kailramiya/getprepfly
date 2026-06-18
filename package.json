@@ -11,6 +11,8 @@
     "build": "npm run build --workspace=apps/web",
     "start": "npm run start --workspace=apps/web",
     "lint": "npm run lint --workspace=apps/web",
+    "db:migrate": "cd apps/web && npx prisma migrate dev",
+    "db:migrate:deploy": "cd apps/web && npx prisma migrate deploy",
     "db:push": "cd apps/web && npx prisma db push",
     "db:seed": "cd apps/web && npx tsx prisma/seed.ts",
     "db:studio": "cd apps/web && npx prisma studio"
