@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Topbar } from "@/components/layout/topbar";
+import { Footer } from "@/components/layout/footer";
 import { TrialBanner } from "@/components/layout/trial-banner";
 import { AppInstallPrompt } from "@/components/app-install-prompt";
 import { SessionWatcher } from "@/components/session-watcher";
@@ -35,6 +36,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <Topbar onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
         <TrialBanner />
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <Footer />
       </div>
 
       {/* PWA / App Install Prompt — shows on mobile after 5 seconds */}
