@@ -3,8 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url= env("DATABASE_URL")
+  provider  = "postgresql"
+  // Pooled connection (PgBouncer) — used by the app at runtime (serverless-safe).
+  url       = env("DATABASE_URL")
+  // Direct, non-pooled connection — used for migrations. PgBouncer can't hold
+  // the session advisory lock `prisma migrate` needs, which causes P1002 timeouts.
+  directUrl = env("DIRECT_URL")
 }
 
 // ============================================================================

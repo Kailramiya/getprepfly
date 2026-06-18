@@ -25,9 +25,18 @@ migration history. (`db:push` is kept only for throwaway local experiments.)
 ## Deploying
 
 `prisma migrate deploy` runs automatically as part of the build
-(see `package.json` "build" and `vercel.json` "buildCommand"). It applies any
-pending migrations against `DATABASE_URL`. Ensure `DATABASE_URL` is set in the
-build/runtime environment.
+(see `package.json` "build" and `vercel.json` "buildCommand").
+
+**Two database URLs are required** (see `schema.prisma` datasource):
+- `DATABASE_URL` — pooled connection, used by the app at runtime. On Neon, the
+  host contains `-pooler`.
+- `DIRECT_URL` — direct, non-pooled connection, used by `prisma migrate`. On Neon,
+  it's the same string **without** `-pooler`.
+
+Migrations MUST use the direct connection. Running `migrate deploy` over the
+pooled (PgBouncer) connection fails with `P1002` — "Timed out trying to acquire
+a postgres advisory lock" — because PgBouncer doesn't hold the session lock.
+Set BOTH env vars in Vercel (and locally in `apps/web/.env`).
 
 ## ⚠️ One-time baseline for the EXISTING database
 
