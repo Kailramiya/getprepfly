@@ -1,0 +1,34 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="630" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#0EA5A0"/><stop offset="1" stop-color="#4F46E5"/>
+  </linearGradient>
+</defs>
+<rect width="1200" height="630" fill="url(#bg)"/>
+<circle cx="1120" cy="90" r="220" fill="#fff" opacity="0.06"/>
+<circle cx="80" cy="600" r="240" fill="#fff" opacity="0.05"/>
+<g transform="translate(70,60) scale(0.62)">
+    <path d="M75.5 24.5a2.5 2.5 0 00-2.67-.56l-45 17.5a2.5 2.5 0 00.18 4.69l20.06 6.68 6.68 20.06a2.5 2.5 0 004.69.18l17.5-45a2.5 2.5 0 00-.56-2.67zM65.66 34.34l-19.68 19.68-13.16-4.39L65.66 34.34zM50.37 65.17l-4.39-13.16 19.68-19.68L50.37 65.17z" fill="#fff"/>
+    <circle cx="78" cy="22" r="7" fill="#FBBF24"/>
+  </g>
+<text x="146" y="118" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="48" font-weight="800" fill="#fff">Prepfly</text>
+
+<text x="72" y="290" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="68" font-weight="700" fill="#fff">Score <tspan font-size="120" font-weight="900" fill="#FBBF24">79+</tspan></text>
+<text x="72" y="360" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="46" font-weight="700" fill="#fff">in PTE Academic — powered by AI</text>
+
+<circle cx="88.72" cy="439.696" r="14.72" fill="#FBBF24"/>
+    <path d="M81.36 438.96 l5.152 5.888000000000001 l10.304 -13.248000000000001" stroke="#1f2937" stroke-width="4.121600000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="112.272" y="450" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" fill="#fff">20+ question types</text>
+<circle cx="88.72" cy="497.696" r="14.72" fill="#FBBF24"/>
+    <path d="M81.36 496.96 l5.152 5.888000000000001 l10.304 -13.248000000000001" stroke="#1f2937" stroke-width="4.121600000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="112.272" y="508" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" fill="#fff">AI Speaking &amp; Writing scoring</text>
+<circle cx="634.72" cy="439.696" r="14.72" fill="#FBBF24"/>
+    <path d="M627.36 438.96 l5.152 5.888000000000001 l10.304 -13.248000000000001" stroke="#1f2937" stroke-width="4.121600000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="658.272" y="450" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" fill="#fff">Full mock tests</text>
+<circle cx="634.72" cy="497.696" r="14.72" fill="#FBBF24"/>
+    <path d="M627.36 496.96 l5.152 5.888000000000001 l10.304 -13.248000000000001" stroke="#1f2937" stroke-width="4.121600000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="658.272" y="508" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" fill="#fff">Free during beta</text>
+
+<rect x="790" y="545" width="380" height="64" rx="32" fill="#fff"/>
+    <text x="980" y="587.5" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="30" font-weight="800" fill="#4F46E5">getprepfly.com</text>
+</svg>

@@ -15,7 +15,8 @@
     "db:migrate:deploy": "cd apps/web && npx prisma migrate deploy",
     "db:push": "cd apps/web && npx prisma db push",
     "db:seed": "cd apps/web && npx tsx prisma/seed.ts",
-    "db:studio": "cd apps/web && npx prisma studio"
+    "db:studio": "cd apps/web && npx prisma studio",
+    "build:ads": "node scripts/build-ads.mjs"
   },
   "devDependencies": {
     "sharp": "^0.34.5"

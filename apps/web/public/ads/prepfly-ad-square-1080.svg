@@ -1,0 +1,34 @@
+<svg width="1080" height="1080" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1080" y2="1080" gradientUnits="userSpaceOnUse">
+    <stop offset="0" stop-color="#0EA5A0"/><stop offset="1" stop-color="#4F46E5"/>
+  </linearGradient>
+</defs>
+<rect width="1080" height="1080" fill="url(#bg)"/>
+<circle cx="960" cy="120" r="280" fill="#fff" opacity="0.06"/>
+<circle cx="120" cy="1010" r="320" fill="#fff" opacity="0.05"/>
+<g transform="translate(84,78) scale(0.74)">
+    <path d="M75.5 24.5a2.5 2.5 0 00-2.67-.56l-45 17.5a2.5 2.5 0 00.18 4.69l20.06 6.68 6.68 20.06a2.5 2.5 0 004.69.18l17.5-45a2.5 2.5 0 00-.56-2.67zM65.66 34.34l-19.68 19.68-13.16-4.39L65.66 34.34zM50.37 65.17l-4.39-13.16 19.68-19.68L50.37 65.17z" fill="#fff"/>
+    <circle cx="78" cy="22" r="7" fill="#FBBF24"/>
+  </g>
+<text x="172" y="150" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="60" font-weight="800" fill="#fff">Prepfly</text>
+<rect x="724" y="96" width="270" height="56" rx="28" fill="#FBBF24"/>
+<text x="859" y="133" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="26" font-weight="800" fill="#1f2937">FREE DURING BETA</text>
+
+<text x="86" y="380" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="78" font-weight="700" fill="#fff">Score</text>
+<text x="84" y="600" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="220" font-weight="900" fill="#FBBF24">79+</text>
+<text x="90" y="690" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="58" font-weight="700" fill="#fff">in PTE Academic</text>
+
+<circle cx="109.48" cy="777.764" r="17.48" fill="#FBBF24"/>
+    <path d="M100.74 776.89 l6.117999999999999 6.992000000000001 l12.235999999999999 -15.732000000000001" stroke="#1f2937" stroke-width="4.894400000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="137.448" y="790" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="38" font-weight="600" fill="#fff">AI scoring for Speaking &amp; Writing</text>
+<circle cx="109.48" cy="845.764" r="17.48" fill="#FBBF24"/>
+    <path d="M100.74 844.89 l6.117999999999999 6.992000000000001 l12.235999999999999 -15.732000000000001" stroke="#1f2937" stroke-width="4.894400000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="137.448" y="858" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="38" font-weight="600" fill="#fff">All 20+ PTE question types</text>
+<circle cx="109.48" cy="913.764" r="17.48" fill="#FBBF24"/>
+    <path d="M100.74 912.89 l6.117999999999999 6.992000000000001 l12.235999999999999 -15.732000000000001" stroke="#1f2937" stroke-width="4.894400000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="137.448" y="926" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="38" font-weight="600" fill="#fff">Mock tests, predictions &amp; analytics</text>
+
+<rect x="180" y="985" width="720" height="78" rx="39" fill="#fff"/>
+    <text x="540" y="1035.2" text-anchor="middle" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="800" fill="#4F46E5">Start free  →  getprepfly.com</text>
+</svg>
