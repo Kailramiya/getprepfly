@@ -37,8 +37,8 @@ interface DashboardData {
     score: number | null;
     createdAt: string;
   }>;
-  weakAreas: Array<{ type: string; averageScore: number; count: number }>;
-  strongAreas: Array<{ type: string; averageScore: number; count: number }>;
+  weakAreas: Array<{ type: string; section: string; averageScore: number; count: number }>;
+  strongAreas: Array<{ type: string; section: string; averageScore: number; count: number }>;
   examDate: string | null;
   dailyGoal: number;
   todayCount: number;
@@ -286,6 +286,28 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
+
+      {/* Focus areas — personalized study plan from weakest question types */}
+      {!loading && data && data.weakAreas.length > 0 && (
+        <div>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Focus areas — practice these next</h2>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {data.weakAreas.map((area) => (
+              <Link key={area.type} href={`/practice/${area.section.toLowerCase()}`}>
+                <Card className="group cursor-pointer transition hover:shadow-md">
+                  <CardContent className="flex items-center justify-between p-4">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">{formatType(area.type)}</p>
+                      <p className="text-xs text-gray-500 dark:text-slate-400">Avg {area.averageScore}/90 · {area.count} attempts</p>
+                    </div>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-gray-300 transition group-hover:translate-x-1 group-hover:text-indigo-500 dark:text-slate-600" />
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Recent Attempts */}
       {!loading && data && data.recentAttempts.length > 0 && (

@@ -35,7 +35,7 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 - [x] **P1** Centre leaderboard (avg score, min 5 attempts, top 20 + your rank, privacy-safe names). *(api/leaderboard + /leaderboard page + sidebar)*
 - [ ] **P1** Attempt review: compare your last answers vs model on a question; history surfaced.
 - [ ] **P2** Re-engagement email ("you haven't practiced in 7 days", "you improved this week"). *(needs cron/Resend)*
-- [ ] **P2** Study plan from weak areas + high-frequency/prediction tagging surfaced.
+- [~] **P2** "Focus areas" study-plan card on dashboard from weakest question types (deep-links to practice). Prediction/high-frequency surfacing still pending. *(dashboard + dashboard API)*
 - [ ] **P2** Model-answer audio (TTS) for shadowing on speaking/read-aloud.
 - [ ] **P3** Achievements/badges; weekly challenge from predictions.
 

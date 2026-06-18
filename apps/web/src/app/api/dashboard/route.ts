@@ -78,20 +78,22 @@ export async function GET() {
     SPEAKING: [], WRITING: [], READING: [], LISTENING: [],
   };
   const typeScores: Record<string, number[]> = {};
+  const typeSection: Record<string, string> = {};
 
   for (const attempt of attemptsWithSection) {
     if (attempt.overallScore !== null) {
       sectionScores[attempt.question.section]?.push(attempt.overallScore);
       if (!typeScores[attempt.question.type]) typeScores[attempt.question.type] = [];
       typeScores[attempt.question.type].push(attempt.overallScore);
+      typeSection[attempt.question.type] = attempt.question.section;
     }
   }
 
   const avg = (arr: number[]) => arr.length > 0 ? Math.round(arr.reduce((a, b) => a + b, 0) / arr.length) : 0;
 
-  // Weak/strong areas
+  // Weak/strong areas (include section so the UI can deep-link to practice)
   const typeAverages = Object.entries(typeScores)
-    .map(([type, scores]) => ({ type, averageScore: avg(scores), count: scores.length }))
+    .map(([type, scores]) => ({ type, section: typeSection[type], averageScore: avg(scores), count: scores.length }))
     .filter((t) => t.count >= 2)
     .sort((a, b) => a.averageScore - b.averageScore);
 
