@@ -21,10 +21,10 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 
 ## Track B — Scoring trust (the core differentiator)
 - [ ] **P0** Move objective scoring server-side (MCQ/reorder/fill-blanks/dictation) + stop sending answer keys to client (anti-cheat). *(question-renderer.tsx → new /api/attempts/score)*
-- [ ] **P1** AI scoring calibration: add official PTE band anchors + few-shot reference examples in prompts; reduce score drift. *(score-speaking, score-writing)*
-- [ ] **P1** Lower scoring variance (temperature, deterministic guardrails, clamp/validate JSON). 
+- [x] **P1** AI scoring calibration: writing already has band anchors+example; added PTE band anchors to speaking. *(score-speaking, score-writing)*
+- [x] **P1** Lower scoring variance: temperature 0.3→0.2 + fixed `seed` on both AI scorers; safe JSON parse (no 500 on malformed). 
 - [ ] **P1** PTE band descriptor mapping + "better than X% of users" stat. *(score-display.tsx)*
-- [ ] **P1** Mark-weighted skill scores; guard unknown-question-type fallback. *(lib/pte-scoring.ts)*
+- [~] **P1** Guarded unknown-question-type fallback (weight 100→10 so one unmapped Q can't dominate a skill). Full mark-weighting of attempts still pending. *(lib/pte-scoring.ts)*
 - [ ] **P2** Fill-blank matching: trim/case/punctuation tolerance; consider near-miss. *(question-renderer.tsx)*
 - [ ] **P2** Re-score button (consume a credit) + "score improved" indicator.
 - [ ] **P3** Gold-standard calibration set + drift logging; "How we score" methodology page.

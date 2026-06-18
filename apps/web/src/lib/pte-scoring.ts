@@ -89,11 +89,14 @@ export function calculateSkillScores(
         }
       }
     } else {
-      // Unknown type — fall back to 100% contribution to its own section
+      // Unknown type — contribute to its own section, but with a MODEST weight.
+      // (A large weight here would let one unmapped question dominate the whole
+      // skill score vs the real per-type weights, which range ~1.5–28.)
       const fallbackSkill = sectionToSkill(attempt.questionSection);
       if (fallbackSkill) {
-        weighted[fallbackSkill]    += normalized * 100;
-        totalWeight[fallbackSkill] += 100;
+        const FALLBACK_WEIGHT = 10;
+        weighted[fallbackSkill]    += normalized * FALLBACK_WEIGHT;
+        totalWeight[fallbackSkill] += FALLBACK_WEIGHT;
       }
     }
   }

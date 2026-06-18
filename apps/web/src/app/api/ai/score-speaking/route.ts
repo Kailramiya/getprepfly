@@ -133,11 +133,13 @@ async function scoreSpeaking(
       messages: [
         {
           role: "system",
-          content: `You are an expert PTE Academic speaking evaluator. Score the student's response on a scale of 0-90 for each criterion. Be fair but constructive. Return ONLY valid JSON.`,
+          content: `You are an expert PTE Academic speaking evaluator. Score each criterion on the 0-90 scale using these band anchors: 79-90 = expert (natural, near-native), 65-78 = advanced (clear with minor slips), 50-64 = competent (understandable but noticeable errors), 36-49 = intermediate (frequent errors, effortful), below 36 = limited. Be fair and consistent: the same response must always get the same score. Return ONLY valid JSON.`,
         },
         { role: "user", content: prompt },
       ],
-      temperature: 0.3,
+      // Low temperature + fixed seed → consistent scores for identical answers.
+      temperature: 0.2,
+      seed: 7,
       response_format: { type: "json_object" },
     }),
   });
@@ -147,7 +149,12 @@ async function scoreSpeaking(
   }
 
   const data = await response.json();
-  const result = JSON.parse(data.choices[0].message.content);
+  let result: any;
+  try {
+    result = JSON.parse(data?.choices?.[0]?.message?.content ?? "");
+  } catch {
+    throw new Error("Scoring service returned an invalid response");
+  }
 
   return {
     pronunciation: Math.min(90, Math.max(0, result.pronunciation || 0)),

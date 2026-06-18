@@ -187,7 +187,10 @@ Return JSON: { grammar, spelling, content, structure, vocabulary, wordCount: ${w
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },
       ],
-      temperature: 0.3,
+      // Low temperature + fixed seed → far more consistent scores for the same
+      // answer (students lose trust when identical responses score differently).
+      temperature: 0.2,
+      seed: 7,
       response_format: { type: "json_object" },
     }),
   });
@@ -195,7 +198,12 @@ Return JSON: { grammar, spelling, content, structure, vocabulary, wordCount: ${w
   if (!response.ok) throw new Error(`GPT API error: ${response.statusText}`);
 
   const data = await response.json();
-  const result = JSON.parse(data.choices[0].message.content);
+  let result: any;
+  try {
+    result = JSON.parse(data?.choices?.[0]?.message?.content ?? "");
+  } catch {
+    throw new Error("Scoring service returned an invalid response");
+  }
 
   return {
     grammar: clampScore(result.grammar),
