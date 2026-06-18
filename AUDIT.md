@@ -11,7 +11,7 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 - [x] **P1** Add product analytics (Vercel Analytics in root layout). *(layout.tsx)*
 - [x] **P1** Mock-test scoring: unanswered/unscored questions now count as 0 (fair); FULL averages all 4 skills; reuses startedAt (one fewer query). *(api/mock-tests/[testId]/route.ts)*
 - [x] **P1** Mock-test report: dropped arbitrary `≥45=correct`; now shows honest Answered + pending count. *(report route + report page)*
-- [ ] **P1** Show AI score breakdown + PTE band descriptor to students. *(score-display.tsx, question-renderer.tsx)*
+- [x] **P1** Score breakdown already shown; added PTE band descriptor + "AI-estimated" trust caption. ("better than X%" percentile deferred → needs aggregation endpoint, Track C.) *(score-display.tsx)*
 - [ ] **P1** Mobile touch support for drag-and-drop (reorder paragraphs, drag fill-blanks). *(question-renderer.tsx)*
 - [ ] **P1** A11y quick wins: form labels/`htmlFor`, `aria-label` on icon buttons (password eye, bell, sidebar toggle), image `alt`. 
 - [ ] **P1** Dark-mode contrast: bump `text-gray-400`/`gray-500` on dark to readable (WCAG AA).

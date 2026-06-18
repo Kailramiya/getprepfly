@@ -35,6 +35,15 @@ function ScoreIcon({ score }: { score: number }) {
   return <XCircle className="h-5 w-5 text-red-500" />;
 }
 
+// PTE Academic band descriptor (Pearson Global Scale of English bands).
+function pteBand(score: number): string {
+  if (score >= 79) return "Expert (79–90)";
+  if (score >= 65) return "Advanced (65–78)";
+  if (score >= 50) return "Competent (50–64)";
+  if (score >= 36) return "Intermediate (36–49)";
+  return "Foundation (10–35)";
+}
+
 export function ScoreDisplay({ scores, type, feedback, corrections, transcription }: ScoreDisplayProps) {
   const speakingMetrics = ["pronunciation", "fluency", "content"];
   const writingMetrics = ["grammar", "spelling", "content", "structure", "vocabulary"];
@@ -52,11 +61,15 @@ export function ScoreDisplay({ scores, type, feedback, corrections, transcriptio
                 {scores.overall}
                 <span className="text-lg text-gray-400 dark:text-slate-500">/90</span>
               </p>
+              <p className={`mt-0.5 text-sm font-semibold ${scoreColor(scores.overall)}`}>{pteBand(scores.overall)}</p>
             </div>
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white shadow-sm">
               <ScoreIcon score={scores.overall} />
             </div>
           </div>
+          <p className="mt-2 text-[11px] text-gray-500 dark:text-slate-400">
+            AI-estimated PTE score for practice — your official exam result may differ.
+          </p>
         </div>
 
         {/* Score Breakdown */}
