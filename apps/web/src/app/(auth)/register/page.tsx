@@ -8,6 +8,25 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+// Common dial codes for PTE students (India default + major study/work destinations).
+const COUNTRY_CODES: { code: string; label: string }[] = [
+  { code: "+91", label: "🇮🇳 +91" },
+  { code: "+1", label: "🇺🇸 +1" },
+  { code: "+44", label: "🇬🇧 +44" },
+  { code: "+61", label: "🇦🇺 +61" },
+  { code: "+64", label: "🇳🇿 +64" },
+  { code: "+971", label: "🇦🇪 +971" },
+  { code: "+977", label: "🇳🇵 +977" },
+  { code: "+880", label: "🇧🇩 +880" },
+  { code: "+92", label: "🇵🇰 +92" },
+  { code: "+94", label: "🇱🇰 +94" },
+  { code: "+974", label: "🇶🇦 +974" },
+  { code: "+966", label: "🇸🇦 +966" },
+  { code: "+65", label: "🇸🇬 +65" },
+  { code: "+60", label: "🇲🇾 +60" },
+  { code: "+49", label: "🇩🇪 +49" },
+];
+
 export default function RegisterPage() {
   return (
     <Suspense>
@@ -37,6 +56,7 @@ function RegisterForm() {
   const [form, setForm] = useState({
     name: "",
     email: prefilledEmail,
+    countryCode: "+91",
     phone: "",
     password: "",
     confirmPassword: "",
@@ -101,9 +121,11 @@ function RegisterForm() {
       return;
     }
 
-    const cleanedPhone = form.phone.replace(/[^\d+]/g, "");
-    if (!/^\+?\d{10,15}$/.test(cleanedPhone)) {
-      setError("Please enter a valid phone number (10–15 digits)");
+    // Combine the selected country code with the national number.
+    const nationalDigits = form.phone.replace(/\D/g, "");
+    const fullPhone = `${form.countryCode}${nationalDigits}`;
+    if (!/^\+\d{10,15}$/.test(fullPhone)) {
+      setError("Please enter a valid phone number with your country code.");
       return;
     }
 
@@ -131,7 +153,7 @@ function RegisterForm() {
         body: JSON.stringify({
           name: form.name,
           email: form.email,
-          phone: form.phone,
+          phone: fullPhone,
           password: form.password,
           role: isCentreRegistration ? "centre" : "student",
           centreName: isCentreRegistration ? form.centreName : undefined,
@@ -223,16 +245,29 @@ function RegisterForm() {
           />
         </div>
 
-        <div className="relative">
-          <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <Input
-            type="tel"
-            placeholder="Phone number"
-            value={form.phone}
-            onChange={(e) => updateForm("phone", e.target.value)}
-            className="pl-10"
-            required
-          />
+        <div className="flex gap-2">
+          <select
+            aria-label="Country code"
+            value={form.countryCode}
+            onChange={(e) => updateForm("countryCode", e.target.value)}
+            className="shrink-0 rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 py-2 pl-3 pr-7 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+          >
+            {COUNTRY_CODES.map((c) => (
+              <option key={c.label} value={c.code}>{c.label}</option>
+            ))}
+          </select>
+          <div className="relative flex-1">
+            <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <Input
+              type="tel"
+              inputMode="numeric"
+              placeholder="Phone number"
+              value={form.phone}
+              onChange={(e) => updateForm("phone", e.target.value)}
+              className="pl-10"
+              required
+            />
+          </div>
         </div>
 
 
