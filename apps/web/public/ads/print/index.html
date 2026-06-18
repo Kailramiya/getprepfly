@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Prepfly — Print Posters</title>
+<style>
+  body { margin:0; font-family: ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif; background:#f1f5f9; color:#0f172a; }
+  header { padding:24px 28px; }
+  h1 { margin:0; font-size:20px; }
+  p { margin:6px 0 0; color:#64748b; font-size:14px; max-width:780px; line-height:1.5; }
+  .grid { display:flex; flex-wrap:wrap; gap:24px; padding:8px 28px 48px; align-items:flex-start; }
+  figure { margin:0; background:#fff; border:1px solid #e2e8f0; border-radius:14px; padding:14px; }
+  figure img { display:block; border-radius:8px; box-shadow:0 4px 16px rgba(0,0,0,.08); }
+  figcaption { margin-top:10px; font-size:13px; color:#475569; }
+  figcaption a { color:#4f46e5; text-decoration:none; font-weight:600; }
+  .a4 img { width:300px; }
+  .a3 img { width:300px; }
+  .flex img { width:520px; }
+  .st img { width:215px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Prepfly — print posters (300 DPI, vector)</h1>
+  <p>For the print shop, prefer the <b>SVG</b> — it's vector and scales to any physical size with zero quality loss (ideal for flex/standee). The PNG is a high-resolution reference. To change the phone/address, edit <code>CONTACT</code> in <code>scripts/build-print.mjs</code> and run <code>npm run build:print</code>. QR links to https://getprepfly.com.</p>
+</header>
+<div class="grid">
+  <figure class="a4">
+    <img src="./prepfly-print-A4-portrait.png" alt="A4 poster" />
+    <figcaption>A4 · 210×297mm · <a href="./prepfly-print-A4-portrait.png" download>PNG</a> · <a href="./prepfly-print-A4-portrait.svg" download>SVG</a></figcaption>
+  </figure>
+  <figure class="a3">
+    <img src="./prepfly-print-A3-portrait.png" alt="A3 poster" />
+    <figcaption>A3 · 297×420mm · <a href="./prepfly-print-A3-portrait.png" download>PNG</a> · <a href="./prepfly-print-A3-portrait.svg" download>SVG</a></figcaption>
+  </figure>
+  <figure class="flex">
+    <img src="./prepfly-print-flex-hoarding-2x1.png" alt="Flex hoarding" />
+    <figcaption>Flex / hoarding · 2:1 landscape (e.g. 6×3 ft) · <a href="./prepfly-print-flex-hoarding-2x1.png" download>PNG</a> · <a href="./prepfly-print-flex-hoarding-2x1.svg" download>SVG</a></figcaption>
+  </figure>
+  <figure class="st">
+    <img src="./prepfly-print-standee-rollup.png" alt="Standee" />
+    <figcaption>Standee / roll-up · tall (e.g. 2.5×6 ft) · <a href="./prepfly-print-standee-rollup.png" download>PNG</a> · <a href="./prepfly-print-standee-rollup.svg" download>SVG</a></figcaption>
+  </figure>
+</div>
+</body>
+</html>
