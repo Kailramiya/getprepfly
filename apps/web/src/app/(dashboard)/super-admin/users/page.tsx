@@ -26,11 +26,16 @@ const ROLE_CONFIG: Record<string, { icon: any; color: string }> = {
 };
 
 export default function SuperAdminUsersPage() {
+  const PAGE_SIZE = 50;
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const copySlug = (slug: string) => {
     navigator.clipboard.writeText(slug);
@@ -58,23 +63,35 @@ export default function SuperAdminUsersPage() {
     }
   };
 
+  // Reset to the first page whenever the search term changes.
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
   useEffect(() => {
     const fetchUsers = async () => {
       setLoading(true);
-      const params = new URLSearchParams({ pageSize: "50", ...(search && { search }) });
+      const params = new URLSearchParams({
+        page: String(page),
+        pageSize: String(PAGE_SIZE),
+        ...(search && { search }),
+      });
       const res = await fetch(`/api/users?${params}`);
       const data = await res.json();
-      if (data.success) setUsers(data.data?.items || data.data || []);
+      if (data.success) {
+        setUsers(data.data?.items || data.data || []);
+        setTotal(data.data?.total ?? 0);
+      }
       setLoading(false);
     };
     fetchUsers();
-  }, [search]);
+  }, [search, page]);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">All Users</h1>
-        <p className="text-gray-500 dark:text-slate-400">{users.length} users across all centres</p>
+        <p className="text-gray-500 dark:text-slate-400">{total} users across all centres</p>
       </div>
 
       <div className="relative max-w-md">
@@ -180,6 +197,36 @@ export default function SuperAdminUsersPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Pagination */}
+      {!loading && total > PAGE_SIZE && (
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-gray-500 dark:text-slate-400">
+            Showing {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, total)} of {total}
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={page <= 1}
+            >
+              Previous
+            </Button>
+            <span className="text-sm text-gray-600 dark:text-slate-400">
+              Page {page} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={page >= totalPages}
+            >
+              Next
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -9,8 +9,8 @@ export async function GET(req: NextRequest) {
 
   const url = new URL(req.url);
   const search = url.searchParams.get("search") || "";
-  const page = parseInt(url.searchParams.get("page") || "1");
-  const pageSize = parseInt(url.searchParams.get("pageSize") || "50");
+  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1") || 1);
+  const pageSize = Math.min(200, Math.max(1, parseInt(url.searchParams.get("pageSize") || "50") || 50));
 
   const where: any = {
     ...(search && {
