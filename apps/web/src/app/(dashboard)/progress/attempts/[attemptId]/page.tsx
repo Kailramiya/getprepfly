@@ -393,7 +393,6 @@ export default function AttemptReviewPage() {
   const SectionIcon = section?.icon || BarChart3;
   const overallScore = attempt.overallScore !== null ? Math.round(attempt.overallScore) : null;
   const isSpeaking = question.section === "SPEAKING";
-  const isWriting = question.section === "WRITING";
   const hasWordDiff = (question.type === "READ_ALOUD" || question.type === "REPEAT_SENTENCE" || question.type === "WRITE_FROM_DICTATION" || question.type === "DICTATION") && scores?.mistakes && scores.mistakes.length > 0;
   const expectedText = question.content?.text || question.content?.correctText || "";
 
