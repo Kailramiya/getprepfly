@@ -75,41 +75,51 @@ export async function PATCH(
     updateData.status = "COMPLETED";
     updateData.completedAt = new Date();
 
-    // Calculate section scores from attempts using cross-skill weighting
-    const attempts = await db.attempt.findMany({
-      where: { mockTestId: params.testId },
-      include: {
-        question: { select: { section: true, type: true } },
+    // Score the test fairly: every question in the test counts, and any
+    // unanswered / unscored question counts as 0 (as in the real exam).
+    // Scoring only over answered questions would inflate the result.
+    const testData = await db.mockTest.findUnique({
+      where: { id: params.testId },
+      select: {
+        startedAt: true,
+        mockType: true,
+        questions: { select: { question: { select: { id: true, section: true, type: true } } } },
       },
     });
+    const attempts = await db.attempt.findMany({
+      where: { mockTestId: params.testId },
+      select: { questionId: true, overallScore: true },
+    });
 
-    const skillScores = calculateSkillScores(
-      attempts.map((a) => ({
-        overallScore: a.overallScore,
-        questionType: a.question.type,
-        questionSection: a.question.section,
-      }))
-    );
+    // Best (non-null) score per question.
+    const scoreByQ = new Map<string, number | null>();
+    for (const a of attempts) {
+      const prev = scoreByQ.get(a.questionId);
+      if (prev == null) scoreByQ.set(a.questionId, a.overallScore);
+    }
 
+    const scoringInput = (testData?.questions ?? []).map((q) => ({
+      overallScore: scoreByQ.get(q.question.id) ?? 0, // unanswered/unscored → 0
+      questionType: q.question.type,
+      questionSection: q.question.section,
+    }));
+
+    const skillScores = calculateSkillScores(scoringInput);
     updateData.speakingScore  = skillScores.speaking;
     updateData.writingScore   = skillScores.writing;
     updateData.readingScore   = skillScores.reading;
     updateData.listeningScore = skillScores.listening;
 
-    const nonZero = Object.values(skillScores).filter((s) => s > 0);
-    updateData.overallScore = nonZero.length > 0
-      ? Math.round(nonZero.reduce((a, b) => a + b, 0) / nonZero.length)
+    // FULL mock → average all four skills (a fully-skipped skill is a real 0).
+    // SECTIONAL → average only the skills that the test actually covered.
+    const skillVals = Object.values(skillScores);
+    const relevant = testData?.mockType === "SECTIONAL" ? skillVals.filter((s) => s > 0) : skillVals;
+    updateData.overallScore = relevant.length > 0
+      ? Math.round(relevant.reduce((a, b) => a + b, 0) / relevant.length)
       : 0;
 
-    // Calculate total time
-    const startTime = await db.mockTest.findUnique({
-      where: { id: params.testId },
-      select: { startedAt: true },
-    });
-    if (startTime) {
-      updateData.totalTime = Math.floor(
-        (new Date().getTime() - startTime.startedAt.getTime()) / 1000
-      );
+    if (testData?.startedAt) {
+      updateData.totalTime = Math.floor((Date.now() - testData.startedAt.getTime()) / 1000);
     }
   }
 

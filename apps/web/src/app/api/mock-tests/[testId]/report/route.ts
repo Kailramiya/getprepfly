@@ -17,8 +17,13 @@ export async function GET(_req: NextRequest, { params }: { params: { testId: str
   if (!test) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
 
   const attempts = test.attempts;
-  const scored = attempts.filter(a => a.overallScore !== null);
-  const correctAnswers = scored.filter(a => a.overallScore !== null && a.overallScore >= 45).length;
+  // Count distinct questions the student actually attempted, and how many are
+  // AI-scored vs still pending. "Correct" isn't well-defined for AI-scored
+  // tasks, so we report Answered (honest) instead of a fake correct count.
+  const answeredQuestionIds = new Set(attempts.map((a) => (a as { questionId?: string }).questionId).filter(Boolean));
+  const attempted = answeredQuestionIds.size || attempts.length;
+  const scored = attempts.filter((a) => a.overallScore !== null).length;
+  const pending = Math.max(0, attempts.length - scored);
   const totalTime = attempts.reduce((s, a) => s + (a.timeTaken || 0), 0);
 
   return NextResponse.json({
@@ -33,7 +38,8 @@ export async function GET(_req: NextRequest, { params }: { params: { testId: str
       readingScore: test.readingScore,
       listeningScore: test.listeningScore,
       totalQuestions: test.questions.length,
-      correctAnswers,
+      attempted,
+      pending,
       timeTaken: totalTime || null,
     },
   });

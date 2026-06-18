@@ -9,8 +9,8 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 
 ## Track A — Quick wins (high impact, small change)
 - [x] **P1** Add product analytics (Vercel Analytics in root layout). *(layout.tsx)*
-- [ ] **P1** Mock-test scoring: ignore incomplete tests, surface "pending AI scoring", don't drop unscored attempts silently. *(api/mock-tests/[testId]/route.ts)*
-- [ ] **P1** Mock-test report: replace arbitrary `overallScore ≥ 45 = correct` threshold. *(api/mock-tests/[testId]/report/route.ts)*
+- [x] **P1** Mock-test scoring: unanswered/unscored questions now count as 0 (fair); FULL averages all 4 skills; reuses startedAt (one fewer query). *(api/mock-tests/[testId]/route.ts)*
+- [x] **P1** Mock-test report: dropped arbitrary `≥45=correct`; now shows honest Answered + pending count. *(report route + report page)*
 - [ ] **P1** Show AI score breakdown + PTE band descriptor to students. *(score-display.tsx, question-renderer.tsx)*
 - [ ] **P1** Mobile touch support for drag-and-drop (reorder paragraphs, drag fill-blanks). *(question-renderer.tsx)*
 - [ ] **P1** A11y quick wins: form labels/`htmlFor`, `aria-label` on icon buttons (password eye, bell, sidebar toggle), image `alt`. 

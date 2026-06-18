@@ -16,7 +16,8 @@ interface ReportData {
   readingScore: number | null;
   listeningScore: number | null;
   totalQuestions: number;
-  correctAnswers: number;
+  attempted: number;
+  pending: number;
   timeTaken: number | null;
 }
 
@@ -114,8 +115,10 @@ export default function MockTestReportPage() {
             <p className="text-xs text-gray-500 mt-0.5 dark:text-slate-400">Total Questions</p>
           </div>
           <div>
-            <p className="text-2xl font-bold text-green-600">{data.correctAnswers}</p>
-            <p className="text-xs text-gray-500 mt-0.5 dark:text-slate-400">Correct</p>
+            <p className="text-2xl font-bold text-green-600">{data.attempted}</p>
+            <p className="text-xs text-gray-500 mt-0.5 dark:text-slate-400">
+              Answered{data.pending > 0 ? ` · ${data.pending} pending` : ""}
+            </p>
           </div>
           <div>
             <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
