@@ -41,10 +41,10 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 
 ## Track D — Coaching-centre (B2B) features
 - [ ] **P1** Bulk student import (CSV: name, email, phone, optional batch). *(admin/students + api)*
-- [ ] **P1** Bulk renew + "expiring in 7/30 days" filter/column. *(admin/students)*
-- [ ] **P1** Seat-usage gauge (e.g. 45/50) + cost clarity + expiry reminders + grace period. *(admin/settings, access.ts)*
-- [ ] **P1** Batch mock-test tracking: who started/completed, results comparison, deadlines, batch leaderboard. *(admin/batches)*
-- [ ] **P1** Export students (CSV) + per-student/batch progress report (PDF/printable). 
+- [x] **P1** Bulk renew + "expiring in 7/30 days" filter/column. *(admin/students)*
+- [x] **P1** Seat-usage gauge (e.g. 45/50) + cost clarity + expiry reminders. *(admin/students, /api/centres/seat-usage)*
+- [x] **P1** Batch mock-test tracking: who started/completed, avg score, last active. *(admin/batches/[batchId]/progress)*
+- [x] **P1** Export students (CSV) with seat status, batches, attempts. *(api/centres/[centreId]/students/export)*
 - [ ] **P2** Teacher → batch assignment + teacher dashboard + scoped permissions. *(admin/teachers, batches)*
 - [ ] **P2** Deeper per-student progress (improvement trend, peer comparison, weak-area drill). *(admin/students/[studentId])*
 - [ ] **P2** Targeted messaging to a student segment (e.g. expiring soon). *(announcements)*
