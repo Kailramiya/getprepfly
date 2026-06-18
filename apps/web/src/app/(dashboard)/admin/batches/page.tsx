@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Layers } from "lucide-react";
+import { Plus, Layers, BarChart2 } from "lucide-react";
+import Link from "next/link";
 
 interface Batch {
   id: string;
@@ -132,9 +133,18 @@ export default function BatchesPage() {
                     )}
                   </div>
                 )}
-                <p className="mt-3 text-xs text-gray-400 dark:text-slate-500">
-                  Created {new Date(batch.createdAt).toLocaleDateString("en-IN")}
-                </p>
+                <div className="mt-3 flex items-center justify-between">
+                  <p className="text-xs text-gray-400 dark:text-slate-500">
+                    Created {new Date(batch.createdAt).toLocaleDateString("en-IN")}
+                  </p>
+                  <Link
+                    href={`/admin/batches/${batch.id}/progress`}
+                    className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                  >
+                    <BarChart2 className="h-3.5 w-3.5" />
+                    Progress
+                  </Link>
+                </div>
               </CardContent>
             </Card>
           ))}
