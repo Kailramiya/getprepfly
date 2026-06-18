@@ -12,6 +12,17 @@ import {
 import { WRITING_TEMPLATES, SPEAKING_TEMPLATES } from "@/lib/templates";
 import { SKILL_CONTRIBUTIONS, SKILL_KEYS, type SkillKey } from "@/lib/pte-scoring";
 
+// Normalize a fill-in-the-blank answer for fair matching: case-insensitive,
+// trimmed, internal whitespace collapsed, surrounding punctuation ignored — so
+// "Run.", " run " and "run" all match "run".
+function normAns(s: string | null | undefined): string {
+  return (s || "")
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "");
+}
+
 // ─── Shared Types ─────────────────────────────────────────────────────────────
 
 export interface QuestionData {
@@ -2695,7 +2706,7 @@ function FillBlanksDrag({
             const word = filled[thisIndex];
             const correct = normalizedBlanks[thisIndex]?.correctAnswer;
             const isCorrect =
-              submitted && showFeedback && word && correct && word.toLowerCase() === correct.toLowerCase();
+              submitted && showFeedback && word && correct && normAns(word) === normAns(correct);
             const isWrong =
               submitted && showFeedback && (!word || (correct && word.toLowerCase() !== correct.toLowerCase()));
 
@@ -2831,7 +2842,7 @@ function FillBlanksDropdown({
       normalizedBlanks.forEach((b, i) => {
         const given = (answers[i] || "").trim();
         const correct = (b.correctAnswer || "").trim();
-        if (given.toLowerCase() === correct.toLowerCase()) {
+        if (normAns(given) === normAns(correct)) {
           correctCount++;
         } else {
           mistakes.push({ position: i + 1, yourAnswer: given || "(empty)", correctAnswer: correct });
@@ -2858,7 +2869,7 @@ function FillBlanksDropdown({
             const blank = normalizedBlanks[thisIndex] || { correctAnswer: "", options: [] };
             const isCorrect =
               submitted && showFeedback && value && blank.correctAnswer &&
-              value.trim().toLowerCase() === blank.correctAnswer.trim().toLowerCase();
+              normAns(value) === normAns(blank.correctAnswer);
 
             const isWrongDropdown = submitted && showFeedback && !isCorrect;
             return (
@@ -2953,7 +2964,7 @@ function FillBlanksText({
       normalizedBlanks.forEach((b, i) => {
         const given = (answers[i] || "").trim();
         const correct = (b.correctAnswer || "").trim();
-        if (given.toLowerCase() === correct.toLowerCase()) {
+        if (normAns(given) === normAns(correct)) {
           correctCount++;
         } else {
           mistakes.push({ position: i + 1, yourAnswer: given || "(empty)", correctAnswer: correct });
@@ -2975,7 +2986,7 @@ function FillBlanksText({
             const value = answers[thisIndex];
             const correct = normalizedBlanks[thisIndex]?.correctAnswer?.trim();
             const isCorrect =
-              submitted && showFeedback && value && correct && value.trim().toLowerCase() === correct.toLowerCase();
+              submitted && showFeedback && value && correct && normAns(value) === normAns(correct);
 
             const isWrongText = submitted && showFeedback && !isCorrect;
             return (
