@@ -24,8 +24,23 @@ migration history. (`db:push` is kept only for throwaway local experiments.)
 
 ## Deploying
 
-`prisma migrate deploy` runs automatically as part of the build
-(see `package.json` "build" and `vercel.json` "buildCommand").
+Migrations are **NOT** run during the build. The build only does
+`prisma generate && next build`. You run `migrate deploy` deliberately, as a
+separate step, against the **direct** connection:
+
+```bash
+cd apps/web
+# DIRECT_URL + DATABASE_URL must point at the target DB
+npx prisma migrate deploy
+```
+
+Why not in the build? Vercel builds can run concurrently or retry, and each
+`migrate deploy` tries to take a single Postgres advisory lock. When two grab
+for it at once (or a previous run's connection is still holding it), you get
+`P1002 — Timed out trying to acquire a postgres advisory lock`. Running
+migrations as one deliberate step avoids that entirely. If the lock ever gets
+stuck, restart the Neon compute (Neon console → your branch → Restart) to drop
+all sessions and release it, then re-run `migrate deploy`.
 
 **Two database URLs are required** (see `schema.prisma` datasource):
 - `DATABASE_URL` — pooled connection, used by the app at runtime. On Neon, the
