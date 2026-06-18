@@ -1702,6 +1702,41 @@ function SpeakingQuestion({
   const [showSpeakingTemplate, setShowSpeakingTemplate] = useState(false);
   const [preRecordCountdown, setPreRecordCountdown] = useState<number | null>(null);
   const [readyToRecord, setReadyToRecord] = useState(false);
+  const [modelAudioUrl, setModelAudioUrl] = useState<string | null>(null);
+  const [modelAudioLoading, setModelAudioLoading] = useState(false);
+  const [modelAudioError, setModelAudioError] = useState<string | null>(null);
+  const modelAudioRef = useRef<string | null>(null);
+
+  // Revoke model-answer object URL on unmount to avoid memory leaks
+  useEffect(() => {
+    return () => { if (modelAudioRef.current) URL.revokeObjectURL(modelAudioRef.current); };
+  }, []);
+
+  const fetchModelAudio = async () => {
+    if (modelAudioUrl || modelAudioLoading || !expectedText) return;
+    setModelAudioLoading(true);
+    setModelAudioError(null);
+    try {
+      const res = await fetch("/api/ai/tts/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: expectedText }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setModelAudioError(d.error || "Could not generate audio. Try again.");
+        return;
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      modelAudioRef.current = url;
+      setModelAudioUrl(url);
+    } catch {
+      setModelAudioError("Could not generate audio. Check your connection.");
+    } finally {
+      setModelAudioLoading(false);
+    }
+  };
 
   // Mount-based auto-start: for question types with no audio prompt (Read Aloud, Describe Image)
   useEffect(() => {
@@ -1944,6 +1979,43 @@ function SpeakingQuestion({
         <div className="rounded-lg border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/30 p-3">
           <p className="mb-2 text-xs font-medium text-indigo-800 dark:text-indigo-300">Your recording:</p>
           <audio controls src={audioUrl} className="w-full" />
+        </div>
+      )}
+
+      {/* Model-answer audio for shadowing — shown after submission */}
+      {submitted && questionType === "READ_ALOUD" && expectedText && (
+        <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3">
+          <p className="mb-2 text-xs font-medium text-emerald-800 dark:text-emerald-300">
+            Model answer — listen and shadow to improve:
+          </p>
+          {modelAudioUrl ? (
+            <audio controls src={modelAudioUrl} className="w-full" autoPlay={false} />
+          ) : (
+            <button
+              onClick={fetchModelAudio}
+              disabled={modelAudioLoading}
+              className="flex items-center gap-2 rounded-md bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-700 disabled:opacity-60"
+            >
+              {modelAudioLoading ? (
+                <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
+              ) : (
+                <><Volume2 className="h-3.5 w-3.5" /> Listen to model answer</>
+              )}
+            </button>
+          )}
+          {modelAudioError && (
+            <p className="mt-1.5 text-xs text-red-600 dark:text-red-400">{modelAudioError}</p>
+          )}
+        </div>
+      )}
+
+      {/* Replay prompt for REPEAT_SENTENCE after submission */}
+      {submitted && questionType === "REPEAT_SENTENCE" && audioSrc && (
+        <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3">
+          <p className="mb-2 text-xs font-medium text-emerald-800 dark:text-emerald-300">
+            Replay the sentence to compare:
+          </p>
+          <audio controls src={audioSrc} className="w-full" />
         </div>
       )}
 

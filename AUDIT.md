@@ -36,7 +36,7 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 - [ ] **P1** Attempt review: compare your last answers vs model on a question; history surfaced.
 - [ ] **P2** Re-engagement email ("you haven't practiced in 7 days", "you improved this week"). *(needs cron/Resend)*
 - [~] **P2** "Focus areas" study-plan card on dashboard from weakest question types (deep-links to practice). Prediction/high-frequency surfacing still pending. *(dashboard + dashboard API)*
-- [ ] **P2** Model-answer audio (TTS) for shadowing on speaking/read-aloud.
+- [x] **P2** Model-answer audio (TTS) for shadowing on speaking/read-aloud. *(api/ai/tts/preview + SpeakingQuestion post-submit)*
 - [ ] **P3** Achievements/badges; weekly challenge from predictions.
 
 ## Track D — Coaching-centre (B2B) features
