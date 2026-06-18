@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Mail, Lock, User, Phone, Eye, EyeOff, Building2, CheckCircle2 } from "lucide-react";
@@ -19,8 +19,20 @@ export default function RegisterPage() {
 function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isCentreRegistration = searchParams.get("role") === "centre";
+  const inviteToken = searchParams.get("invite") || "";
+  // An invite link always registers a student, so it overrides centre mode.
+  const isCentreRegistration = !inviteToken && searchParams.get("role") === "centre";
   const prefilledEmail = searchParams.get("email") || "";
+
+  const [inviteCentre, setInviteCentre] = useState<{ valid: boolean; centreName: string | null } | null>(null);
+
+  useEffect(() => {
+    if (!inviteToken) return;
+    fetch(`/api/centres/invite-link/validate?token=${encodeURIComponent(inviteToken)}`)
+      .then((r) => r.json())
+      .then((d) => setInviteCentre(d.data || { valid: false, centreName: null }))
+      .catch(() => setInviteCentre({ valid: false, centreName: null }));
+  }, [inviteToken]);
 
   const [form, setForm] = useState({
     name: "",
@@ -124,6 +136,7 @@ function RegisterForm() {
           role: isCentreRegistration ? "centre" : "student",
           centreName: isCentreRegistration ? form.centreName : undefined,
           centreReferralCode: isCentreRegistration ? form.centreReferralCode : undefined,
+          inviteToken: inviteToken || undefined,
         }),
       });
 
@@ -158,10 +171,24 @@ function RegisterForm() {
           : "Start your PTE preparation journey for free"}
       </p>
 
-      {prefilledEmail && !isCentreRegistration && (
+      {prefilledEmail && !isCentreRegistration && !inviteToken && (
         <div className="mt-4 flex items-start gap-2 rounded-lg bg-teal-50 p-3 text-sm text-teal-800 dark:bg-teal-950/50 dark:text-teal-300">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
           <span>You&apos;ve been invited by a coaching centre. Register with <strong>{prefilledEmail}</strong> to join automatically.</span>
+        </div>
+      )}
+
+      {inviteToken && inviteCentre?.valid && (
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-teal-50 p-3 text-sm text-teal-800 dark:bg-teal-950/50 dark:text-teal-300">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal-600" />
+          <span>You&apos;re joining <strong>{inviteCentre.centreName}</strong>. Create your account below to get full access.</span>
+        </div>
+      )}
+
+      {inviteToken && inviteCentre && !inviteCentre.valid && (
+        <div className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800 dark:bg-amber-950/50 dark:text-amber-300">
+          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+          <span>This invite link is invalid or has expired. Please ask your centre for a new one, or register normally below.</span>
         </div>
       )}
 

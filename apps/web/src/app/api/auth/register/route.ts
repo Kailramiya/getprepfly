@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { grantCentreSeat } from "@/lib/centre-access";
+import { grantCentreSeat, getCentreActiveSeats } from "@/lib/centre-access";
 import { enforceRateLimit, clientIp } from "@/lib/rate-limit";
 import { parseBody, passwordSchema, emailSchema } from "@/lib/validation";
 import { sendVerificationEmail } from "@/lib/email-verification";
@@ -21,6 +21,8 @@ const RegisterSchema = z.object({
   role: z.string().optional(),
   centreName: z.string().trim().max(120).optional(),
   centreReferralCode: z.string().trim().max(60).optional(),
+  // Single-use centre invite link token (joins the student to that centre).
+  inviteToken: z.string().trim().optional(),
 });
 
 export async function POST(req: NextRequest) {
@@ -31,10 +33,11 @@ export async function POST(req: NextRequest) {
   try {
     const parsed = await parseBody(req, RegisterSchema);
     if (!parsed.ok) return parsed.response;
-    const { name, email, password, phone, role, centreName, centreReferralCode } = parsed.data;
+    const { name, email, password, phone, role, centreName, centreReferralCode, inviteToken } = parsed.data;
 
     const emailLower = email; // normalized (trimmed + lowercased) by the schema
-    const isCentre = role === "centre";
+    // An invite-link registration is always a student joining a centre.
+    const isCentre = role === "centre" && !inviteToken;
 
     // Centre-specific validation
     if (isCentre) {
@@ -117,9 +120,36 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // Check if there is a pending centre invitation for this email
+    // Determine the centre this student joins, if any.
     let centreId: string | undefined;
-    if (!isCentre) {
+    let inviteLinkId: string | undefined;
+
+    // 1. Single-use invite link (takes precedence over email invitations).
+    if (inviteToken && !isCentre) {
+      const link = await db.centreInviteLink.findUnique({ where: { token: inviteToken } });
+      if (!link || link.usedAt || link.expiresAt < new Date()) {
+        return NextResponse.json(
+          { success: false, error: "This invite link is invalid or has expired. Please ask your centre for a new one." },
+          { status: 400 }
+        );
+      }
+      // Re-check seat availability at join time (link may have been issued earlier).
+      const sub = await db.centreSubscription.findFirst({
+        where: { centreId: link.centreId, status: "ACTIVE" },
+        orderBy: { createdAt: "desc" },
+      });
+      if (sub && sub.maxStudents !== -1 && (await getCentreActiveSeats(link.centreId)) >= sub.maxStudents) {
+        return NextResponse.json(
+          { success: false, error: "This centre has reached its student limit. Please contact your centre." },
+          { status: 403 }
+        );
+      }
+      centreId = link.centreId;
+      inviteLinkId = link.id;
+    }
+
+    // 2. Otherwise, honor a pending email invitation for this address.
+    if (!centreId && !isCentre) {
       const invitation = await db.centreInvitation.findFirst({
         where: { email: emailLower, status: "PENDING" },
         orderBy: { createdAt: "desc" },
@@ -132,11 +162,11 @@ export async function POST(req: NextRequest) {
     // Hash password
     const passwordHash = await bcrypt.hash(password, 12);
 
-    // Admin-invited students are vouched for — auto-verify them. Everyone else
-    // (self-registered students and centre admins) must verify by email.
+    // Admin-invited students (link or email) are vouched for — auto-verify them.
+    // Everyone else (self-registered students and centre admins) verifies by email.
     const isInvited = !!centreId && !isCentre;
 
-    // Create in transaction: centre (if applicable) + user
+    // Create in transaction: centre (if applicable) + user (+ claim invite link)
     const user = await db.$transaction(async (tx) => {
       let newCentreId = centreId;
 
@@ -152,7 +182,7 @@ export async function POST(req: NextRequest) {
         newCentreId = newCentre.id;
       }
 
-      return tx.user.create({
+      const created = await tx.user.create({
         data: {
           name: name.trim(),
           email: emailLower,
@@ -172,6 +202,20 @@ export async function POST(req: NextRequest) {
           role: true,
         },
       });
+
+      // Atomically consume the single-use link. If someone else just used it,
+      // this updates 0 rows and we abort so the seat isn't double-granted.
+      if (inviteLinkId) {
+        const claim = await tx.centreInviteLink.updateMany({
+          where: { id: inviteLinkId, usedAt: null, expiresAt: { gt: new Date() } },
+          data: { usedById: created.id, usedAt: new Date() },
+        });
+        if (claim.count !== 1) {
+          throw new Error("INVITE_LINK_TAKEN");
+        }
+      }
+
+      return created;
     });
 
     // Mark invitation as accepted + grant 30-day (1 month) centre seat if one was used
@@ -200,6 +244,12 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
+    if (error instanceof Error && error.message === "INVITE_LINK_TAKEN") {
+      return NextResponse.json(
+        { success: false, error: "This invite link has just been used. Please ask your centre for a new one." },
+        { status: 409 }
+      );
+    }
     console.error("Registration error:", error);
     return NextResponse.json(
       { success: false, error: "Something went wrong. Please try again." },

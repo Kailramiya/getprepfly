@@ -135,6 +135,7 @@ model Centre {
   announcements  Announcement[]
   invitations    CentreInvitation[]
   studentSeats   CentreStudentSeat[]
+  inviteLinks    CentreInviteLink[]
 
   @@index([slug])
   @@index([city, state])
@@ -211,6 +212,27 @@ model CentreInvitation {
 
   @@index([email])
   @@index([centreId])
+}
+
+// ============================================================================
+// CENTRE INVITE LINKS — single-use, short-lived shareable join links.
+// Fallback for when invitation emails don't arrive: the admin copies the link
+// and sends it to ONE student. Consumed by the first student who registers via
+// it (usedAt set), and expires after 1 hour regardless.
+// ============================================================================
+model CentreInviteLink {
+  id          String    @id @default(cuid())
+  centreId    String
+  centre      Centre    @relation(fields: [centreId], references: [id], onDelete: Cascade)
+  token       String    @unique
+  createdById String?   // admin who generated it
+  usedById    String?   // user who consumed it
+  usedAt      DateTime? // null = still available (single-use)
+  expiresAt   DateTime  // createdAt + 1 hour
+  createdAt   DateTime  @default(now())
+
+  @@index([centreId])
+  @@index([token])
 }
 
 // ============================================================================

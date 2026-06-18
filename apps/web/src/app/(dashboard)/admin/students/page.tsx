@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import { Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus, XCircle, RotateCcw } from "lucide-react";
+import { Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus, XCircle, RotateCcw, Link2, Copy, Check } from "lucide-react";
 
 interface Student {
   id: string;
@@ -33,6 +33,36 @@ export default function StudentsPage() {
   const [inviting, setInviting] = useState(false);
   const [inviteMsg, setInviteMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [pendingInvites, setPendingInvites] = useState<Array<{ id: string; email: string; createdAt: string }>>([]);
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [inviteLink, setInviteLink] = useState<string | null>(null);
+  const [linkCopied, setLinkCopied] = useState(false);
+
+  const generateLink = async () => {
+    setGeneratingLink(true);
+    setInviteMsg(null);
+    setInviteLink(null);
+    try {
+      const res = await fetch("/api/centres/invite-link", { method: "POST" });
+      const data = await res.json();
+      if (data.success) {
+        setInviteLink(data.data.url);
+        setLinkCopied(false);
+      } else {
+        setInviteMsg({ type: "error", text: data.error || "Failed to generate link" });
+      }
+    } catch {
+      setInviteMsg({ type: "error", text: "Something went wrong. Please try again." });
+    } finally {
+      setGeneratingLink(false);
+    }
+  };
+
+  const copyLink = () => {
+    if (!inviteLink) return;
+    navigator.clipboard.writeText(inviteLink);
+    setLinkCopied(true);
+    setTimeout(() => setLinkCopied(false), 2000);
+  };
 
   const handleDelete = async (studentId: string, studentName: string) => {
     if (!confirm(`Are you sure you want to delete "${studentName}"? This will remove all their data and cannot be undone.`)) {
@@ -205,6 +235,39 @@ export default function StudentsPage() {
                   {inviteMsg.text}
                 </div>
               )}
+
+              {/* Share-a-link fallback (for when invite emails don't arrive) */}
+              <div className="mt-4 border-t border-gray-200 dark:border-slate-600 pt-4">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm text-gray-600 dark:text-slate-400">
+                    Email not arriving? Generate a single-use link and send it to the student yourself.
+                  </p>
+                  <Button variant="outline" onClick={generateLink} loading={generatingLink} className="gap-2 shrink-0">
+                    <Link2 className="h-4 w-4" />
+                    {generatingLink ? "Generating..." : "Generate invite link"}
+                  </Button>
+                </div>
+
+                {inviteLink && (
+                  <div className="mt-3 rounded-lg border border-teal-200 dark:border-teal-800 bg-white dark:bg-slate-700 p-3">
+                    <div className="flex items-center gap-2">
+                      <input
+                        readOnly
+                        value={inviteLink}
+                        onFocus={(e) => e.currentTarget.select()}
+                        className="w-full rounded-md border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-slate-800 px-2 py-1.5 text-xs text-gray-700 dark:text-slate-300"
+                      />
+                      <Button size="sm" onClick={copyLink} className="gap-1 shrink-0">
+                        {linkCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                        {linkCopied ? "Copied" : "Copy"}
+                      </Button>
+                    </div>
+                    <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
+                      ⏱ Single use — works for one student and expires in 1 hour. Generate a fresh link for each student.
+                    </p>
+                  </div>
+                )}
+              </div>
 
               {/* Pending Invitations */}
               {pendingInvites.length > 0 && (
