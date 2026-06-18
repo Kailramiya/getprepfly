@@ -17,6 +17,7 @@ export async function GET(req: NextRequest) {
       OR: [
         { name: { contains: search, mode: "insensitive" } },
         { email: { contains: search, mode: "insensitive" } },
+        { phone: { contains: search, mode: "insensitive" } },
       ],
     }),
   };
@@ -28,6 +29,7 @@ export async function GET(req: NextRequest) {
         id: true,
         name: true,
         email: true,
+        phone: true,
         role: true,
         isActive: true,
         createdAt: true,

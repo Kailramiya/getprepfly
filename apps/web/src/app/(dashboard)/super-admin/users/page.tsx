@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Users, Search, Shield, Building2, GraduationCap, Trash2, Hash, Copy, CheckCheck } from "lucide-react";
+import { Users, Search, Shield, Building2, GraduationCap, Trash2, Hash, Copy, CheckCheck, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface UserItem {
   id: string;
   name: string;
   email: string;
+  phone: string | null;
   role: string;
   isActive: boolean;
   createdAt: string;
@@ -79,7 +80,7 @@ export default function SuperAdminUsersPage() {
       <div className="relative max-w-md">
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
         <Input
-          placeholder="Search by name or email..."
+          placeholder="Search by name, email or phone..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
@@ -112,6 +113,14 @@ export default function SuperAdminUsersPage() {
                       <div>
                         <p className="font-medium text-gray-900 dark:text-slate-100">{u.name}</p>
                         <p className="text-xs text-gray-500 dark:text-slate-400">{u.email}</p>
+                        <p className="mt-0.5 flex items-center gap-1 text-xs text-gray-500 dark:text-slate-400">
+                          <Phone className="h-3 w-3" />
+                          {u.phone ? (
+                            <a href={`tel:${u.phone}`} className="hover:text-indigo-600">{u.phone}</a>
+                          ) : (
+                            <span className="italic text-gray-400 dark:text-slate-500">No phone</span>
+                          )}
+                        </p>
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
