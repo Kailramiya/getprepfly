@@ -104,7 +104,7 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
   // ---- Priority 1: Active Centre Seat (per-student 30-day/monthly access) ----
   if (user.centreId) {
     try {
-      const seat = await (db as any).centreStudentSeat?.findUnique({
+      const seat = await db.centreStudentSeat.findUnique({
         where: { centreId_userId: { centreId: user.centreId, userId } },
       });
       if (seat && seat.status === "ACTIVE" && new Date(seat.endDate) > now) {

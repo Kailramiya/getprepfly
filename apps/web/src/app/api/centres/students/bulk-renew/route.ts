@@ -41,13 +41,11 @@ export async function POST(req: NextRequest) {
     const activeSeats = await getCentreActiveSeats(centreId);
     // Count students without an active seat (they'd consume a new slot)
     const existingSeats: string[] = [];
-    try {
-      const seats = await (db as any).centreStudentSeat?.findMany({
-        where: { centreId, userId: { in: students.map(s => s.id) }, status: "ACTIVE" },
-        select: { userId: true },
-      });
-      if (seats) seats.forEach((s: any) => existingSeats.push(s.userId));
-    } catch { /* ignore */ }
+    const seats = await db.centreStudentSeat.findMany({
+      where: { centreId, userId: { in: students.map(s => s.id) }, status: "ACTIVE" },
+      select: { userId: true },
+    });
+    seats.forEach(s => existingSeats.push(s.userId));
 
     const newSlots = students.filter(s => !existingSeats.includes(s.id)).length;
     if (activeSeats + newSlots > sub.maxStudents) {

@@ -29,26 +29,21 @@ export async function GET(
 
   // Fetch seat info
   const seatMap: Record<string, { status: string; endDate: Date } | null> = {};
-  try {
-    const allEmails = students.map(s => s.email);
-    const allUsers = await db.user.findMany({
-      where: { email: { in: allEmails }, centreId: params.centreId },
-      select: { id: true, email: true },
-    });
-    const idToEmail: Record<string, string> = {};
-    allUsers.forEach(u => { idToEmail[u.id] = u.email; });
-
-    const seats = await (db as any).centreStudentSeat?.findMany({
-      where: { centreId: params.centreId },
-      select: { userId: true, status: true, endDate: true },
-    });
-    if (seats) {
-      seats.forEach((s: any) => {
-        const email = idToEmail[s.userId];
-        if (email) seatMap[email] = { status: s.status, endDate: s.endDate };
-      });
-    }
-  } catch { /* ignore */ }
+  const allEmails = students.map(s => s.email);
+  const allUsers = await db.user.findMany({
+    where: { email: { in: allEmails }, centreId: params.centreId },
+    select: { id: true, email: true },
+  });
+  const idToEmail: Record<string, string> = {};
+  allUsers.forEach(u => { idToEmail[u.id] = u.email; });
+  const seats = await db.centreStudentSeat.findMany({
+    where: { centreId: params.centreId },
+    select: { userId: true, status: true, endDate: true },
+  });
+  seats.forEach(s => {
+    const email = idToEmail[s.userId];
+    if (email) seatMap[email] = { status: s.status, endDate: s.endDate };
+  });
 
   // Build CSV
   const header = ["Name", "Email", "Phone", "Access Status", "Access Expires", "Batches", "Attempts", "Mock Tests", "Joined"].join(",");

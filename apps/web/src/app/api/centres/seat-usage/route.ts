@@ -21,18 +21,13 @@ export async function GET() {
     select: { maxStudents: true, planName: true, endDate: true },
   });
 
-  let used = 0, expiring7 = 0, expiring30 = 0;
-  try {
-    const seats = await (db as any).centreStudentSeat?.findMany({
-      where: { centreId, status: "ACTIVE", endDate: { gte: now } },
-      select: { endDate: true },
-    });
-    if (seats) {
-      used = seats.length;
-      expiring7  = seats.filter((s: any) => s.endDate <= in7).length;
-      expiring30 = seats.filter((s: any) => s.endDate <= in30).length;
-    }
-  } catch { /* seat table not yet migrated */ }
+  const seats = await db.centreStudentSeat.findMany({
+    where: { centreId, status: "ACTIVE", endDate: { gte: now } },
+    select: { endDate: true },
+  });
+  const used = seats.length;
+  const expiring7  = seats.filter(s => s.endDate <= in7).length;
+  const expiring30 = seats.filter(s => s.endDate <= in30).length;
 
   return NextResponse.json({
     success: true,

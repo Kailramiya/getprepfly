@@ -61,17 +61,12 @@ export async function GET(
     db.user.count({ where }),
   ]);
 
-  // Fetch seat info separately — table may not exist if migration hasn't run
   const seatMap: Record<string, { status: string; startDate: Date; endDate: Date } | null> = {};
-  try {
-    const seats = await (db as any).centreStudentSeat?.findMany({
-      where: { centreId: params.centreId, userId: { in: students.map((s: any) => s.id) } },
-      select: { userId: true, status: true, startDate: true, endDate: true },
-    });
-    if (seats) {
-      seats.forEach((s: any) => { seatMap[s.userId] = s; });
-    }
-  } catch { /* table not yet migrated */ }
+  const seats = await db.centreStudentSeat.findMany({
+    where: { centreId: params.centreId, userId: { in: students.map((s: any) => s.id) } },
+    select: { userId: true, status: true, startDate: true, endDate: true },
+  });
+  seats.forEach(s => { seatMap[s.userId] = s; });
 
   return NextResponse.json({
     success: true,

@@ -21,7 +21,7 @@ export async function POST(_req: NextRequest, { params }: { params: { userId: st
   }
 
   // Check seat limit for new seats (cancelled students re-added count as new)
-  const seat = await (db as any).centreStudentSeat?.findUnique({ where: { centreId_userId: { centreId, userId: params.userId } } });
+  const seat = await db.centreStudentSeat.findUnique({ where: { centreId_userId: { centreId, userId: params.userId } } });
   const isNew = !seat || seat.status === "CANCELLED";
   if (isNew) {
     const latestSub = await db.centreSubscription.findFirst({ where: { centreId, status: "ACTIVE" }, orderBy: { createdAt: "desc" } });
