@@ -20,10 +20,23 @@ CREATE INDEX IF NOT EXISTS "CentreStudentSeat_centreId_idx" ON "CentreStudentSea
 -- CreateIndex
 CREATE INDEX IF NOT EXISTS "CentreStudentSeat_userId_idx" ON "CentreStudentSeat"("userId");
 
--- AddForeignKey
-ALTER TABLE "CentreStudentSeat" ADD CONSTRAINT "CentreStudentSeat_centreId_fkey"
-    FOREIGN KEY ("centreId") REFERENCES "Centre"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+-- AddForeignKey (idempotent — skip if already exists)
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'CentreStudentSeat_centreId_fkey'
+  ) THEN
+    ALTER TABLE "CentreStudentSeat" ADD CONSTRAINT "CentreStudentSeat_centreId_fkey"
+      FOREIGN KEY ("centreId") REFERENCES "Centre"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
 
--- AddForeignKey
-ALTER TABLE "CentreStudentSeat" ADD CONSTRAINT "CentreStudentSeat_userId_fkey"
-    FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint WHERE conname = 'CentreStudentSeat_userId_fkey'
+  ) THEN
+    ALTER TABLE "CentreStudentSeat" ADD CONSTRAINT "CentreStudentSeat_userId_fkey"
+      FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END $$;
