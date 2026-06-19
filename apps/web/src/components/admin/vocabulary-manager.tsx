@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import { BookMarked, Plus, Search, Trash2, Edit2, X } from "lucide-react";
 
 interface VocabWord {
@@ -25,6 +27,8 @@ const EMPTY_FORM = {
 };
 
 export function VocabularyManager() {
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [items, setItems] = useState<VocabWord[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -97,14 +101,16 @@ export function VocabularyManager() {
   };
 
   const handleDelete = async (v: VocabWord) => {
-    if (!confirm(`Delete "${v.word}" from the vocabulary list?`)) return;
+    const ok = await confirm({ description: `Delete "${v.word}" from the vocabulary list?`, confirmLabel: "Delete", variant: "danger" });
+    if (!ok) return;
     const res = await fetch(`/api/vocabulary/${v.id}`, { method: "DELETE" });
     const data = await res.json();
     if (data.success) {
       setItems((prev) => prev.filter((i) => i.id !== v.id));
       setTotal((t) => t - 1);
+      toast("success", `"${v.word}" deleted`);
     } else {
-      alert(data.error || "Failed to delete word");
+      toast("error", data.error || "Failed to delete word");
     }
   };
 

@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import { Plus, Trash2, ToggleLeft, ToggleRight, Tag, Copy, CheckCheck } from "lucide-react";
 
 interface Coupon {
@@ -20,6 +22,8 @@ interface Coupon {
 }
 
 export default function CouponsPage() {
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -79,9 +83,15 @@ export default function CouponsPage() {
   };
 
   const deleteCoupon = async (id: string, code: string) => {
-    if (!confirm(`Delete coupon "${code}"? This cannot be undone.`)) return;
+    const ok = await confirm({ description: `Delete coupon "${code}"? This cannot be undone.`, confirmLabel: "Delete", variant: "danger" });
+    if (!ok) return;
     const res = await fetch(`/api/super-admin/coupons/${id}`, { method: "DELETE" });
-    if ((await res.json()).success) setCoupons((prev) => prev.filter((c) => c.id !== id));
+    if ((await res.json()).success) {
+      setCoupons((prev) => prev.filter((c) => c.id !== id));
+      toast("success", `Coupon "${code}" deleted`);
+    } else {
+      toast("error", "Failed to delete coupon");
+    }
   };
 
   const copyCode = (code: string) => {

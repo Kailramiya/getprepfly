@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import { Users, Search, Shield, Building2, GraduationCap, Trash2, Hash, Copy, CheckCheck, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -26,6 +28,8 @@ const ROLE_CONFIG: Record<string, { icon: any; color: string }> = {
 };
 
 export default function SuperAdminUsersPage() {
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const PAGE_SIZE = 50;
   const [users, setUsers] = useState<UserItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,20 +48,20 @@ export default function SuperAdminUsersPage() {
   };
 
   const handleDelete = async (userId: string, userName: string) => {
-    if (!confirm(`Are you sure you want to delete "${userName}"? This will remove all their data (attempts, mock tests, etc.) and cannot be undone.`)) {
-      return;
-    }
+    const ok = await confirm({ title: `Delete ${userName}?`, description: "All their attempts, scores, and mock tests will be permanently removed.", confirmLabel: "Delete permanently", variant: "danger" });
+    if (!ok) return;
     setDeleting(userId);
     try {
       const res = await fetch(`/api/users/${userId}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         setUsers((prev) => prev.filter((u) => u.id !== userId));
+        toast("success", `${userName} deleted`);
       } else {
-        alert(data.error || "Failed to delete user");
+        toast("error", data.error || "Failed to delete user");
       }
     } catch {
-      alert("Failed to delete user. Please try again.");
+      toast("error", "Failed to delete user. Please try again.");
     } finally {
       setDeleting(null);
     }

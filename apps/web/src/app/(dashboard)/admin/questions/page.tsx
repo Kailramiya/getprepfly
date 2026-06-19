@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { QuestionForm } from "@/components/admin/question-form";
 import { BulkUploadModal } from "@/components/admin/bulk-upload-modal";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import {
   Database, Plus, Search, Upload, Trash2, Edit2,
   Mic, PenTool, BookOpen, Headphones, Star,
@@ -90,6 +92,8 @@ interface QuestionDetail {
 }
 
 export default function QuestionsPage() {
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -123,18 +127,20 @@ export default function QuestionsPage() {
   };
 
   const handleDelete = async (questionId: string, title: string) => {
-    if (!confirm(`Delete question "${title}"? This cannot be undone.`)) return;
+    const ok = await confirm({ title: "Delete question?", description: `"${title}" will be permanently removed.`, confirmLabel: "Delete", variant: "danger" });
+    if (!ok) return;
     setDeleting(questionId);
     try {
       const res = await fetch(`/api/questions/${questionId}`, { method: "DELETE" });
       const data = await res.json();
       if (data.success) {
         setQuestions((prev) => prev.filter((q) => q.id !== questionId));
+        toast("success", "Question deleted");
       } else {
-        alert(data.error || "Failed to delete question");
+        toast("error", data.error || "Failed to delete question");
       }
     } catch {
-      alert("Failed to delete question");
+      toast("error", "Failed to delete question");
     } finally {
       setDeleting(null);
     }

@@ -5,11 +5,15 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import { Megaphone, Plus, Trash2 } from "lucide-react";
 
 interface Announcement { id: string; title: string; message: string; isGlobal: boolean; createdAt: string }
 
 export default function AnnouncementsPage() {
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [list, setList] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -36,9 +40,15 @@ export default function AnnouncementsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this announcement?")) return;
+    const ok = await confirm({ description: "Delete this announcement? Students will no longer see it.", confirmLabel: "Delete", variant: "danger" });
+    if (!ok) return;
     const res = await fetch("/api/announcements", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id }) });
-    if ((await res.json()).success) setList(prev => prev.filter(a => a.id !== id));
+    if ((await res.json()).success) {
+      setList(prev => prev.filter(a => a.id !== id));
+      toast("success", "Announcement deleted");
+    } else {
+      toast("error", "Failed to delete announcement");
+    }
   };
 
   return (

@@ -5,6 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import {
   Plus, BookOpen, Trash2, Edit2, X, Star,
 } from "lucide-react";
@@ -53,6 +55,8 @@ interface Template {
 }
 
 export default function AdminTemplatesPage() {
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -129,18 +133,20 @@ export default function AdminTemplatesPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete template "${title}"?`)) return;
-    // Optimistic update — remove from UI immediately
+    const ok = await confirm({ title: "Delete template?", description: `"${title}" will be permanently removed.`, confirmLabel: "Delete", variant: "danger" });
+    if (!ok) return;
     setTemplates((prev) => prev.filter((t) => t.id !== id));
     try {
       const res = await fetch(`/api/templates/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!data.success) {
-        alert(data.error || "Failed to delete — refreshing list");
+        toast("error", data.error || "Failed to delete");
         fetchTemplates();
+      } else {
+        toast("success", "Template deleted");
       }
     } catch {
-      alert("Network error — refreshing list");
+      toast("error", "Network error — please try again");
       fetchTemplates();
     }
   };

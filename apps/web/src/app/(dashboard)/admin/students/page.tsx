@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import Link from "next/link";
 import {
   Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus,
@@ -68,6 +70,8 @@ function matchesFilter(student: Student, filter: ExpiryFilter): boolean {
 
 export default function StudentsPage() {
   const { user } = useAuth();
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [students, setStudents] = useState<Student[]>([]);
   const [search, setSearch] = useState("");
   const [expiryFilter, setExpiryFilter] = useState<ExpiryFilter>("all");
@@ -153,7 +157,8 @@ export default function StudentsPage() {
 
   const bulkRenew = async () => {
     if (selectedIds.size === 0) return;
-    if (!confirm(`Renew access for ${selectedIds.size} student(s) for 30 days each?`)) return;
+    const ok = await confirm({ description: `Renew access for ${selectedIds.size} student(s) for 30 days each?`, confirmLabel: "Renew all", variant: "warning" });
+    if (!ok) return;
     setBulkRenewing(true);
     setBulkMsg(null);
     try {
@@ -165,15 +170,19 @@ export default function StudentsPage() {
       const data = await res.json();
       if (data.success) {
         setBulkMsg({ type: "success", text: data.data.message });
+        toast("success", data.data.message);
         setSelectedIds(new Set());
         const c = new AbortController();
         fetchStudents(centreId!, search, c.signal);
         fetchSeatUsage();
       } else {
         setBulkMsg({ type: "error", text: data.error || "Bulk renew failed" });
+        toast("error", data.error || "Bulk renew failed");
       }
     } catch {
-      setBulkMsg({ type: "error", text: "Something went wrong. Please try again." });
+      const msg = "Something went wrong. Please try again.";
+      setBulkMsg({ type: "error", text: msg });
+      toast("error", msg);
     } finally {
       setBulkRenewing(false);
     }
@@ -184,7 +193,7 @@ export default function StudentsPage() {
     setExporting(true);
     try {
       const res = await fetch(`/api/centres/${centreId}/students/export`);
-      if (!res.ok) { alert("Export failed. Please try again."); return; }
+      if (!res.ok) { toast("error", "Export failed. Please try again."); return; }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -194,12 +203,14 @@ export default function StudentsPage() {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch { alert("Export failed. Please try again."); }
+      toast("success", "CSV downloaded");
+    } catch { toast("error", "Export failed. Please try again."); }
     finally { setExporting(false); }
   };
 
   const handleDelete = async (studentId: string, studentName: string) => {
-    if (!confirm(`Are you sure you want to delete "${studentName}"? This will remove all their data and cannot be undone.`)) return;
+    const ok = await confirm({ title: `Delete ${studentName}?`, description: "All their data (attempts, scores, mock tests) will be permanently removed.", confirmLabel: "Delete permanently", variant: "danger" });
+    if (!ok) return;
     setDeleting(studentId);
     try {
       const res = await fetch(`/api/users/${studentId}`, { method: "DELETE" });
@@ -207,28 +218,32 @@ export default function StudentsPage() {
       if (data.success) {
         setStudents(prev => prev.filter(s => s.id !== studentId));
         setSelectedIds(prev => { const n = new Set(prev); n.delete(studentId); return n; });
-      } else alert(data.error || "Failed to delete student");
-    } catch { alert("Failed to delete student. Please try again."); }
+        toast("success", `${studentName} deleted`);
+      } else toast("error", data.error || "Failed to delete student");
+    } catch { toast("error", "Failed to delete student. Please try again."); }
     finally { setDeleting(null); }
   };
 
   const renewSeat = async (studentId: string, studentName: string) => {
-    if (!confirm(`Renew access for "${studentName}" for 1 month (30 days)?`)) return;
+    const ok = await confirm({ description: `Renew access for ${studentName} for 30 days?`, confirmLabel: "Renew", variant: "warning" });
+    if (!ok) return;
     setRenewingSeat(studentId);
     try {
       const res = await fetch(`/api/centres/students/${studentId}/renew`, { method: "POST" });
       const data = await res.json();
       if (data.success) {
+        toast("success", `Access renewed for ${studentName}`);
         const c = new AbortController();
         fetchStudents(centreId!, search, c.signal);
         fetchSeatUsage();
-      } else alert(data.error || "Failed to renew access");
-    } catch { alert("Failed to renew. Please try again."); }
+      } else toast("error", data.error || "Failed to renew access");
+    } catch { toast("error", "Failed to renew. Please try again."); }
     finally { setRenewingSeat(null); }
   };
 
   const cancelSeat = async (studentId: string, studentName: string) => {
-    if (!confirm(`Cancel access for "${studentName}"?\nThis will revoke their access immediately.`)) return;
+    const ok = await confirm({ title: `Revoke access for ${studentName}?`, description: "Their access will be cancelled immediately. You can re-grant it later.", confirmLabel: "Revoke", variant: "danger" });
+    if (!ok) return;
     setCancelingSeat(studentId);
     try {
       const res = await fetch(`/api/centres/students/${studentId}`, { method: "DELETE" });
@@ -238,8 +253,9 @@ export default function StudentsPage() {
           s.id === studentId ? { ...s, centreSeats: s.centreSeats.map(seat => ({ ...seat, status: "CANCELLED" })) } : s
         ));
         fetchSeatUsage();
-      } else alert(data.error || "Failed to cancel access");
-    } catch { alert("Failed to cancel access. Please try again."); }
+        toast("success", `Access revoked for ${studentName}`);
+      } else toast("error", data.error || "Failed to cancel access");
+    } catch { toast("error", "Failed to cancel access. Please try again."); }
     finally { setCancelingSeat(null); }
   };
 

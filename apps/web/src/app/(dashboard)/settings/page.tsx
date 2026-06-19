@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import {
   Crown, LogOut, User, Save, Lock, Building2,
   Palette, Globe, Phone, Mail, MapPin, Check,
@@ -14,6 +15,7 @@ import {
 
 export default function SettingsPage() {
   const { user, isCentreAdmin } = useAuth();
+  const confirm = useConfirm();
 
   // Profile state
   const [profile, setProfile] = useState({ name: "", phone: "", language: "EN", examDate: "", dailyGoal: 20 });
@@ -331,7 +333,16 @@ export default function SettingsPage() {
             </div>
           )}
           <div className="pt-2">
-            <Button variant="destructive" onClick={() => signOut({ callbackUrl: "/login" })} className="gap-2">
+            <Button variant="destructive" onClick={async () => {
+              const ok = await confirm({
+                title: "Log out?",
+                description: "You'll be signed out of your account on this device.",
+                confirmLabel: "Log out",
+                cancelLabel: "Stay",
+                variant: "warning",
+              });
+              if (ok) signOut({ callbackUrl: "/login" });
+            }} className="gap-2">
               <LogOut className="h-4 w-4" /> Log Out
             </Button>
           </div>

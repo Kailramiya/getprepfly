@@ -5,11 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import { GraduationCap, Plus, Trash2, Mail, User } from "lucide-react";
 
 interface Teacher { id: string; name: string; email: string; phone: string | null; createdAt: string; isActive: boolean }
 
 export default function TeachersPage() {
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [teachers, setTeachers] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -41,10 +45,16 @@ export default function TeachersPage() {
   };
 
   const handleRemove = async (id: string, name: string) => {
-    if (!confirm(`Remove "${name}" from your centre? They will lose access.`)) return;
+    const ok = await confirm({ title: `Remove ${name}?`, description: "They will immediately lose access to your centre.", confirmLabel: "Remove", variant: "danger" });
+    if (!ok) return;
     setRemoving(id);
     const res = await fetch("/api/centres/teachers", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ teacherId: id }) });
-    if ((await res.json()).success) setTeachers(prev => prev.filter(t => t.id !== id));
+    if ((await res.json()).success) {
+      setTeachers(prev => prev.filter(t => t.id !== id));
+      toast("success", `${name} removed from centre`);
+    } else {
+      toast("error", "Failed to remove teacher");
+    }
     setRemoving(null);
   };
 

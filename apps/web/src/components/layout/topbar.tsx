@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "next-auth/react";
 import { LogOut, Menu, Sparkles, MessageSquare, User, Settings, ChevronDown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 import Link from "next/link";
 
 interface TopbarProps {
@@ -13,8 +14,20 @@ interface TopbarProps {
 
 export function Topbar({ onMenuClick }: TopbarProps) {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const handleLogout = async () => {
+    const ok = await confirm({
+      title: "Log out?",
+      description: "You'll be signed out of your account on this device.",
+      confirmLabel: "Log out",
+      cancelLabel: "Stay",
+      variant: "warning",
+    });
+    if (ok) signOut({ callbackUrl: "/login" });
+  };
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -119,7 +132,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
               {/* Logout */}
               <div className="border-t border-gray-100 dark:border-slate-700 py-1">
-                <button onClick={() => signOut({ callbackUrl: "/login" })}
+                <button onClick={handleLogout}
                   className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 transition hover:bg-red-50 dark:hover:bg-red-900/20">
                   <LogOut className="h-4 w-4" />
                   Log Out

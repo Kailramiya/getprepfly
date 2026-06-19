@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { QuestionForm } from "@/components/admin/question-form";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import {
   Database, Plus, Search, Trash2, Edit2,
   Mic, PenTool, BookOpen, Headphones, Star,
@@ -92,6 +94,8 @@ interface QuestionDetail {
 }
 
 export default function SuperAdminQuestionsPage() {
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -190,19 +194,21 @@ export default function SuperAdminQuestionsPage() {
   useEffect(() => { fetchQuestions(); }, [page, search, section, questionType, centreFilter, sortOrder, groupByCentre, mockTestOnly]);
 
   const deleteQuestion = async (id: string) => {
-    if (!confirm("Delete this question?")) return;
-    // Optimistic update — remove from UI immediately
+    const ok = await confirm({ description: "Delete this question? This cannot be undone.", confirmLabel: "Delete", variant: "danger" });
+    if (!ok) return;
     setQuestions((prev) => prev.filter((q) => q.id !== id));
     setTotal((prev) => Math.max(0, prev - 1));
     try {
       const res = await fetch(`/api/questions/${id}`, { method: "DELETE" });
       const data = await res.json();
       if (!data.success) {
-        alert(data.error || "Failed to delete — refreshing list");
+        toast("error", data.error || "Failed to delete");
         fetchQuestions();
+      } else {
+        toast("success", "Question deleted");
       }
     } catch {
-      alert("Network error — refreshing list");
+      toast("error", "Network error — please try again");
       fetchQuestions();
     }
   };

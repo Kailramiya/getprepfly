@@ -6,6 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import { ClipboardList, Plus, Trash2, X, Mic, PenTool, BookOpen, Headphones, Layers, Settings2, Gift } from "lucide-react";
 
 interface MockTemplate {
@@ -27,6 +29,8 @@ const SECTION_META: Record<string, { label: string; icon: any; color: string; bg
 
 export default function SuperAdminMockTestsPage() {
   const router = useRouter();
+  const confirm = useConfirm();
+  const { toast } = useToast();
   const [templates, setTemplates] = useState<MockTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -77,11 +81,14 @@ export default function SuperAdminMockTestsPage() {
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete "${title}"? This cannot be undone.`)) return;
+    const ok = await confirm({ title: "Delete mock test?", description: `"${title}" will be permanently removed.`, confirmLabel: "Delete", variant: "danger" });
+    if (!ok) return;
     setTemplates(prev => prev.filter(t => t.id !== id));
     try {
       await fetch(`/api/super-admin/mock-tests?id=${id}`, { method: "DELETE" });
+      toast("success", `"${title}" deleted`);
     } catch {
+      toast("error", "Failed to delete — please refresh");
       fetchTemplates();
     }
   };
