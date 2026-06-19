@@ -1,5 +1,5 @@
 {
-  "buildCommand": "prisma migrate deploy && prisma generate && next build",
+  "buildCommand": "(prisma migrate resolve --rolled-back 20260105000000_centre_student_seat || true) && prisma migrate deploy && prisma generate && next build",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "regions": ["bom1"],
