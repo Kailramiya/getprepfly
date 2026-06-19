@@ -555,6 +555,20 @@ export default function PracticeQuestionPage() {
                 if (result) {
                   setScore(result);
                   saveAttempt(currentQuestion, result, response);
+                  // For AI-scored types, percentile isn't in result yet — fetch it after save
+                  if (result.percentile === undefined && currentQuestion && !result.pending) {
+                    const overallScore = result.marksTotal > 0
+                      ? Math.round((result.marksEarned / result.marksTotal) * 90)
+                      : (result.aiScores?.overall != null ? Math.round(result.aiScores.overall) : 0);
+                    fetch(`/api/questions/${currentQuestion.id}/percentile?score=${overallScore}`)
+                      .then(r => r.json())
+                      .then(d => {
+                        if (d.success && d.data.percentile !== null) {
+                          setScore(prev => prev ? { ...prev, percentile: d.data.percentile } : prev);
+                        }
+                      })
+                      .catch(() => {});
+                  }
                 }
               }}
               score={score}

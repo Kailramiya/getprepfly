@@ -49,6 +49,7 @@ export interface ScoreResult {
   message?: string;
   aiScores?: Record<string, number>; // detailed breakdown from AI: pronunciation/fluency/content etc.
   transcription?: string;
+  percentile?: number | null; // % of users scored below this attempt (null = not enough data)
 }
 
 // Speak a single word aloud using an Indian English voice (where available)
@@ -419,7 +420,8 @@ export function QuestionRenderer({
       const data = await res.json();
       if (data.success) {
         setRevealedContent(data.data.revealedContent);
-        onSubmit({ answer, scoreResult: data.data.scoreResult, modelAnswer: data.data.modelAnswer });
+        const sr: ScoreResult = { ...data.data.scoreResult, percentile: data.data.percentile ?? null };
+        onSubmit({ answer, scoreResult: sr, modelAnswer: data.data.modelAnswer });
       } else {
         onSubmit({ answer, scoreResult: null });
       }
@@ -1383,6 +1385,11 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
                 ) : <span className="text-sm text-gray-400">Same as last attempt</span>;
               })()}
             </div>
+          )}
+          {!result.pending && result.percentile != null && (
+            <p className="mt-1.5 text-sm font-medium text-indigo-700 dark:text-indigo-400">
+              🏆 Better than <span className="font-bold">{result.percentile}%</span> of students on this question
+            </p>
           )}
           {result.pending && result.message && (
             <p className="mt-1 text-sm text-blue-800">{result.message}</p>

@@ -246,26 +246,43 @@ export async function POST(
     ? Math.round((scoreResult.marksEarned / scoreResult.marksTotal) * 90)
     : 0;
 
-  db.attempt.create({
-    data: {
-      userId: user!.id,
-      questionId: params.questionId,
-      responseText: typeof answer === "string" ? answer : JSON.stringify(answer),
-      scores: {
-        correct: scoreResult.correct,
-        total: scoreResult.total,
-        marksEarned: scoreResult.marksEarned,
-        marksTotal: scoreResult.marksTotal,
-        mistakes: scoreResult.mistakes,
+  // Save attempt + compute percentile in parallel (non-blocking save)
+  const [, percentileResult] = await Promise.all([
+    db.attempt.create({
+      data: {
+        userId: user!.id,
+        questionId: params.questionId,
+        responseText: typeof answer === "string" ? answer : JSON.stringify(answer),
+        scores: {
+          correct: scoreResult.correct,
+          total: scoreResult.total,
+          marksEarned: scoreResult.marksEarned,
+          marksTotal: scoreResult.marksTotal,
+          mistakes: scoreResult.mistakes,
+        },
+        overallScore,
+        timeTaken: typeof timeTaken === "number" ? timeTaken : null,
+        mockTestId: mockTestId || null,
       },
-      overallScore,
-      timeTaken: typeof timeTaken === "number" ? timeTaken : null,
-      mockTestId: mockTestId || null,
-    },
-  }).catch(() => {});
+    }).catch(() => null),
+    // Count other users who scored below this attempt on the same question
+    db.attempt.findMany({
+      where: { questionId: params.questionId, overallScore: { not: null } },
+      select: { overallScore: true },
+    }).catch(() => [] as Array<{ overallScore: number | null }>),
+  ]);
+
+  let percentile: number | null = null;
+  const allScores = (percentileResult as Array<{ overallScore: number | null }>)
+    .map((a) => a.overallScore)
+    .filter((s): s is number => s !== null);
+  if (allScores.length >= 5) {
+    const below = allScores.filter((s) => s < overallScore).length;
+    percentile = Math.round((below / allScores.length) * 100);
+  }
 
   return NextResponse.json({
     success: true,
-    data: { scoreResult, revealedContent, modelAnswer: question.modelAnswer },
+    data: { scoreResult, revealedContent, modelAnswer: question.modelAnswer, percentile },
   });
 }
