@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onClick={() => setMobileMenuOpen(false)}
           />
           <div className="fixed left-0 top-0 z-50 lg:hidden">
-            <Sidebar />
+            <Sidebar onNavClick={() => setMobileMenuOpen(false)} />
           </div>
         </>
       )}

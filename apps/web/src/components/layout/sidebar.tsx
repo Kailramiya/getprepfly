@@ -83,7 +83,11 @@ const superAdminNav: NavItem[] = [
 ];
 
 
-export function Sidebar() {
+interface SidebarProps {
+  onNavClick?: () => void;
+}
+
+export function Sidebar({ onNavClick }: SidebarProps) {
   const pathname = usePathname();
   const { user, isCentreAdmin, isSuperAdmin } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
@@ -136,6 +140,7 @@ export function Sidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
+                  onClick={onNavClick}
                   className={cn(
                     "flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors",
                     collapsed ? "justify-center px-2" : "gap-3 px-3",
@@ -174,6 +179,7 @@ export function Sidebar() {
       <div className="border-t border-gray-200 dark:border-slate-700 p-2">
         <Link
           href="/settings"
+          onClick={onNavClick}
           className={cn(
             "flex items-center rounded-lg py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100",
             collapsed ? "justify-center px-2" : "gap-3 px-3"

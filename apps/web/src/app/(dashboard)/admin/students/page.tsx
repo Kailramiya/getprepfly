@@ -510,7 +510,68 @@ export default function StudentsPage() {
               </p>
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <>
+            {/* ── Mobile cards (< md) ── */}
+            <div className="space-y-3 md:hidden">
+              {visibleStudents.map((student) => {
+                const status = seatStatus(student);
+                const isExpiringSoon = status === "expiring7" || status === "expiring30";
+                return (
+                  <div key={student.id}
+                    className={`rounded-xl border p-4 ${selectedIds.has(student.id) ? "border-indigo-300 bg-indigo-50 dark:bg-indigo-950/20" : "border-gray-100 dark:border-slate-700 bg-white dark:bg-slate-800"}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <input type="checkbox" checked={selectedIds.has(student.id)} onChange={() => toggleSelect(student.id)}
+                          className="mt-0.5 rounded border-gray-300 text-indigo-600 shrink-0" aria-label={`Select ${student.name}`} />
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-sm font-bold text-indigo-600 dark:text-indigo-300">
+                          {student.name.charAt(0).toUpperCase()}
+                        </div>
+                        <div className="min-w-0">
+                          <Link href={`/admin/students/${student.id}`} className="font-semibold text-indigo-700 dark:text-indigo-400 hover:underline truncate block">
+                            {student.name}
+                          </Link>
+                          <p className="text-xs text-gray-500 dark:text-slate-400 truncate">{student.email}</p>
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 gap-1">
+                        {(status === "none" || status === "expired") && (
+                          <button onClick={() => renewSeat(student.id, student.name)} disabled={renewingSeat === student.id}
+                            className="rounded-lg p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20" title="Renew">
+                            {renewingSeat === student.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-green-600" /> : <RotateCcw className="h-4 w-4" />}
+                          </button>
+                        )}
+                        {(status === "active" || status === "expiring7" || status === "expiring30") && (
+                          <button onClick={() => cancelSeat(student.id, student.name)} disabled={cancelingSeat === student.id}
+                            className="rounded-lg p-1.5 text-gray-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-900/20" title="Cancel seat">
+                            {cancelingSeat === student.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-amber-600" /> : <XCircle className="h-4 w-4" />}
+                          </button>
+                        )}
+                        <button onClick={() => handleDelete(student.id, student.name)} disabled={deleting === student.id}
+                          className="rounded-lg p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20" title="Delete">
+                          {deleting === student.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" /> : <Trash2 className="h-4 w-4" />}
+                        </button>
+                      </div>
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
+                      {status === "active" && <Badge variant="success">Active</Badge>}
+                      {status === "expiring7" && <Badge variant="destructive" className="gap-1"><AlertTriangle className="h-3 w-3" />Expiring soon</Badge>}
+                      {status === "expiring30" && <Badge variant="warning">Expiring</Badge>}
+                      {status === "expired" && <Badge variant="warning">Expired</Badge>}
+                      {status === "none" && <Badge variant="secondary">No Seat</Badge>}
+                      {student.centreSeats[0]?.status === "ACTIVE" && (
+                        <span className={isExpiringSoon ? "text-amber-600 dark:text-amber-400 font-medium" : "text-gray-500 dark:text-slate-400"}>
+                          Expires {new Date(student.centreSeats[0].endDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
+                        </span>
+                      )}
+                      <span className="text-gray-400 dark:text-slate-500 ml-auto">{student._count.attempts} attempts</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ── Desktop table (≥ md) ── */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 dark:border-slate-700">
@@ -629,6 +690,7 @@ export default function StudentsPage() {
                 </tbody>
               </table>
             </div>
+            </>
           )}
         </CardContent>
       </Card>
