@@ -7,7 +7,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       {/* Left Panel — Branding */}
       <div className="hidden w-1/2 bg-gradient-to-br from-teal-500 via-indigo-600 to-purple-700 lg:flex lg:flex-col lg:justify-between lg:p-12">
         <Link href="/">
-          <Logo size="md" showText textWhite />
+          <Logo size="md" showText />
         </Link>
 
         <div>
