@@ -98,29 +98,39 @@ export async function POST(req: NextRequest) {
         { status: 403 }
       );
     }
+
+    // Single query for all sections/types — partition in JS instead of N round-trips
+    const neededTypes = Object.entries(MOCK_TEST_STRUCTURE).flatMap(([, types]) =>
+      Object.keys(types)
+    );
+    const allQuestions = await db.question.findMany({
+      where: {
+        type: { in: neededTypes as any[] },
+        isActive: true,
+        OR: [
+          { centreId: null },
+          ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
+        ],
+      },
+      select: { id: true, section: true, type: true },
+    });
+
+    // Group by type
+    const byType = new Map<string, string[]>();
+    for (const q of allQuestions) {
+      if (!byType.has(q.type)) byType.set(q.type, []);
+      byType.get(q.type)!.push(q.id);
+    }
+
+    // Shuffle + select per type in section order
     const questionSelections: { questionId: string; order: number }[] = [];
     let order = 0;
-
-    for (const [section, types] of Object.entries(MOCK_TEST_STRUCTURE)) {
+    for (const [, types] of Object.entries(MOCK_TEST_STRUCTURE)) {
       for (const [type, count] of Object.entries(types)) {
-        const questions = await db.question.findMany({
-          where: {
-            section: section as any,
-            type: type as any,
-            isActive: true,
-            OR: [
-              { centreId: null },
-              ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
-            ],
-          },
-          select: { id: true },
-          take: count * 3,
-        });
-
-        const shuffled = questions.sort(() => Math.random() - 0.5);
-        const selected = shuffled.slice(0, Math.min(count, shuffled.length));
-        for (const q of selected) {
-          questionSelections.push({ questionId: q.id, order: order++ });
+        const pool = byType.get(type) ?? [];
+        const shuffled = pool.sort(() => Math.random() - 0.5);
+        for (const id of shuffled.slice(0, count)) {
+          questionSelections.push({ questionId: id, order: order++ });
         }
       }
     }
