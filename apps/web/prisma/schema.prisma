@@ -451,7 +451,9 @@ model Question {
   reports       QuestionReport[]
 
   @@index([section, type])
+  @@index([section, type, isActive])
   @@index([centreId])
+  @@index([centreId, isActive])
   @@index([isPrediction])
   @@index([difficulty])
 }
@@ -591,6 +593,7 @@ model MockTest {
   attempts    Attempt[]
 
   @@index([userId])
+  @@index([userId, status])
   @@index([status])
   @@index([assignedBatchId])
 }
