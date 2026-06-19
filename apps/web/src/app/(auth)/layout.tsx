@@ -1,16 +1,13 @@
 import Link from "next/link";
-import Image from "next/image";
+import { Logo } from "@/components/logo";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen dark:bg-slate-900">
       {/* Left Panel — Branding */}
       <div className="hidden w-1/2 bg-gradient-to-br from-teal-500 via-indigo-600 to-purple-700 lg:flex lg:flex-col lg:justify-between lg:p-12">
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-            <Image src="/icons/logo.svg" alt="Prepfly" width={28} height={28} />
-          </div>
-          <span className="text-2xl font-bold text-white">Prepfly</span>
+        <Link href="/">
+          <Logo size="md" showText textWhite />
         </Link>
 
         <div>

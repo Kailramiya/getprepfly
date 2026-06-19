@@ -1,11 +1,48 @@
-<svg width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="fg" x1="0" y1="0" x2="100" y2="100" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#14B8A6"/>
-      <stop offset="100%" stop-color="#4F46E5"/>
+    <linearGradient id="fbg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0EA5E9"/>
+      <stop offset="100%" stop-color="#4338CA"/>
     </linearGradient>
+    <linearGradient id="fwg" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%"   stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+    <radialGradient id="fgg" cx="35%" cy="30%" r="65%">
+      <stop offset="0%"   stop-color="#FEF08A"/>
+      <stop offset="100%" stop-color="#B45309"/>
+    </radialGradient>
   </defs>
-  <rect width="100" height="100" rx="22" fill="url(#fg)"/>
-  <path d="M75.5 24.5a2.5 2.5 0 00-2.67-.56l-45 17.5a2.5 2.5 0 00.18 4.69l20.06 6.68 6.68 20.06a2.5 2.5 0 004.69.18l17.5-45a2.5 2.5 0 00-.56-2.67zM65.66 34.34l-19.68 19.68-13.16-4.39L65.66 34.34zM50.37 65.17l-4.39-13.16 19.68-19.68L50.37 65.17z" fill="white"/>
-  <circle cx="78" cy="22" r="5" fill="#FBBF24"/>
+
+  <!-- Rounded square bg -->
+  <rect width="100" height="100" rx="22" fill="url(#fbg)"/>
+
+  <!-- Wings (simplified for small size) -->
+  <path fill="url(#fwg)" opacity="0.9"
+        d="M58,14 C70,5 88,9 93,18 C87,25 70,25 58,29 Q54,27 55,21 Z"/>
+  <path fill="url(#fwg)" opacity="0.65"
+        d="M57,24 C70,17 88,23 93,33 C87,40 70,40 57,42 Q53,40 54,31 Z"/>
+
+  <!-- P letter (white on gradient bg) -->
+  <path fill="white" d="M11,13 L11,87 L24,87 L24,52 L37,52 Q60,52 60,32 Q60,13 37,13 Z"/>
+
+  <!-- Compass (4-point gold, simplified) -->
+  <g transform="translate(36,32)">
+    <path fill="url(#fgg)" d="M0,-11 L3.5,-3.5 L0,0 L-3.5,-3.5 Z"/>
+    <path fill="url(#fgg)" d="M11,0 L3.5,3.5 L0,0 L3.5,-3.5 Z"/>
+    <path fill="url(#fgg)" d="M0,11 L-3.5,3.5 L0,0 L3.5,3.5 Z"/>
+    <path fill="url(#fgg)" d="M-11,0 L-3.5,-3.5 L0,0 L-3.5,3.5 Z"/>
+    <circle r="4" fill="#F59E0B"/>
+    <circle r="2" fill="#FEF9C3"/>
+  </g>
+
+  <!-- Gold star at wing tip -->
+  <g transform="translate(91,16)">
+    <circle r="6" fill="#FCD34D" opacity="0.3"/>
+    <path fill="#F59E0B" d="M0,-7 L2,-2 L0,0 L-2,-2 Z"/>
+    <path fill="#F59E0B" d="M7,0 L2,2 L0,0 L2,-2 Z"/>
+    <path fill="#F59E0B" d="M0,7 L-2,2 L0,0 L2,2 Z"/>
+    <path fill="#F59E0B" d="M-7,0 L-2,-2 L0,0 L-2,2 Z"/>
+    <circle r="2.5" fill="#FEFCE8"/>
+  </g>
 </svg>

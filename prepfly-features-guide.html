@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prepfly — Features Guide & Platform Comparison</title>
+  <style>
+    /* ── Reset & Base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 15px; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      color: #1a1a2e;
+      background: #fff;
+      line-height: 1.65;
+    }
+
+    /* ── Print Settings ── */
+    @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+    @media print {
+      .no-print { display: none !important; }
+      body { font-size: 11pt; }
+      h1 { font-size: 26pt; }
+      h2 { font-size: 16pt; }
+      h3 { font-size: 12pt; }
+      .page-break { page-break-before: always; }
+      .avoid-break { page-break-inside: avoid; }
+      a { color: inherit; text-decoration: none; }
+      .cover { page-break-after: always; }
+    }
+
+    /* ── Color Palette ── */
+    :root {
+      --brand: #4f46e5;
+      --brand-dark: #3730a3;
+      --brand-light: #eef2ff;
+      --accent: #f59e0b;
+      --accent-light: #fffbeb;
+      --green: #059669;
+      --green-light: #ecfdf5;
+      --red: #dc2626;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-600: #4b5563;
+      --gray-900: #111827;
+    }
+
+    /* ── Typography ── */
+    h1 { font-size: 2.4rem; font-weight: 800; color: #fff; line-height: 1.15; }
+    h2 { font-size: 1.5rem; font-weight: 700; color: var(--brand-dark); margin-bottom: 0.6rem; }
+    h3 { font-size: 1.1rem; font-weight: 700; color: var(--gray-900); margin-bottom: 0.4rem; }
+    h4 { font-size: 0.9rem; font-weight: 700; color: var(--brand); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.3rem; }
+    p  { color: var(--gray-600); margin-bottom: 0.5rem; }
+    ul { padding-left: 1.2rem; color: var(--gray-600); }
+    li { margin-bottom: 0.25rem; }
+    strong { color: var(--gray-900); }
+
+    /* ── Layout ── */
+    .container { max-width: 860px; margin: 0 auto; padding: 0 2rem; }
+    section { margin-bottom: 3rem; }
+
+    /* ── Cover Page ── */
+    .cover {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #312e81 0%, #4f46e5 55%, #6d28d9 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4rem 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .cover::before {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      top: -120px; right: -120px;
+    }
+    .cover::after {
+      content: '';
+      position: absolute;
+      width: 350px; height: 350px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+      bottom: -80px; left: -80px;
+    }
+    .cover-logo {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 2.5rem;
+      padding: 0.4rem 1.2rem;
+      border: 1.5px solid rgba(255,255,255,0.3);
+      border-radius: 100px;
+      display: inline-block;
+    }
+    .cover h1 { font-size: 3rem; margin-bottom: 1rem; }
+    .cover-sub {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.75);
+      max-width: 520px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+    .cover-badges {
+      display: flex;
+      gap: 0.8rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 3rem;
+    }
+    .cover-badge {
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      padding: 0.35rem 0.9rem;
+      border-radius: 100px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .cover-footer {
+      position: absolute;
+      bottom: 2rem;
+      color: rgba(255,255,255,0.45);
+      font-size: 0.78rem;
+    }
+
+    /* ── Table of Contents ── */
+    .toc {
+      background: var(--brand-light);
+      border-left: 4px solid var(--brand);
+      border-radius: 0 12px 12px 0;
+      padding: 2rem 2.5rem;
+      margin: 3rem 0;
+    }
+    .toc h2 { margin-bottom: 1rem; }
+    .toc ol { padding-left: 1.5rem; }
+    .toc li { margin-bottom: 0.5rem; color: var(--brand-dark); font-weight: 500; }
+    .toc li span { font-weight: 400; color: var(--gray-600); font-size: 0.88rem; }
+
+    /* ── Section Headers ── */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 2rem;
+    }
+    .section-header.student { background: linear-gradient(90deg, #eef2ff, #fff); border-left: 5px solid var(--brand); }
+    .section-header.centre  { background: linear-gradient(90deg, #fffbeb, #fff); border-left: 5px solid var(--accent); }
+    .section-header.compare { background: linear-gradient(90deg, #ecfdf5, #fff); border-left: 5px solid var(--green); }
+    .section-header .icon {
+      width: 44px; height: 44px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem;
+      flex-shrink: 0;
+    }
+    .section-header.student .icon { background: var(--brand-light); }
+    .section-header.centre  .icon { background: var(--accent-light); }
+    .section-header.compare .icon { background: var(--green-light); }
+    .section-header .label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--gray-400); margin-bottom: 0.1rem; }
+    .section-header h2 { margin: 0; font-size: 1.35rem; }
+
+    /* ── Feature Cards ── */
+    .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    .feature-card {
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.1rem 1.25rem;
+      transition: border-color 0.2s;
+    }
+    .feature-card.full { grid-column: 1 / -1; }
+    .feature-card h3 { font-size: 0.95rem; margin-bottom: 0.4rem; }
+    .feature-card p { font-size: 0.85rem; margin: 0; line-height: 1.55; }
+    .feature-icon { font-size: 1.3rem; margin-bottom: 0.5rem; }
+
+    /* ── Feature Category ── */
+    .category-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.65rem;
+      border-radius: 100px;
+      margin-bottom: 0.6rem;
+    }
+    .category-label.core      { background: #ede9fe; color: #5b21b6; }
+    .category-label.analytics { background: #e0f2fe; color: #0369a1; }
+    .category-label.ai        { background: #fce7f3; color: #9d174d; }
+    .category-label.manage    { background: #fffbeb; color: #92400e; }
+    .category-label.engage    { background: #f0fdf4; color: #065f46; }
+    .category-label.admin     { background: #fff1f2; color: #9f1239; }
+
+    /* ── Big Feature Rows ── */
+    .feature-row {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 1.1rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .feature-row:last-child { border-bottom: none; }
+    .feature-row-icon {
+      width: 38px; height: 38px;
+      background: var(--brand-light);
+      border-radius: 9px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .feature-row-icon.amber { background: var(--accent-light); }
+    .feature-row-body { flex: 1; }
+    .feature-row-body h3 { font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .feature-row-body p { font-size: 0.83rem; margin: 0; line-height: 1.55; }
+    .tag {
+      display: inline-block;
+      font-size: 0.67rem;
+      font-weight: 700;
+      padding: 0.1rem 0.5rem;
+      border-radius: 100px;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .tag.new  { background: #d1fae5; color: #065f46; }
+    .tag.ai   { background: #fce7f3; color: #9d174d; }
+    .tag.pro  { background: #ede9fe; color: #5b21b6; }
+
+    /* ── Card Box ── */
+    .card-box {
+      background: #fff;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    .card-box-header {
+      padding: 0.85rem 1.25rem;
+      background: var(--gray-50);
+      border-bottom: 1px solid var(--gray-200);
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ── Question Types Table ── */
+    .qt-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.8rem;
+      margin-bottom: 1.5rem;
+    }
+    .qt-section {
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+    }
+    .qt-section h4 { margin-bottom: 0.5rem; }
+    .qt-section ul { padding-left: 1rem; }
+    .qt-section li { font-size: 0.78rem; margin-bottom: 0.18rem; }
+    .qt-label-speaking { color: #7c3aed; }
+    .qt-label-writing  { color: #2563eb; }
+    .qt-label-reading  { color: #059669; }
+    .qt-label-listening{ color: #d97706; }
+
+    /* ── Comparison Table ── */
+    .comp-table-wrap { overflow-x: auto; margin-bottom: 1.5rem; }
+    .comp-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8rem;
+    }
+    .comp-table th {
+      padding: 0.65rem 0.75rem;
+      text-align: left;
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .comp-table th.prepfly {
+      background: var(--brand);
+      color: #fff;
+      border-radius: 8px 8px 0 0;
+    }
+    .comp-table th:first-child { background: var(--gray-100); color: var(--gray-600); }
+    .comp-table th:not(:first-child):not(.prepfly) { background: var(--gray-100); color: var(--gray-600); }
+    .comp-table td { padding: 0.55rem 0.75rem; border-bottom: 1px solid var(--gray-200); vertical-align: top; }
+    .comp-table td.feature-name { font-weight: 600; color: var(--gray-900); font-size: 0.82rem; }
+    .comp-table td.prepfly-cell { background: #faf5ff; font-weight: 600; color: var(--brand-dark); }
+    .comp-table tr:last-child td { border-bottom: none; }
+    .comp-table tr:nth-child(even) td:not(.prepfly-cell) { background: var(--gray-50); }
+    .check   { color: var(--green); font-weight: 700; }
+    .cross   { color: var(--red); }
+    .partial { color: var(--accent); }
+
+    /* ── Highlight Box ── */
+    .highlight-box {
+      border-radius: 12px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .highlight-box.indigo { background: var(--brand-light); border: 1.5px solid #c7d2fe; }
+    .highlight-box.amber  { background: var(--accent-light); border: 1.5px solid #fcd34d; }
+    .highlight-box.green  { background: var(--green-light);  border: 1.5px solid #6ee7b7; }
+    .highlight-box h3     { margin-bottom: 0.5rem; }
+
+    /* ── Stat Pills ── */
+    .stat-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .stat-pill {
+      flex: 1; min-width: 120px;
+      background: var(--brand-light);
+      border: 1.5px solid #c7d2fe;
+      border-radius: 12px;
+      padding: 0.9rem 1rem;
+      text-align: center;
+    }
+    .stat-pill .num { font-size: 1.8rem; font-weight: 800; color: var(--brand); line-height: 1; }
+    .stat-pill .lbl { font-size: 0.72rem; color: var(--gray-600); margin-top: 0.2rem; }
+
+    /* ── Call to Action ── */
+    .cta-box {
+      background: linear-gradient(135deg, #312e81, #4f46e5);
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      color: #fff;
+      margin: 3rem 0 1rem;
+    }
+    .cta-box h2 { color: #fff; font-size: 1.5rem; margin-bottom: 0.5rem; }
+    .cta-box p  { color: rgba(255,255,255,0.8); margin-bottom: 1.5rem; }
+    .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      padding: 0.65rem 1.6rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .btn-white   { background: #fff; color: var(--brand-dark); }
+    .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.5); color: #fff; }
+
+    /* ── Footer ── */
+    .doc-footer {
+      text-align: center;
+      padding: 2rem 1rem;
+      border-top: 1px solid var(--gray-200);
+      color: var(--gray-400);
+      font-size: 0.78rem;
+    }
+
+    /* ── Logo Mark ── */
+    .cover-logo-mark {
+      display: flex;
+      align-items: center;
+      gap: 1.1rem;
+      margin-bottom: 2.8rem;
+    }
+    .cover-logo-name {
+      text-align: left;
+    }
+    .cover-logo-name .wordmark {
+      font-size: 1.75rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 0.1em;
+      line-height: 1;
+      display: block;
+    }
+    .cover-logo-name .tagline {
+      font-size: 0.68rem;
+      color: rgba(255,255,255,0.5);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      margin-top: 0.25rem;
+      display: block;
+    }
+    .page-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      padding: 1.25rem 0 1rem;
+      border-bottom: 2px solid var(--gray-200);
+      margin-bottom: 1.5rem;
+    }
+    .page-logo-name {
+      font-size: 1.15rem;
+      font-weight: 900;
+      color: var(--brand-dark);
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Print button ── */
+    .print-btn {
+      position: fixed;
+      top: 1.5rem; right: 1.5rem;
+      background: var(--brand);
+      color: #fff;
+      border: none;
+      padding: 0.65rem 1.4rem;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(79,70,229,0.4);
+      z-index: 999;
+    }
+    .print-btn:hover { background: var(--brand-dark); }
+
+    /* ── Divider ── */
+    .divider { border: none; border-top: 2px solid var(--gray-200); margin: 2.5rem 0; }
+
+    /* ── Responsive (screen) ── */
+    @media (max-width: 700px) {
+      .feature-grid { grid-template-columns: 1fr; }
+      .qt-grid { grid-template-columns: 1fr 1fr; }
+      h1 { font-size: 2rem; }
+      .cover h1 { font-size: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="print-btn no-print" onclick="window.print()">⬇ Save as PDF</button>
+
+<!-- ══════════════════════════════════════════
+     COVER PAGE
+══════════════════════════════════════════ -->
+<div class="cover">
+  <!-- PrepFly Logo Mark — full design with P, compass, wings, star -->
+  <div class="cover-logo-mark">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100" height="100" aria-label="PrepFly">
+      <defs>
+        <linearGradient id="cv-pg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#7DD3FC"/>
+          <stop offset="50%"  stop-color="#93C5FD"/>
+          <stop offset="100%" stop-color="#C4B5FD"/>
+        </linearGradient>
+        <linearGradient id="cv-wg" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="#93C5FD"/>
+          <stop offset="100%" stop-color="#5EEAD4"/>
+        </linearGradient>
+        <radialGradient id="cv-gg" cx="35%" cy="30%" r="65%">
+          <stop offset="0%"   stop-color="#FEF08A"/>
+          <stop offset="100%"  stop-color="#FCD34D"/>
+        </radialGradient>
+        <filter id="cv-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      <!-- Wings -->
+      <path fill="url(#cv-wg)" d="M57,9 C71,0 91,4 97,14 C91,23 72,23 58,27 Q53,25 54,17 Z"/>
+      <path fill="url(#cv-wg)" opacity="0.8" d="M57,20 C72,12 92,18 97,29 C91,37 72,37 58,39 Q53,37 54,28 Z"/>
+      <path fill="url(#cv-wg)" opacity="0.58" d="M56,31 C70,25 90,33 94,45 C88,52 70,51 57,49 Q52,47 53,39 Z"/>
+      <!-- P -->
+      <path fill="url(#cv-pg)" d="M7,7 L7,91 L21,91 L21,52 L37,52 Q68,52 68,29 Q68,7 37,7 Z"/>
+      <!-- Glow in bowl -->
+      <circle cx="37" cy="29" r="16" fill="rgba(255,255,255,0.2)"/>
+      <!-- Compass -->
+      <g transform="translate(37,29)">
+        <path fill="url(#cv-gg)" d="M0,-13 L4,-4 L0,0 L-4,-4 Z"/>
+        <path fill="url(#cv-gg)" d="M13,0 L4,4 L0,0 L4,-4 Z"/>
+        <path fill="url(#cv-gg)" d="M0,13 L-4,4 L0,0 L4,4 Z"/>
+        <path fill="url(#cv-gg)" d="M-13,0 L-4,-4 L0,0 L-4,4 Z"/>
+        <path fill="#FEF08A" d="M9.2,-9.2 L2.6,-2.6 L0,0 L-2.6,-2.6 Z"/>
+        <path fill="#FEF08A" d="M9.2,9.2 L2.6,2.6 L0,0 L2.6,-2.6 Z"/>
+        <path fill="#FEF08A" d="M-9.2,9.2 L-2.6,2.6 L0,0 L2.6,2.6 Z"/>
+        <path fill="#FEF08A" d="M-9.2,-9.2 L-2.6,-2.6 L0,0 L-2.6,2.6 Z"/>
+        <circle r="4.5" fill="#FCD34D"/>
+        <circle r="2.2" fill="white"/>
+      </g>
+      <!-- Gold arc -->
+      <path stroke="#FEF08A" stroke-width="2" fill="none" stroke-linecap="round" opacity="0.8"
+            d="M49,20 C64,8 80,6 91,9"/>
+      <!-- Star -->
+      <g transform="translate(94,11)" filter="url(#cv-glow)">
+        <circle r="9" fill="#FEF08A" opacity="0.3"/>
+        <path fill="#FCD34D" d="M0,-10 L2.8,-2.8 L0,0 L-2.8,-2.8 Z"/>
+        <path fill="#FCD34D" d="M10,0 L2.8,2.8 L0,0 L2.8,-2.8 Z"/>
+        <path fill="#FCD34D" d="M0,10 L-2.8,2.8 L0,0 L2.8,2.8 Z"/>
+        <path fill="#FCD34D" d="M-10,0 L-2.8,-2.8 L0,0 L-2.8,2.8 Z"/>
+        <circle r="3.5" fill="white"/>
+      </g>
+      <!-- Book pages -->
+      <rect x="7" y="84" width="30" height="2.6" rx="1.2" fill="rgba(255,255,255,0.5)"/>
+      <rect x="7" y="88" width="25" height="2.6" rx="1.2" fill="rgba(255,255,255,0.38)"/>
+      <rect x="7" y="92" width="20" height="2.6" rx="1.2" fill="rgba(255,255,255,0.28)"/>
+    </svg>
+    <div class="cover-logo-name">
+      <span class="wordmark">Prep<span style="color:#5EEAD4;">Fly</span></span>
+      <span class="tagline">PTE Preparation Platform</span>
+    </div>
+  </div>
+  <h1>Your Complete PTE<br>Preparation Platform</h1>
+  <p class="cover-sub">
+    AI-powered practice, real exam simulations, and coaching-centre management —
+    everything you need to achieve PTE 79+.
+  </p>
+  <div class="cover-badges">
+    <span class="cover-badge">🎯 AI-Powered Scoring</span>
+    <span class="cover-badge">📊 Real-Time Analytics</span>
+    <span class="cover-badge">🏫 Centre Management</span>
+    <span class="cover-badge">📱 Mobile Ready</span>
+    <span class="cover-badge">🏆 Leaderboard</span>
+    <span class="cover-badge">22 Question Types</span>
+  </div>
+  <div class="cover-footer">Confidential — Prepfly Features Guide &amp; Platform Comparison · 2025</div>
+</div>
+
+<!-- ══════════════════════════════════════════
+     MAIN CONTENT
+══════════════════════════════════════════ -->
+<div class="container">
+
+  <!-- Page header logo -->
+  <div class="page-logo">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="48" height="48" aria-label="PrepFly">
+      <defs>
+        <linearGradient id="hd-pg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#0EA5E9"/><stop offset="50%"  stop-color="#3B82F6"/><stop offset="100%" stop-color="#4338CA"/>
+        </linearGradient>
+        <linearGradient id="hd-wg" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="#1D4ED8"/><stop offset="100%" stop-color="#0D9488"/>
+        </linearGradient>
+        <radialGradient id="hd-gg" cx="35%" cy="30%" r="65%">
+          <stop offset="0%"   stop-color="#FEF08A"/><stop offset="100%" stop-color="#B45309"/>
+        </radialGradient>
+      </defs>
+      <path fill="url(#hd-wg)" d="M57,9 C71,0 91,4 97,14 C91,23 72,23 58,27 Q53,25 54,17 Z"/>
+      <path fill="url(#hd-wg)" opacity="0.8" d="M57,20 C72,12 92,18 97,29 C91,37 72,37 58,39 Q53,37 54,28 Z"/>
+      <path fill="url(#hd-wg)" opacity="0.58" d="M56,31 C70,25 90,33 94,45 C88,52 70,51 57,49 Q52,47 53,39 Z"/>
+      <path fill="url(#hd-pg)" d="M7,7 L7,91 L21,91 L21,52 L37,52 Q68,52 68,29 Q68,7 37,7 Z"/>
+      <circle cx="37" cy="29" r="16" fill="rgba(255,255,255,0.18)"/>
+      <g transform="translate(37,29)">
+        <path fill="url(#hd-gg)" d="M0,-13 L4,-4 L0,0 L-4,-4 Z"/>
+        <path fill="url(#hd-gg)" d="M13,0 L4,4 L0,0 L4,-4 Z"/>
+        <path fill="url(#hd-gg)" d="M0,13 L-4,4 L0,0 L4,4 Z"/>
+        <path fill="url(#hd-gg)" d="M-13,0 L-4,-4 L0,0 L-4,4 Z"/>
+        <path fill="#FCD34D" d="M9.2,-9.2 L2.6,-2.6 L0,0 L-2.6,-2.6 Z"/>
+        <path fill="#FCD34D" d="M9.2,9.2 L2.6,2.6 L0,0 L2.6,-2.6 Z"/>
+        <path fill="#FCD34D" d="M-9.2,9.2 L-2.6,2.6 L0,0 L2.6,2.6 Z"/>
+        <path fill="#FCD34D" d="M-9.2,-9.2 L-2.6,-2.6 L0,0 L-2.6,2.6 Z"/>
+        <circle r="4.5" fill="#F59E0B"/><circle r="2.2" fill="#FEFCE8"/>
+      </g>
+      <path stroke="#FBBF24" stroke-width="1.8" fill="none" stroke-linecap="round" opacity="0.75" d="M49,20 C64,8 80,6 91,9"/>
+      <g transform="translate(94,11)">
+        <circle r="8" fill="#FCD34D" opacity="0.25"/>
+        <path fill="#F59E0B" d="M0,-9 L2.5,-2.5 L0,0 L-2.5,-2.5 Z"/>
+        <path fill="#F59E0B" d="M9,0 L2.5,2.5 L0,0 L2.5,-2.5 Z"/>
+        <path fill="#F59E0B" d="M0,9 L-2.5,2.5 L0,0 L2.5,2.5 Z"/>
+        <path fill="#F59E0B" d="M-9,0 L-2.5,-2.5 L0,0 L-2.5,2.5 Z"/>
+        <circle r="3.2" fill="#FEF9C3"/>
+      </g>
+    </svg>
+    <span class="page-logo-name">Prep<span style="color:#0D9488;">Fly</span></span>
+  </div>
+
+  <!-- Table of Contents -->
+  <div class="toc avoid-break">
+    <h2>Contents</h2>
+    <ol>
+      <li>Platform at a Glance <span>— key numbers and what makes Prepfly different</span></li>
+      <li>Student Features <span>— every tool available to learners</span></li>
+      <li>Coaching Centre Features <span>— management, analytics, and branding tools</span></li>
+      <li>Question Types Covered <span>— all 22 PTE question types, four skills</span></li>
+      <li>Platform Comparison <span>— Prepfly vs E2 Language, APEUNI, PTE Magic &amp; others</span></li>
+      <li>Why Prepfly <span>— our key differentiators</span></li>
+    </ol>
+  </div>
+
+  <!-- ─── 1. At a Glance ─── -->
+  <section>
+    <div class="section-header student">
+      <div class="icon">⚡</div>
+      <div>
+        <div class="label">Section 1</div>
+        <h2>Platform at a Glance</h2>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-pill"><div class="num">22</div><div class="lbl">Question Types</div></div>
+      <div class="stat-pill"><div class="num">4</div><div class="lbl">Exam Skills</div></div>
+      <div class="stat-pill"><div class="num">AI</div><div class="lbl">Scoring Engine</div></div>
+      <div class="stat-pill"><div class="num">79+</div><div class="lbl">Target Score</div></div>
+      <div class="stat-pill"><div class="num">∞</div><div class="lbl">Practice Questions</div></div>
+    </div>
+
+    <div class="highlight-box indigo avoid-break">
+      <h3>What is Prepfly?</h3>
+      <p>Prepfly is a full-stack PTE Academic preparation platform built for both <strong>individual students</strong> who want to practice at their own pace and <strong>coaching centres</strong> that need to manage batches of students under one roof. The platform combines AI-powered feedback, gamified progress tracking, and comprehensive analytics — without the high monthly fees of traditional prep platforms.</p>
+    </div>
+  </section>
+
+  <!-- ─── 2. Student Features ─── -->
+  <div class="page-break"></div>
+  <section>
+    <div class="section-header student">
+      <div class="icon">🎓</div>
+      <div>
+        <div class="label">Section 2</div>
+        <h2>Student Features</h2>
+      </div>
+    </div>
+
+    <!-- 2.1 Practice Engine -->
+    <h3 style="margin-bottom:0.8rem;">2.1 Practice Engine</h3>
+    <div class="card-box avoid-break">
+      <div class="card-box-header">🏋️ Core Practice</div>
+      <div class="feature-row">
+        <div class="feature-row-icon">🗂️</div>
+        <div class="feature-row-body">
+          <h3>Practice by Section &amp; Type</h3>
+          <p>Browse every PTE question type organised by skill — Speaking, Writing, Reading, and Listening. See exactly how many questions are available, the time limit per question, and jump straight into practice with one click. Filter by topic, difficulty, or source (platform-wide or centre-specific).</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon">🎯</div>
+        <div class="feature-row-body">
+          <h3>AI-Powered Scoring for Speaking &amp; Writing <span class="tag ai">AI</span></h3>
+          <p>After each speaking response, Prepfly's AI evaluates your answer against PTE band descriptors and gives you a score out of 90 — the same scale as the real exam. Writing responses receive detailed feedback on content, grammar, structure, and vocabulary. Temperature-tuned at 0.2 with a fixed seed for low variance across repeated attempts.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon">✅</div>
+        <div class="feature-row-body">
+          <h3>Objective Auto-Scoring (Server-Side)</h3>
+          <p>MCQ, Reorder Paragraphs, Fill in the Blanks, Dictation, and Highlight Incorrect Words are scored server-side in milliseconds. Answer keys are never sent to the browser — preventing cheating while keeping latency low. Tolerant matching for Fill-in-the-Blanks handles punctuation, case, and surrounding spaces.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon">🔄</div>
+        <div class="feature-row-body">
+          <h3>Re-Try &amp; Score Comparison</h3>
+          <p>After any attempt, hit "Try Again" to redo the same question. Prepfly automatically shows you the delta — whether your new score is higher or lower than your last attempt — with a green "Score improved!" banner and an up/down arrow indicator. A trend chart tracks all your scores over time for every question.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon">🔖</div>
+        <div class="feature-row-body">
+          <h3>Question Flagging &amp; Bookmarking</h3>
+          <p>Flag any question as <strong>Weak</strong>, <strong>Review Again</strong>, or <strong>Strong</strong>. Your flags are saved and accessible from a dedicated "My Flags" page so you can drill down on the exact questions that need attention without hunting through the question bank.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon">⚠️</div>
+        <div class="feature-row-body">
+          <h3>Question Reporting</h3>
+          <p>Spot a wrong answer, broken audio, or a typo? Report it in one tap. Reports are routed to admins with full context (question ID, user ID, issue type) so the content team can fix problems quickly.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.2 Mock Tests -->
+    <h3 style="margin-bottom:0.8rem;">2.2 Mock Tests</h3>
+    <div class="card-box avoid-break">
+      <div class="card-box-header">📝 Full &amp; Sectional Mock Tests</div>
+      <div class="feature-row">
+        <div class="feature-row-icon">🏛️</div>
+        <div class="feature-row-body">
+          <h3>Real Exam Simulation</h3>
+          <p>Full-length mock tests mirror the actual PTE structure — 28 Speaking, 3 Writing, 11 Reading, and 14 Listening questions — with authentic time limits per section. The interface prevents skipping ahead between sections, just like the real exam.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon">📋</div>
+        <div class="feature-row-body">
+          <h3>Sectional Tests</h3>
+          <p>Prepare for a specific skill without committing to a 3-hour session. Sectional mock tests let you focus on your weakest area, time-boxed and scored exactly like the full test.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon">📊</div>
+        <div class="feature-row-body">
+          <h3>Detailed Score Report</h3>
+          <p>After completing a test, a full report breaks down your score by section and question type, shows which questions you answered vs. left pending, and provides the honest "Answered + pending (counted as 0)" calculation — no inflated scores. Compare against your previous mock test attempts at a glance.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon">🏫</div>
+        <div class="feature-row-body">
+          <h3>Centre-Assigned Tests</h3>
+          <p>Your coaching centre can assign specific mock tests to your batch. These appear in a separate "Assigned" tab so you never miss a batch exam. Centre teachers track completion rates and scores across all students.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.3 Progress & Analytics -->
+    <h3 style="margin-bottom:0.8rem;">2.3 Progress &amp; Analytics</h3>
+    <div class="feature-grid">
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">📈</div>
+        <div class="category-label analytics">Analytics</div>
+        <h3>Progress Dashboard</h3>
+        <p>See your practice streak, total questions completed, average scores by section, your strongest question types, and your weakest — all on one screen with historical trend lines.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🎯</div>
+        <div class="category-label engage">Gamification</div>
+        <h3>Daily Practice Goal</h3>
+        <p>Set a daily target (e.g. 10 questions per day). A progress bar on the dashboard fills as you practice, and a streak counter rewards consecutive days of practice.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">📅</div>
+        <div class="category-label analytics">Countdown</div>
+        <h3>Exam Date Countdown</h3>
+        <p>Enter your PTE exam date in settings. Prepfly shows a live "X days left" countdown widget on your dashboard so every session feels purposeful.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🏆</div>
+        <div class="category-label engage">Leaderboard</div>
+        <h3>Centre Leaderboard</h3>
+        <p>Compete with fellow students in your coaching centre. Ranked by average score with a minimum practice threshold to appear — privacy-safe (first name + last initial only).</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🔍</div>
+        <div class="category-label analytics">Review</div>
+        <h3>Attempt Review</h3>
+        <p>Click any past attempt to see exactly what you answered, the model answer, and the AI's line-by-line feedback. Great for self-correction and understanding exactly where marks were lost.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">📊</div>
+        <div class="category-label analytics">Percentile</div>
+        <h3>"Better than X%" Percentile</h3>
+        <p>After scoring, see what percentile your score ranks against all other Prepfly users who attempted the same question. Puts your performance in context instantly.</p>
+      </div>
+    </div>
+
+    <!-- 2.4 Study Resources -->
+    <h3 style="margin-bottom:0.8rem;">2.4 Study Resources</h3>
+    <div class="feature-grid">
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">📚</div>
+        <div class="category-label core">Resources</div>
+        <h3>Study Guides</h3>
+        <p>Detailed guides for all 22 question types covering strategies, time management, and common mistakes. Includes essay templates (3 types), SWT formula, linking words bank, and note-taking guides for listening.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🔤</div>
+        <div class="category-label core">Vocabulary</div>
+        <h3>Vocabulary Builder</h3>
+        <p>PTE-essential word list with meanings, contextual examples, and difficulty ratings. Switch between flashcard and list mode. Track mastered words. Custom words added by your coaching centre appear automatically.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🔊</div>
+        <div class="category-label ai">AI Audio</div>
+        <h3>Model Answer TTS <span class="tag ai">AI</span></h3>
+        <p>After completing a Read Aloud or speaking question, tap "Listen" to hear an AI-generated model answer read at PTE exam speed. Use it for shadowing practice — one of the most effective speaking improvement techniques.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">⚡</div>
+        <div class="category-label core">Predictions</div>
+        <h3>High-Frequency Predictions</h3>
+        <p>The dashboard surfaces question types and topics that appear most frequently in the real exam based on your centre's curated prediction bank. Focus your limited prep time on the highest-value content.</p>
+      </div>
+    </div>
+
+    <!-- 2.5 Access & Payments -->
+    <h3 style="margin-bottom:0.8rem;">2.5 Access &amp; Payments</h3>
+    <div class="card-box avoid-break">
+      <div class="card-box-header">💳 Subscriptions &amp; Access Control</div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">💳</div>
+        <div class="feature-row-body">
+          <h3>Flexible Module Subscriptions</h3>
+          <p>Buy access to individual skills (Speaking, Writing, Reading, Listening) or get the all-in-one bundle. Choose 1-month, 6-month, or 12-month plans. Prices shown upfront with no hidden fees. Pay via Razorpay (UPI, cards, net banking, wallets).</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">🎟️</div>
+        <div class="feature-row-body">
+          <h3>Coupon &amp; Discount Codes</h3>
+          <p>Apply discount codes at checkout for institutional or promotional pricing. Codes can be percentage-based and are validated in real time before payment.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">🔓</div>
+        <div class="feature-row-body">
+          <h3>Centre Seat Access</h3>
+          <p>Students enrolled in a coaching centre get access granted directly by the centre admin — no individual payment needed. The centre manages seat duration (typically 30 days, renewable). Seat expiry is clearly visible in your profile.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 3. Centre Features ─── -->
+  <div class="page-break"></div>
+  <section>
+    <div class="section-header centre">
+      <div class="icon">🏫</div>
+      <div>
+        <div class="label">Section 3</div>
+        <h2>Coaching Centre Features</h2>
+      </div>
+    </div>
+
+    <div class="highlight-box amber avoid-break">
+      <h3>Built for How Centres Actually Work</h3>
+      <p>Prepfly's centre tools handle the full student lifecycle — from onboarding to renewal — and give teachers real-time visibility into every student's progress. No spreadsheets, no manual tracking, no guesswork.</p>
+    </div>
+
+    <!-- 3.1 Student Management -->
+    <h3 style="margin-bottom:0.8rem;">3.1 Student Management</h3>
+    <div class="card-box avoid-break">
+      <div class="card-box-header">👥 Student Lifecycle Management</div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">📧</div>
+        <div class="feature-row-body">
+          <h3>Invite Students by Email</h3>
+          <p>Send a personalised email invitation directly from the dashboard. The student receives a link that auto-connects their account to your centre upon registration. No manual coordination needed.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">📤</div>
+        <div class="feature-row-body">
+          <h3>Bulk CSV Import <span class="tag new">New</span></h3>
+          <p>Upload a CSV file with student names, emails, and phone numbers to onboard up to 100 students at once. Existing users are linked and granted a seat automatically; new emails receive a registration invitation. A results summary shows how many were imported, invited, skipped (already enrolled), or errored — with per-row error details.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">🔗</div>
+        <div class="feature-row-body">
+          <h3>Centre Invite Link</h3>
+          <p>Generate a shareable invite link or QR code. Share in your WhatsApp group or class — students who register via this link are automatically enrolled in your centre. One-click copy from the dashboard.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">🔄</div>
+        <div class="feature-row-body">
+          <h3>Seat Renewal (Single &amp; Bulk)</h3>
+          <p>Renew one student's seat in two clicks, or select multiple students and renew them all at once. The system automatically detects students expiring in the next 7 or 30 days and highlights them with a filter chip — so no one falls through the cracks.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">📥</div>
+        <div class="feature-row-body">
+          <h3>Export Student Data (CSV)</h3>
+          <p>Download a complete student export with names, emails, seat status, batch assignments, total attempts, and mock tests completed. Useful for fee tracking, reporting, and backup.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">💺</div>
+        <div class="feature-row-body">
+          <h3>Seat-Usage Gauge</h3>
+          <p>A live "45 / 50 seats used" gauge shows exactly how close you are to your plan limit. Clearly shows cost per seat and plan tier so there are no billing surprises when adding new students.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3.2 Batch Management -->
+    <h3 style="margin-bottom:0.8rem;">3.2 Batch &amp; Group Management</h3>
+    <div class="card-box avoid-break">
+      <div class="card-box-header">🗂️ Batches &amp; Class Groups</div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">📦</div>
+        <div class="feature-row-body">
+          <h3>Create &amp; Manage Batches</h3>
+          <p>Organise students into batches (e.g. "Morning Batch," "Weekend Intensive"). Create unlimited batches, assign students, and view batch composition. Delete batches when a term ends without affecting student data.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">📊</div>
+        <div class="feature-row-body">
+          <h3>Batch Progress Dashboard</h3>
+          <p>View collective analytics for a batch: average scores by section, top performers, engagement rate (who has practiced in the last 7 days vs. who hasn't), mock test completion rate, and weak areas across the group. Identify struggling students before they fall behind.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">📝</div>
+        <div class="feature-row-body">
+          <h3>Assign Mock Tests to Batches</h3>
+          <p>Push a specific mock test to an entire batch with one click. All batch members see the assigned test in their "Assigned" tab and completion status is tracked in real time on the batch progress page.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3.3 Content Management -->
+    <h3 style="margin-bottom:0.8rem;">3.3 Content Management</h3>
+    <div class="feature-grid">
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">❓</div>
+        <div class="category-label admin">Questions</div>
+        <h3>Custom Question Bank</h3>
+        <p>Upload your own questions — single or in bulk — for any of the 22 PTE question types. Add audio files, images, model answers, difficulty tags, and mark questions as "prediction" questions. Your questions appear only to your students.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">📋</div>
+        <div class="category-label admin">Templates</div>
+        <h3>Answer Templates Library</h3>
+        <p>Create reusable answer templates (e.g. essay structure templates, SWT templates) in multiple languages (English, Hindi, Punjabi). Mark templates as free or premium and they appear in your students' Study Guides automatically.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🔤</div>
+        <div class="category-label admin">Vocabulary</div>
+        <h3>Centre Vocabulary List</h3>
+        <p>Add custom vocabulary words with meanings, examples, and difficulty levels. These words are added to the Vocabulary Builder for all your enrolled students — great for supplementing platform-wide word lists with your own curated content.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">📢</div>
+        <div class="category-label admin">Comms</div>
+        <h3>Student Announcements</h3>
+        <p>Broadcast messages to all centre students — exam schedule changes, holiday announcements, motivation, or important dates. Announcements appear prominently on students' dashboards. Full history is maintained and old announcements can be deleted.</p>
+      </div>
+    </div>
+
+    <!-- 3.4 Analytics -->
+    <h3 style="margin-bottom:0.8rem;">3.4 Centre Analytics</h3>
+    <div class="card-box avoid-break">
+      <div class="card-box-header">📊 Centre-Wide Insights</div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">📈</div>
+        <div class="feature-row-body">
+          <h3>Centre Analytics Dashboard</h3>
+          <p>Top-level metrics at a glance: total enrolled students, active students this month, total practice attempts across all students, mock tests taken, and a "VIP students" count (high-engagement learners). Inactive students are automatically flagged.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">👤</div>
+        <div class="feature-row-body">
+          <h3>Per-Student Progress</h3>
+          <p>Drill into any student's individual record: total attempts, mock tests completed, average scores, recent activity feed, and seat status. Identify students who haven't practiced in several days and follow up before they disengage.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3.5 Branding & Settings -->
+    <h3 style="margin-bottom:0.8rem;">3.5 Branding &amp; White-Label</h3>
+    <div class="card-box avoid-break">
+      <div class="card-box-header">🎨 Centre Branding</div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">🎨</div>
+        <div class="feature-row-body">
+          <h3>Custom Brand Colours</h3>
+          <p>Set your centre's brand colour — it's applied to the interface your students see, giving your coaching business a consistent identity within the platform.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">📇</div>
+        <div class="feature-row-body">
+          <h3>Centre Profile &amp; Contact Info</h3>
+          <p>Add your centre's name, location, contact number, and website. This information is displayed to students and used in invitation emails sent on your behalf.</p>
+        </div>
+      </div>
+      <div class="feature-row">
+        <div class="feature-row-icon amber">🔑</div>
+        <div class="feature-row-body">
+          <h3>Unique Centre Code</h3>
+          <p>Each centre has a unique, shareable code. Students can enter this code at registration to join your centre directly — no link required. The code is displayed in your settings and can be shared anywhere.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 4. Question Types ─── -->
+  <div class="page-break"></div>
+  <section>
+    <div class="section-header student">
+      <div class="icon">📚</div>
+      <div>
+        <div class="label">Section 4</div>
+        <h2>All 22 PTE Question Types — Fully Supported</h2>
+      </div>
+    </div>
+    <p style="margin-bottom:1.2rem;">Prepfly covers every question type tested in the official PTE Academic exam across all four skills. Each type has dedicated practice questions, AI or rule-based scoring, model answers, and study guide content.</p>
+
+    <div class="qt-grid">
+      <div class="qt-section avoid-break">
+        <h4 class="qt-label-speaking">Speaking (7)</h4>
+        <ul>
+          <li>Read Aloud</li>
+          <li>Repeat Sentence</li>
+          <li>Describe Image</li>
+          <li>Retell Lecture</li>
+          <li>Answer Short Question</li>
+          <li>Respond to a Situation</li>
+          <li>Summarize Group Discussion</li>
+        </ul>
+      </div>
+      <div class="qt-section avoid-break">
+        <h4 class="qt-label-writing">Writing (2)</h4>
+        <ul>
+          <li>Summarize Written Text</li>
+          <li>Write Essay</li>
+        </ul>
+        <br/>
+        <h4 class="qt-label-reading">Reading (5)</h4>
+        <ul>
+          <li>Multiple Choice (Single)</li>
+          <li>Multiple Choice (Multiple)</li>
+          <li>Reorder Paragraphs</li>
+          <li>Fill in the Blanks (Drag &amp; Drop)</li>
+          <li>Fill in the Blanks (Dropdown)</li>
+        </ul>
+      </div>
+      <div class="qt-section avoid-break" style="grid-column: span 2;">
+        <h4 class="qt-label-listening">Listening (8)</h4>
+        <ul style="columns:2; gap:1.5rem;">
+          <li>Summarize Spoken Text</li>
+          <li>Multiple Choice (Single)</li>
+          <li>Multiple Choice (Multiple)</li>
+          <li>Fill in the Blanks</li>
+          <li>Highlight Correct Summary</li>
+          <li>Highlight Incorrect Words</li>
+          <li>Select Missing Word</li>
+          <li>Write from Dictation</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="highlight-box indigo avoid-break">
+      <h3>Scoring Methodology</h3>
+      <p><strong>Objective questions</strong> (MCQ, Reorder, Fill-in-the-Blanks, Dictation, Highlight Incorrect Words) are scored server-side with tolerant matching — handling case differences, surrounding punctuation, and whitespace — so partially-correct answers are scored fairly, not harshly.</p>
+      <p><strong>Subjective questions</strong> (Speaking, Writing) are evaluated by an AI model calibrated against PTE band descriptors with example responses at each score level. Low temperature (0.2) and a fixed seed ensure consistent scoring — your score reflects your answer quality, not random variation.</p>
+    </div>
+  </section>
+
+  <!-- ─── 5. Platform Comparison ─── -->
+  <div class="page-break"></div>
+  <section>
+    <div class="section-header compare">
+      <div class="icon">⚖️</div>
+      <div>
+        <div class="label">Section 5</div>
+        <h2>Platform Comparison</h2>
+      </div>
+    </div>
+    <p style="margin-bottom:1.2rem;">How does Prepfly compare to the major PTE preparation platforms currently available to students and coaching centres in India and Australia?</p>
+
+    <!-- Feature Comparison Table -->
+    <div class="comp-table-wrap avoid-break">
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Feature</th>
+            <th class="prepfly">Prepfly</th>
+            <th>E2 Language</th>
+            <th>APEUNI</th>
+            <th>PTE Magic</th>
+            <th>Pearson App</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Practice -->
+          <tr><td class="feature-name" colspan="6" style="background:var(--gray-100);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-600);">PRACTICE &amp; CONTENT</td></tr>
+          <tr>
+            <td class="feature-name">All 22 PTE question types</td>
+            <td class="prepfly-cell check">✓ All 22</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="partial">~ 18 types</td>
+            <td class="partial">~ 15 types</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Unlimited practice questions</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="partial">~ Limited on free</td>
+            <td class="cross">✗ Very limited</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Centre-specific question bank</td>
+            <td class="prepfly-cell check">✓ Upload own Qs</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Prediction questions (flagged)</td>
+            <td class="prepfly-cell check">✓ + Dashboard widget</td>
+            <td class="check">✓</td>
+            <td class="check">✓ (paid)</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Study guides &amp; templates</td>
+            <td class="prepfly-cell check">✓ All types + custom</td>
+            <td class="check">✓ Video lessons</td>
+            <td class="partial">~ Basic text</td>
+            <td class="partial">~ Limited</td>
+            <td class="check">✓ Official tips</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Vocabulary builder</td>
+            <td class="prepfly-cell check">✓ Flashcard + list</td>
+            <td class="partial">~ Basic list</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+
+          <!-- Scoring -->
+          <tr><td class="feature-name" colspan="6" style="background:var(--gray-100);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-600);">SCORING &amp; FEEDBACK</td></tr>
+          <tr>
+            <td class="feature-name">AI scoring for speaking</td>
+            <td class="prepfly-cell check">✓ Band-calibrated AI</td>
+            <td class="check">✓ Proprietary AI</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">AI scoring for writing</td>
+            <td class="prepfly-cell check">✓ Content + grammar</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="partial">~ Basic</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Scores on PTE 10–90 scale</td>
+            <td class="prepfly-cell check">✓ Native 90-scale</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="partial">~ % only</td>
+            <td class="partial">~ Estimated</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Anti-cheat (server-side scoring)</td>
+            <td class="prepfly-cell check">✓ Keys never sent</td>
+            <td class="cross">✗ Client-side</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="partial">~ Partial</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Percentile ranking vs peers</td>
+            <td class="prepfly-cell check">✓ Per question</td>
+            <td class="partial">~ Overall only</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Score delta (vs last attempt)</td>
+            <td class="prepfly-cell check">✓ ↑↓ per question</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Model answer TTS for shadowing</td>
+            <td class="prepfly-cell check">✓ AI voice preview</td>
+            <td class="check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+
+          <!-- Mock Tests -->
+          <tr><td class="feature-name" colspan="6" style="background:var(--gray-100);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-600);">MOCK TESTS</td></tr>
+          <tr>
+            <td class="feature-name">Full-length mock tests</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓ Official</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Sectional mock tests</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="partial">~ Limited</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Centre assigns tests to batch</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+
+          <!-- Progress -->
+          <tr><td class="feature-name" colspan="6" style="background:var(--gray-100);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-600);">PROGRESS &amp; ENGAGEMENT</td></tr>
+          <tr>
+            <td class="feature-name">Practice streak tracking</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="partial">~ Basic</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Daily practice goal</td>
+            <td class="prepfly-cell check">✓ Configurable</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Exam date countdown</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="partial">~ Calendar view</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Weak-area identification</td>
+            <td class="prepfly-cell check">✓ Auto-detected</td>
+            <td class="check">✓</td>
+            <td class="check">✓</td>
+            <td class="partial">~ Manual</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Centre leaderboard</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Re-engagement emails (auto)</td>
+            <td class="prepfly-cell check">✓ 7-day lapse</td>
+            <td class="partial">~ Manual</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Question flagging / bookmarks</td>
+            <td class="prepfly-cell check">✓ Weak/Review/Strong</td>
+            <td class="cross">✗</td>
+            <td class="partial">~ Favorites</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+
+          <!-- Centre / B2B -->
+          <tr><td class="feature-name" colspan="6" style="background:var(--gray-100);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-600);">COACHING CENTRE TOOLS (B2B)</td></tr>
+          <tr>
+            <td class="feature-name">Student management dashboard</td>
+            <td class="prepfly-cell check">✓ Full lifecycle</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Batch / class groups</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Bulk CSV student import</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Seat expiry &amp; renewal alerts</td>
+            <td class="prepfly-cell check">✓ 7/30-day filters</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Upload centre's own questions</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Centre branding / custom colour</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Student announcements</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Per-student analytics</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Export students (CSV)</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Tiered centre pricing plans</td>
+            <td class="prepfly-cell check">✓ Mini → Pro</td>
+            <td class="cross">✗ No B2B plans</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+
+          <!-- Payments & Access -->
+          <tr><td class="feature-name" colspan="6" style="background:var(--gray-100);font-size:0.72rem;text-transform:uppercase;letter-spacing:0.06em;color:var(--gray-600);">PAYMENTS &amp; ACCESS</td></tr>
+          <tr>
+            <td class="feature-name">Indian payment gateway (UPI/Cards)</td>
+            <td class="prepfly-cell check">✓ Razorpay</td>
+            <td class="cross">✗ USD only</td>
+            <td class="partial">~ International</td>
+            <td class="partial">~ Limited</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Coupon / discount codes</td>
+            <td class="prepfly-cell check">✓</td>
+            <td class="partial">~ Seasonal only</td>
+            <td class="partial">~ Basic</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Modular / per-skill purchase</td>
+            <td class="prepfly-cell check">✓ Buy 1 skill</td>
+            <td class="cross">✗ Bundled only</td>
+            <td class="cross">✗</td>
+            <td class="partial">~ Limited</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Dark mode</td>
+            <td class="prepfly-cell check">✓ Full dark mode</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+            <td class="cross">✗</td>
+          </tr>
+          <tr>
+            <td class="feature-name">Mobile-optimised UI</td>
+            <td class="prepfly-cell check">✓ Responsive</td>
+            <td class="check">✓ App + web</td>
+            <td class="check">✓</td>
+            <td class="partial">~ Basic</td>
+            <td class="check">✓ Native app</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p style="font-size:0.76rem;color:var(--gray-400);margin-top:-0.5rem;margin-bottom:2rem;">
+      ✓ = Fully supported &nbsp;|&nbsp; ~ = Partially supported &nbsp;|&nbsp; ✗ = Not available &nbsp;|&nbsp; Based on publicly available information, June 2025.
+    </p>
+
+    <!-- Per-platform Notes -->
+    <h3 style="margin-bottom:1rem;">About the Platforms Compared</h3>
+    <div class="feature-grid">
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🇦🇺</div>
+        <h3>E2 Language</h3>
+        <p>Australia-based, widely used globally. Strong video lesson library and AI speaking feedback. However, USD-only pricing makes it expensive for Indian students (~₹2,000–4,000/month). No B2B centre tools. Primarily targets individual self-study students.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🇨🇳</div>
+        <h3>APEUNI</h3>
+        <p>China-origin platform, popular for AI scoring accuracy on Speaking. Strong prediction question library. Priced in USD/AUD, interface partially translated, and no coaching centre management layer. Used mainly in Australia-based centres informally.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🌐</div>
+        <h3>PTE Magic</h3>
+        <p>Online-only platform with a reasonable question bank. Limited AI feedback, mostly rule-based. No centre tools, no student management, and limited progress analytics. Reasonable pricing for individuals but missing advanced features.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🏛️</div>
+        <h3>Pearson Practice App</h3>
+        <p>The official Pearson PTE practice app. Highest content authenticity (official questions) but very limited question count, no AI feedback, no centre management, no community features. Best used as a final-week supplement, not a primary prep tool.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── 6. Why Prepfly ─── -->
+  <div class="page-break"></div>
+  <section>
+    <div class="section-header compare">
+      <div class="icon">🚀</div>
+      <div>
+        <div class="label">Section 6</div>
+        <h2>Why Prepfly?</h2>
+      </div>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature-card full avoid-break" style="background:var(--brand-light);border-color:#c7d2fe;">
+        <div class="feature-icon">🏫</div>
+        <div class="category-label manage">For Centres</div>
+        <h3>The Only Platform Built for Coaching Centres</h3>
+        <p>Every other PTE prep platform is built for individual students who pay for themselves. Prepfly is the only platform that includes a complete coaching-centre management layer — student onboarding, batch organisation, mock test assignment, per-student analytics, and seat renewals — all in one place. Run your entire PTE teaching operation without a single spreadsheet.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🇮🇳</div>
+        <div class="category-label core">India-First</div>
+        <h3>Priced for India</h3>
+        <p>Competitor platforms charge USD prices — ₹2,000–5,000/month per student. Prepfly uses Razorpay with INR pricing, UPI, and modular plans so students pay only for the skills they need. Coaching centres get tiered B2B plans that scale with their business.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🔒</div>
+        <div class="category-label admin">Security</div>
+        <h3>Anti-Cheat Architecture</h3>
+        <p>Answer keys for all objective questions are processed server-side and never sent to the browser. This is a security feature that no competitor currently offers — making Prepfly the only platform suitable for invigilated centre exams where answer leakage matters.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">📊</div>
+        <div class="category-label analytics">Data</div>
+        <h3>Actionable Analytics</h3>
+        <p>Weak-area detection, daily goal tracking, practice streaks, percentile ranking, per-question score history, and attempt review — all available out of the box. Students always know exactly what to practice next. Centres always know which students need attention.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🎨</div>
+        <div class="category-label engage">Customisation</div>
+        <h3>Your Brand, Your Content</h3>
+        <p>Upload your own questions, create your own templates and vocabulary lists, brand the platform with your colours, and communicate directly with students via announcements. Prepfly powers your coaching business — students see your brand, not ours.</p>
+      </div>
+      <div class="feature-card avoid-break">
+        <div class="feature-icon">🤖</div>
+        <div class="category-label ai">AI</div>
+        <h3>Calibrated AI Scoring</h3>
+        <p>Speaking and writing scores are generated by AI models trained with PTE-specific band anchors and example responses. Low-temperature (0.2) inference with a fixed seed gives consistent scores — you get the same result on the same answer every time, unlike black-box systems with high variance.</p>
+      </div>
+    </div>
+
+    <!-- CTA Box -->
+    <div class="cta-box avoid-break">
+      <h2>Ready to Get Started?</h2>
+      <p>Join Prepfly today — whether you're a student aiming for 79+ or a coaching centre looking to run a smarter operation.</p>
+      <div class="cta-buttons">
+        <span class="btn btn-white">Start Free Trial →</span>
+        <span class="btn btn-outline">Register Your Centre</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <div class="doc-footer">
+    <div style="display:flex;align-items:center;justify-content:center;gap:0.6rem;margin-bottom:0.6rem;">
+      <svg viewBox="0 0 90 58" xmlns="http://www.w3.org/2000/svg" width="48" height="31">
+        <defs>
+          <linearGradient id="ft-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#4338ca"/>
+            <stop offset="100%" stop-color="#7c3aed"/>
+          </linearGradient>
+        </defs>
+        <rect width="90" height="58" rx="13" fill="url(#ft-grad)"/>
+        <path d="M13,7 L13,51" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M13,7 H28 Q44,7 44,19 Q44,31 28,31 H13" stroke="white" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <path d="M44,7 L44,51" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M44,7 H83" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <path d="M44,27 H70" stroke="white" stroke-width="5.5" stroke-linecap="round" fill="none"/>
+        <circle cx="44" cy="19" r="3.5" fill="rgba(255,255,255,0.4)"/>
+      </svg>
+      <span style="font-weight:800;font-size:0.9rem;color:#4b5563;letter-spacing:0.08em;">PREPFLY</span>
+    </div>
+    <p><strong>Prepfly</strong> — AI-Powered PTE Preparation Platform</p>
+    <p style="margin-top:0.3rem;">This document is confidential and intended for prospective students and coaching centre partners. Features and pricing subject to change. Competitor information based on publicly available sources as of June 2025.</p>
+  </div>
+
+</div><!-- /container -->
+</body>
+</html>

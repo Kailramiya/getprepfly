@@ -1,17 +1,65 @@
-<svg width="240" height="60" viewBox="0 0 240 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-  <!-- Icon -->
+<svg width="280" height="70" viewBox="0 0 280 70" xmlns="http://www.w3.org/2000/svg">
   <defs>
-    <linearGradient id="iconGrad" x1="0" y1="0" x2="48" y2="48" gradientUnits="userSpaceOnUse">
-      <stop offset="0%" stop-color="#14B8A6"/>
+    <linearGradient id="lpg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0EA5E9"/>
+      <stop offset="55%"  stop-color="#3B82F6"/>
       <stop offset="100%" stop-color="#4F46E5"/>
     </linearGradient>
+    <linearGradient id="lwg" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#1D4ED8"/>
+      <stop offset="100%" stop-color="#0D9488"/>
+    </linearGradient>
+    <radialGradient id="lgg" cx="35%" cy="30%" r="65%">
+      <stop offset="0%"   stop-color="#FDE68A"/>
+      <stop offset="100%" stop-color="#D97706"/>
+    </radialGradient>
   </defs>
-  <rect x="4" y="6" width="48" height="48" rx="12" fill="url(#iconGrad)"/>
-  <path d="M40.2 18.2a1.2 1.2 0 00-1.28-.27l-21.6 8.4a1.2 1.2 0 00.09 2.25l9.63 3.21 3.21 9.63a1.2 1.2 0 002.25.09l8.4-21.6a1.2 1.2 0 00-.27-1.28zM35.5 22.5l-9.45 9.45-6.32-2.11L35.5 22.5zM28.17 37.16l-2.1-6.32 9.44-9.45-7.34 15.77z" fill="white"/>
-  <circle cx="41.5" cy="16.5" r="2.5" fill="#FBBF24"/>
 
-  <!-- Wordmark -->
-  <text x="62" y="42" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="800" font-size="32" letter-spacing="-0.5">
-    <tspan fill="#0D9488">Prep</tspan><tspan fill="#4F46E5">fly</tspan>
+  <!-- ── Icon mark (70×70, scaled to fit 0 0 100 100 → 70px) ── -->
+  <g transform="scale(0.7)">
+    <!-- Wings -->
+    <path fill="url(#lwg)" d="M60,12 C74,3 91,7 96,15 C89,22 74,22 60,26 Q56,24 57,18 Z"/>
+    <path fill="url(#lwg)" opacity="0.78" d="M60,22 C75,14 91,21 96,30 C89,37 75,37 60,39 Q56,37 57,28 Z"/>
+    <path fill="url(#lwg)" opacity="0.56" d="M59,32 C74,26 90,34 94,44 C87,50 74,50 59,48 Q55,46 56,38 Z"/>
+    <!-- P -->
+    <path fill="url(#lpg)" d="M7,7 L7,90 L21,90 L21,51 L37,51 Q67,51 67,29 Q67,7 37,7 Z"/>
+    <circle cx="37" cy="29" r="14" fill="rgba(255,255,255,0.13)"/>
+    <!-- Compass -->
+    <g transform="translate(37,29)">
+      <path fill="url(#lgg)" d="M0,-11 L3.5,-3.5 L0,0 L-3.5,-3.5 Z"/>
+      <path fill="url(#lgg)" d="M11,0 L3.5,3.5 L0,0 L3.5,-3.5 Z"/>
+      <path fill="url(#lgg)" d="M0,11 L-3.5,3.5 L0,0 L3.5,3.5 Z"/>
+      <path fill="url(#lgg)" d="M-11,0 L-3.5,-3.5 L0,0 L-3.5,3.5 Z"/>
+      <path fill="#FCD34D" d="M7.8,-7.8 L2.2,-2.2 L0,0 L-2.2,-2.2 Z"/>
+      <path fill="#FCD34D" d="M7.8,7.8 L2.2,2.2 L0,0 L2.2,-2.2 Z"/>
+      <path fill="#FCD34D" d="M-7.8,7.8 L-2.2,2.2 L0,0 L2.2,2.2 Z"/>
+      <path fill="#FCD34D" d="M-7.8,-7.8 L-2.2,-2.2 L0,0 L-2.2,2.2 Z"/>
+      <circle r="3.5" fill="#F59E0B"/>
+      <circle r="1.8" fill="#FFFBEB"/>
+    </g>
+    <!-- Gold arc + star -->
+    <path stroke="#FCD34D" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0.65"
+          d="M48,21 Q66,10 88,10"/>
+    <g transform="translate(93,11)">
+      <circle r="6.5" fill="#FCD34D" opacity="0.22"/>
+      <path fill="#F59E0B" d="M0,-7.5 L2.2,-2.2 L0,0 L-2.2,-2.2 Z"/>
+      <path fill="#F59E0B" d="M7.5,0 L2.2,2.2 L0,0 L2.2,-2.2 Z"/>
+      <path fill="#F59E0B" d="M0,7.5 L-2.2,2.2 L0,0 L2.2,2.2 Z"/>
+      <path fill="#F59E0B" d="M-7.5,0 L-2.2,-2.2 L0,0 L-2.2,2.2 Z"/>
+      <circle r="2.8" fill="#FEF3C7"/>
+    </g>
+    <!-- Book pages -->
+    <rect x="7" y="83" width="28" height="2.5" rx="1" fill="#0D9488" opacity="0.55"/>
+    <rect x="7" y="87" width="24" height="2.5" rx="1" fill="#0EA5E9" opacity="0.42"/>
+    <rect x="7" y="91" width="20" height="2.5" rx="1" fill="#3B82F6" opacity="0.32"/>
+  </g>
+
+  <!-- ── Wordmark ── -->
+  <text x="82" y="48"
+        font-family="system-ui,-apple-system,'Segoe UI',Helvetica,sans-serif"
+        font-weight="800"
+        font-size="38"
+        letter-spacing="-0.5">
+    <tspan fill="#1D4ED8">Prep</tspan><tspan fill="#0F172A">Fly</tspan>
   </text>
 </svg>
