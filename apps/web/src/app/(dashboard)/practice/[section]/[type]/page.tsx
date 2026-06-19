@@ -74,7 +74,17 @@ export default function PracticeQuestionPage() {
       .catch(() => { /* ignore */ });
   }, []);
 
+  // Types scored server-side via POST /api/questions/:id/score — attempt already saved there
+  const SERVER_SCORED_TYPES = new Set([
+    "READING_MCQ_SINGLE", "READING_MCQ_MULTIPLE",
+    "LISTENING_MCQ_SINGLE", "LISTENING_MCQ_MULTIPLE",
+    "REORDER_PARAGRAPHS", "HIGHLIGHT_INCORRECT_WORDS",
+    "SELECT_MISSING_WORD", "WRITE_FROM_DICTATION",
+    "LISTENING_FILL_BLANKS",
+  ]);
+
   const saveAttempt = async (q: QuestionData, result: ScoreResult, response: any) => {
+    if (SERVER_SCORED_TYPES.has(q.type)) return; // already saved by score endpoint
     const timeTaken = Math.round((Date.now() - questionStartTime) / 1000);
     try {
       await fetch("/api/attempts", {
@@ -536,6 +546,12 @@ export default function PracticeQuestionPage() {
               onSubmit={(response: any) => {
                 setSubmitted(true);
                 const result = response?.scoreResult as ScoreResult | undefined;
+                // For server-scored types the score endpoint returns modelAnswer; patch the question in-place
+                if (response?.modelAnswer && currentQuestion) {
+                  setQuestions(prev => prev.map((q, i) =>
+                    i === currentIndex ? { ...q, modelAnswer: response.modelAnswer } : q
+                  ));
+                }
                 if (result) {
                   setScore(result);
                   saveAttempt(currentQuestion, result, response);

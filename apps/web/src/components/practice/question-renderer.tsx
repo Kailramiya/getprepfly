@@ -386,7 +386,12 @@ export function QuestionRenderer({
     }
     return null;
   });
+  // revealedContent: answer keys returned by the server AFTER submission (for display only)
+  const [revealedContent, setRevealedContent] = useState<Record<string, any> | null>(null);
   const content = question?.content as any;
+
+  // Merge revealed answer keys into the effective content visible to this render tree
+  const effectiveContent = revealedContent ? { ...content, ...revealedContent } : content;
 
   // Fire onResponseChange whenever the response state changes (used by mock test auto-save)
   useEffect(() => {
@@ -399,6 +404,31 @@ export function QuestionRenderer({
   // Internal submit fn — each type branch sets this before returning.
   // The parent can trigger it via submitRef (e.g. on Next click).
   const internalSubmitFn = useRef<(() => void) | null>(null);
+
+  // Server-side scoring helper for objective question types.
+  // Calls POST /api/questions/:id/score, stores revealed answer keys, calls onSubmit.
+  const scoreOnServer = async (answer: unknown, startTime: number) => {
+    onScoringChange?.(true);
+    try {
+      const timeTaken = Math.round((Date.now() - startTime) / 1000);
+      const res = await fetch(`/api/questions/${question.id}/score`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ answer, timeTaken }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setRevealedContent(data.data.revealedContent);
+        onSubmit({ answer, scoreResult: data.data.scoreResult, modelAnswer: data.data.modelAnswer });
+      } else {
+        onSubmit({ answer, scoreResult: null });
+      }
+    } catch {
+      onSubmit({ answer, scoreResult: null });
+    } finally {
+      onScoringChange?.(false);
+    }
+  };
 
   // Block copy/paste/cut for non-super-admin users on writing inputs
   const blockCP = !allowCopyPaste
@@ -700,20 +730,10 @@ export function QuestionRenderer({
   // ---- MCQ SINGLE ----
   if (type === "READING_MCQ_SINGLE" || type === "LISTENING_MCQ_SINGLE") {
     const isListening = type === "LISTENING_MCQ_SINGLE";
+    const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (response === null) return;
-      const correctIdx = content.correctAnswer ?? content.correctAnswers?.[0];
-      const isCorrect = response === correctIdx;
-      onSubmit({
-        answer: response,
-        scoreResult: {
-          marksEarned: isCorrect ? totalMarks : 0,
-          marksTotal: totalMarks,
-          correct: isCorrect ? 1 : 0,
-          total: 1,
-          mistakes: isCorrect ? [] : [{ position: 1, yourAnswer: content.options?.[response] ?? "—", correctAnswer: content.options?.[correctIdx] ?? "" }],
-        } as ScoreResult,
-      });
+      scoreOnServer(response, startTime);
     };
     return (
       <div className="space-y-4">
@@ -734,8 +754,8 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const correctIdx = content.correctAnswer ?? content.correctAnswers?.[0];
-            const isCorrect = submitted && showFeedback && (i === correctIdx || content.correctAnswers?.includes(i));
+            const correctIdx = effectiveContent.correctAnswer ?? effectiveContent.correctAnswers?.[0];
+            const isCorrect = submitted && showFeedback && (i === correctIdx || effectiveContent.correctAnswers?.includes(i));
             const isWrong = submitted && showFeedback && isSelected && !isCorrect;
 
             return (
@@ -773,29 +793,10 @@ export function QuestionRenderer({
   if (type === "READING_MCQ_MULTIPLE" || type === "LISTENING_MCQ_MULTIPLE") {
     const selected: number[] = response || [];
     const isListening = type === "LISTENING_MCQ_MULTIPLE";
+    const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (selected.length === 0) return;
-      const correct: number[] = content.correctAnswers || [];
-      const correctSet = new Set(correct);
-      const selectedSet = new Set<number>(selected);
-      const correctCount = selected.filter((i: number) => correctSet.has(i)).length;
-      const wrongSelected = selected.filter((i: number) => !correctSet.has(i));
-      const missed = correct.filter((i) => !selectedSet.has(i));
-      const fullyCorrect = wrongSelected.length === 0 && missed.length === 0;
-      const partialRatio = correct.length > 0 ? correctCount / correct.length : 0;
-      onSubmit({
-        answers: selected,
-        scoreResult: {
-          marksEarned: fullyCorrect ? totalMarks : Math.round(totalMarks * partialRatio * 10) / 10,
-          marksTotal: totalMarks,
-          correct: correctCount,
-          total: correct.length,
-          mistakes: [
-            ...wrongSelected.map((i: number) => ({ position: i + 1, yourAnswer: content.options?.[i] ?? "—", correctAnswer: "(Should not have selected this)" })),
-            ...missed.map((i) => ({ position: i + 1, yourAnswer: "(Missed)", correctAnswer: content.options?.[i] ?? "" })),
-          ],
-        } as ScoreResult,
-      });
+      scoreOnServer(selected, startTime);
     };
     return (
       <div className="space-y-4">
@@ -817,7 +818,7 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = selected.includes(i);
-            const isCorrect = submitted && showFeedback && (content.correctAnswers?.includes(i) ?? false);
+            const isCorrect = submitted && showFeedback && (effectiveContent.correctAnswers?.includes(i) ?? false);
             const isWrong = submitted && showFeedback && isSelected && !isCorrect;
 
             return (
@@ -858,58 +859,12 @@ export function QuestionRenderer({
   if (type === "REORDER_PARAGRAPHS") {
     const paragraphs: string[] = content.paragraphs || [];
     const order: number[] = response || paragraphs.map((_: string, i: number) => i);
-
-    // modelAnswer (e.g. "1, 5, 3, 2, 4") is the authoritative correct order.
-    // Convert serial numbers (1-based) to 0-based paragraph indices.
-    const correctOrder: number[] = (() => {
-      if (question.modelAnswer) {
-        const parts = question.modelAnswer
-          .split(/[\s,]+/)
-          .map(Number)
-          .filter((n: number) => Number.isInteger(n) && n >= 1 && n <= paragraphs.length);
-        if (parts.length === paragraphs.length) return parts.map((n: number) => n - 1);
-      }
-      return content.correctOrder || paragraphs.map((_: string, i: number) => i);
-    })();
+    // After server scoring, use revealed correctOrder for display
+    const correctOrder: number[] = effectiveContent.correctOrder || paragraphs.map((_: string, i: number) => i);
+    const startTime = Date.now();
 
     internalSubmitFn.current = () => {
-      const n = correctOrder.length;
-      // Adjacent-pairs scoring (PTE standard): award credit for each pair of
-      // paragraphs that appear in the correct relative order in the student's answer.
-      const correctPosMap = new Map<number, number>();
-      correctOrder.forEach((item, pos) => correctPosMap.set(item, pos));
-      let correctPairs = 0;
-      const totalPairs = n * (n - 1) / 2;
-      for (let i = 0; i < n - 1; i++) {
-        for (let j = i + 1; j < n; j++) {
-          const ci = correctPosMap.get(order[i]) ?? -1;
-          const cj = correctPosMap.get(order[j]) ?? -1;
-          if (ci !== -1 && cj !== -1 && ci < cj) correctPairs++;
-        }
-      }
-      // Position-based mistakes for feedback display
-      const mistakes: ScoreResult["mistakes"] = [];
-      order.forEach((paraIdx, pos) => {
-        if (correctOrder[pos] !== paraIdx) {
-          mistakes.push({
-            position: pos + 1,
-            yourAnswer: `Paragraph ${paraIdx + 1} placed at position ${pos + 1}`,
-            correctAnswer: `Paragraph ${correctOrder[pos] + 1} should be at position ${pos + 1}`,
-          });
-        }
-      });
-
-      const ratio = totalPairs > 0 ? correctPairs / totalPairs : 0;
-      onSubmit({
-        order,
-        scoreResult: {
-          marksEarned: Math.round(totalMarks * ratio * 10) / 10,
-          marksTotal: totalMarks,
-          correct: correctPairs,
-          total: totalPairs,
-          mistakes,
-        } as ScoreResult,
-      });
+      scoreOnServer(order, startTime);
     };
     return (
       <div className="space-y-4">
@@ -923,11 +878,11 @@ export function QuestionRenderer({
           showFeedback={showFeedback}
           isMockTest={isMockTest}
         />
-        {((submitted && showFeedback) || showAnswer) && (
+        {((submitted && showFeedback) || showAnswer) && effectiveContent.correctOrder && (
           <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/40">
             <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Order</p>
             <div className="mt-2 flex flex-wrap gap-2">
-              {correctOrder.map((paraIdx, pos) => (
+              {(effectiveContent.correctOrder as number[]).map((paraIdx: number, pos: number) => (
                 <span key={pos} className="flex items-center gap-1.5 rounded-md border border-green-200 bg-white px-2 py-1 text-sm text-green-800 dark:border-green-800 dark:bg-slate-800 dark:text-green-300">
                   <span className="text-xs text-green-500">#{pos + 1}</span>
                   <span className="font-semibold">{paraIdx + 1}</span>
@@ -1062,11 +1017,12 @@ export function QuestionRenderer({
   // ---- HIGHLIGHT INCORRECT WORDS ----
   if (type === "HIGHLIGHT_INCORRECT_WORDS") {
     const transcript: string = content.transcript || content.text || "";
-    const correctIncorrectIndices: number[] = Array.isArray(content.incorrectIndices)
-      ? content.incorrectIndices
+    // After server scoring, effectiveContent.incorrectIndices is available for display
+    const correctIncorrectIndices: number[] = Array.isArray(effectiveContent.incorrectIndices)
+      ? effectiveContent.incorrectIndices
       : [];
     const tokens = transcript.split(/(\s+)/);
-    const wordIndicesSet = new Set<number>(); // valid clickable token positions
+    const wordIndicesSet = new Set<number>();
     tokens.forEach((tok, i) => { if (/\S/.test(tok)) wordIndicesSet.add(i); });
 
     const selected: number[] = response || [];
@@ -1078,32 +1034,9 @@ export function QuestionRenderer({
       setResponse(selected.includes(i) ? selected.filter((x) => x !== i) : [...selected, i]);
     };
 
+    const startTime = Date.now();
     internalSubmitFn.current = () => {
-      const mistakes: ScoreResult["mistakes"] = [];
-      let correctCount = 0;
-      correctIncorrectIndices.forEach((idx) => {
-        if (selectedSet.has(idx)) {
-          correctCount++;
-        } else {
-          mistakes.push({ position: idx, yourAnswer: "(not selected)", correctAnswer: tokens[idx] || "" });
-        }
-      });
-      const falsePositives = selected.filter((i) => !correctSet.has(i));
-      falsePositives.forEach((idx) => {
-        mistakes.push({ position: idx, yourAnswer: tokens[idx] || "", correctAnswer: "(should not have selected this)" });
-      });
-      const totalCorrect = correctIncorrectIndices.length || 1;
-      const netScore = Math.max(0, correctCount - falsePositives.length);
-      onSubmit({
-        answer: selected,
-        scoreResult: {
-          marksEarned: Math.round(totalMarks * (netScore / totalCorrect) * 10) / 10,
-          marksTotal: totalMarks,
-          correct: correctCount,
-          total: totalCorrect,
-          mistakes,
-        } as ScoreResult,
-      });
+      scoreOnServer(selected, startTime);
     };
 
     return (
@@ -1165,20 +1098,10 @@ export function QuestionRenderer({
 
   // ---- SELECT MISSING WORD ----
   if (type === "SELECT_MISSING_WORD") {
+    const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (response === null) return;
-      const correctIdx = content.correctAnswer ?? content.correctAnswers?.[0];
-      const isCorrect = response === correctIdx;
-      onSubmit({
-        answer: response,
-        scoreResult: {
-          marksEarned: isCorrect ? totalMarks : 0,
-          marksTotal: totalMarks,
-          correct: isCorrect ? 1 : 0,
-          total: 1,
-          mistakes: isCorrect ? [] : [{ position: 1, yourAnswer: content.options?.[response] ?? "—", correctAnswer: content.options?.[correctIdx] ?? "" }],
-        } as ScoreResult,
-      });
+      scoreOnServer(response, startTime);
     };
     return (
       <div className="space-y-4">
@@ -1187,7 +1110,7 @@ export function QuestionRenderer({
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const isCorrect = submitted && showFeedback && (content.correctAnswer === i || content.correctAnswers?.includes(i));
+            const isCorrect = submitted && showFeedback && (effectiveContent.correctAnswer === i || effectiveContent.correctAnswers?.includes(i));
             const isWrong = submitted && showFeedback && isSelected && !isCorrect;
             return (
               <button
@@ -1233,44 +1156,10 @@ export function QuestionRenderer({
 
   // ---- WRITE FROM DICTATION ----
   if (type === "WRITE_FROM_DICTATION") {
+    const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (!response?.trim()) return;
-      const normalize = (s: string) =>
-        s.trim().toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
-      const studentWords = normalize(response || "");
-      const correctWords = normalize(content.correctText || "");
-      const m = correctWords.length, n = studentWords.length;
-      const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
-      for (let ci = 1; ci <= m; ci++) {
-        for (let cj = 1; cj <= n; cj++) {
-          dp[ci][cj] = correctWords[ci - 1] === studentWords[cj - 1]
-            ? dp[ci - 1][cj - 1] + 1
-            : Math.max(dp[ci - 1][cj], dp[ci][cj - 1]);
-        }
-      }
-      const matched = dp[m][n];
-      const mistakes: ScoreResult["mistakes"] = [];
-      let ri = m, rj = n;
-      const missedPositions = new Set<number>();
-      while (ri > 0 && rj > 0) {
-        if (correctWords[ri - 1] === studentWords[rj - 1]) { ri--; rj--; }
-        else if (dp[ri - 1][rj] >= dp[ri][rj - 1]) { missedPositions.add(ri - 1); ri--; }
-        else { rj--; }
-      }
-      while (ri > 0) { missedPositions.add(ri - 1); ri--; }
-      correctWords.forEach((w: string, idx: number) => {
-        if (missedPositions.has(idx)) mistakes.push({ position: idx + 1, yourAnswer: "(missed or wrong)", correctAnswer: w });
-      });
-      onSubmit({
-        text: response,
-        scoreResult: {
-          marksEarned: Math.round(totalMarks * (m > 0 ? matched / m : 0) * 10) / 10,
-          marksTotal: totalMarks,
-          correct: matched,
-          total: m,
-          mistakes,
-        } as ScoreResult,
-      });
+      scoreOnServer(response, startTime);
     };
     return (
       <div className="space-y-4">
@@ -1286,10 +1175,10 @@ export function QuestionRenderer({
           onCopy={blockCP}
           onCut={blockCP}
         />
-        {submitted && showFeedback && content.correctText && (
+        {submitted && showFeedback && effectiveContent.correctText && (
           <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950/40">
             <p className="text-xs font-medium text-green-800 dark:text-green-300">Correct answer:</p>
-            <p className="text-sm text-green-900 dark:text-green-200">{content.correctText}</p>
+            <p className="text-sm text-green-900 dark:text-green-200">{effectiveContent.correctText}</p>
           </div>
         )}
       </div>

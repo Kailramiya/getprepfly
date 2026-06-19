@@ -63,10 +63,24 @@ export async function GET(
   }
 
   const { centreId, ...safeQuestion } = question;
+
+  // Strip answer keys from content so students cannot see them before submitting.
+  // Scoring is done server-side via POST /api/questions/:id/score.
+  const ANSWER_KEY_FIELDS = [
+    "correctAnswer", "correctAnswers", "correctOrder",
+    "correctText", "incorrectIndices",
+  ] as const;
+  let safeContent = safeQuestion.content ? { ...(safeQuestion.content as Record<string, unknown>) } : null;
+  if (safeContent) {
+    for (const field of ANSWER_KEY_FIELDS) delete safeContent[field];
+  }
+
   return NextResponse.json({
     success: true,
     data: {
       ...safeQuestion,
+      content: safeContent,
+      modelAnswer: null, // hide until after submission
       source: user!.centreId && centreId === user!.centreId ? "MY_CENTRE" : "PUBLIC",
     },
   });
