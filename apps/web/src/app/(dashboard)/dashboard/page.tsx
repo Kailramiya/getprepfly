@@ -21,6 +21,7 @@ import {
   Star,
   Loader2,
   Sparkles,
+  Zap,
 } from "lucide-react";
 
 function Sk({ className }: { className?: string }) {
@@ -44,6 +45,7 @@ interface DashboardData {
   }>;
   weakAreas: Array<{ type: string; section: string; averageScore: number; count: number }>;
   strongAreas: Array<{ type: string; section: string; averageScore: number; count: number }>;
+  predictions: Array<{ type: string; section: string; count: number }>;
   examDate: string | null;
   dailyGoal: number;
   todayCount: number;
@@ -317,6 +319,33 @@ export default function DashboardPage() {
                     <ArrowRight className="h-4 w-4 shrink-0 text-gray-300 transition group-hover:translate-x-1 group-hover:text-indigo-500 dark:text-slate-600" />
                   </CardContent>
                 </Card>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Prediction questions available */}
+      {!loading && data && data.predictions.length > 0 && (
+        <div>
+          <div className="mb-3 flex items-center gap-2">
+            <Zap className="h-4 w-4 text-amber-500" />
+            <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100">High-frequency predictions</h2>
+            <span className="text-xs text-gray-400 dark:text-slate-500">— expected in upcoming exams</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {data.predictions.map((p) => (
+              <Link
+                key={p.type}
+                href={`/practice/${p.section.toLowerCase()}/${p.type.toLowerCase().replace(/_/g, "-")}`}
+              >
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
+                  <Zap className="h-3 w-3" />
+                  {p.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
+                  <span className="ml-0.5 rounded-full bg-amber-200 dark:bg-amber-800 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-200">
+                    {p.count}
+                  </span>
+                </span>
               </Link>
             ))}
           </div>

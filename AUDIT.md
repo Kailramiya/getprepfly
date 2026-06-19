@@ -35,7 +35,7 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 - [x] **P1** Centre leaderboard (avg score, min 5 attempts, top 20 + your rank, privacy-safe names). *(api/leaderboard + /leaderboard page + sidebar)*
 - [x] **P1** Attempt review: compare your last answers vs model on a question; history surfaced. *(api/attempts/[id] + /progress/attempts/[id] page + clickable recent attempts)*
 - [x] **P2** Re-engagement email ("you haven't practiced in 7 days", "you improved this week"). *(api/cron/re-engagement + vercel.json cron 03:30 UTC daily)*
-- [~] **P2** "Focus areas" study-plan card on dashboard from weakest question types (deep-links to practice). Prediction/high-frequency surfacing still pending. *(dashboard + dashboard API)*
+- [x] **P2** "Focus areas" study-plan card + high-frequency predictions row on dashboard. *(dashboard + dashboard API)*
 - [x] **P2** Model-answer audio (TTS) for shadowing on speaking/read-aloud. *(api/ai/tts/preview + SpeakingQuestion post-submit)*
 - [ ] **P3** Achievements/badges; weekly challenge from predictions.
 

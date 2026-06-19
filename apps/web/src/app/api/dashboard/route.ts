@@ -26,6 +26,7 @@ export async function GET() {
     totalPracticeTime,
     practiceDays,
     sectionTypeAggs,
+    predictionsAgg,
   ] = await Promise.all([
     // Total attempts count
     db.attempt.count({ where: { userId } }),
@@ -90,6 +91,23 @@ export async function GET() {
         AND a."overallScore" IS NOT NULL
       GROUP BY q.section, q.type
     `,
+
+    // Prediction question counts by type — surfaces high-frequency expected questions
+    db.question.groupBy({
+      by: ["section", "type"],
+      where: {
+        isPrediction: true,
+        isActive: true,
+        OR: [
+          { centreId: null },
+          { isPublic: true },
+          ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
+        ],
+      },
+      _count: { id: true },
+      orderBy: { _count: { id: "desc" } },
+      take: 6,
+    }),
   ]);
 
   // ── Streak ────────────────────────────────────────────────────────────────
@@ -186,6 +204,11 @@ export async function GET() {
       scoreTrend,
       weakAreas,
       strongAreas,
+      predictions: predictionsAgg.map(p => ({
+        type: p.type,
+        section: p.section,
+        count: p._count.id,
+      })),
     },
   });
   res.headers.set("Cache-Control", "private, max-age=30");
