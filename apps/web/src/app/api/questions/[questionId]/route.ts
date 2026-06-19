@@ -70,7 +70,7 @@ export async function GET(
     "correctAnswer", "correctAnswers", "correctOrder",
     "correctText", "incorrectIndices",
   ] as const;
-  let safeContent = safeQuestion.content ? { ...(safeQuestion.content as Record<string, unknown>) } : null;
+  const safeContent = safeQuestion.content ? { ...(safeQuestion.content as Record<string, unknown>) } : null;
   if (safeContent) {
     for (const field of ANSWER_KEY_FIELDS) delete safeContent[field];
   }
