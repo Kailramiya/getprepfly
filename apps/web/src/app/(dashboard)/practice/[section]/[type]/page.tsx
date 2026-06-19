@@ -160,30 +160,49 @@ export default function PracticeQuestionPage() {
 
   useEffect(() => {
     if (!currentQuestion?.id) return;
+    const questionId = currentQuestion.id;
+
     setShowAnswer(false);
     setAttemptHistory([]);
     setLastAttemptScore(null);
     setHistoryLoaded(false);
+    setHistoryLoading(true);
     setQuestionStartTime(Date.now());
     autoSubmitRef.current = null;
 
-    if (currentQuestion.content) {
-      setQuestionLoading(false);
-      return;
-    }
-
     let cancelled = false;
-    setQuestionLoading(true);
-    fetch(`/api/questions/${currentQuestion.id}`)
+
+    // Eagerly load attempt history so lastAttemptScore is ready for delta comparison
+    fetch(`/api/attempts?questionId=${questionId}&pageSize=10`)
       .then(r => r.json())
       .then(d => {
         if (cancelled || !d.success) return;
-        setQuestions(prev => prev.map(q => q.id === currentQuestion.id ? { ...q, ...d.data } : q));
+        const items = d.data.items.filter((a: any) => a.overallScore !== null);
+        setAttemptHistory(items.map((a: any) => ({
+          date: new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" }),
+          score: Math.round(a.overallScore),
+        })).reverse());
+        if (items.length > 0) setLastAttemptScore(Math.round(items[0].overallScore));
+        setHistoryLoaded(true);
       })
       .catch(() => {})
-      .finally(() => {
-        if (!cancelled) setQuestionLoading(false);
-      });
+      .finally(() => { if (!cancelled) setHistoryLoading(false); });
+
+    if (currentQuestion.content) {
+      setQuestionLoading(false);
+    } else {
+      setQuestionLoading(true);
+      fetch(`/api/questions/${questionId}`)
+        .then(r => r.json())
+        .then(d => {
+          if (cancelled || !d.success) return;
+          setQuestions(prev => prev.map(q => q.id === questionId ? { ...q, ...d.data } : q));
+        })
+        .catch(() => {})
+        .finally(() => {
+          if (!cancelled) setQuestionLoading(false);
+        });
+    }
 
     return () => { cancelled = true; };
   }, [currentQuestion?.id, currentQuestion?.content]);
@@ -240,6 +259,13 @@ export default function PracticeQuestionPage() {
   };
 
   const resetQuestion = () => {
+    // Capture this score as the comparison point for the next retry attempt
+    if (score) {
+      const overallScore90 = score.aiScores?.overall != null
+        ? Math.round(score.aiScores.overall)
+        : score.marksTotal > 0 ? Math.round((score.marksEarned / score.marksTotal) * 90) : 0;
+      setLastAttemptScore(overallScore90);
+    }
     setSubmitted(false);
     setScore(null);
   };
@@ -639,8 +665,8 @@ export default function PracticeQuestionPage() {
             </Button>
           )}
           {submitted && (
-            <Button variant="ghost" onClick={resetQuestion} className="gap-2">
-              <RotateCcw className="h-4 w-4" /> Retry
+            <Button variant="outline" onClick={resetQuestion} className="gap-2">
+              <RotateCcw className="h-4 w-4" /> Try Again
             </Button>
           )}
         </div>

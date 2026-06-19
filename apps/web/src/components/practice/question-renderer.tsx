@@ -7,7 +7,7 @@ import { AudioRecorder } from "@/components/practice/audio-recorder";
 import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   CheckCircle2, XCircle, Loader2, Volume2,
-  BookOpen as TemplateIcon, GripVertical, X,
+  BookOpen as TemplateIcon, GripVertical, X, TrendingUp,
 } from "lucide-react";
 import { WRITING_TEMPLATES, SPEAKING_TEMPLATES } from "@/lib/templates";
 import { SKILL_CONTRIBUTIONS, SKILL_KEYS, type SkillKey } from "@/lib/pte-scoring";
@@ -1376,13 +1376,13 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
               <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">{result.marksEarned}</span>
               <span className="text-sm text-gray-500 dark:text-slate-400">/ {result.marksTotal} marks</span>
               <span className="ml-2 text-sm font-medium text-gray-600 dark:text-slate-300">({Math.round(percent)}%)</span>
-              {result.aiScores?.overall != null && lastAttemptScore !== null && (() => {
-                const delta = Math.round(result.aiScores!.overall) - lastAttemptScore;
+              {lastAttemptScore !== null && (() => {
+                const delta = overallScore90 - lastAttemptScore;
                 return delta !== 0 ? (
-                  <span className={`text-sm font-semibold ${delta > 0 ? "text-green-600" : "text-red-500"}`}>
+                  <span className={`text-sm font-semibold ${delta > 0 ? "text-green-600 dark:text-green-400" : "text-red-500"}`}>
                     {delta > 0 ? `↑${delta}` : `↓${Math.abs(delta)}`} vs last attempt
                   </span>
-                ) : <span className="text-sm text-gray-400">Same as last attempt</span>;
+                ) : <span className="text-sm text-gray-400 dark:text-slate-500">Same as last attempt</span>;
               })()}
             </div>
           )}
@@ -1396,6 +1396,16 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
           )}
         </div>
       </div>
+
+      {/* Score improved banner */}
+      {!result.pending && lastAttemptScore !== null && overallScore90 > lastAttemptScore && (
+        <div className="mt-3 flex items-center gap-2 rounded-lg border border-green-200 bg-green-100/60 dark:border-green-800 dark:bg-green-950/50 px-3.5 py-2.5">
+          <TrendingUp className="h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
+          <p className="text-sm font-semibold text-green-700 dark:text-green-400">
+            Score improved! ↑{overallScore90 - lastAttemptScore} points from last attempt
+          </p>
+        </div>
+      )}
 
       {/* Progress bar */}
       {!result.pending && (
