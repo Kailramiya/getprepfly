@@ -546,6 +546,15 @@ export default function PracticeQuestionPage() {
             />
           )}
 
+          {/* Screen-reader score announcement */}
+          <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+            {submitted && score
+              ? score.correct !== undefined
+                ? `Result: ${score.correct ? "Correct" : "Incorrect"}. ${score.marksEarned} of ${score.marksTotal} marks.${score.message ? ` ${score.message}` : ""}`
+                : `Submitted. ${score.marksEarned} of ${score.marksTotal} marks.`
+              : ""}
+          </p>
+
           {/* Score Summary (shown after submission) */}
           {submitted && score && (
             <div className="mt-6">

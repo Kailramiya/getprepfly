@@ -51,6 +51,11 @@ export function ScoreDisplay({ scores, type, feedback, corrections, transcriptio
 
   return (
     <div className="space-y-4">
+      {/* Screen-reader announcement — reads score+band immediately when result appears */}
+      <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+        {`Score: ${scores.overall} out of 90. Band: ${pteBand(scores.overall)}.${feedback ? ` Feedback: ${feedback}` : ""}`}
+      </p>
+
       {/* Overall Score */}
       <Card className="overflow-hidden">
         <div className={`${scoreBg(scores.overall)} px-6 py-4`}>
