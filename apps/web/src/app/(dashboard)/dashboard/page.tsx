@@ -20,7 +20,12 @@ import {
   Flame,
   Star,
   Loader2,
+  Sparkles,
 } from "lucide-react";
+
+function Sk({ className }: { className?: string }) {
+  return <div className={`animate-pulse rounded-lg bg-gray-100 dark:bg-slate-700 ${className ?? ""}`} />;
+}
 
 interface DashboardData {
   totalAttempts: number;
@@ -189,7 +194,11 @@ export default function DashboardPage() {
       </div>
 
       {/* Exam countdown + daily goal */}
-      {!loading && data && (
+      {loading ? (
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Sk className="h-16" /><Sk className="h-16" />
+        </div>
+      ) : data && (
         <div className="grid gap-4 sm:grid-cols-2">
           {/* Exam-day countdown */}
           {(() => {
@@ -288,7 +297,12 @@ export default function DashboardPage() {
       </div>
 
       {/* Focus areas — personalized study plan from weakest question types */}
-      {!loading && data && data.weakAreas.length > 0 && (
+      {loading ? (
+        <div>
+          <Sk className="mb-4 h-6 w-48" />
+          <div className="grid gap-3 sm:grid-cols-3"><Sk className="h-16" /><Sk className="h-16" /><Sk className="h-16" /></div>
+        </div>
+      ) : data && data.weakAreas.length > 0 && (
         <div>
           <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Focus areas — practice these next</h2>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -310,7 +324,26 @@ export default function DashboardPage() {
       )}
 
       {/* Recent Attempts */}
-      {!loading && data && data.recentAttempts.length > 0 && (
+      {loading ? (
+        <div>
+          <div className="mb-4 flex items-center justify-between">
+            <Sk className="h-6 w-36" />
+            <Sk className="h-4 w-16" />
+          </div>
+          <div className="space-y-2">
+            {[0, 1, 2].map((i) => <Sk key={i} className="h-14" />)}
+          </div>
+        </div>
+      ) : data && data.recentAttempts.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
+            <Sparkles className="h-8 w-8 text-indigo-300" />
+            <p className="font-semibold text-gray-900 dark:text-slate-100">No practice yet — let&apos;s start!</p>
+            <p className="text-sm text-gray-500 dark:text-slate-400">Pick a section below and complete your first question.</p>
+            <Link href="/practice/speaking"><Button size="sm" className="mt-1">Start practising</Button></Link>
+          </CardContent>
+        </Card>
+      ) : data && data.recentAttempts.length > 0 && (
         <div>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Recent Practice</h2>
