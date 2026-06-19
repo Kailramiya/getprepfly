@@ -56,7 +56,7 @@ Keep this file updated as items ship. Add newly-found bugs under "Discovered dur
 - [x] **P1** Mock-test creation: single findMany with type:{ in: [...] }. *(api/mock-tests/route.ts)*
 - [ ] **P2** Reduce client `useEffect`+fetch waterfalls (SSR/skeletons); shared cache for `/api/access/me`.
 - [ ] **P2** Code-split `question-renderer.tsx` per type; lazy-load recharts; `optimizePackageImports` += recharts.
-- [ ] **P2** Upload: enforce Vercel Blob, drop base64-in-DB fallback (fail loudly). *(api/upload-file)*
+- [x] **P2** Upload: enforce Vercel Blob, drop base64-in-DB fallback (fail loudly). *(api/upload-file)*
 - [ ] **P3** Tune cache headers on `/api/questions` for non-admins.
 
 ## Track F — UI/UX, mobile, accessibility, PWA

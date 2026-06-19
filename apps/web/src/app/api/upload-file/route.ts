@@ -6,8 +6,7 @@ const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
 const MAX_AUDIO_SIZE = 4 * 1024 * 1024; // 4 MB serverless-safe upload limit
 
 // POST /api/upload-file — upload file (image or audio) for questions.
-// Uses Vercel Blob if BLOB_READ_WRITE_TOKEN is configured,
-// otherwise falls back to base64 data URL (smaller files only).
+// Requires Vercel Blob (BLOB_READ_WRITE_TOKEN). Returns 503 if not configured.
 export async function POST(req: NextRequest) {
   // Only admins/teachers can upload files
   const { error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"]);
@@ -98,101 +97,74 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const SAFE_FALLBACK_LIMIT = isImage ? 2 * 1024 * 1024 : 500 * 1024; // 2 MB for images, 500 KB for audio
     const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
 
-    // ---- Option 1: Vercel Blob Storage (preferred when configured) ----
-    if (blobConfigured) {
-      try {
-        const { put } = await import("@vercel/blob");
-        const ext = file.name.split(".").pop() || "bin";
-        const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-        const arrayBuffer = await file.arrayBuffer();
-
-        // Try public access first; if the store is private, fall back to private access.
-        let blob: Awaited<ReturnType<typeof put>> | null = null;
-        let isPrivate = false;
-
-        try {
-          blob = await put(fileName, arrayBuffer, {
-            access: "public",
-            contentType: normalizedType,
-          });
-        } catch (pubErr: any) {
-          if (pubErr?.message?.includes("private")) {
-            // Store is configured as private — retry with private access
-            blob = await put(fileName, arrayBuffer, {
-              access: "private",
-              contentType: normalizedType,
-            });
-            isPrivate = true;
-          } else {
-            throw pubErr;
-          }
-        }
-
-        // For private blobs the raw URL requires the token to access.
-        // Wrap it in our proxy route so audio/images load in the browser.
-        const serveUrl = isPrivate
-          ? `/api/media-proxy?url=${encodeURIComponent(blob!.url)}`
-          : blob!.url;
-
-        return NextResponse.json({
-          success: true,
-          data: {
-            url: serveUrl,
-            method: "vercel-blob",
-            size: file.size,
-            type: normalizedType,
-          },
-        });
-      } catch (err: any) {
-        const reason = err?.message || String(err) || "unknown error";
-        console.error("Vercel Blob upload failed:", reason);
-
-        // If Blob fails and file is too large for base64 fallback, return error
-        if (file.size > SAFE_FALLBACK_LIMIT) {
-          return NextResponse.json(
-            {
-              success: false,
-              error: `Upload failed: ${reason}. Check that BLOB_READ_WRITE_TOKEN is set correctly in Vercel → Settings → Environment Variables.`,
-            },
-            { status: 502 }
-          );
-        }
-        // Small file — fall through to base64 silently
-      }
-    }
-
-    // ---- Option 2: Base64 data URL fallback (no cloud storage configured) ----
-    if (file.size > SAFE_FALLBACK_LIMIT) {
+    if (!blobConfigured) {
       return NextResponse.json(
         {
           success: false,
-          error: blobConfigured
-            ? `Vercel Blob is configured but upload failed for this file (${(file.size / 1024 / 1024).toFixed(2)} MB). Check Vercel dashboard for storage status.`
-            : `File too large for inline storage (${(file.size / 1024 / 1024).toFixed(2)} MB). Maximum 500 KB without Vercel Blob. Enable it from Vercel dashboard → Storage → Blob, then redeploy.`,
-          needsCloudStorage: !blobConfigured,
+          error: "File storage is not configured. Go to Vercel dashboard → Storage → Blob, create a store, then add BLOB_READ_WRITE_TOKEN to your environment variables and redeploy.",
+          needsCloudStorage: true,
         },
-        { status: 413 }
+        { status: 503 }
       );
     }
 
-    const arrayBuffer = await file.arrayBuffer();
-    const base64 = Buffer.from(arrayBuffer).toString("base64");
-    const dataUrl = `data:${normalizedType};base64,${base64}`;
+    // ---- Vercel Blob Storage ----
+    try {
+      const { put } = await import("@vercel/blob");
+      const ext = file.name.split(".").pop() || "bin";
+      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-    return NextResponse.json({
-      success: true,
-      data: {
-        url: dataUrl,
-        method: "data-url",
-        size: file.size,
-        type: normalizedType,
-        warning: blobConfigured ? undefined : "File stored inline. Enable Vercel Blob for better performance.",
-      },
-    });
+      const arrayBuffer = await file.arrayBuffer();
+
+      // Try public access first; if the store is private, fall back to private access.
+      let blob: Awaited<ReturnType<typeof put>> | null = null;
+      let isPrivate = false;
+
+      try {
+        blob = await put(fileName, arrayBuffer, {
+          access: "public",
+          contentType: normalizedType,
+        });
+      } catch (pubErr: any) {
+        if (pubErr?.message?.includes("private")) {
+          blob = await put(fileName, arrayBuffer, {
+            access: "private",
+            contentType: normalizedType,
+          });
+          isPrivate = true;
+        } else {
+          throw pubErr;
+        }
+      }
+
+      // For private blobs the raw URL requires the token to access.
+      // Wrap it in our proxy route so audio/images load in the browser.
+      const serveUrl = isPrivate
+        ? `/api/media-proxy?url=${encodeURIComponent(blob!.url)}`
+        : blob!.url;
+
+      return NextResponse.json({
+        success: true,
+        data: {
+          url: serveUrl,
+          method: "vercel-blob",
+          size: file.size,
+          type: normalizedType,
+        },
+      });
+    } catch (err: any) {
+      const reason = err?.message || String(err) || "unknown error";
+      console.error("Vercel Blob upload failed:", reason);
+      return NextResponse.json(
+        {
+          success: false,
+          error: `Upload failed: ${reason}. Check that BLOB_READ_WRITE_TOKEN is valid in Vercel → Settings → Environment Variables.`,
+        },
+        { status: 502 }
+      );
+    }
   } catch (err: any) {
     console.error("Upload error:", err);
     return NextResponse.json(
