@@ -12,7 +12,7 @@ import Link from "next/link";
 import {
   Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus,
   XCircle, RotateCcw, Link2, Copy, Check, Download, AlertTriangle,
-  RefreshCw,
+  RefreshCw, Upload, X,
 } from "lucide-react";
 
 interface Student {
@@ -91,6 +91,10 @@ export default function StudentsPage() {
   const [inviteLink, setInviteLink] = useState<string | null>(null);
   const [linkCopied, setLinkCopied] = useState(false);
   const [seatUsage, setSeatUsage] = useState<SeatUsage | null>(null);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [importRows, setImportRows] = useState<Array<{ name: string; email: string; phone: string }>>([]);
+  const [importLoading, setImportLoading] = useState(false);
+  const [importResult, setImportResult] = useState<{ imported: number; invited: number; skipped: number; errors: Array<{ email: string; reason: string }> } | null>(null);
 
   const centreId = user?.centreId ?? null;
 
@@ -300,6 +304,67 @@ export default function StudentsPage() {
     setTimeout(() => setLinkCopied(false), 2000);
   };
 
+  const parseCSV = (text: string): Array<{ name: string; email: string; phone: string }> => {
+    const lines = text.trim().split(/\r?\n/).filter(Boolean);
+    if (lines.length === 0) return [];
+    const firstLower = lines[0].toLowerCase();
+    const startIndex = firstLower.includes("name") || firstLower.includes("email") ? 1 : 0;
+    return lines.slice(startIndex).map(line => {
+      const cols: string[] = [];
+      let cur = "";
+      let inQ = false;
+      for (const ch of line) {
+        if (ch === '"') { inQ = !inQ; }
+        else if (ch === "," && !inQ) { cols.push(cur.trim()); cur = ""; }
+        else { cur += ch; }
+      }
+      cols.push(cur.trim());
+      return { name: cols[0] || "", email: cols[1] || "", phone: cols[2] || "" };
+    }).filter(r => r.name || r.email);
+  };
+
+  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImportResult(null);
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const rows = parseCSV(ev.target?.result as string);
+      setImportRows(rows);
+    };
+    reader.readAsText(file);
+    e.target.value = "";
+  };
+
+  const handleImport = async () => {
+    if (importRows.length === 0) return;
+    setImportLoading(true);
+    setImportResult(null);
+    try {
+      const res = await fetch("/api/centres/students/import", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ students: importRows.map(r => ({ name: r.name, email: r.email, ...(r.phone && { phone: r.phone }) })) }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setImportResult(data.data);
+        if (data.data.imported > 0 || data.data.invited > 0) {
+          const c = new AbortController();
+          fetchStudents(centreId!, search, c.signal);
+          fetchSeatUsage();
+          fetchPendingInvites(c.signal);
+        }
+      } else {
+        toast("error", data.error || "Import failed");
+      }
+    } catch {
+      toast("error", "Import failed. Please try again.");
+    } finally {
+      setImportLoading(false);
+    }
+  };
+
   // Seat gauge metrics
   const gaugePercent = seatUsage ? Math.min(100, Math.round((seatUsage.used / seatUsage.total) * 100)) : 0;
   const gaugeColor = gaugePercent >= 90 ? "bg-red-500" : gaugePercent >= 70 ? "bg-amber-500" : "bg-emerald-500";
@@ -311,10 +376,16 @@ export default function StudentsPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Students</h1>
           <p className="text-gray-500 dark:text-slate-400">Manage your coaching centre students</p>
         </div>
-        <Button variant="outline" onClick={exportCSV} disabled={exporting} className="gap-2">
-          {exporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => { setShowImportModal(true); setImportRows([]); setImportResult(null); }} className="gap-2">
+            <Upload className="h-4 w-4" />
+            Import CSV
+          </Button>
+          <Button variant="outline" onClick={exportCSV} disabled={exporting} className="gap-2">
+            {exporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
+            Export CSV
+          </Button>
+        </div>
       </div>
 
       {/* Seat Usage Gauge */}
@@ -710,6 +781,117 @@ export default function StudentsPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Import CSV Modal */}
+      {showImportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50" onClick={() => setShowImportModal(false)} />
+          <div className="relative w-full max-w-lg rounded-2xl bg-white dark:bg-slate-800 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-gray-200 dark:border-slate-700 px-6 py-4">
+              <div className="flex items-center gap-2">
+                <Upload className="h-5 w-5 text-indigo-600" />
+                <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">Import Students from CSV</h3>
+              </div>
+              <button onClick={() => setShowImportModal(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-4">
+              {/* Format hint */}
+              <div className="rounded-lg bg-gray-50 dark:bg-slate-700/50 border border-gray-200 dark:border-slate-600 p-3">
+                <p className="text-xs font-semibold text-gray-600 dark:text-slate-300 mb-1">Expected CSV format</p>
+                <code className="text-xs text-gray-500 dark:text-slate-400 font-mono">Name,Email,Phone (optional)</code>
+                <p className="mt-1.5 text-xs text-gray-400 dark:text-slate-500">
+                  First row is auto-detected as a header and skipped. Max 100 students per import.
+                </p>
+              </div>
+
+              {/* File input */}
+              <label className="flex cursor-pointer flex-col items-center gap-2 rounded-xl border-2 border-dashed border-gray-300 dark:border-slate-600 p-6 text-center hover:border-indigo-400 dark:hover:border-indigo-500 transition-colors">
+                <Upload className="h-8 w-8 text-gray-300 dark:text-slate-500" />
+                <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
+                  {importRows.length > 0 ? `${importRows.length} rows loaded — click to replace` : "Click to choose a CSV file"}
+                </span>
+                <span className="text-xs text-gray-400 dark:text-slate-500">.csv files only</span>
+                <input type="file" accept=".csv,text/csv" onChange={handleImportFile} className="sr-only" />
+              </label>
+
+              {/* Preview */}
+              {importRows.length > 0 && !importResult && (
+                <div>
+                  <p className="text-xs font-semibold text-gray-500 dark:text-slate-400 mb-2">
+                    Preview ({importRows.length} row{importRows.length !== 1 ? "s" : ""})
+                  </p>
+                  <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-slate-600">
+                    <table className="w-full text-xs">
+                      <thead className="bg-gray-50 dark:bg-slate-700/50">
+                        <tr>
+                          {["Name", "Email", "Phone"].map(h => (
+                            <th key={h} className="px-3 py-2 text-left font-medium text-gray-500 dark:text-slate-400">{h}</th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-gray-100 dark:divide-slate-700">
+                        {importRows.slice(0, 5).map((r, i) => (
+                          <tr key={i}>
+                            <td className="px-3 py-2 text-gray-900 dark:text-slate-100">{r.name || <span className="text-red-400">—</span>}</td>
+                            <td className="px-3 py-2 text-gray-700 dark:text-slate-300">{r.email || <span className="text-red-400">—</span>}</td>
+                            <td className="px-3 py-2 text-gray-500 dark:text-slate-400">{r.phone || "—"}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {importRows.length > 5 && (
+                    <p className="mt-1.5 text-xs text-gray-400 dark:text-slate-500">… and {importRows.length - 5} more</p>
+                  )}
+                </div>
+              )}
+
+              {/* Results */}
+              {importResult && (
+                <div className="rounded-lg border border-gray-200 dark:border-slate-600 p-4 space-y-2">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Import complete</p>
+                  <div className="flex gap-4 text-sm">
+                    {importResult.imported > 0 && <span className="text-green-600 dark:text-green-400">✓ {importResult.imported} linked</span>}
+                    {importResult.invited > 0 && <span className="text-indigo-600 dark:text-indigo-400">✉ {importResult.invited} invited</span>}
+                    {importResult.skipped > 0 && <span className="text-amber-600 dark:text-amber-400">⚠ {importResult.skipped} skipped</span>}
+                  </div>
+                  {importResult.errors.length > 0 && (
+                    <div className="mt-2 max-h-36 overflow-y-auto space-y-1">
+                      {importResult.errors.map((e, i) => (
+                        <div key={i} className="flex gap-2 text-xs text-red-600 dark:text-red-400">
+                          <span className="font-medium truncate max-w-[180px]">{e.email}</span>
+                          <span className="text-gray-400">—</span>
+                          <span>{e.reason}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-gray-200 dark:border-slate-700 px-6 py-4">
+              <Button variant="outline" onClick={() => setShowImportModal(false)}>
+                {importResult ? "Close" : "Cancel"}
+              </Button>
+              {!importResult && (
+                <Button
+                  onClick={handleImport}
+                  disabled={importRows.length === 0 || importLoading}
+                  loading={importLoading}
+                  className="gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  {importLoading ? "Importing…" : `Import ${importRows.length > 0 ? importRows.length : ""} students`}
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
