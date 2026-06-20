@@ -14,6 +14,8 @@ interface MockTestSummary {
   id: string;
   title: string;
   status: string;
+  mockType: string;
+  section: string | null;
   startedAt: string;
   completedAt: string | null;
   totalTime: number | null;
@@ -24,6 +26,8 @@ interface MockTestSummary {
   overallScore: number | null;
   _count: { questions: number; attempts: number };
 }
+
+type FilterType = "ALL" | "FULL" | "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
 interface GlobalTemplate {
   id: string;
@@ -50,6 +54,7 @@ export default function MockTestPage() {
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
   const [startingId, setStartingId] = useState<string | null>(null);
+  const [activeFilter, setActiveFilter] = useState<FilterType>("ALL");
 
   useEffect(() => {
     fetchTests();
@@ -125,6 +130,24 @@ export default function MockTestPage() {
 
   const fullAccessLocked = access !== null && !access.hasAllAccess;
 
+  const FILTERS: { id: FilterType; label: string; icon: any; color: string; active: string }[] = [
+    { id: "ALL",       label: "All",       icon: ClipboardList, color: "text-gray-500",   active: "bg-gray-900 text-white dark:bg-slate-100 dark:text-slate-900" },
+    { id: "FULL",      label: "Full Test", icon: ClipboardList, color: "text-indigo-600", active: "bg-indigo-600 text-white" },
+    { id: "SPEAKING",  label: "Speaking",  icon: Mic,           color: "text-teal-600",   active: "bg-teal-600 text-white" },
+    { id: "WRITING",   label: "Writing",   icon: PenTool,       color: "text-blue-600",   active: "bg-blue-600 text-white" },
+    { id: "READING",   label: "Reading",   icon: BookOpen,      color: "text-purple-600", active: "bg-purple-600 text-white" },
+    { id: "LISTENING", label: "Listening", icon: Headphones,    color: "text-orange-600", active: "bg-orange-600 text-white" },
+  ];
+
+  const matchesFilter = (mockType: string, section: string | null) => {
+    if (activeFilter === "ALL") return true;
+    if (activeFilter === "FULL") return mockType === "FULL";
+    return mockType === "SECTIONAL" && section === activeFilter;
+  };
+
+  const filteredTemplates = globalTemplates.filter(t => matchesFilter(t.mockType, t.section));
+  const filteredTests     = tests.filter(t => matchesFilter(t.mockType, t.section));
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -152,6 +175,27 @@ export default function MockTestPage() {
             {fullAccessLocked ? "Unlock Full Test" : "Start New Mock Test"}
           </Button>
         </div>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {FILTERS.map((f) => {
+          const isActive = activeFilter === f.id;
+          return (
+            <button
+              key={f.id}
+              onClick={() => setActiveFilter(f.id)}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                isActive
+                  ? f.active
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              }`}
+            >
+              <f.icon className={`h-3.5 w-3.5 ${isActive ? "opacity-90" : f.color}`} />
+              {f.label}
+            </button>
+          );
+        })}
       </div>
 
       {/* Test Info Card */}
@@ -210,11 +254,11 @@ export default function MockTestPage() {
       )}
 
       {/* Global Templates */}
-      {globalTemplates.length > 0 && (
+      {filteredTemplates.length > 0 && (
         <div>
           <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-slate-100">Available Tests</h2>
           <div className="space-y-2">
-            {globalTemplates.map(t => {
+            {filteredTemplates.map(t => {
               const accessible = canAccess(t);
               return (
                 <Card key={t.id} className={accessible ? "" : "opacity-80"}>
@@ -278,16 +322,20 @@ export default function MockTestPage() {
           <div className="flex justify-center py-12">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
           </div>
-        ) : tests.length === 0 ? (
+        ) : filteredTests.length === 0 ? (
           <Card>
             <CardContent className="py-12 text-center">
               <ClipboardList className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-4 text-gray-500">No mock tests yet. Start your first one!</p>
+              <p className="mt-4 text-gray-500">
+                {tests.length === 0
+                  ? "No mock tests yet. Start your first one!"
+                  : `No ${activeFilter === "ALL" ? "" : activeFilter.toLowerCase() + " "}tests found.`}
+              </p>
             </CardContent>
           </Card>
         ) : (
           <div className="space-y-3">
-            {tests.map((test) => (
+            {filteredTests.map((test) => (
               <Card
                 key={test.id}
                 className="cursor-pointer transition hover:shadow-md"
