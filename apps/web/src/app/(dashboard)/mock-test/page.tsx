@@ -57,10 +57,16 @@ export default function MockTestPage() {
   const [activeFilter, setActiveFilter] = useState<FilterType>("ALL");
 
   useEffect(() => {
+    // Two parallel fetches instead of four — init batches assigned+templates+access
     fetchTests();
-    fetch("/api/mock-tests/assigned").then(r => r.json()).then(d => { if (d.success) setAssignedTests(d.data); });
-    fetch("/api/mock-tests/global-templates").then(r => r.json()).then(d => { if (d.success) setGlobalTemplates(d.data); });
-    fetch("/api/access/me").then(r => r.json()).then(d => { if (d.success) setAccess(d.data); });
+    fetch("/api/mock-tests/init")
+      .then(r => r.json())
+      .then(d => {
+        if (!d.success) return;
+        setAssignedTests(d.data.assigned);
+        setGlobalTemplates(d.data.templates);
+        setAccess(d.data.access);
+      });
   }, []);
 
   const fetchTests = async () => {

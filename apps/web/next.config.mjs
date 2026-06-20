@@ -45,7 +45,16 @@ const nextConfig = {
   },
   // Reduce bundle size by tree-shaking lucide-react
   experimental: {
-    optimizePackageImports: ["lucide-react", "date-fns"],
+    optimizePackageImports: [
+      "lucide-react",
+      "date-fns",
+      "recharts",
+      "@radix-ui/react-dialog",
+      "@radix-ui/react-dropdown-menu",
+      "@radix-ui/react-select",
+      "@radix-ui/react-tabs",
+      "@radix-ui/react-tooltip",
+    ],
     // Required on Next 14.2 so instrumentation.ts runs (Sentry server init).
     instrumentationHook: true,
   },

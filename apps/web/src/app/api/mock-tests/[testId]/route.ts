@@ -16,7 +16,13 @@ export async function GET(
     include: {
       questions: {
         include: {
-          question: true,
+          question: {
+            select: {
+              id: true, type: true, section: true, title: true,
+              content: true, audioUrl: true, imageUrl: true, marks: true,
+              // modelAnswer + explanation excluded — not needed during test session
+            },
+          },
         },
         orderBy: { order: "asc" },
       },

@@ -211,7 +211,7 @@ export async function GET() {
       })),
     },
   });
-  res.headers.set("Cache-Control", "private, max-age=30");
+  res.headers.set("Cache-Control", "private, max-age=300");
   res.headers.set("Vary", "Cookie");
   return res;
 }
