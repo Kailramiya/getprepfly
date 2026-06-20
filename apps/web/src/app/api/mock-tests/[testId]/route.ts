@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
-import { calculateSkillScores } from "@/lib/pte-scoring";
+import { calculateSkillScores, PTE_MIN_SCORE } from "@/lib/pte-scoring";
 
 // GET /api/mock-tests/:testId — get mock test with questions
 export async function GET(
@@ -104,19 +104,33 @@ export async function PATCH(
       questionSection: q.question.section,
     }));
 
-    const skillScores = calculateSkillScores(scoringInput);
+    const rawSkill = calculateSkillScores(scoringInput);
+
+    // Apply minimum score floor to every skill so section scores are
+    // internally consistent with the overall (no "3 speaking but 22 overall").
+    const floor = (s: number) => Math.max(s, PTE_MIN_SCORE);
+    const skillScores = {
+      speaking:  floor(rawSkill.speaking),
+      writing:   floor(rawSkill.writing),
+      reading:   floor(rawSkill.reading),
+      listening: floor(rawSkill.listening),
+    };
+
     updateData.speakingScore  = skillScores.speaking;
     updateData.writingScore   = skillScores.writing;
     updateData.readingScore   = skillScores.reading;
     updateData.listeningScore = skillScores.listening;
 
-    // FULL mock → average all four skills (a fully-skipped skill is a real 0).
-    // SECTIONAL → average only the skills that the test actually covered.
-    const skillVals = Object.values(skillScores);
-    const relevant = testData?.mockType === "SECTIONAL" ? skillVals.filter((s) => s > 0) : skillVals;
-    updateData.overallScore = relevant.length > 0
-      ? Math.round(relevant.reduce((a, b) => a + b, 0) / relevant.length)
-      : 0;
+    // FULL mock → average all four floored skills.
+    // SECTIONAL → use raw scores to detect which skills were covered, then
+    // average the floored values of only those skills.
+    const SKILL_KEYS_ORDERED = ["speaking", "writing", "reading", "listening"] as const;
+    const relevantScores = testData?.mockType === "SECTIONAL"
+      ? SKILL_KEYS_ORDERED.filter((k) => rawSkill[k] > 0).map((k) => skillScores[k])
+      : Object.values(skillScores);
+    updateData.overallScore = relevantScores.length > 0
+      ? Math.round(relevantScores.reduce((a, b) => a + b, 0) / relevantScores.length)
+      : PTE_MIN_SCORE;
 
     if (testData?.startedAt) {
       updateData.totalTime = Math.floor((Date.now() - testData.startedAt.getTime()) / 1000);

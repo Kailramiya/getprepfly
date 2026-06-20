@@ -52,6 +52,9 @@ export const SKILL_CONTRIBUTIONS: Record<string, SkillContribution> = {
 export type SkillKey = "speaking" | "listening" | "reading" | "writing";
 export const SKILL_KEYS: SkillKey[] = ["speaking", "listening", "reading", "writing"];
 
+/** Minimum score applied to every skill and overall when a mock test is completed. */
+export const PTE_MIN_SCORE = 22;
+
 /**
  * Calculate four skill scores (0–90 each) from a list of attempts.
  *

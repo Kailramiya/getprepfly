@@ -63,7 +63,16 @@ export default function MockTestReportPage() {
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-indigo-600" /></div>;
   if (!data) return <div className="py-20 text-center text-gray-500">Report not found.</div>;
 
-  const estimatedPTE = data.overallScore ? Math.round(10 + (data.overallScore / 90) * 80) : null;
+  // Apply minimum floor for tests completed before the floor was introduced.
+  const PTE_MIN = 22;
+  const applyMin = (s: number | null) => (s === null ? null : Math.max(s, PTE_MIN));
+  const overallScore   = applyMin(data.overallScore);
+  const speakingScore  = applyMin(data.speakingScore);
+  const writingScore   = applyMin(data.writingScore);
+  const readingScore   = applyMin(data.readingScore);
+  const listeningScore = applyMin(data.listeningScore);
+
+  const estimatedPTE = overallScore ? Math.round(10 + (overallScore / 90) * 80) : null;
 
   return (
     <>
@@ -90,21 +99,21 @@ export default function MockTestReportPage() {
         {/* Overall Score */}
         <div className="rounded-2xl bg-indigo-600 p-6 text-white text-center">
           <p className="text-sm opacity-80 uppercase tracking-wide">Overall Score</p>
-          <p className="text-6xl font-bold mt-1">{data.overallScore ?? "—"}<span className="text-2xl opacity-60">/90</span></p>
+          <p className="text-6xl font-bold mt-1">{overallScore ?? "—"}<span className="text-2xl opacity-60">/90</span></p>
           {estimatedPTE && (
             <p className="mt-2 text-indigo-200">Estimated PTE Score: <span className="font-bold text-white">~{estimatedPTE}</span></p>
           )}
-          <p className="mt-1 text-indigo-200">Band: <span className="font-semibold text-white">{pteBand(data.overallScore)}</span></p>
+          <p className="mt-1 text-indigo-200">Band: <span className="font-semibold text-white">{pteBand(overallScore)}</span></p>
         </div>
 
         {/* Section Scores */}
         <div>
           <h2 className="text-base font-semibold text-gray-800 mb-4 dark:text-slate-200">Section Scores</h2>
           <div className="space-y-4">
-            <ScoreBar label="Speaking" score={data.speakingScore} color="bg-teal-500" />
-            <ScoreBar label="Writing" score={data.writingScore} color="bg-blue-500" />
-            <ScoreBar label="Reading" score={data.readingScore} color="bg-purple-500" />
-            <ScoreBar label="Listening" score={data.listeningScore} color="bg-orange-500" />
+            <ScoreBar label="Speaking"  score={speakingScore}  color="bg-teal-500" />
+            <ScoreBar label="Writing"   score={writingScore}   color="bg-blue-500" />
+            <ScoreBar label="Reading"   score={readingScore}   color="bg-purple-500" />
+            <ScoreBar label="Listening" score={listeningScore} color="bg-orange-500" />
           </div>
         </div>
 
