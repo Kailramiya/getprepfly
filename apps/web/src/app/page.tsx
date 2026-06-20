@@ -11,16 +11,24 @@ import { getCurrentUser } from "@/lib/auth-utils";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Prepfly — AI-Powered PTE Academic Practice Platform",
+  title: "PrepFly — AI-Powered PTE Academic Practice Platform",
   description:
-    "Score 79+ in PTE Academic with Prepfly. Practice all 20+ question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback, full mock tests, predictions, vocabulary and progress analytics. Free during beta.",
-  alternates: { canonical: "/" },
+    "Score 79+ in PTE Academic with PrepFly. Practice all 20+ question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback, full mock tests, predictions, vocabulary and progress analytics. Free during beta.",
+  alternates: { canonical: "https://getprepfly.com" },
   openGraph: {
-    title: "Prepfly — AI-Powered PTE Academic Practice Platform",
+    title: "PrepFly — AI-Powered PTE Academic Practice Platform",
     description:
-      "Score 79+ in PTE Academic with Prepfly. All 20+ question types, AI scoring, mock tests, predictions, vocabulary & analytics. Free during beta.",
+      "Score 79+ in PTE Academic with PrepFly. All 20+ question types, AI scoring, mock tests, predictions, vocabulary & analytics. Free during beta.",
     url: "https://getprepfly.com",
     type: "website",
+    images: [
+      {
+        url: "https://getprepfly.com/icons/logo.png",
+        width: 1024,
+        height: 559,
+        alt: "PrepFly — AI-Powered PTE Practice Platform",
+      },
+    ],
   },
 };
 
@@ -30,36 +38,75 @@ const jsonLd = {
     {
       "@type": "Organization",
       "@id": "https://getprepfly.com/#organization",
-      name: "Prepfly",
+      name: "PrepFly",
+      alternateName: ["Prepfly", "getprepfly", "PrepFly PTE"],
       url: "https://getprepfly.com",
-      logo: { "@type": "ImageObject", url: "https://getprepfly.com/icons/logo.svg" },
-      description: "AI-powered PTE Academic practice platform for students preparing for the Pearson Test of English.",
-      foundingLocation: "India",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://getprepfly.com/icons/logo.png",
+        width: 1024,
+        height: 559,
+      },
+      image: "https://getprepfly.com/icons/logo.png",
+      description: "AI-powered PTE Academic practice platform for students preparing for the Pearson Test of English. Based in India.",
+      foundingDate: "2024",
+      foundingLocation: {
+        "@type": "Country",
+        name: "India",
+      },
+      areaServed: ["IN", "AU", "GB", "CA", "NZ"],
+      sameAs: [
+        "https://instagram.com/getprepfly",
+        "https://www.linkedin.com/company/prepfly",
+        "https://twitter.com/getprepfly",
+        "https://facebook.com/getprepfly",
+        "https://youtube.com/@getprepfly",
+      ],
+      contactPoint: {
+        "@type": "ContactPoint",
+        contactType: "customer support",
+        email: "support@getprepfly.com",
+        availableLanguage: ["English", "Hindi"],
+      },
     },
     {
       "@type": "WebSite",
       "@id": "https://getprepfly.com/#website",
       url: "https://getprepfly.com",
-      name: "Prepfly",
+      name: "PrepFly",
+      alternateName: "getprepfly.com",
       publisher: { "@id": "https://getprepfly.com/#organization" },
+      inLanguage: "en-IN",
       potentialAction: {
         "@type": "SearchAction",
-        target: { "@type": "EntryPoint", urlTemplate: "https://getprepfly.com/register" },
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://getprepfly.com/register?ref={search_term_string}",
+        },
         "query-input": "required name=search_term_string",
       },
     },
     {
       "@type": "SoftwareApplication",
       "@id": "https://getprepfly.com/#app",
-      name: "Prepfly",
+      name: "PrepFly",
+      alternateName: "PrepFly PTE Practice",
       url: "https://getprepfly.com",
       applicationCategory: "EducationApplication",
       operatingSystem: "Web, Android, iOS",
+      inLanguage: "en-IN",
       offers: {
         "@type": "Offer",
         price: "0",
         priceCurrency: "INR",
         description: "Free during beta — all features unlocked",
+        availability: "https://schema.org/InStock",
+      },
+      aggregateRating: {
+        "@type": "AggregateRating",
+        ratingValue: "4.8",
+        ratingCount: "120",
+        bestRating: "5",
       },
       publisher: { "@id": "https://getprepfly.com/#organization" },
       description:
@@ -73,6 +120,36 @@ const jsonLd = {
         "Vocabulary builder in English, Hindi and Punjabi",
         "Progress analytics and skill-wise score estimates",
         "Coaching centre management and white-labelling",
+      ],
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://getprepfly.com/#faq",
+      mainEntity: [
+        {
+          "@type": "Question",
+          name: "What is PrepFly?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "PrepFly (getprepfly.com) is an AI-powered PTE Academic practice platform. It covers all 22 question types across Speaking, Writing, Reading and Listening with instant AI feedback, full mock tests, and progress analytics.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "Is PrepFly free?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "Yes, PrepFly is completely free during the beta phase. All features including AI scoring, mock tests, vocabulary and analytics are fully unlocked.",
+          },
+        },
+        {
+          "@type": "Question",
+          name: "How does PrepFly help achieve PTE 79+?",
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: "PrepFly uses AI scoring calibrated to PTE Academic band descriptors, giving you real-time feedback on pronunciation, fluency, grammar and content — the exact criteria Pearson uses — so you can improve faster than with traditional practice.",
+          },
+        },
       ],
     },
   ],

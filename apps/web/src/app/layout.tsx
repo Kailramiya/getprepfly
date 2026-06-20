@@ -13,41 +13,67 @@ const inter = Inter({
   preload: true,
 });
 
-const SITE_NAME = "Prepfly";
+const SITE_NAME = "PrepFly";
 const SITE_URL = "https://getprepfly.com";
 const SITE_DESCRIPTION =
   "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Free during beta.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
+  applicationName: "PrepFly",
   title: {
-    default: "Prepfly — AI-Powered PTE Practice Platform",
-    template: "%s | Prepfly",
+    default: "PrepFly — AI-Powered PTE Practice Platform",
+    template: "%s | PrepFly",
   },
   description: SITE_DESCRIPTION,
   keywords: [
     "PTE", "PTE Academic", "PTE practice", "PTE mock test", "PTE preparation",
-    "PTE score 79", "Prepfly", "getprepfly", "PTE India", "AI PTE practice",
-    "PTE speaking practice", "PTE writing practice",
+    "PTE score 79", "PrepFly", "Prepfly", "getprepfly", "get prepfly",
+    "prepfly.com", "PTE India", "AI PTE practice", "PTE coaching",
+    "PTE speaking practice", "PTE writing practice", "PTE reading practice",
+    "PTE listening practice", "PTE online coaching", "PTE preparation India",
+    "best PTE app", "PTE practice app", "PTE AI scoring",
   ],
+  authors: [{ name: "PrepFly", url: SITE_URL }],
+  creator: "PrepFly",
+  publisher: "PrepFly",
+  category: "Education",
   manifest: "/manifest.json",
+  alternates: {
+    canonical: SITE_URL,
+  },
   openGraph: {
     siteName: SITE_NAME,
     url: SITE_URL,
     type: "website",
-    title: "Prepfly — AI-Powered PTE Practice Platform",
+    title: "PrepFly — AI-Powered PTE Practice Platform",
     description: SITE_DESCRIPTION,
+    images: [
+      {
+        url: `${SITE_URL}/icons/logo.png`,
+        width: 1024,
+        height: 559,
+        alt: "PrepFly — AI-Powered PTE Practice Platform",
+      },
+    ],
+    locale: "en_IN",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Prepfly — AI-Powered PTE Practice Platform",
+    title: "PrepFly — AI-Powered PTE Practice Platform",
     description: SITE_DESCRIPTION,
     site: "@getprepfly",
+    creator: "@getprepfly",
+    images: [`${SITE_URL}/icons/logo.png`],
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" },
+    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large", "max-video-preview": -1 },
+  },
+  verification: {
+    // Add your Google Search Console verification token here once you have it:
+    // google: "YOUR_VERIFICATION_TOKEN",
   },
 };
 

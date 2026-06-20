@@ -5,7 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/download", "/login", "/register"],
+        allow: ["/", "/download", "/login", "/register", "/pricing", "/contact", "/terms", "/privacy"],
         disallow: [
           "/dashboard",
           "/practice",
@@ -16,7 +16,6 @@ export default function robots(): MetadataRoute.Robots {
           "/super-admin",
           "/study-guides",
           "/vocabulary",
-          "/pricing",
           "/feedback",
           "/my-flags",
           "/api",
@@ -24,5 +23,6 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: "https://getprepfly.com/sitemap.xml",
+    host: "https://getprepfly.com",
   };
 }

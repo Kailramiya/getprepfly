@@ -11,7 +11,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
+      url: `${base}/pricing`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
       url: `${base}/download`,
+      lastModified: new Date(),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
+    {
+      url: `${base}/register`,
       lastModified: new Date(),
       changeFrequency: "monthly",
       priority: 0.8,
@@ -20,19 +32,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${base}/login`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.7,
+      priority: 0.6,
     },
     {
-      url: `${base}/register`,
+      url: `${base}/contact`,
       lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.7,
+      changeFrequency: "yearly",
+      priority: 0.5,
     },
-    ...["terms", "privacy", "refund-policy", "contact"].map((slug) => ({
+    ...["terms", "privacy", "refund-policy"].map((slug) => ({
       url: `${base}/${slug}`,
       lastModified: new Date(),
       changeFrequency: "yearly" as const,
-      priority: 0.3,
+      priority: 0.2,
     })),
   ];
 }
