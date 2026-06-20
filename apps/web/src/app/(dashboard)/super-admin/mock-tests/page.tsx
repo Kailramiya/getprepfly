@@ -40,6 +40,7 @@ export default function SuperAdminMockTestsPage() {
   const [isFree, setIsFree] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [activeFilter, setActiveFilter] = useState<"ALL" | "FULL" | "SPEAKING" | "WRITING" | "READING" | "LISTENING">("ALL");
 
   const fetchTemplates = async () => {
     setLoading(true);
@@ -96,6 +97,21 @@ export default function SuperAdminMockTestsPage() {
   const fullCount = templates.filter(t => t.mockType === "FULL").length;
   const sectionalCount = templates.filter(t => t.mockType === "SECTIONAL").length;
 
+  const FILTERS = [
+    { id: "ALL",       label: "All",       icon: ClipboardList, active: "bg-gray-900 text-white dark:bg-slate-100 dark:text-slate-900", color: "text-gray-500" },
+    { id: "FULL",      label: "Full Test", icon: Layers,        active: "bg-indigo-600 text-white", color: "text-indigo-600" },
+    { id: "SPEAKING",  label: "Speaking",  icon: Mic,           active: "bg-teal-600 text-white",   color: "text-teal-600" },
+    { id: "WRITING",   label: "Writing",   icon: PenTool,       active: "bg-blue-600 text-white",   color: "text-blue-600" },
+    { id: "READING",   label: "Reading",   icon: BookOpen,      active: "bg-purple-600 text-white", color: "text-purple-600" },
+    { id: "LISTENING", label: "Listening", icon: Headphones,    active: "bg-orange-600 text-white", color: "text-orange-600" },
+  ] as const;
+
+  const filteredTemplates = templates.filter(t => {
+    if (activeFilter === "ALL")  return true;
+    if (activeFilter === "FULL") return t.mockType === "FULL";
+    return t.mockType === "SECTIONAL" && t.section === activeFilter;
+  });
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -132,27 +148,59 @@ export default function SuperAdminMockTestsPage() {
         ))}
       </div>
 
+      {/* Filter Tabs */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {FILTERS.map(f => {
+          const isActive = activeFilter === f.id;
+          return (
+            <button
+              key={f.id}
+              onClick={() => setActiveFilter(f.id)}
+              className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+                isActive
+                  ? f.active
+                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              }`}
+            >
+              <f.icon className={`h-3.5 w-3.5 ${isActive ? "opacity-90" : f.color}`} />
+              {f.label}
+              <span className={`ml-0.5 rounded-full px-1.5 py-0.5 text-xs ${isActive ? "bg-white/20" : "bg-gray-200 dark:bg-slate-700 text-gray-500 dark:text-slate-400"}`}>
+                {f.id === "ALL" ? templates.length :
+                 f.id === "FULL" ? fullCount :
+                 templates.filter(t => t.mockType === "SECTIONAL" && t.section === f.id).length}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Templates List */}
       {loading ? (
         <div className="flex justify-center py-16">
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
         </div>
-      ) : templates.length === 0 ? (
+      ) : filteredTemplates.length === 0 ? (
         <Card>
           <CardContent className="py-16 text-center">
             <ClipboardList className="mx-auto h-12 w-12 text-gray-300" />
-            <p className="mt-4 text-gray-500 dark:text-slate-400">No mock test templates yet</p>
-            <p className="mt-1 text-sm text-gray-400 dark:text-slate-500">Create your first template — students will see it on their Mock Test page</p>
-            <Button onClick={() => setShowForm(true)} className="mt-4 gap-2">
-              <Plus className="h-4 w-4" /> Create Template
-            </Button>
+            <p className="mt-4 text-gray-500 dark:text-slate-400">
+              {templates.length === 0 ? "No mock test templates yet" : `No ${activeFilter === "ALL" ? "" : activeFilter.toLowerCase() + " "}templates found`}
+            </p>
+            {templates.length === 0 && (
+              <>
+                <p className="mt-1 text-sm text-gray-400 dark:text-slate-500">Create your first template — students will see it on their Mock Test page</p>
+                <Button onClick={() => setShowForm(true)} className="mt-4 gap-2">
+                  <Plus className="h-4 w-4" /> Create Template
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardContent className="p-0">
             <div className="divide-y divide-gray-100 dark:divide-slate-700">
-              {templates.map(t => {
+              {filteredTemplates.map(t => {
                 const isFull = t.mockType === "FULL";
                 const meta = !isFull && t.section ? SECTION_META[t.section] : null;
                 const Icon = meta?.icon ?? Layers;
