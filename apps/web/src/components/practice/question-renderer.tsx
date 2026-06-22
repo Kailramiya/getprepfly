@@ -917,6 +917,7 @@ export function QuestionRenderer({
           onSubmit={onSubmit}
           modelAnswers={modelAnswers}
           initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
+          onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
         />
       </>
     );
