@@ -121,8 +121,12 @@ function RegisterForm() {
       return;
     }
 
-    // Combine the selected country code with the national number.
+    // Validate national digits before combining with country code.
     const nationalDigits = form.phone.replace(/\D/g, "");
+    if (nationalDigits.length < 10) {
+      setError("Phone number must be at least 10 digits.");
+      return;
+    }
     const fullPhone = `${form.countryCode}${nationalDigits}`;
     if (!/^\+\d{10,15}$/.test(fullPhone)) {
       setError("Please enter a valid phone number with your country code.");
@@ -263,8 +267,9 @@ function RegisterForm() {
               inputMode="numeric"
               placeholder="Phone number"
               value={form.phone}
-              onChange={(e) => updateForm("phone", e.target.value)}
+              onChange={(e) => updateForm("phone", e.target.value.replace(/\D/g, ""))}
               className="pl-10"
+              maxLength={10}
               required
             />
           </div>
