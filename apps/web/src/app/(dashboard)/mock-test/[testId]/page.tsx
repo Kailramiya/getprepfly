@@ -181,9 +181,7 @@ export default function MockTestSessionPage() {
 
   const goNext = useCallback(async () => {
     if (currentIdx < totalQuestions - 1) {
-      if (!submitted && autoSubmitRef.current) {
-        await autoSubmitRef.current();
-      } else {
+      if (!submitted) {
         await autoSavePending();
       }
       const nextIdx = currentIdx + 1;
@@ -226,9 +224,7 @@ export default function MockTestSessionPage() {
   };
 
   const finishTest = async () => {
-    if (!submitted && autoSubmitRef.current) {
-      await autoSubmitRef.current();
-    } else {
+    if (!submitted) {
       await autoSavePending();
     }
     setFinishing(true);
