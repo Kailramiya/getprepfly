@@ -97,6 +97,7 @@ export default function MockTestSessionPage() {
   const [elapsed, setElapsed] = useState(0);
   const [finishing, setFinishing] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
+  const [navigating, setNavigating] = useState(false);
 
   // Tracks the latest in-progress response from QuestionRenderer (before explicit submit)
   const pendingResponseRef = useRef<any>(null);
@@ -181,11 +182,13 @@ export default function MockTestSessionPage() {
 
   const goNext = useCallback(async () => {
     if (currentIdx < totalQuestions - 1) {
+      setNavigating(true);
       if (!submitted) {
         await autoSavePending();
       }
       const nextIdx = currentIdx + 1;
       setSubmitted(false);
+      setNavigating(false);
       setCurrentIdx(nextIdx);
       fetch(`/api/mock-tests/${testId}`, {
         method: "PATCH",
@@ -444,7 +447,7 @@ export default function MockTestSessionPage() {
 
       {/* Navigation — no Previous in mock test */}
       <div className="flex justify-end">
-        <Button onClick={goNext} disabled={currentIdx === totalQuestions - 1} className="gap-2">
+        <Button onClick={goNext} disabled={currentIdx === totalQuestions - 1 || navigating} loading={navigating} className="gap-2">
           Next <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
