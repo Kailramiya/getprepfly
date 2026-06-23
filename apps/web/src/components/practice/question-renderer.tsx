@@ -2027,7 +2027,7 @@ function SummarizeSpokenTextQuestion({
   };
 
   useEffect(() => {
-    onRegisterSubmit?.(() => { if (text.trim() && !scoring) handleSubmit(); });
+    onRegisterSubmit?.(() => { if (text.trim() && !scoring) return handleSubmit(); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, scoring, submitted]);
 
@@ -2163,7 +2163,7 @@ function SummarizeWrittenTextQuestion({
   }, [timeLeft, submitted]);
 
   useEffect(() => {
-    onRegisterSubmit?.(() => { if (text.trim() && !scoring) handleSubmit(); });
+    onRegisterSubmit?.(() => { if (text.trim() && !scoring) return handleSubmit(); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [text, scoring, submitted]);
 

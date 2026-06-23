@@ -228,16 +228,16 @@ export default function PracticeQuestionPage() {
     }
   };
 
-  const triggerAutoSubmit = useCallback(() => {
+  const triggerAutoSubmit = useCallback(async () => {
     if (!submitted && autoSubmitRef.current) {
-      autoSubmitRef.current();
+      await autoSubmitRef.current();
     }
   }, [submitted]);
 
   const goToNext = useCallback(async () => {
     if (currentIndex >= totalQuestions - 1) return;
 
-    triggerAutoSubmit();
+    await triggerAutoSubmit();
 
     if (currentIndex >= questions.length - 1) {
       const loaded = await fetchQuestionPage(questionPage + 1);
@@ -249,9 +249,9 @@ export default function PracticeQuestionPage() {
     setScore(null);
   }, [currentIndex, fetchQuestionPage, questionPage, questions.length, totalQuestions, triggerAutoSubmit]);
 
-  const goToPrev = () => {
+  const goToPrev = async () => {
     if (currentIndex > 0) {
-      triggerAutoSubmit();
+      await triggerAutoSubmit();
       setCurrentIndex(currentIndex - 1);
       setSubmitted(false);
       setScore(null);
