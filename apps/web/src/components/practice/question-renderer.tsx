@@ -1959,7 +1959,7 @@ function SummarizeSpokenTextQuestion({
   content: any;
   totalMarks: number;
   submitted: boolean;
-  onSubmit: (response: any) => void;
+  onSubmit: (response: any) => Promise<void> | void;
   playOnce?: boolean;
   onRegisterSubmit?: (fn: () => void) => void;
   allowCopyPaste?: boolean;
@@ -1994,7 +1994,7 @@ function SummarizeSpokenTextQuestion({
       const data = await res.json();
       if (data.success) {
         const { scores } = data.data;
-        onSubmit({
+        await onSubmit({
           text,
           scoreResult: {
             marksEarned: Math.round(((scores.overall || 0) / 90) * totalMarks * 10) / 10,
@@ -2009,7 +2009,7 @@ function SummarizeSpokenTextQuestion({
         throw new Error(data.error || "Scoring failed");
       }
     } catch {
-      onSubmit({
+      await onSubmit({
         text,
         scoreResult: {
           marksEarned: 0,
@@ -2064,7 +2064,7 @@ function SummarizeWrittenTextQuestion({
   content: any;
   totalMarks: number;
   submitted: boolean;
-  onSubmit: (response: any) => void;
+  onSubmit: (response: any) => Promise<void> | void;
   onRegisterSubmit?: (fn: () => void) => void;
   allowCopyPaste?: boolean;
   onScoringChange?: (scoring: boolean) => void;
@@ -2106,7 +2106,7 @@ function SummarizeWrittenTextQuestion({
 
       if (data.success) {
         const { scores } = data.data;
-        onSubmit({
+        await onSubmit({
           text,
           scoreResult: {
             marksEarned: Math.round(((scores.overall || 0) / 90) * totalMarks * 10) / 10,
@@ -2128,7 +2128,7 @@ function SummarizeWrittenTextQuestion({
         throw new Error(data.error || "AI scoring failed");
       }
     } catch {
-      onSubmit({
+      await onSubmit({
         text,
         scoreResult: {
           marksEarned: 0,

@@ -60,6 +60,7 @@ const centreAdminNav: NavItem[] = [
   { label: "Students", href: "/admin/students", icon: Users },
   { label: "Batches", href: "/admin/batches", icon: Building2 },
   { label: "Questions", href: "/admin/questions", icon: Database },
+  { label: "Mock Tests", href: "/mock-test", icon: ClipboardList },
   { label: "Templates", href: "/admin/templates", icon: BookOpen },
   { label: "Vocabulary", href: "/admin/vocabulary", icon: BookMarked },
   { label: "Teachers", href: "/admin/teachers", icon: GraduationCap },
