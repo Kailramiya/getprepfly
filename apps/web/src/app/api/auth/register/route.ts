@@ -190,7 +190,7 @@ export async function POST(req: NextRequest) {
           passwordHash,
           role: isCentre ? "CENTRE_ADMIN" : "STUDENT",
           centreId: newCentreId || null,
-          emailVerified: isInvited ? new Date() : null,
+          emailVerified: new Date(),
           studentPlan: {
             create: { planType: "FREE" },
           },
