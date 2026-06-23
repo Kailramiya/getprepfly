@@ -187,6 +187,7 @@ export default function MockTestSessionPage() {
         await autoSavePending();
       }
       const nextIdx = currentIdx + 1;
+      setSubmitted(false);
       setCurrentIdx(nextIdx);
       fetch(`/api/mock-tests/${testId}`, {
         method: "PATCH",
