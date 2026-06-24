@@ -195,13 +195,23 @@ export default function AdminBillingPage() {
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [billingCycle, setBillingCycle] = useState<"1month" | "monthly" | "annual">("annual");
+  const [livePrices, setLivePrices] = useState<Record<string, number> | null>(null);
+
+  // Returns the live price in rupees for a plan key, falling back to the hardcoded default.
+  const planPrice = (key: string, defaultRupees: number): number => {
+    if (!livePrices) return defaultRupees;
+    return Math.round((livePrices[key] ?? defaultRupees * 100) / 100);
+  };
 
   const fetchData = () => {
     setLoading(true);
-    fetch("/api/centres/subscription")
-      .then((r) => r.json())
-      .then((res) => { if (res.success) setData(res.data); })
-      .finally(() => setLoading(false));
+    Promise.all([
+      fetch("/api/centres/subscription").then((r) => r.json()),
+      fetch("/api/pricing").then((r) => r.json()),
+    ]).then(([subRes, priceRes]) => {
+      if (subRes.success) setData(subRes.data);
+      if (priceRes.success) setLivePrices(priceRes.data);
+    }).finally(() => setLoading(false));
   };
 
   useEffect(() => { fetchData(); }, []);
@@ -458,7 +468,7 @@ export default function AdminBillingPage() {
                   <CardContent className="p-6">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">{p.name}</h3>
                     <div className="mt-2 flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-gray-900 dark:text-slate-100">₹{p.price.toLocaleString("en-IN")}</span>
+                      <span className="text-3xl font-extrabold text-gray-900 dark:text-slate-100">₹{planPrice(p.key, p.price).toLocaleString("en-IN")}</span>
                       <span className="text-sm text-gray-500 dark:text-slate-400">
                         /{billingCycle === "annual" ? "year" : billingCycle === "monthly" ? "6 months" : "month"}
                       </span>
@@ -486,7 +496,7 @@ export default function AdminBillingPage() {
                           ? "Renew Plan"
                           : centre?.isActive
                             ? "Switch to " + p.name
-                            : "Subscribe — ₹" + p.price.toLocaleString("en-IN")}
+                            : "Subscribe — ₹" + planPrice(p.key, p.price).toLocaleString("en-IN")}
                     </Button>
                   </CardContent>
                 </Card>
