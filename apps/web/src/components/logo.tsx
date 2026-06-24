@@ -43,7 +43,7 @@ export function Logo({
   return (
     <div className={cn("shrink-0", className)}>
       <Image
-        src="/icons/logo.png"
+        src="/icons/image.png"
         alt="PrepFly"
         width={ps.w}
         height={ps.h}

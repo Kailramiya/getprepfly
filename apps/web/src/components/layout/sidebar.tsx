@@ -107,7 +107,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
     >
       {/* Logo */}
       <div className={cn(
-        "flex h-16 items-center border-b border-gray-200 dark:border-slate-700 px-4",
+        "flex h-16 items-center border-b border-gray-200 dark:border-slate-700 bg-slate-900 px-4",
         collapsed ? "justify-center" : "justify-between"
       )}>
         {!collapsed && (
@@ -123,7 +123,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
         {!collapsed && (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600 lg:block"
+            className="hidden rounded-md p-1 text-slate-400 hover:bg-slate-700 hover:text-slate-100 lg:block"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
