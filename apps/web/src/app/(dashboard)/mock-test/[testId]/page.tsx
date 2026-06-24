@@ -94,7 +94,6 @@ export default function MockTestSessionPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [elapsed, setElapsed] = useState(0);
   const [questionElapsed, setQuestionElapsed] = useState(0);
   const [finishing, setFinishing] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
@@ -119,16 +118,6 @@ export default function MockTestSessionPage() {
     };
     fetchTest();
   }, [testId]);
-
-  // Total test timer
-  useEffect(() => {
-    if (!test || test.status !== "IN_PROGRESS") return;
-    const start = new Date(test.startedAt).getTime();
-    const interval = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - start) / 1000));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [test]);
 
   // Per-question timer — resets whenever the question changes
   useEffect(() => {
