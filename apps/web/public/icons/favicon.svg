@@ -1,11 +1,15 @@
 <svg width="32" height="32" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <linearGradient id="fbg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%"   stop-color="#0EA5E9"/>
-      <stop offset="100%" stop-color="#4338CA"/>
+      <stop offset="0%"   stop-color="#0D1628"/>
+      <stop offset="100%" stop-color="#0D1628"/>
     </linearGradient>
     <linearGradient id="fwg" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%"   stop-color="#1D4ED8"/>
+      <stop offset="0%"   stop-color="#0D9488"/>
+      <stop offset="100%" stop-color="#0EA5E9"/>
+    </linearGradient>
+    <linearGradient id="fpg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#0EA5E9"/>
       <stop offset="100%" stop-color="#0D9488"/>
     </linearGradient>
     <radialGradient id="fgg" cx="35%" cy="30%" r="65%">
@@ -14,19 +18,21 @@
     </radialGradient>
   </defs>
 
-  <!-- Rounded square bg -->
-  <rect width="100" height="100" rx="22" fill="url(#fbg)"/>
+  <!-- Dark rounded square background -->
+  <rect width="100" height="100" rx="22" fill="#0D1628"/>
 
-  <!-- Wings (simplified for small size) -->
-  <path fill="url(#fwg)" opacity="0.9"
+  <!-- Wings -->
+  <path fill="url(#fwg)" opacity="0.95"
         d="M58,14 C70,5 88,9 93,18 C87,25 70,25 58,29 Q54,27 55,21 Z"/>
-  <path fill="url(#fwg)" opacity="0.65"
+  <path fill="url(#fwg)" opacity="0.70"
         d="M57,24 C70,17 88,23 93,33 C87,40 70,40 57,42 Q53,40 54,31 Z"/>
+  <path fill="url(#fwg)" opacity="0.45"
+        d="M56,34 C68,28 86,36 90,47 C84,53 68,52 56,50 Q52,48 53,41 Z"/>
 
-  <!-- P letter (white on gradient bg) -->
-  <path fill="white" d="M11,13 L11,87 L24,87 L24,52 L37,52 Q60,52 60,32 Q60,13 37,13 Z"/>
+  <!-- P letter -->
+  <path fill="url(#fpg)" d="M11,13 L11,87 L24,87 L24,52 L37,52 Q60,52 60,32 Q60,13 37,13 Z"/>
 
-  <!-- Compass (4-point gold, simplified) -->
+  <!-- Compass -->
   <g transform="translate(36,32)">
     <path fill="url(#fgg)" d="M0,-11 L3.5,-3.5 L0,0 L-3.5,-3.5 Z"/>
     <path fill="url(#fgg)" d="M11,0 L3.5,3.5 L0,0 L3.5,-3.5 Z"/>
