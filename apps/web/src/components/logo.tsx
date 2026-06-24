@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 interface LogoProps {
@@ -9,12 +8,12 @@ interface LogoProps {
   textWhite?: boolean;
 }
 
-// Natural aspect ratio of logo.png is 1024 × 559 ≈ 1.832 : 1
-const pngSizes = {
-  sm: { w: 110, h: 60  },
-  md: { w: 148, h: 80  },
-  lg: { w: 220, h: 120 },
-  xl: { w: 294, h: 160 },
+// SVG wordmark aspect ratio is 280:70 = 4:1
+const svgSizes = {
+  sm: { w: 130, h: 33 },
+  md: { w: 176, h: 44 },
+  lg: { w: 240, h: 60 },
+  xl: { w: 320, h: 80 },
 };
 
 // Icon-only (collapsed sidebar): square container for SVG mark
@@ -31,7 +30,6 @@ export function Logo({
   className,
 }: LogoProps) {
   if (!showText) {
-    // Collapsed sidebar / icon-only context — use the SVG mark (square, transparent)
     return (
       <div className={cn("shrink-0", iconSizes[size], className)}>
         <PrepflyMark className="h-full w-full" />
@@ -39,17 +37,10 @@ export function Logo({
     );
   }
 
-  const ps = pngSizes[size];
+  const { w, h } = svgSizes[size];
   return (
     <div className={cn("shrink-0", className)}>
-      <Image
-        src="/icons/image.png"
-        alt="PrepFly"
-        width={ps.w}
-        height={ps.h}
-        className="object-contain"
-        priority
-      />
+      <PrepflyWordmark width={w} height={h} />
     </div>
   );
 }
@@ -58,6 +49,87 @@ export function LogoIcon({ size = 24 }: { size?: number }) {
   return <PrepflyMark style={{ width: size, height: size }} />;
 }
 
+// Full wordmark SVG — transparent background, dark-mode aware "Fly" text
+function PrepflyWordmark({ width, height }: { width: number; height: number }) {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 280 70"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="PrepFly"
+    >
+      <defs>
+        <linearGradient id="wm-pg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stopColor="#0EA5E9" />
+          <stop offset="55%"  stopColor="#3B82F6" />
+          <stop offset="100%" stopColor="#4F46E5" />
+        </linearGradient>
+        <linearGradient id="wm-wg" x1="100%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"   stopColor="#1D4ED8" />
+          <stop offset="100%" stopColor="#0D9488" />
+        </linearGradient>
+        <radialGradient id="wm-gg" cx="35%" cy="30%" r="65%">
+          <stop offset="0%"   stopColor="#FDE68A" />
+          <stop offset="100%" stopColor="#D97706" />
+        </radialGradient>
+      </defs>
+
+      {/* Icon mark scaled to 70×70 */}
+      <g transform="scale(0.7)">
+        {/* Wings */}
+        <path fill="url(#wm-wg)" d="M60,12 C74,3 91,7 96,15 C89,22 74,22 60,26 Q56,24 57,18 Z" />
+        <path fill="url(#wm-wg)" opacity="0.78" d="M60,22 C75,14 91,21 96,30 C89,37 75,37 60,39 Q56,37 57,28 Z" />
+        <path fill="url(#wm-wg)" opacity="0.56" d="M59,32 C74,26 90,34 94,44 C87,50 74,50 59,48 Q55,46 56,38 Z" />
+        {/* P letter */}
+        <path fill="url(#wm-pg)" d="M7,7 L7,90 L21,90 L21,51 L37,51 Q67,51 67,29 Q67,7 37,7 Z" />
+        <circle cx="37" cy="29" r="14" fill="rgba(255,255,255,0.13)" />
+        {/* Compass rose */}
+        <g transform="translate(37,29)">
+          <path fill="url(#wm-gg)" d="M0,-11 L3.5,-3.5 L0,0 L-3.5,-3.5 Z" />
+          <path fill="url(#wm-gg)" d="M11,0 L3.5,3.5 L0,0 L3.5,-3.5 Z" />
+          <path fill="url(#wm-gg)" d="M0,11 L-3.5,3.5 L0,0 L3.5,3.5 Z" />
+          <path fill="url(#wm-gg)" d="M-11,0 L-3.5,-3.5 L0,0 L-3.5,3.5 Z" />
+          <path fill="#FCD34D" d="M7.8,-7.8 L2.2,-2.2 L0,0 L-2.2,-2.2 Z" />
+          <path fill="#FCD34D" d="M7.8,7.8 L2.2,2.2 L0,0 L2.2,-2.2 Z" />
+          <path fill="#FCD34D" d="M-7.8,7.8 L-2.2,2.2 L0,0 L2.2,2.2 Z" />
+          <path fill="#FCD34D" d="M-7.8,-7.8 L-2.2,-2.2 L0,0 L-2.2,2.2 Z" />
+          <circle r="3.5" fill="#F59E0B" />
+          <circle r="1.8" fill="#FFFBEB" />
+        </g>
+        {/* Gold arc + star */}
+        <path stroke="#FCD34D" strokeWidth="1.5" fill="none" strokeLinecap="round" opacity="0.65" d="M48,21 Q66,10 88,10" />
+        <g transform="translate(93,11)">
+          <circle r="6.5" fill="#FCD34D" opacity="0.22" />
+          <path fill="#F59E0B" d="M0,-7.5 L2.2,-2.2 L0,0 L-2.2,-2.2 Z" />
+          <path fill="#F59E0B" d="M7.5,0 L2.2,2.2 L0,0 L2.2,-2.2 Z" />
+          <path fill="#F59E0B" d="M0,7.5 L-2.2,2.2 L0,0 L2.2,2.2 Z" />
+          <path fill="#F59E0B" d="M-7.5,0 L-2.2,-2.2 L0,0 L-2.2,2.2 Z" />
+          <circle r="2.8" fill="#FEF3C7" />
+        </g>
+        {/* Book pages */}
+        <rect x="7" y="83" width="28" height="2.5" rx="1" fill="#0D9488" opacity="0.55" />
+        <rect x="7" y="87" width="24" height="2.5" rx="1" fill="#0EA5E9" opacity="0.42" />
+        <rect x="7" y="91" width="20" height="2.5" rx="1" fill="#3B82F6" opacity="0.32" />
+      </g>
+
+      {/* Wordmark — "Prep" always blue, "Fly" adapts to dark/light mode */}
+      <text
+        x="82"
+        y="48"
+        fontFamily="system-ui,-apple-system,'Segoe UI',Helvetica,sans-serif"
+        fontWeight="800"
+        fontSize="38"
+        letterSpacing="-0.5"
+      >
+        <tspan fill="#1D4ED8">Prep</tspan>
+        <tspan className="fill-slate-900 dark:fill-slate-100">Fly</tspan>
+      </text>
+    </svg>
+  );
+}
+
+// Icon-only mark (used in collapsed sidebar)
 export function PrepflyMark({
   className,
   style,
