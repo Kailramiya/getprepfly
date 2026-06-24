@@ -95,9 +95,11 @@ export default function MockTestSessionPage() {
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
   const [elapsed, setElapsed] = useState(0);
+  const [questionElapsed, setQuestionElapsed] = useState(0);
   const [finishing, setFinishing] = useState(false);
   const [autoSaving, setAutoSaving] = useState(false);
   const [navigating, setNavigating] = useState(false);
+  const questionStartRef = useRef<number>(Date.now());
 
   // Tracks the latest in-progress response from QuestionRenderer (before explicit submit)
   const pendingResponseRef = useRef<any>(null);
@@ -118,7 +120,7 @@ export default function MockTestSessionPage() {
     fetchTest();
   }, [testId]);
 
-  // Timer
+  // Total test timer
   useEffect(() => {
     if (!test || test.status !== "IN_PROGRESS") return;
     const start = new Date(test.startedAt).getTime();
@@ -127,6 +129,16 @@ export default function MockTestSessionPage() {
     }, 1000);
     return () => clearInterval(interval);
   }, [test]);
+
+  // Per-question timer — resets whenever the question changes
+  useEffect(() => {
+    questionStartRef.current = Date.now();
+    setQuestionElapsed(0);
+    const interval = setInterval(() => {
+      setQuestionElapsed(Math.floor((Date.now() - questionStartRef.current) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [currentIdx]);
 
   // Reset submitted and pending response whenever question changes
   useEffect(() => {
@@ -368,7 +380,7 @@ export default function MockTestSessionPage() {
           )}
           <div className="flex items-center gap-1.5 text-sm font-mono font-medium text-gray-700 dark:text-slate-300">
             <Clock className="h-4 w-4 text-gray-400 dark:text-slate-500" />
-            {formatTime(elapsed)}
+            {formatTime(questionElapsed)}
           </div>
           <Button variant="destructive" size="sm" onClick={finishTest} loading={finishing}>
             <Flag className="mr-1.5 h-3.5 w-3.5" />
