@@ -196,11 +196,19 @@ export default function AdminBillingPage() {
   const [successMsg, setSuccessMsg] = useState("");
   const [billingCycle, setBillingCycle] = useState<"1month" | "monthly" | "annual">("annual");
   const [livePrices, setLivePrices] = useState<Record<string, number> | null>(null);
+  const [liveMaxStudents, setLiveMaxStudents] = useState<Record<string, number> | null>(null);
 
   // Returns the live price in rupees for a plan key, falling back to the hardcoded default.
   const planPrice = (key: string, defaultRupees: number): number => {
     if (!livePrices) return defaultRupees;
     return Math.round((livePrices[key] ?? defaultRupees * 100) / 100);
+  };
+
+  // Returns the live student label for a plan key, falling back to the hardcoded default.
+  const planStudentLabel = (key: string, defaultLabel: string): string => {
+    if (!liveMaxStudents || !(key in liveMaxStudents)) return defaultLabel;
+    const n = liveMaxStudents[key];
+    return n === -1 ? "Unlimited Students" : `Up to ${n} students`;
   };
 
   const fetchData = () => {
@@ -210,7 +218,10 @@ export default function AdminBillingPage() {
       fetch("/api/pricing").then((r) => r.json()),
     ]).then(([subRes, priceRes]) => {
       if (subRes.success) setData(subRes.data);
-      if (priceRes.success) setLivePrices(priceRes.data);
+      if (priceRes.success) {
+        setLivePrices(priceRes.data);
+        setLiveMaxStudents(priceRes.maxStudents ?? null);
+      }
     }).finally(() => setLoading(false));
   };
 
@@ -445,6 +456,8 @@ export default function AdminBillingPage() {
           <div className="grid gap-6 lg:grid-cols-3">
             {PLANS.map((p) => {
               const isCurrent = currentPlanKey === p.key && centre?.isActive;
+              const studentLabel = planStudentLabel(p.key, p.studentLabel);
+              const displayFeatures = p.features.map((f) => f === p.studentLabel ? studentLabel : f);
               return (
                 <Card
                   key={p.key}
@@ -473,10 +486,10 @@ export default function AdminBillingPage() {
                         /{billingCycle === "annual" ? "year" : billingCycle === "monthly" ? "6 months" : "month"}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm font-medium text-indigo-600 dark:text-indigo-400">{p.studentLabel}</p>
+                    <p className="mt-1 text-sm font-medium text-indigo-600 dark:text-indigo-400">{studentLabel}</p>
 
                     <ul className="mt-5 space-y-2.5">
-                      {p.features.map((f) => (
+                      {displayFeatures.map((f) => (
                         <li key={f} className="flex items-start gap-2 text-sm text-gray-700 dark:text-slate-300">
                           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
                           {f}
