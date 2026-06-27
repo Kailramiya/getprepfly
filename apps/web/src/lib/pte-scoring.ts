@@ -1,10 +1,14 @@
 /**
- * PTE Academic cross-skill scoring model.
+ * PTE Academic cross-skill scoring model — New Patterns.
  *
  * Each question type contributes marks to one or more of the four skills
- * (Speaking, Listening, Reading, Writing) regardless of which section it
- * appears in. Weights are absolute marks (summing to 90 per skill across
- * a full mock test) taken from the official PTE New Patterns score guide.
+ * (Speaking, Listening, Reading, Writing). Weights are absolute marks
+ * taken from the official PTE New Patterns score guide. Each skill sums
+ * to 90 across a complete mock test.
+ *
+ * Key rule: a question type ONLY scores the skills listed in the table.
+ * For example Read Aloud scores Speaking only (not Reading), and
+ * Listening Fill Blanks scores Listening only (not Writing).
  */
 
 export interface SkillContribution {
@@ -20,31 +24,33 @@ export interface SkillContribution {
  * Weights reflect the official mark distribution across a full exam.
  */
 export const SKILL_CONTRIBUTIONS: Record<string, SkillContribution> = {
-  // ─── SPEAKING & WRITING SECTION ───────────────────────────────────────────
-  READ_ALOUD:                { speaking:  8, listening:  0, reading:  4, writing:  0 },
+  // ─── SPEAKING SECTION ─────────────────────────────────────────────────────
+  READ_ALOUD:                { speaking:  8, listening:  0, reading:  0, writing:  0 },
   REPEAT_SENTENCE:           { speaking: 14, listening: 15, reading:  0, writing:  0 },
   DESCRIBE_IMAGE:            { speaking: 28, listening:  0, reading:  0, writing:  0 },
   RETELL_LECTURE:            { speaking: 11, listening: 12, reading:  0, writing:  0 },
   ANSWER_SHORT_QUESTION:     { speaking:  0, listening:  3, reading:  0, writing:  0 },
   SUMMARIZE_GROUP_DISCUSSION:{ speaking: 17, listening: 18, reading:  0, writing:  0 },
   RESPOND_TO_SITUATION:      { speaking: 12, listening:  0, reading:  0, writing:  0 },
-  SUMMARIZE_WRITTEN_TEXT:    { speaking:  0, listening:  0, reading:  5, writing: 28 },
-  WRITE_ESSAY:               { speaking:  0, listening:  0, reading:  0, writing: 25 },
+
+  // ─── WRITING SECTION ──────────────────────────────────────────────────────
+  SUMMARIZE_WRITTEN_TEXT:    { speaking:  0, listening:  0, reading: 20, writing: 25 },
+  WRITE_ESSAY:               { speaking:  0, listening:  0, reading:  0, writing: 28 },
 
   // ─── READING SECTION ──────────────────────────────────────────────────────
-  READING_FILL_BLANKS_DRAG:     { speaking: 0, listening:  0, reading: 20, writing:  5 },
-  READING_FILL_BLANKS_DROPDOWN: { speaking: 0, listening:  0, reading: 17, writing:  0 },
-  READING_MCQ_MULTIPLE:         { speaking: 0, listening:  0, reading:  8, writing:  0 },
-  REORDER_PARAGRAPHS:           { speaking: 0, listening:  0, reading: 17, writing:  0 },
-  READING_MCQ_SINGLE:           { speaking: 0, listening:  0, reading:  5, writing:  0 },
+  READING_FILL_BLANKS_DROPDOWN: { speaking: 0, listening:  0, reading: 25, writing:  0 },
+  READING_MCQ_MULTIPLE:         { speaking: 0, listening:  0, reading:  4, writing:  0 },
+  REORDER_PARAGRAPHS:           { speaking: 0, listening:  0, reading:  8, writing:  0 },
+  READING_FILL_BLANKS_DRAG:     { speaking: 0, listening:  0, reading: 17, writing:  0 },
+  READING_MCQ_SINGLE:           { speaking: 0, listening:  0, reading:  2, writing:  0 },
 
   // ─── LISTENING SECTION ────────────────────────────────────────────────────
-  SUMMARIZE_SPOKEN_TEXT:        { speaking: 0, listening:  9, reading:  0, writing:  5 },
+  SUMMARIZE_SPOKEN_TEXT:        { speaking: 0, listening:  9, reading:  0, writing: 17 },
   LISTENING_MCQ_MULTIPLE:       { speaking: 0, listening:  3, reading:  0, writing:  0 },
-  LISTENING_FILL_BLANKS:        { speaking: 0, listening:  7, reading:  0, writing:  7 },
-  HIGHLIGHT_CORRECT_SUMMARY:    { speaking: 0, listening:  1.5, reading: 2, writing:  0 },
+  LISTENING_FILL_BLANKS:        { speaking: 0, listening:  7, reading:  0, writing:  0 },
   LISTENING_MCQ_SINGLE:         { speaking: 0, listening:  1.5, reading: 0, writing:  0 },
   SELECT_MISSING_WORD:          { speaking: 0, listening:  1, reading:  0, writing:  0 },
+  HIGHLIGHT_CORRECT_SUMMARY:    { speaking: 0, listening:  1.5, reading: 2, writing:  0 },
   HIGHLIGHT_INCORRECT_WORDS:    { speaking: 0, listening:  7, reading: 12, writing:  0 },
   WRITE_FROM_DICTATION:         { speaking: 0, listening: 12, reading:  0, writing: 20 },
 };
