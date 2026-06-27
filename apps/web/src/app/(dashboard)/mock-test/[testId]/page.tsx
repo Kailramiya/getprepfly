@@ -104,6 +104,8 @@ export default function MockTestSessionPage() {
   const pendingResponseRef = useRef<any>(null);
   // Ref to QuestionRenderer's current submit function — triggered on Next/Prev
   const autoSubmitRef = useRef<(() => void) | null>(null);
+  // Cache student recording blob URLs so they survive navigation between questions
+  const recordingUrlsRef = useRef<Map<string, string>>(new Map());
 
   // Fetch test data
   useEffect(() => {
@@ -204,6 +206,11 @@ export default function MockTestSessionPage() {
     if (!currentQuestion) return;
     setSubmitted(true);
     pendingResponseRef.current = null;
+
+    // Cache blob URL for speaking questions so it survives navigation
+    if (response?.audioUrl && typeof response.audioUrl === "string") {
+      recordingUrlsRef.current.set(currentQuestion.question.id, response.audioUrl);
+    }
 
     const result: ScoreResult | undefined = response?.scoreResult;
     const overallScore = result && result.marksTotal > 0
@@ -432,6 +439,7 @@ export default function MockTestSessionPage() {
               submitRef={autoSubmitRef}
               playOnce={true}
               isMockTest={true}
+              initialAudioUrl={recordingUrlsRef.current.get(currentQuestion.question.id)}
             />
           )}
 

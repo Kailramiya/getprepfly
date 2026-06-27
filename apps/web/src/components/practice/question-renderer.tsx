@@ -356,7 +356,7 @@ function QuestionInstruction({ type }: { type: string }) {
 }
 
 export function QuestionRenderer({
-  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, playOnce = false, submitRef, allowCopyPaste = false, isMockTest = false, onScoringChange,
+  question, submitted, showAnswer = false, showFeedback = true, onSubmit, onResponseChange, initialResponse, initialAudioUrl, playOnce = false, submitRef, allowCopyPaste = false, isMockTest = false, onScoringChange,
 }: {
   question: QuestionData;
   submitted: boolean;
@@ -365,6 +365,7 @@ export function QuestionRenderer({
   onSubmit: (response: any) => void;
   onResponseChange?: (response: any) => void;
   initialResponse?: any;
+  initialAudioUrl?: string;
   score?: any;
   playOnce?: boolean;
   submitRef?: React.MutableRefObject<(() => void) | null>;
@@ -461,6 +462,7 @@ export function QuestionRenderer({
         questionType={type}
         playOnce={playOnce}
         expectedText={content.text || ""}
+        initialAudioUrl={initialAudioUrl}
       >
         {isMockTest ? (
           <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-lg leading-relaxed text-gray-800 dark:text-slate-100">
@@ -493,6 +495,7 @@ export function QuestionRenderer({
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen carefully"
         autoStartDelay={3}
+        initialAudioUrl={initialAudioUrl}
       />
     );
   }
@@ -514,6 +517,7 @@ export function QuestionRenderer({
         questionType={type}
         playOnce={playOnce}
         expectedText={content.text || ""}
+        initialAudioUrl={initialAudioUrl}
       >
         {imgSrc ? (
           <div className="relative mx-auto h-80 w-full">
@@ -557,6 +561,7 @@ export function QuestionRenderer({
         expectedText={content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the lecture"
+        initialAudioUrl={initialAudioUrl}
       />
     );
   }
@@ -578,6 +583,7 @@ export function QuestionRenderer({
         expectedText={content.correctText || content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the question"
+        initialAudioUrl={initialAudioUrl}
       >
         {content.text && (
           <div className="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-slate-700/50 p-4 text-base font-medium text-gray-800 dark:text-slate-100">
@@ -608,6 +614,7 @@ export function QuestionRenderer({
         questionType={type}
         playOnce={playOnce}
         expectedText={content.text || ""}
+        initialAudioUrl={initialAudioUrl}
       >
         <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-base text-gray-800 dark:text-slate-100">
           {content.text}
@@ -633,6 +640,7 @@ export function QuestionRenderer({
         expectedText={content.text || ""}
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the group discussion"
+        initialAudioUrl={initialAudioUrl}
       />
     );
   }
@@ -1580,6 +1588,7 @@ function SpeakingQuestion({
   children, instructionText, prepTime, maxDuration, submitted, onSubmit,
   totalMarks = 1, questionId, questionType, expectedText = "",
   audioSrc, audioLabel, autoStartDelay = 0, playOnce, mountAutoStart = false,
+  initialAudioUrl,
 }: {
   children?: React.ReactNode;
   instructionText: string;
@@ -1600,6 +1609,8 @@ function SpeakingQuestion({
   autoStartDelay?: number;
   // Auto-start countdown immediately on mount (for types with no audio prompt, e.g. Read Aloud, Describe Image)
   mountAutoStart?: boolean;
+  // Previously recorded answer URL (blob URL cached by mock test page across navigation)
+  initialAudioUrl?: string;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -1882,10 +1893,19 @@ function SpeakingQuestion({
         />
       )}
 
-      {submitted && audioUrl && (
+      {/* Previous answer when navigating back (blob URL cached by mock test page) */}
+      {!submitted && !audioBlob && initialAudioUrl && (
+        <div className="rounded-lg border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/30 p-3">
+          <p className="mb-2 text-xs font-medium text-indigo-800 dark:text-indigo-300">Your previous answer — re-record below to update:</p>
+          <audio controls src={initialAudioUrl} preload="metadata" className="w-full" />
+        </div>
+      )}
+
+      {/* Current session recording shown after submission */}
+      {submitted && (audioUrl || initialAudioUrl) && (
         <div className="rounded-lg border border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/30 p-3">
           <p className="mb-2 text-xs font-medium text-indigo-800 dark:text-indigo-300">Your recording:</p>
-          <audio controls src={audioUrl} className="w-full" />
+          <audio controls src={audioUrl || initialAudioUrl || ""} preload="metadata" className="w-full" />
         </div>
       )}
 
@@ -1922,7 +1942,7 @@ function SpeakingQuestion({
           <p className="mb-2 text-xs font-medium text-emerald-800 dark:text-emerald-300">
             Replay the sentence to compare:
           </p>
-          <audio controls src={audioSrc} className="w-full" />
+          <audio controls src={audioSrc} preload="metadata" className="w-full" />
         </div>
       )}
 
