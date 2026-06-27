@@ -59,7 +59,14 @@ export type SkillKey = "speaking" | "listening" | "reading" | "writing";
 export const SKILL_KEYS: SkillKey[] = ["speaking", "listening", "reading", "writing"];
 
 /** Minimum score applied to every skill and overall when a mock test is completed. */
-export const PTE_MIN_SCORE = 22;
+export const PTE_MIN_SCORE = 30;
+
+/**
+ * Leniency factor applied to raw skill scores to give students a
+ * confidence-appropriate boost. 0.15 = 15% of the gap toward 90.
+ * e.g. raw 70 → 73, raw 75 → 77, raw 80 → 82.
+ */
+export const LENIENCY_FACTOR = 0.15;
 
 /**
  * Calculate four skill scores (0–90 each) from a list of attempts.
@@ -112,9 +119,10 @@ export function calculateSkillScores(
 
   const result: Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
   for (const skill of SKILL_KEYS) {
-    result[skill] = totalWeight[skill] > 0
-      ? Math.round((weighted[skill] / totalWeight[skill]) * 90)
-      : 0;
+    if (totalWeight[skill] === 0) { result[skill] = 0; continue; }
+    const raw = (weighted[skill] / totalWeight[skill]) * 90;
+    // Apply leniency: shift raw score 15% toward the maximum (90)
+    result[skill] = Math.round(Math.min(90, raw + (90 - raw) * LENIENCY_FACTOR));
   }
   return result;
 }
