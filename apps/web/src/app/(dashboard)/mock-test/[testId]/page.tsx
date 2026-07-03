@@ -96,7 +96,7 @@ export default function MockTestSessionPage() {
   const [submitted, setSubmitted] = useState(false);
   const [questionElapsed, setQuestionElapsed] = useState(0);
   const [finishing, setFinishing] = useState(false);
-  const [autoSaving, setAutoSaving] = useState(false);
+
   const [navigating, setNavigating] = useState(false);
   const questionStartRef = useRef<number>(Date.now());
 
@@ -152,36 +152,7 @@ export default function MockTestSessionPage() {
     return acc;
   }, {} as Record<string, { total: number; attempted: number }>) || {};
 
-  // Auto-save the current pending response before navigating away
-  const autoSavePending = useCallback(async () => {
-    if (!currentQuestion || submitted) return;
-    const pending = pendingResponseRef.current;
-    if (pending === null || pending === undefined) return;
 
-    setAutoSaving(true);
-    try {
-      const responseText = typeof pending === "string"
-        ? pending
-        : JSON.stringify(pending);
-      await fetch("/api/attempts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: currentQuestion.question.id,
-          responseText,
-          mockTestId: testId,
-          overallScore: null,
-        }),
-      });
-      // Refresh test to update attempted count
-      const res = await fetch(`/api/mock-tests/${testId}`);
-      const data = await res.json();
-      if (data.success) setTest(data.data);
-    } catch {
-      // silent — auto-save is best-effort
-    }
-    setAutoSaving(false);
-  }, [currentQuestion, submitted, testId]);
 
   const goNext = useCallback(async () => {
     if (currentIdx < totalQuestions - 1) {
@@ -205,7 +176,7 @@ export default function MockTestSessionPage() {
         body: JSON.stringify({ currentIndex: nextIdx, currentSection: test?.questions[nextIdx]?.question?.section }),
       });
     }
-  }, [currentIdx, totalQuestions, testId, test, autoSavePending, submitted]);
+  }, [currentIdx, totalQuestions, testId, test, submitted]);
 
   // Called by QuestionRenderer when student explicitly submits
   const handleQuestionSubmit = async (response: any) => {
@@ -381,9 +352,9 @@ export default function MockTestSessionPage() {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          {autoSaving && (
+          {navigating && (
             <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-slate-500">
-              <Save className="h-3 w-3 animate-pulse" /> Saving…
+              <Save className="h-3 w-3 animate-pulse" /> Scoring…
             </span>
           )}
           <div className="flex items-center gap-1.5 text-sm font-mono font-medium text-gray-700 dark:text-slate-300">

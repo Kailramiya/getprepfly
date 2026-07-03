@@ -671,59 +671,6 @@ export function QuestionRenderer({
     );
   }
 
-  // ---- WRITE ESSAY LEGACY FALLBACK (unreachable, kept for safety) ----
-  if (false) {
-    const minW = content.minWords || 200;
-    const maxW = content.maxWords || 300;
-    const currentWords = (response || "").trim().split(/\s+/).filter(Boolean).length;
-    return (
-      <div className="space-y-4">
-        <div className="rounded-lg bg-gray-50 p-4">
-          <p className="text-gray-800">{content.prompt}</p>
-        </div>
-        <textarea
-          className="min-h-[200px] w-full rounded-lg border border-gray-300 p-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
-          placeholder={`Write your essay here (${minW}-${maxW} words)...`}
-          value={response || ""}
-          onChange={(e) => setResponse(e.target.value)}
-          disabled={submitted}
-        />
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-500">
-            Words: {currentWords}
-          </span>
-          {!submitted && (
-            <Button onClick={() => {
-              const withinRange = currentWords >= minW && currentWords <= maxW;
-              const mistakes: ScoreResult["mistakes"] = [];
-              if (currentWords < minW) {
-                mistakes.push({ position: 0, yourAnswer: `${currentWords} words`, correctAnswer: `At least ${minW} words required` });
-              }
-              if (currentWords > maxW) {
-                mistakes.push({ position: 0, yourAnswer: `${currentWords} words`, correctAnswer: `Maximum ${maxW} words allowed` });
-              }
-              onSubmit({
-                text: response,
-                scoreResult: {
-                  marksEarned: 0,
-                  marksTotal: totalMarks,
-                  correct: 0,
-                  total: 1,
-                  mistakes,
-                  pending: true,
-                  message: withinRange
-                    ? "Essay submitted. AI scoring pending."
-                    : "Essay submitted, but word count is outside range.",
-                } as ScoreResult,
-              });
-            }} disabled={!response?.trim()}>
-              Submit Essay
-            </Button>
-          )}
-        </div>
-      </div>
-    );
-  }
 
   // ---- SUMMARIZE WRITTEN TEXT ----
   if (type === "SUMMARIZE_WRITTEN_TEXT") {
@@ -1723,7 +1670,7 @@ function SpeakingQuestion({
       reader.readAsDataURL(blob);
     });
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (!audioBlob) return;
 
     // Default pending result
@@ -1815,7 +1762,7 @@ function SpeakingQuestion({
       audioUrl,
       scoreResult,
     });
-  };
+  }, [audioBlob, totalMarks, questionId, questionType, expectedText, audioUrl, onSubmit]);
 
   useEffect(() => {
     if (onRegisterSubmit) {
