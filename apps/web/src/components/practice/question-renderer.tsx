@@ -1585,7 +1585,7 @@ function SpeakingQuestion({
   children, instructionText, prepTime, maxDuration, submitted, onSubmit,
   totalMarks = 1, questionId, questionType, expectedText = "",
   audioSrc, audioLabel, autoStartDelay = 0, playOnce, mountAutoStart = false,
-  initialAudioUrl,
+  initialAudioUrl, onRegisterSubmit,
 }: {
   children?: React.ReactNode;
   instructionText: string;
