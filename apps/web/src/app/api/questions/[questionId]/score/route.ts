@@ -47,11 +47,12 @@ export async function POST(
   // revealedContent is what we send back to the client so it can highlight correct/wrong options
   let revealedContent: Record<string, unknown> = {};
 
-  // ---- MCQ SINGLE (Reading + Listening + Select Missing Word) ----
+  // ---- MCQ SINGLE (Reading + Listening + Select Missing Word + Highlight Correct Summary) ----
   if (
     type === "READING_MCQ_SINGLE" ||
     type === "LISTENING_MCQ_SINGLE" ||
-    type === "SELECT_MISSING_WORD"
+    type === "SELECT_MISSING_WORD" ||
+    type === "HIGHLIGHT_CORRECT_SUMMARY"
   ) {
     const correctIdx: number = content.correctAnswer ?? content.correctAnswers?.[0] ?? -1;
     const isCorrect = answer === correctIdx;

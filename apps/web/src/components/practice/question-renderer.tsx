@@ -974,20 +974,10 @@ export function QuestionRenderer({
 
   // ---- HIGHLIGHT CORRECT SUMMARY ----
   if (type === "HIGHLIGHT_CORRECT_SUMMARY") {
+    const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (response === null) return;
-      const correctIdx = content.correctAnswer ?? content.correctAnswers?.[0];
-      const isCorrect = response === correctIdx;
-      onSubmit({
-        answer: response,
-        scoreResult: {
-          marksEarned: isCorrect ? totalMarks : 0,
-          marksTotal: totalMarks,
-          correct: isCorrect ? 1 : 0,
-          total: 1,
-          mistakes: isCorrect ? [] : [{ position: 1, yourAnswer: content.options?.[response] ?? "—", correctAnswer: content.options?.[correctIdx] ?? "" }],
-        } as ScoreResult,
-      });
+      scoreOnServer(response, startTime);
     };
     return (
       <div className="space-y-4">
@@ -997,7 +987,7 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const isCorrect = submitted && showFeedback && (content.correctAnswer === i || content.correctAnswers?.includes(i));
+            const isCorrect = submitted && showFeedback && (effectiveContent.correctAnswer === i || effectiveContent.correctAnswers?.includes(i));
             const isWrong = submitted && showFeedback && isSelected && !isCorrect;
             return (
               <button
