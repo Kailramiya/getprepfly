@@ -368,7 +368,7 @@ export function QuestionRenderer({
   initialAudioUrl?: string;
   score?: any;
   playOnce?: boolean;
-  submitRef?: React.MutableRefObject<(() => void) | null>;
+  submitRef?: React.MutableRefObject<(() => void | Promise<void>) | null>;
   allowCopyPaste?: boolean;
   isMockTest?: boolean;
   onScoringChange?: (scoring: boolean) => void;
@@ -405,7 +405,7 @@ export function QuestionRenderer({
 
   // Internal submit fn — each type branch sets this before returning.
   // The parent can trigger it via submitRef (e.g. on Next click).
-  const internalSubmitFn = useRef<(() => void) | null>(null);
+  const internalSubmitFn = useRef<(() => void | Promise<void>) | null>(null);
 
   // Server-side scoring helper for objective question types.
   // Calls POST /api/questions/:id/score, stores revealed answer keys, calls onSubmit.
@@ -463,6 +463,7 @@ export function QuestionRenderer({
         playOnce={playOnce}
         expectedText={content.text || ""}
         initialAudioUrl={initialAudioUrl}
+        onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
       >
         {isMockTest ? (
           <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-lg leading-relaxed text-gray-800 dark:text-slate-100">
@@ -496,6 +497,7 @@ export function QuestionRenderer({
         audioLabel="Listen carefully"
         autoStartDelay={3}
         initialAudioUrl={initialAudioUrl}
+        onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
       />
     );
   }
@@ -518,6 +520,7 @@ export function QuestionRenderer({
         playOnce={playOnce}
         expectedText={content.text || ""}
         initialAudioUrl={initialAudioUrl}
+        onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
       >
         {imgSrc ? (
           <div className="relative mx-auto h-80 w-full">
@@ -562,6 +565,7 @@ export function QuestionRenderer({
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the lecture"
         initialAudioUrl={initialAudioUrl}
+        onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
       />
     );
   }
@@ -584,6 +588,7 @@ export function QuestionRenderer({
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the question"
         initialAudioUrl={initialAudioUrl}
+        onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
       >
         {content.text && (
           <div className="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-slate-700/50 p-4 text-base font-medium text-gray-800 dark:text-slate-100">
@@ -615,6 +620,7 @@ export function QuestionRenderer({
         playOnce={playOnce}
         expectedText={content.text || ""}
         initialAudioUrl={initialAudioUrl}
+        onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
       >
         <div className="rounded-lg bg-amber-50 dark:bg-slate-700/50 p-4 text-base text-gray-800 dark:text-slate-100">
           {content.text}
@@ -641,6 +647,7 @@ export function QuestionRenderer({
         audioSrc={content.audioUrl || question.audioUrl || ""}
         audioLabel="Listen to the group discussion"
         initialAudioUrl={initialAudioUrl}
+        onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
       />
     );
   }
@@ -743,7 +750,7 @@ export function QuestionRenderer({
     const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (response === null) return;
-      scoreOnServer(response, startTime);
+      return scoreOnServer(response, startTime);
     };
     return (
       <div className="space-y-4">
@@ -806,7 +813,7 @@ export function QuestionRenderer({
     const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (selected.length === 0) return;
-      scoreOnServer(selected, startTime);
+      return scoreOnServer(selected, startTime);
     };
     return (
       <div className="space-y-4">
@@ -874,7 +881,7 @@ export function QuestionRenderer({
     const startTime = Date.now();
 
     internalSubmitFn.current = () => {
-      scoreOnServer(order, startTime);
+      return scoreOnServer(order, startTime);
     };
     return (
       <div className="space-y-4">
@@ -977,7 +984,7 @@ export function QuestionRenderer({
     const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (response === null) return;
-      scoreOnServer(response, startTime);
+      return scoreOnServer(response, startTime);
     };
     return (
       <div className="space-y-4">
@@ -1037,7 +1044,7 @@ export function QuestionRenderer({
 
     const startTime = Date.now();
     internalSubmitFn.current = () => {
-      scoreOnServer(selected, startTime);
+      return scoreOnServer(selected, startTime);
     };
 
     return (
@@ -1102,7 +1109,7 @@ export function QuestionRenderer({
     const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (response === null) return;
-      scoreOnServer(response, startTime);
+      return scoreOnServer(response, startTime);
     };
     return (
       <div className="space-y-4">
@@ -1160,7 +1167,7 @@ export function QuestionRenderer({
     const startTime = Date.now();
     internalSubmitFn.current = () => {
       if (!response?.trim()) return;
-      scoreOnServer(response, startTime);
+      return scoreOnServer(response, startTime);
     };
     return (
       <div className="space-y-4">
@@ -1601,6 +1608,7 @@ function SpeakingQuestion({
   mountAutoStart?: boolean;
   // Previously recorded answer URL (blob URL cached by mock test page across navigation)
   initialAudioUrl?: string;
+  onRegisterSubmit?: (fn: () => void | Promise<void>) => void;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -1808,6 +1816,12 @@ function SpeakingQuestion({
       scoreResult,
     });
   };
+
+  useEffect(() => {
+    if (onRegisterSubmit) {
+      onRegisterSubmit(handleSubmit);
+    }
+  }, [onRegisterSubmit, handleSubmit, audioBlob]);
 
   return (
     <div className="space-y-4">

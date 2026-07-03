@@ -103,7 +103,7 @@ export default function MockTestSessionPage() {
   // Tracks the latest in-progress response from QuestionRenderer (before explicit submit)
   const pendingResponseRef = useRef<any>(null);
   // Ref to QuestionRenderer's current submit function — triggered on Next/Prev
-  const autoSubmitRef = useRef<(() => void) | null>(null);
+  const autoSubmitRef = useRef<(() => void | Promise<void>) | null>(null);
   // Cache student recording blob URLs so they survive navigation between questions
   const recordingUrlsRef = useRef<Map<string, string>>(new Map());
 
@@ -187,7 +187,13 @@ export default function MockTestSessionPage() {
     if (currentIdx < totalQuestions - 1) {
       setNavigating(true);
       if (!submitted) {
-        await autoSavePending();
+        if (autoSubmitRef.current) {
+          try {
+            await autoSubmitRef.current();
+          } catch (e) {
+            console.error("Auto-submit failed", e);
+          }
+        }
       }
       const nextIdx = currentIdx + 1;
       setSubmitted(false);
@@ -236,7 +242,13 @@ export default function MockTestSessionPage() {
 
   const finishTest = async () => {
     if (!submitted) {
-      await autoSavePending();
+      if (autoSubmitRef.current) {
+        try {
+          await autoSubmitRef.current();
+        } catch (e) {
+          console.error("Auto-submit failed", e);
+        }
+      }
     }
     setFinishing(true);
     await fetch(`/api/mock-tests/${testId}`, {
