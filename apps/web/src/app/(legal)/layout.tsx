@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { APP_NAME } from "@/lib/constants";
 import { Logo } from "@/components/logo";
 import { FileText, Shield, CreditCard, Mail, ChevronRight } from "lucide-react";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
   { href: "/terms", label: "Terms of Service", icon: FileText },
@@ -26,6 +27,7 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
             <Logo size="sm" />
           </Link>
           <div className="flex items-center gap-4">
+            <ThemeToggle />
             <Link href="/" className="text-sm font-medium text-gray-500 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100 transition-colors">
               Back to Home
             </Link>

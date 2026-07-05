@@ -7,6 +7,7 @@ import { LogOut, Menu, Sparkles, MessageSquare, User, Settings, ChevronDown } fr
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import Link from "next/link";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 interface TopbarProps {
   onMenuClick?: () => void;
@@ -61,10 +62,12 @@ export function Topbar({ onMenuClick }: TopbarProps) {
       {/* Right — actions */}
       <div className="flex items-center gap-3">
         {/* Free Beta Badge */}
-        <Badge className="gap-1 bg-gradient-to-r from-teal-500 to-indigo-500 text-white">
+        <Badge className="gap-1 bg-gradient-to-r from-teal-500 to-indigo-500 text-white hidden sm:inline-flex">
           <Sparkles className="h-3 w-3" />
           Free Beta
         </Badge>
+
+        <ThemeToggle />
 
         {/* Feedback */}
         <Link href="/feedback">

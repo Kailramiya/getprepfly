@@ -11,6 +11,7 @@ import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth-utils";
 import type { Metadata } from "next";
 import { FaqAccordion, FAQItem } from "@/components/faq-accordion";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export const metadata: Metadata = {
   title: "PrepFly — AI-Powered PTE Academic Practice Platform",
@@ -267,6 +268,7 @@ export default async function HomePage() {
               <Link href="/download" className="text-sm text-gray-600 hover:text-gray-900 dark:text-slate-400 dark:hover:text-slate-100">Download App</Link>
             </div>
             <div className="flex items-center gap-3">
+              <ThemeToggle />
               <Link href="/login"><Button variant="ghost" size="sm">Log in</Button></Link>
               <Link href="/register"><Button size="sm">Start Free</Button></Link>
             </div>
