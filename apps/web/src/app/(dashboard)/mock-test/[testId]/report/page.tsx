@@ -234,7 +234,7 @@ export default function MockTestReportPage() {
                           <ul className="space-y-2">
                             {attempt.scores.mistakes.map((m: any, i: number) => (
                               <li key={i} className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-3 rounded-lg text-red-800 dark:text-red-200">
-                                <span className="font-semibold">Pos {m.position}:</span> You answered "{m.yourAnswer}", expected "{m.correctAnswer}"
+                                <span className="font-semibold">Pos {m.position}:</span> You answered &quot;{m.yourAnswer}&quot;, expected &quot;{m.correctAnswer}&quot;
                               </li>
                             ))}
                           </ul>
