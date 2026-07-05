@@ -5,7 +5,17 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, BarChart2, Users, CheckCircle2, Clock } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { ArrowLeft, BarChart2, Users, CheckCircle2, Clock, Plus, Loader2 } from "lucide-react";
 
 interface StudentStat {
   userId: string;
@@ -51,9 +61,13 @@ export default function BatchProgressPage() {
   const [data, setData] = useState<BatchProgress | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [globalTemplates, setGlobalTemplates] = useState<any[]>([]);
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [customTitle, setCustomTitle] = useState("");
 
-  useEffect(() => {
-    if (!batchId) return;
+  const fetchProgress = () => {
     fetch(`/api/centres/batches/${batchId}/progress`)
       .then(r => r.json())
       .then(d => {
@@ -62,7 +76,45 @@ export default function BatchProgressPage() {
       })
       .catch(() => setError("Failed to load progress"))
       .finally(() => setLoading(false));
+  };
+
+  const fetchGlobalTemplates = () => {
+    fetch("/api/mock-tests/global-templates")
+      .then(r => r.json())
+      .then(d => {
+        if (d.success) setGlobalTemplates(d.data);
+      });
+  };
+
+  useEffect(() => {
+    if (!batchId) return;
+    fetchProgress();
+    fetchGlobalTemplates();
   }, [batchId]);
+
+  const handleAssign = async () => {
+    if (!selectedTemplateId) return;
+    setAssignLoading(true);
+    try {
+      const res = await fetch(`/api/centres/batches/${batchId}/assign-test`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ templateId: selectedTemplateId, title: customTitle.trim() || undefined }),
+      });
+      const resData = await res.json();
+      if (resData.success) {
+        setShowAssignModal(false);
+        setCustomTitle("");
+        setSelectedTemplateId(null);
+        fetchProgress();
+      } else {
+        alert(resData.error || "Failed to assign test");
+      }
+    } catch {
+      alert("Failed to assign test");
+    }
+    setAssignLoading(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -135,11 +187,14 @@ export default function BatchProgressPage() {
           {/* Assigned Mock Tests */}
           {data.templates.length > 0 && (
             <Card>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle className="flex items-center gap-2 text-base">
                   <BarChart2 className="h-4 w-4 text-gray-400" />
                   Assigned Mock Tests ({data.templates.length})
                 </CardTitle>
+                <Button size="sm" onClick={() => setShowAssignModal(true)} className="gap-2">
+                  <Plus className="h-4 w-4" /> Assign Mock Test
+                </Button>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
@@ -153,6 +208,20 @@ export default function BatchProgressPage() {
                     </div>
                   ))}
                 </div>
+              </CardContent>
+            </Card>
+            </Card>
+          )}
+
+          {/* If no templates assigned, still show the card to allow assignment */}
+          {data.templates.length === 0 && (
+            <Card>
+              <CardContent className="py-12 text-center flex flex-col items-center justify-center">
+                <BarChart2 className="h-10 w-10 text-gray-300 dark:text-slate-600 mb-3" />
+                <p className="text-gray-500 dark:text-slate-400 mb-4">No mock tests have been assigned to this batch yet.</p>
+                <Button onClick={() => setShowAssignModal(true)} className="gap-2">
+                  <Plus className="h-4 w-4" /> Assign Mock Test
+                </Button>
               </CardContent>
             </Card>
           )}
@@ -227,6 +296,61 @@ export default function BatchProgressPage() {
           </Card>
         </>
       )}
+
+      {/* Assign Test Modal */}
+      <Dialog open={showAssignModal} onOpenChange={setShowAssignModal}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Assign Mock Test</DialogTitle>
+            <DialogDescription>
+              Choose a global template to assign to this batch. All students in the batch will receive this test.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-slate-300">Select Template</label>
+              {globalTemplates.length === 0 ? (
+                <div className="flex justify-center p-4"><Loader2 className="h-6 w-6 animate-spin text-gray-400" /></div>
+              ) : (
+                <div className="max-h-[250px] overflow-y-auto space-y-2 border rounded-md p-2 border-gray-200 dark:border-slate-700">
+                  {globalTemplates.map((t) => (
+                    <div
+                      key={t.id}
+                      onClick={() => setSelectedTemplateId(t.id)}
+                      className={`cursor-pointer rounded-lg border p-3 flex items-center justify-between transition ${
+                        selectedTemplateId === t.id
+                          ? "border-indigo-600 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-950/50"
+                          : "border-gray-200 hover:bg-gray-50 dark:border-slate-700 dark:hover:bg-slate-800"
+                      }`}
+                    >
+                      <div>
+                        <p className={`text-sm font-medium ${selectedTemplateId === t.id ? "text-indigo-900 dark:text-indigo-100" : "text-gray-900 dark:text-slate-100"}`}>{t.title}</p>
+                        <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">{t._count?.questions ?? 0} questions • {t.mockType}</p>
+                      </div>
+                      {selectedTemplateId === t.id && <CheckCircle2 className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-gray-700 dark:text-slate-300">Custom Title (Optional)</label>
+              <Input
+                placeholder="e.g. Weekend Batch - Practice Test 1"
+                value={customTitle}
+                onChange={(e) => setCustomTitle(e.target.value)}
+              />
+              <p className="text-xs text-gray-500 dark:text-slate-400">Leave blank to use the template's default title.</p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAssignModal(false)} disabled={assignLoading}>Cancel</Button>
+            <Button onClick={handleAssign} disabled={!selectedTemplateId || assignLoading} loading={assignLoading}>
+              Assign Test
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

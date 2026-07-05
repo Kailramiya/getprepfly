@@ -9,7 +9,11 @@ export async function POST(req: NextRequest, { params }: { params: { batchId: st
   const { user, error } = await requireRole(["CENTRE_ADMIN", "TEACHER"]);
   if (error) return error;
 
-  const { title } = await req.json();
+  const { title, templateId } = await req.json();
+
+  if (!templateId) {
+    return NextResponse.json({ success: false, error: "templateId is required" }, { status: 400 });
+  }
 
   // Verify batch belongs to admin's centre
   const batch = await db.batch.findFirst({
@@ -18,13 +22,31 @@ export async function POST(req: NextRequest, { params }: { params: { batchId: st
   });
   if (!batch) return NextResponse.json({ success: false, error: "Batch not found" }, { status: 404 });
 
+  // Fetch the global template to clone its questions
+  const globalTemplate = await db.mockTest.findUnique({
+    where: { id: templateId, isTemplate: true },
+    include: { questions: true }
+  });
+
+  if (!globalTemplate) {
+    return NextResponse.json({ success: false, error: "Global template not found" }, { status: 404 });
+  }
+
   // Create template mock test (no userId — it's a batch assignment)
   const template = await db.mockTest.create({
     data: {
       userId: user!.id, // created by admin
-      title: title || `${batch.name} — Mock Test`,
+      title: title || `${batch.name} — ${globalTemplate.title}`,
       isTemplate: true,
       assignedBatchId: params.batchId,
+      mockType: globalTemplate.mockType,
+      section: globalTemplate.section,
+      questions: {
+        create: globalTemplate.questions.map(q => ({
+          questionId: q.questionId,
+          order: q.order
+        }))
+      }
     },
   });
 

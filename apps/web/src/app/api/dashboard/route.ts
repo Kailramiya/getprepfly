@@ -27,6 +27,7 @@ export async function GET() {
     practiceDays,
     sectionTypeAggs,
     predictionsAgg,
+    memberships,
   ] = await Promise.all([
     // Total attempts count
     db.attempt.count({ where: { userId } }),
@@ -108,6 +109,9 @@ export async function GET() {
       orderBy: { _count: { id: "desc" } },
       take: 6,
     }),
+
+    // Get user's batches to fetch assigned tests
+    db.batchMember.findMany({ where: { userId }, select: { batchId: true } }),
   ]);
 
   // ── Streak ────────────────────────────────────────────────────────────────
@@ -177,6 +181,15 @@ export async function GET() {
     score: avg(scores),
   }));
 
+  const batchIds = memberships.map(m => m.batchId);
+  const assignedTests = batchIds.length > 0
+    ? await db.mockTest.findMany({
+        where: { assignedBatchId: { in: batchIds }, isTemplate: true },
+        select: { id: true, title: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+      })
+    : [];
+
   const res = NextResponse.json({
     success: true,
     data: {
@@ -208,6 +221,11 @@ export async function GET() {
         type: p.type,
         section: p.section,
         count: p._count.id,
+      })),
+      assignedTests: assignedTests.map(t => ({
+        id: t.id,
+        title: t.title,
+        createdAt: t.createdAt.toISOString(),
       })),
     },
   });

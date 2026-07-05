@@ -49,6 +49,7 @@ interface DashboardData {
   examDate: string | null;
   dailyGoal: number;
   todayCount: number;
+  assignedTests: Array<{ id: string; title: string; createdAt: string }>;
 }
 
 const practiceCards = [
@@ -124,32 +125,38 @@ export default function DashboardPage() {
       label: "Practice Streak",
       value: loading ? null : `${data?.streak ?? 0} day${data?.streak === 1 ? "" : "s"}`,
       icon: Flame,
-      color: "text-orange-500",
+      color: (data?.streak ?? 0) > 0 ? "text-orange-600 dark:text-orange-400" : "text-gray-400",
+      bgLight: (data?.streak ?? 0) > 0 ? "bg-orange-100 dark:bg-orange-950/40" : "bg-gray-100 dark:bg-slate-800",
+      isStreak: true,
     },
     {
       label: "Questions Done",
       value: loading ? null : String(data?.totalAttempts ?? 0),
       icon: Target,
-      color: "text-teal-500",
+      color: "text-teal-600 dark:text-teal-400",
+      bgLight: "bg-teal-100 dark:bg-teal-950/40",
     },
     {
       label: "Avg Score",
       value: loading ? null : data?.averageScore ? `${data.averageScore}/90` : "--",
       icon: TrendingUp,
-      color: "text-indigo-500",
+      color: "text-indigo-600 dark:text-indigo-400",
+      bgLight: "bg-indigo-100 dark:bg-indigo-950/40",
     },
     {
       label: "Est. PTE Score",
       value: loading ? null : data?.estimatedPTEScore ? `~${data.estimatedPTEScore}` : "--",
       icon: Star,
-      color: "text-amber-500",
+      color: "text-amber-600 dark:text-amber-400",
+      bgLight: "bg-amber-100 dark:bg-amber-950/40",
       tooltip: "Estimated based on your section averages using PTE score weights",
     },
     {
       label: "Practice Time",
       value: loading ? null : formatTime(data?.totalPracticeTime ?? 0),
       icon: Clock,
-      color: "text-purple-500",
+      color: "text-purple-600 dark:text-purple-400",
+      bgLight: "bg-purple-100 dark:bg-purple-950/40",
     },
   ];
 
@@ -174,21 +181,51 @@ export default function DashboardPage() {
       {/* Announcements */}
       <AnnouncementsBanner />
 
+      {/* Assigned Mock Tests Alert */}
+      {!loading && data?.assignedTests && data.assignedTests.length > 0 && (
+        <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 dark:border-indigo-900/50 dark:bg-indigo-950/20 p-4 shadow-sm relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-4 opacity-10">
+            <ClipboardList className="h-24 w-24" />
+          </div>
+          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+                <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100">
+                  You have {data.assignedTests.length} new assigned Mock Test{data.assignedTests.length > 1 ? "s" : ""}!
+                </h3>
+              </div>
+              <p className="mt-1 text-sm text-indigo-700 dark:text-indigo-300">
+                Your Centre Admin has assigned practice tests for your batch.
+              </p>
+            </div>
+            <Link href="/mock-test">
+              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md">
+                View Tests <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
       {/* Quick Stats */}
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
-          <Card key={stat.label}>
+          <Card key={stat.label} className={stat.isStreak && (data?.streak ?? 0) > 0 ? "border-orange-200 dark:border-orange-900/50 relative overflow-hidden" : ""}>
+            {stat.isStreak && (data?.streak ?? 0) > 0 && (
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-red-500" />
+            )}
             <CardContent className="flex items-center gap-4 p-4">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-50 dark:bg-slate-800">
-                <stat.icon className={`h-5 w-5 ${stat.color}`} />
+              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${stat.bgLight}`}>
+                <stat.icon className={`h-6 w-6 ${stat.color} ${stat.isStreak && (data?.streak ?? 0) > 0 ? "animate-pulse" : ""}`} />
               </div>
               <div>
                 {stat.value === null ? (
                   <Loader2 className="h-5 w-5 animate-spin text-gray-300 dark:text-slate-600" />
                 ) : (
-                  <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{stat.value}</p>
+                  <p className="text-xl font-bold text-gray-900 dark:text-slate-100">{stat.value}</p>
                 )}
-                <p className="text-xs text-gray-500 dark:text-slate-400">{stat.label}</p>
+                <p className="text-xs font-medium text-gray-500 dark:text-slate-400">{stat.label}</p>
               </div>
             </CardContent>
           </Card>

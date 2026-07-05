@@ -97,7 +97,7 @@ export default function MockTestSessionPage() {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [submitted, setSubmitted] = useState(false);
-  const [questionElapsed, setQuestionElapsed] = useState(0);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [finishing, setFinishing] = useState(false);
 
   const [navigating, setNavigating] = useState(false);
@@ -124,15 +124,49 @@ export default function MockTestSessionPage() {
     fetchTest();
   }, [testId]);
 
-  // Per-question timer — resets whenever the question changes
+  // Calculate total allowed time
+  const getTimeLimit = useCallback(() => {
+    if (!test) return 135 * 60;
+    if (test.mockType === "FULL") return 135 * 60;
+    if (test.section === "SPEAKING") return 35 * 60;
+    if (test.section === "WRITING") return 32 * 60;
+    if (test.section === "READING") return 30 * 60;
+    if (test.section === "LISTENING") return 43 * 60;
+    return 135 * 60;
+  }, [test]);
+
+  // Initialize time left based on server start time
   useEffect(() => {
-    questionStartRef.current = Date.now();
-    setQuestionElapsed(0);
+    if (test && test.status === "IN_PROGRESS" && timeLeft === null) {
+      const startMs = new Date(test.startedAt).getTime();
+      const elapsedSecs = Math.floor((Date.now() - startMs) / 1000);
+      const remaining = Math.max(0, getTimeLimit() - elapsedSecs);
+      setTimeLeft(remaining);
+      
+      // Auto-submit immediately if time was already up
+      if (remaining === 0) {
+        finishTest();
+      }
+    }
+  }, [test, getTimeLimit, timeLeft]);
+
+  // Timer interval
+  useEffect(() => {
+    if (test?.status !== "IN_PROGRESS" || timeLeft === null || timeLeft <= 0 || finishing) return;
+    
     const interval = setInterval(() => {
-      setQuestionElapsed(Math.floor((Date.now() - questionStartRef.current) / 1000));
+      setTimeLeft((prev) => {
+        if (prev === null) return null;
+        if (prev <= 1) {
+          clearInterval(interval);
+          finishTest(); // Auto-submit when time expires
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
     return () => clearInterval(interval);
-  }, [currentIdx]);
+  }, [test?.status, finishing, timeLeft]);
 
   // Reset submitted and pending response whenever question changes
   useEffect(() => {
@@ -219,6 +253,7 @@ export default function MockTestSessionPage() {
   };
 
   const finishTest = async () => {
+    if (finishing) return;
     if (!submitted) {
       if (autoSubmitRef.current) {
         try {
@@ -379,9 +414,11 @@ export default function MockTestSessionPage() {
               <Save className="h-3 w-3 animate-pulse" /> Scoring…
             </span>
           )}
-          <div className="flex items-center gap-1.5 text-sm font-mono font-medium text-gray-700 dark:text-slate-300">
-            <Clock className="h-4 w-4 text-gray-400 dark:text-slate-500" />
-            {formatTime(questionElapsed)}
+          <div className={`flex items-center gap-1.5 text-sm font-mono font-medium ${
+            timeLeft !== null && timeLeft <= 300 ? "text-red-600 animate-pulse" : "text-gray-700 dark:text-slate-300"
+          }`}>
+            <Clock className={`h-4 w-4 ${timeLeft !== null && timeLeft <= 300 ? "text-red-600" : "text-gray-400 dark:text-slate-500"}`} />
+            {timeLeft !== null ? formatTime(timeLeft) : "--:--"}
           </div>
           <Button variant="destructive" size="sm" onClick={finishTest} loading={finishing}>
             <Flag className="mr-1.5 h-3.5 w-3.5" />

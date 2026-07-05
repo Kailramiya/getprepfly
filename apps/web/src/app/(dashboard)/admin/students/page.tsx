@@ -11,9 +11,17 @@ import { useToast } from "@/components/ui/toast";
 import Link from "next/link";
 import {
   Search, Users, Trash2, Mail, Send, Clock, CheckCircle2, UserPlus,
-  XCircle, RotateCcw, Link2, Copy, Check, Download, AlertTriangle,
-  RefreshCw, Upload, X,
+  RefreshCw, Upload, X, Layers,
 } from "lucide-react";
+
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Student {
   id: string;
@@ -96,6 +104,12 @@ export default function StudentsPage() {
   const [importLoading, setImportLoading] = useState(false);
   const [importResult, setImportResult] = useState<{ imported: number; invited: number; skipped: number; errors: Array<{ email: string; reason: string }> } | null>(null);
 
+  // Batch states
+  const [batches, setBatches] = useState<Array<{ id: string; name: string }>>([]);
+  const [showBatchModal, setShowBatchModal] = useState(false);
+  const [selectedBatchId, setSelectedBatchId] = useState<string | null>(null);
+  const [batchMoving, setBatchMoving] = useState(false);
+
   const centreId = user?.centreId ?? null;
 
   const fetchStudents = useCallback(async (cid: string, q: string, signal: AbortSignal) => {
@@ -130,15 +144,24 @@ export default function StudentsPage() {
     } catch { /* ignore */ }
   }, []);
 
+  const fetchBatches = useCallback(async (cid: string) => {
+    try {
+      const res = await fetch(`/api/centres/${cid}/batches`);
+      const data = await res.json();
+      if (data.success) setBatches(data.data);
+    } catch { /* ignore */ }
+  }, []);
+
   useEffect(() => {
     if (!centreId) { setLoading(false); return; }
     const controller = new AbortController();
     fetchStudents(centreId, search, controller.signal);
     fetchPendingInvites(controller.signal);
     fetchSeatUsage();
+    fetchBatches(centreId);
     return () => controller.abort();
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [centreId, search]);
+  }, [centreId, search, fetchBatches]);
 
   // Filtered view (client-side by expiry)
   const visibleStudents = students.filter(s => matchesFilter(s, expiryFilter));
@@ -173,8 +196,8 @@ export default function StudentsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setBulkMsg({ type: "success", text: data.data.message });
-        toast("success", data.data.message);
+        setBulkMsg({ type: "success", text: `Renewed ${data.data.successCount} students.` });
+        toast("success", `Renewed ${data.data.successCount} students.`);
         setSelectedIds(new Set());
         const c = new AbortController();
         fetchStudents(centreId!, search, c.signal);
@@ -190,6 +213,30 @@ export default function StudentsPage() {
     } finally {
       setBulkRenewing(false);
     }
+  };
+
+  const handleMoveToBatch = async () => {
+    if (!selectedBatchId || selectedIds.size === 0) return;
+    setBatchMoving(true);
+    try {
+      const res = await fetch(`/api/centres/batches/${selectedBatchId}/members`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ studentIds: Array.from(selectedIds) }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        toast("success", `Added ${data.data.added} students to batch.`);
+        setShowBatchModal(false);
+        setSelectedBatchId(null);
+        setSelectedIds(new Set());
+      } else {
+        toast("error", data.error || "Failed to add students to batch");
+      }
+    } catch {
+      toast("error", "Network error");
+    }
+    setBatchMoving(false);
   };
 
   const exportCSV = async () => {
@@ -563,7 +610,10 @@ export default function StudentsPage() {
           </span>
           <Button size="sm" onClick={bulkRenew} disabled={bulkRenewing} loading={bulkRenewing} className="gap-2">
             <RotateCcw className="h-3.5 w-3.5" />
-            {bulkRenewing ? "Renewing…" : "Renew selected (30 days)"}
+            {bulkRenewing ? "Renewing…" : "Renew (30d)"}
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => setShowBatchModal(true)} className="gap-2 bg-white dark:bg-slate-800">
+            <Layers className="h-3.5 w-3.5" /> Move to Batch
           </Button>
           <button onClick={() => setSelectedIds(new Set())} className="ml-auto text-xs text-indigo-600 dark:text-indigo-400 hover:underline">
             Clear
@@ -892,6 +942,48 @@ export default function StudentsPage() {
           </div>
         </div>
       )}
+      {/* Move to Batch Modal */}
+      <Dialog open={showBatchModal} onOpenChange={setShowBatchModal}>
+        <DialogContent className="sm:max-w-[400px]">
+          <DialogHeader>
+            <DialogTitle>Move to Batch</DialogTitle>
+            <DialogDescription>
+              Select a batch to add {selectedIds.size} student{selectedIds.size !== 1 ? "s" : ""} to.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 space-y-4">
+            {batches.length === 0 ? (
+              <div className="text-center p-4 border rounded bg-gray-50 dark:bg-slate-800 dark:border-slate-700">
+                <p className="text-sm text-gray-500 dark:text-slate-400">No batches exist.</p>
+                <Link href="/admin/batches" className="text-sm text-indigo-600 hover:underline mt-1 inline-block">Create one here</Link>
+              </div>
+            ) : (
+              <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                {batches.map(b => (
+                  <div
+                    key={b.id}
+                    onClick={() => setSelectedBatchId(b.id)}
+                    className={`cursor-pointer rounded-lg border p-3 flex items-center justify-between transition ${
+                      selectedBatchId === b.id
+                        ? "border-indigo-600 bg-indigo-50 dark:border-indigo-500 dark:bg-indigo-950/50"
+                        : "border-gray-200 hover:bg-gray-50 dark:border-slate-700 dark:hover:bg-slate-800"
+                    }`}
+                  >
+                    <p className={`text-sm font-medium ${selectedBatchId === b.id ? "text-indigo-900 dark:text-indigo-100" : "text-gray-900 dark:text-slate-100"}`}>{b.name}</p>
+                    {selectedBatchId === b.id && <Check className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowBatchModal(false)}>Cancel</Button>
+            <Button onClick={handleMoveToBatch} disabled={!selectedBatchId || batchMoving || batches.length === 0} loading={batchMoving}>
+              Confirm Move
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
