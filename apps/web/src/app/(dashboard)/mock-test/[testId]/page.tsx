@@ -45,6 +45,8 @@ interface MockTestData {
   readingScore: number | null;
   listeningScore: number | null;
   overallScore: number | null;
+  mockType: string;
+  section: string | null;
   questions: TestQuestion[];
   attempts: { questionId: string; overallScore: number | null; scores: any; responseText: string | null; responseAudio: string | null }[];
 }
