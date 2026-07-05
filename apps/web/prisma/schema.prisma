@@ -479,7 +479,9 @@ model Attempt {
   // Reading/Listening: { correct: true, score: 1 }
   scores        Json?
 
-  overallScore  Float?    // 0-90 PTE scale
+  rawPointsEarned Int?      // raw points accumulated for the question
+  maxPointsPossible Int?    // maximum possible raw points for the question
+  overallScore  Float?      // 0-90 PTE scale (legacy/deprecated logic fallback)
   timeTaken     Int?      // seconds
   feedback      String?   // AI-generated improvement tips
   createdAt     DateTime  @default(now())

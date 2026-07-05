@@ -58,71 +58,71 @@ export const SKILL_CONTRIBUTIONS: Record<string, SkillContribution> = {
 export type SkillKey = "speaking" | "listening" | "reading" | "writing";
 export const SKILL_KEYS: SkillKey[] = ["speaking", "listening", "reading", "writing"];
 
-/** Minimum score applied to every skill and overall when a mock test is completed. */
-export const PTE_MIN_SCORE = 30;
+export const PTE_MIN_SCORE = 10;
 
 /**
- * Leniency factor applied to raw skill scores to give students a
- * confidence-appropriate boost. 0.15 = 15% of the gap toward 90.
- * e.g. raw 70 → 73, raw 75 → 77, raw 80 → 82.
+ * Legacy Leniency factor (deprecated for new raw point scoring)
  */
 export const LENIENCY_FACTOR = 0.15;
 
-/**
- * Calculate four skill scores (0–90 each) from a list of attempts.
- *
- * Algorithm (weighted average per skill):
- *   skillScore = (Σ normalizedScore × weight) / (Σ weight) × 90
- *
- *   normalizedScore = attempt.overallScore / 90  (already on 0–90 PTE scale)
- *   weight          = SKILL_CONTRIBUTIONS[questionType][skill]
- *
- * Attempts without an overallScore (unscored/auto-saved) are skipped.
- * Question types not in SKILL_CONTRIBUTIONS fall back to their section tag.
- */
 export function calculateSkillScores(
   attempts: Array<{
     overallScore: number | null;
+    rawPointsEarned?: number | null;
+    maxPointsPossible?: number | null;
     questionType: string;
     questionSection: string; // SPEAKING | WRITING | READING | LISTENING
   }>
 ): Record<SkillKey, number> {
-  const weighted:    Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
-  const totalWeight: Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
+  const earned:    Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
+  const possible:  Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
 
   for (const attempt of attempts) {
-    if (attempt.overallScore === null) continue;
+    const isLegacy = attempt.rawPointsEarned == null || attempt.maxPointsPossible == null;
+    if (isLegacy && attempt.overallScore === null) continue;
 
-    const normalized = attempt.overallScore / 90;
     const contrib = SKILL_CONTRIBUTIONS[attempt.questionType];
 
     if (contrib) {
       for (const skill of SKILL_KEYS) {
         const w = contrib[skill];
         if (w > 0) {
-          weighted[skill]    += normalized * w;
-          totalWeight[skill] += w;
+          if (!isLegacy) {
+            // New Logic: Raw point accumulation
+            earned[skill] += attempt.rawPointsEarned!;
+            possible[skill] += attempt.maxPointsPossible!;
+          } else {
+            // Legacy Logic: Map the 0-90 score back to a fraction of the weight
+            const normalized = attempt.overallScore! / 90;
+            earned[skill] += normalized * w;
+            possible[skill] += w;
+          }
         }
       }
     } else {
-      // Unknown type — contribute to its own section, but with a MODEST weight.
-      // (A large weight here would let one unmapped question dominate the whole
-      // skill score vs the real per-type weights, which range ~1.5–28.)
+      // Unknown type — contribute to its own section
       const fallbackSkill = sectionToSkill(attempt.questionSection);
       if (fallbackSkill) {
-        const FALLBACK_WEIGHT = 10;
-        weighted[fallbackSkill]    += normalized * FALLBACK_WEIGHT;
-        totalWeight[fallbackSkill] += FALLBACK_WEIGHT;
+        if (!isLegacy) {
+          earned[fallbackSkill] += attempt.rawPointsEarned!;
+          possible[fallbackSkill] += attempt.maxPointsPossible!;
+        } else {
+          const FALLBACK_WEIGHT = 10;
+          const normalized = attempt.overallScore! / 90;
+          earned[fallbackSkill] += normalized * FALLBACK_WEIGHT;
+          possible[fallbackSkill] += FALLBACK_WEIGHT;
+        }
       }
     }
   }
 
   const result: Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
   for (const skill of SKILL_KEYS) {
-    if (totalWeight[skill] === 0) { result[skill] = 0; continue; }
-    const raw = (weighted[skill] / totalWeight[skill]) * 90;
-    // Apply leniency: shift raw score 15% toward the maximum (90)
-    result[skill] = Math.round(Math.min(90, raw + (90 - raw) * LENIENCY_FACTOR));
+    if (possible[skill] === 0) { result[skill] = 0; continue; }
+    const fraction = earned[skill] / possible[skill];
+    
+    // Scale: 10 + round(Fraction * 80)
+    result[skill] = Math.min(90, Math.max(10, 10 + Math.round(fraction * 80)));
   }
   return result;
 }

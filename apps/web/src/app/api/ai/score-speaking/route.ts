@@ -46,19 +46,22 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Step 1: Transcribe audio using OpenAI Whisper
-    const transcription = await transcribeAudio(audioFile);
+    // Step 1: Transcribe audio using OpenAI Whisper (verbose_json)
+    const transcriptionObj = await transcribeAudio(audioFile);
+    const transcriptionText = transcriptionObj.text || "";
 
-    // Step 2: Score using GPT based on question type
-    const scores = await scoreSpeaking(transcription, expectedText, questionType);
+    // Step 2: Score using programmatic methods + GPT for content
+    const scores = await scoreSpeaking(transcriptionObj, expectedText, questionType);
 
     // Step 3: Save attempt
     const attempt = await db.attempt.create({
       data: {
         userId: user!.id,
         questionId,
-        responseText: transcription,
+        responseText: transcriptionText,
         scores,
+        rawPointsEarned: scores.rawPointsEarned,
+        maxPointsPossible: scores.maxPointsPossible,
         overallScore: scores.overall,
         feedback: scores.feedback,
       },
@@ -67,7 +70,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       data: {
-        transcription,
+        transcription: transcriptionText,
         scores,
         attemptId: attempt.id,
       },
@@ -81,7 +84,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function transcribeAudio(audioFile: File): Promise<string> {
+async function transcribeAudio(audioFile: File): Promise<any> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("OpenAI API key not configured");
@@ -92,7 +95,8 @@ async function transcribeAudio(audioFile: File): Promise<string> {
   formData.append("file", audioFile, "recording.webm");
   formData.append("model", "whisper-1");
   formData.append("language", "en");
-  formData.append("response_format", "text");
+  formData.append("response_format", "verbose_json");
+  formData.append("timestamp_granularities[]", "word");
 
   const response = await fetch("https://api.openai.com/v1/audio/transcriptions", {
     method: "POST",
@@ -106,11 +110,11 @@ async function transcribeAudio(audioFile: File): Promise<string> {
     throw new Error(`Whisper API error: ${response.statusText}`);
   }
 
-  return (await response.text()).trim();
+  return await response.json();
 }
 
 async function scoreSpeaking(
-  transcription: string,
+  transcriptionObj: any,
   expectedText: string,
   questionType: string
 ): Promise<any> {
@@ -119,7 +123,51 @@ async function scoreSpeaking(
     throw new Error("OpenAI API key not configured");
   }
 
-  const prompt = buildScoringPrompt(transcription, expectedText, questionType);
+  const transcriptionText = transcriptionObj.text || "";
+  const words = transcriptionObj.words || [];
+  const duration = transcriptionObj.duration || 1; // seconds
+
+  // --- Programmatic Fluency Calculation ---
+  const durationMinutes = duration / 60;
+  const wpm = words.length / durationMinutes;
+  // Target WPM: 130-150. Base score out of 5.
+  let baseFluency = 5;
+  if (wpm < 130) {
+    baseFluency = Math.max(0, 5 - Math.round((130 - wpm) / 20));
+  } else if (wpm > 160) {
+    baseFluency = Math.max(0, 5 - Math.round((wpm - 160) / 20)); // Too fast penalty
+  }
+
+  let unnaturalPauses = 0;
+  for (let i = 1; i < words.length; i++) {
+    const gap = words[i].start - words[i - 1].end;
+    if (gap > 1.2) unnaturalPauses++;
+  }
+  const fluencyScore = Math.max(0, baseFluency - unnaturalPauses);
+
+  // --- Programmatic Pronunciation Calculation ---
+  let totalConfidence = 0;
+  for (const w of words) {
+    // 'probability' is not always perfectly available depending on the exact OpenAI version/model
+    // but we use it if present, otherwise default to a high baseline.
+    totalConfidence += (w.probability || w.confidence || 0.85);
+  }
+  const avgConfidence = words.length > 0 ? totalConfidence / words.length : 0;
+  const pronScore = Math.max(0, Math.round(avgConfidence * 5));
+
+  // --- GPT-4 for Content Scoring Only ---
+  let maxContent = 5;
+  if (questionType === "REPEAT_SENTENCE" || questionType === "ANSWER_SHORT_QUESTION") maxContent = 3;
+
+  const prompt = `
+PTE Speaking - Content Score Only.
+Question Type: ${questionType}
+Expected Text/Reference: "${expectedText}"
+Student's Transcription: "${transcriptionText}"
+
+Score ONLY Content (0-${maxContent}):
+Return ONLY a JSON object: { "content": int, "feedback": "1-2 sentences" }
+  `;
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -132,13 +180,11 @@ async function scoreSpeaking(
       messages: [
         {
           role: "system",
-          content: `You are an expert PTE Academic speaking evaluator. Score each criterion on the 0-90 scale using these band anchors: 79-90 = expert (natural, near-native), 65-78 = advanced (clear with minor slips), 50-64 = competent (understandable but noticeable errors), 36-49 = intermediate (frequent errors, effortful), below 36 = limited. Be fair and consistent: the same response must always get the same score. Return ONLY valid JSON.`,
+          content: `You are an expert PTE Academic speaking evaluator. Return ONLY valid JSON with single-digit integer content score and short feedback.`,
         },
         { role: "user", content: prompt },
       ],
-      // Low temperature + fixed seed → consistent scores for identical answers.
       temperature: 0.2,
-      seed: 7,
       response_format: { type: "json_object" },
     }),
   });
@@ -155,73 +201,23 @@ async function scoreSpeaking(
     throw new Error("Scoring service returned an invalid response");
   }
 
+  const contentScore = Math.min(maxContent, Math.max(0, result.content || 0));
+  const rawPointsEarned = pronScore + fluencyScore + contentScore;
+  const maxPointsPossible = 5 + 5 + maxContent;
+  const overall = maxPointsPossible > 0 ? Math.round((rawPointsEarned / maxPointsPossible) * 90) : 0;
+
   return {
-    pronunciation: Math.min(90, Math.max(0, result.pronunciation || 0)),
-    fluency: Math.min(90, Math.max(0, result.fluency || 0)),
-    content: Math.min(90, Math.max(0, result.content || 0)),
-    overall: Math.min(90, Math.max(0, result.overall || 0)),
-    feedback: result.feedback || "Keep practicing!",
-    details: result.details || null,
+    pronunciation: Math.round((pronScore / 5) * 90), // Fake 0-90 mapping for UI backward compatibility
+    fluency: Math.round((fluencyScore / 5) * 90),
+    content: Math.round((contentScore / maxContent) * 90),
+    overall,
+    rawPointsEarned,
+    maxPointsPossible,
+    wpm: Math.round(wpm),
+    unnaturalPauses,
+    feedback: result.feedback || "Good effort!",
+    details: null,
   };
 }
 
-function buildScoringPrompt(transcription: string, expectedText: string, questionType: string): string {
-  if (questionType === "READ_ALOUD") {
-    return `
-PTE Read Aloud Scoring:
-Expected text: "${expectedText}"
-Student's transcription: "${transcription}"
-
-Score on 0-90 scale:
-- pronunciation: How accurately words are pronounced (compare transcription to expected)
-- fluency: Smooth delivery, natural rhythm (inferred from transcription completeness)
-- content: How much of the expected text was covered
-- overall: Weighted average (content 40%, pronunciation 30%, fluency 30%)
-
-Also provide:
-- feedback: 2-3 sentences of constructive feedback
-- details: specific words or areas to improve
-
-Return JSON: { pronunciation, fluency, content, overall, feedback, details }`;
-  }
-
-  if (questionType === "REPEAT_SENTENCE") {
-    return `
-PTE Repeat Sentence Scoring:
-Expected sentence: "${expectedText}"
-Student said: "${transcription}"
-
-Score on 0-90 scale:
-- pronunciation: Accuracy of word pronunciation
-- fluency: Natural flow and rhythm
-- content: How many words match the expected sentence (word-for-word comparison)
-- overall: Weighted average
-
-Return JSON: { pronunciation, fluency, content, overall, feedback, details }`;
-  }
-
-  if (questionType === "DESCRIBE_IMAGE" || questionType === "RETELL_LECTURE" || questionType === "SUMMARIZE_GROUP_DISCUSSION") {
-    return `
-PTE ${questionType.replace("_", " ")} Scoring:
-${expectedText ? `Reference content: "${expectedText}"` : ""}
-Student's response: "${transcription}"
-
-Score on 0-90 scale:
-- pronunciation: Clarity of speech
-- fluency: Smooth delivery, appropriate pace, minimal pauses/fillers
-- content: Relevance, key points covered, vocabulary used
-- overall: Weighted average (content 45%, fluency 30%, pronunciation 25%)
-
-Return JSON: { pronunciation, fluency, content, overall, feedback, details }`;
-  }
-
-  // Default scoring prompt
-  return `
-PTE Speaking Scoring for ${questionType}:
-${expectedText ? `Expected: "${expectedText}"` : ""}
-Student said: "${transcription}"
-
-Score on 0-90 scale: pronunciation, fluency, content, overall.
-Provide feedback and details.
-Return JSON: { pronunciation, fluency, content, overall, feedback, details }`;
-}
+// buildScoringPrompt removed as it is no longer needed since GPT only scores content now.

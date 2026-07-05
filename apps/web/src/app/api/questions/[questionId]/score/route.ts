@@ -75,13 +75,16 @@ export async function POST(
     const correctCount = selected.filter((i) => correctSet.has(i)).length;
     const wrongSelected = selected.filter((i) => !correctSet.has(i));
     const missed = correct.filter((i) => !selectedSet.has(i));
-    const fullyCorrect = wrongSelected.length === 0 && missed.length === 0;
-    const partialRatio = correct.length > 0 ? correctCount / correct.length : 0;
+    
+    // Negative marking: +1 for correct selected, -1 for incorrect selected
+    const rawScore = Math.max(0, correctCount - wrongSelected.length);
+    const maxScore = correct.length;
+
     scoreResult = {
-      marksEarned: fullyCorrect ? totalMarks : Math.round(totalMarks * partialRatio * 10) / 10,
-      marksTotal: totalMarks,
+      marksEarned: rawScore, // raw points
+      marksTotal: maxScore,
       correct: correctCount,
-      total: correct.length,
+      total: maxScore,
       mistakes: [
         ...wrongSelected.map((i) => ({ position: i + 1, yourAnswer: content.options?.[i] ?? "—", correctAnswer: "(Should not have selected this)" })),
         ...missed.map((i) => ({ position: i + 1, yourAnswer: "(Missed)", correctAnswer: content.options?.[i] ?? "" })),
@@ -106,18 +109,22 @@ export async function POST(
 
     const order: number[] = Array.isArray(answer) ? answer : paragraphs.map((_, i) => i);
     const n = correctOrder.length;
-    const correctPosMap = new Map<number, number>();
-    correctOrder.forEach((item, pos) => correctPosMap.set(item, pos));
-    let correctPairs = 0;
-    const totalPairs = n * (n - 1) / 2;
-    for (let i = 0; i < order.length; i++) {
-      for (let j = i + 1; j < order.length; j++) {
-        const pi = correctPosMap.get(order[i]) ?? -1;
-        const pj = correctPosMap.get(order[j]) ?? -1;
-        if (pi !== -1 && pj !== -1 && pi < pj) correctPairs++;
+    
+    // Adjacent Tuple Matching
+    const maxPairs = Math.max(0, n - 1);
+    let matchedPairs = 0;
+    
+    const correctPairs = new Set<string>();
+    for (let i = 0; i < n - 1; i++) {
+      correctPairs.add(`${correctOrder[i]}-${correctOrder[i+1]}`);
+    }
+    
+    for (let i = 0; i < order.length - 1; i++) {
+      if (correctPairs.has(`${order[i]}-${order[i+1]}`)) {
+        matchedPairs++;
       }
     }
-    const pairRatio = totalPairs > 0 ? correctPairs / totalPairs : 0;
+    
     const mistakes: Mistake[] = [];
     order.forEach((paraIdx, pos) => {
       if (correctOrder[pos] !== paraIdx) {
@@ -128,11 +135,12 @@ export async function POST(
         });
       }
     });
+
     scoreResult = {
-      marksEarned: Math.round(totalMarks * pairRatio * 10) / 10,
-      marksTotal: totalMarks,
-      correct: correctPairs,
-      total: totalPairs,
+      marksEarned: matchedPairs,
+      marksTotal: maxPairs,
+      correct: matchedPairs,
+      total: maxPairs,
       mistakes,
     };
     revealedContent = { correctOrder, paragraphs };
@@ -175,38 +183,34 @@ export async function POST(
   else if (type === "WRITE_FROM_DICTATION") {
     const normalize = (s: string) =>
       s.trim().toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
+    
     const studentWords = normalize(answer || "");
     const correctWords = normalize(content.correctText || "");
-    const m = correctWords.length, n2 = studentWords.length;
-    const dp: number[][] = Array.from({ length: m + 1 }, () => new Array(n2 + 1).fill(0));
-    for (let ci = 1; ci <= m; ci++) {
-      for (let cj = 1; cj <= n2; cj++) {
-        dp[ci][cj] = correctWords[ci - 1] === studentWords[cj - 1]
-          ? dp[ci - 1][cj - 1] + 1
-          : Math.max(dp[ci - 1][cj], dp[ci][cj - 1]);
-      }
-    }
-    const matched = dp[m][n2];
+    
+    let matchedCount = 0;
+    const studentPool = [...studentWords]; // mutable pool to prevent double counting
+    
     const mistakes: Mistake[] = [];
-    let ri = m, rj = n2;
-    const missedPositions = new Set<number>();
-    while (ri > 0 && rj > 0) {
-      if (correctWords[ri - 1] === studentWords[rj - 1]) { ri--; rj--; }
-      else if (dp[ri - 1][rj] >= dp[ri][rj - 1]) { missedPositions.add(ri - 1); ri--; }
-      else { rj--; }
-    }
-    while (ri > 0) { missedPositions.add(ri - 1); ri--; }
-    correctWords.forEach((w: string, idx: number) => {
-      if (missedPositions.has(idx)) mistakes.push({ position: idx + 1, yourAnswer: "(missed or wrong)", correctAnswer: w });
+    
+    correctWords.forEach((correctWord, idx) => {
+      const poolIndex = studentPool.indexOf(correctWord);
+      if (poolIndex !== -1) {
+        matchedCount++;
+        studentPool.splice(poolIndex, 1); // remove from pool
+      } else {
+        mistakes.push({ position: idx + 1, yourAnswer: "(missed)", correctAnswer: correctWord });
+      }
     });
-    const pct = m > 0 ? matched / m : 0;
+    
+    const m = correctWords.length;
+    
     scoreResult = {
-      marksEarned: Math.round(totalMarks * pct * 10) / 10,
-      marksTotal: totalMarks,
-      correct: matched,
+      marksEarned: matchedCount,
+      marksTotal: m,
+      correct: matchedCount,
       total: m,
       mistakes,
-      message: `${matched}/${m} words matched`,
+      message: `${matchedCount}/${m} words matched`,
     };
     revealedContent = { correctText: content.correctText };
   }
@@ -261,6 +265,8 @@ export async function POST(
           marksTotal: scoreResult.marksTotal,
           mistakes: scoreResult.mistakes,
         },
+        rawPointsEarned: scoreResult.marksEarned,
+        maxPointsPossible: scoreResult.marksTotal,
         overallScore,
         timeTaken: typeof timeTaken === "number" ? timeTaken : null,
         mockTestId: mockTestId || null,
