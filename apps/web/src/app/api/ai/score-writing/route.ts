@@ -65,28 +65,7 @@ async function scoreWriting(
 
   const wordCount = responseText.trim().split(/\s+/).filter(Boolean).length;
 
-  // Pre-Evaluation Gate Checks
-  if (questionType === "SUMMARIZE_WRITTEN_TEXT") {
-    // Check if exactly one terminal period and length 5-75
-    const periods = (responseText.match(/[.!?]/g) || []).length;
-    if (periods !== 1 || wordCount < 5 || wordCount > 75) {
-      return {
-        grammar: 0, spelling: 0, content: 0, structure: 0, vocabulary: 0,
-        wordCount, overall: 0, rawPointsEarned: 0, maxPointsPossible: 7,
-        feedback: "Format Failure: Your response must be a single sentence containing between 5 and 75 words. Zero points awarded.",
-        corrections: []
-      };
-    }
-  } else if (questionType === "WRITE_ESSAY") {
-    if (wordCount < 120 || wordCount > 380) {
-      return {
-        grammar: 0, spelling: 0, content: 0, structure: 0, vocabulary: 0,
-        wordCount, overall: 0, rawPointsEarned: 0, maxPointsPossible: 15,
-        feedback: "Format Failure: Your essay must be between 120 and 380 words. Zero points awarded.",
-        corrections: []
-      };
-    }
-  }
+
 
   let systemPrompt: string;
   let userPrompt: string;
@@ -94,60 +73,90 @@ async function scoreWriting(
 
   if (questionType === "SUMMARIZE_SPOKEN_TEXT") {
     maxPointsPossible = 10;
-    systemPrompt = `You are an expert PTE evaluator for Summarize Spoken Text. Return ONLY a flat JSON object with single-digit integer values for the scores.`;
+    systemPrompt = `You are a deterministic, automated scoring engine for a PTE practice platform. Your purpose is to evaluate user responses strictly against specific mathematical constraints and official rubrics. Do not act as a standard conversational chatbot. Do not provide stylistic feedback, encouragement, or preambles. Your entire output must consist exclusively of a single, raw, minified JSON block containing specified keys mapping to clean integers.`;
     userPrompt = `
-PTE Summarize Spoken Text Scoring:
+### TASK SELECTION CONFIGURATION
+task_type: "sst"
+
+### RULESET
+The official maximum points are: Content (2), Form (2), Grammar (2), Vocabulary (2), Spelling (2).
+Evaluate based on PTE raw traits (Single-digit integers):
+- content: 2 if captures the central argument and key supporting points accurately. 1 if covers partial main point. 0 if misses main topic entirely.
+- form: 2 if 50-70 words, 1 if 40-49 or 71-100, 0 otherwise
+- grammar: 2 if correct grammatical structure is fully maintained. 1 if there are 1-2 minor syntax flaws. 0 if systemic structural errors occur.
+- vocabulary: 2 if academic language choice is precise. 1 if word choice is overly basic but clear. 0 if inappropriate phrasing distorts meaning.
+- spelling: 2 if 0 spelling mistakes. 1 if 1-2 minor typos. 0 if 3 or more spelling errors.
+
 Audio topic: "${questionPrompt}"
 Student's summary (${wordCount} words):
 "${responseText}"
 
-Evaluate based on PTE raw traits (Single-digit integers):
-- content (0-2)
-- form (0-2): 2 if 50-70 words, 1 if 40-49 or 71-100, 0 otherwise
-- grammar (0-2)
-- vocabulary (0-2)
-- spelling (0-2)
-
-Return JSON: { "grammar": int, "spelling": int, "content": int, "form": int, "vocabulary": int, "feedback": "2-3 short sentences" }`;
+Required Output Format for "sst":
+{"form": X, "content": Y, "grammar": Z, "vocabulary": W, "spelling": V}
+`;
   } else if (questionType === "WRITE_ESSAY") {
-    maxPointsPossible = 15;
-    systemPrompt = `You are an expert PTE essay evaluator. Return ONLY a flat JSON object with single-digit integer values for the scores.`;
+    maxPointsPossible = 13;
+    systemPrompt = `You are a deterministic, automated scoring engine for a PTE practice platform. Your purpose is to evaluate user responses strictly against specific mathematical constraints and official rubrics. Do not act as a standard conversational chatbot. Do not provide stylistic feedback, encouragement, or preambles. Your entire output must consist exclusively of a single, raw, minified JSON block containing specified keys mapping to clean integers.`;
     userPrompt = `
-PTE Write Essay Scoring:
+### TASK SELECTION CONFIGURATION
+task_type: "we"
+
+### RULESET 2: TASK_TYPE = "we" (Write Essay)
+The official maximum points are: Content (3), Form (2), Grammar (2), Structure/Cohesion (2), Vocabulary (2), Spelling (2).
+
+1. STEP 1 - HARD LENGTH GATE CHECK (FORM):
+   - Track total words in the student response.
+   - If word count < 120 OR word count > 380, trigger an absolute structural failure override: Set form = 0, content = 0, grammar = 0, structure = 0, vocabulary = 0, spelling = 0, and immediately output the JSON.
+   - If word count is between 120-199 OR between 301-380, set form = 1 and continue.
+   - If word count is strictly between 200 and 300 (inclusive), set form = 2 and continue.
+
+2. STEP 2 - QUALITATIVE EVALUATION (Only if Form > 0):
+   - content: Award 3 if all aspects of the prompt are explicitly addressed with deep development. Award 2 if the main topic is dealt with but one prompt parameter is thin. Award 1 if it is vague/minimally on-topic.
+   - grammar: Award 2 if clean, correct syntax dominates with no errors. Award 1 if basic structures are solid but complex structures contain flaws. Award 0 if systemic errors break clarity.
+   - structure: Award 2 if clear paragraph structures exist (Introduction, Body Paragraphs, Conclusion) connected by appropriate logical transition terms. Award 1 if paragraph separation is chaotic. Award 0 if unstructured.
+   - vocabulary: Award 2 if academic words/collocations are utilized. Award 1 if meaning is clear but phrasing is repetitive. Award 0 if completely inadequate.
+   - spelling: Award 2 if there are 0 spelling mistakes. Award 1 if there are 1-2 minor typos. Award 0 if there are 3 or more spelling errors.
+
 Prompt: "${questionPrompt}"
 Student's essay (${wordCount} words):
 "${responseText}"
 
-Evaluate based on PTE raw traits (Single-digit integers):
-- content (0-3)
-- form (0-2): 2 if 200-300 words
-- structure (0-2)
-- grammar (0-2)
-- vocabulary (0-2)
-- spelling (0-2)
-- general_linguistic_range (0-2)
-
-Return JSON: { "grammar": int, "spelling": int, "content": int, "structure": int, "vocabulary": int, "form": int, "general_linguistic_range": int, "feedback": "2-3 short sentences" }`;
+Required Output Format for "we":
+{"form": X, "content": Y, "grammar": Z, "structure": W, "vocabulary": V, "spelling": S}
+`;
   } else {
     // SUMMARIZE_WRITTEN_TEXT
     maxPointsPossible = 7;
-    systemPrompt = `You are an expert PTE evaluator for Summarize Written Text. Return ONLY a flat JSON object with single-digit integer values for the scores.`;
+    systemPrompt = `You are a deterministic, automated scoring engine for a PTE practice platform. Your purpose is to evaluate user responses strictly against specific mathematical constraints and official rubrics. Do not act as a standard conversational chatbot. Do not provide stylistic feedback, encouragement, or preambles. Your entire output must consist exclusively of a single, raw, minified JSON block containing specified keys mapping to clean integers.`;
     userPrompt = `
-PTE Summarize Written Text Scoring:
+### TASK SELECTION CONFIGURATION
+task_type: "swt"
+
+### RULESET 1: TASK_TYPE = "swt" (Summarize Written Text)
+The official maximum points are: Content (2), Form (1), Grammar (2), Vocabulary (2).
+
+1. STEP 1 - HARD FORMAT GATE CHECK (FORM):
+   - Track total words in the student response.
+   - Count the total number of terminal periods inside the response. The text must be EXACTLY ONE single sentence ending with a single terminal period.
+   - If word count < 5 OR word count > 75, or terminal periods != 1, you MUST trigger a structural failure override: Set form = 0, content = 0, grammar = 0, vocabulary = 0, and immediately output the JSON.
+   - If word count is between 5 and 75 AND terminal periods == 1, set form = 1 and proceed to qualitative evaluation.
+
+2. STEP 2 - QUALITATIVE EVALUATION (Only if Form = 1):
+   - content: Award 2 if it captures the central argument and key supporting points accurately. Award 1 if it only covers a partial main point. Award 0 if it misses the main topic entirely.
+   - grammar: Award 2 if correct grammatical structure is fully maintained. Award 1 if there are 1-2 minor syntax flaws. Award 0 if systemic structural errors occur.
+   - vocabulary: Award 2 if academic language choice is precise. Award 1 if word choice is overly basic but clear. Award 0 if inappropriate phrasing distorts meaning.
+
 ORIGINAL PASSAGE:
 """
 ${questionPrompt}
 """
+
 STUDENT'S SUMMARY (${wordCount} words):
 "${responseText}"
 
-Evaluate based on PTE raw traits (Single-digit integers):
-- content (0-2)
-- form (0-1): 1 if exactly one sentence and 5-75 words, else 0
-- grammar (0-2)
-- vocabulary (0-2)
-
-Return JSON: { "grammar": int, "content": int, "form": int, "vocabulary": int, "feedback": "2-3 short sentences" }`;
+Required Output Format for "swt":
+{"form": X, "content": Y, "grammar": Z, "vocabulary": W}
+`;
   }
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
