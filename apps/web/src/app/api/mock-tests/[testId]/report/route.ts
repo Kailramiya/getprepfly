@@ -9,7 +9,28 @@ export async function GET(_req: NextRequest, { params }: { params: { testId: str
   const test = await db.mockTest.findFirst({
     where: { id: params.testId, userId: user!.id },
     include: {
-      attempts: { select: { overallScore: true, timeTaken: true, scores: true } },
+      attempts: { 
+        select: { 
+          id: true,
+          questionId: true,
+          overallScore: true, 
+          timeTaken: true, 
+          scores: true,
+          responseText: true,
+          responseAudio: true,
+          question: {
+            select: {
+              id: true,
+              title: true,
+              type: true,
+              section: true,
+              content: true,
+              modelAnswer: true,
+              marks: true,
+            }
+          }
+        } 
+      },
       questions: { select: { question: { select: { section: true } } } },
     },
   });
@@ -41,6 +62,7 @@ export async function GET(_req: NextRequest, { params }: { params: { testId: str
       attempted,
       pending,
       timeTaken: totalTime || null,
+      attempts: attempts, // Now includes detailed attempt and question data
     },
   });
 }
