@@ -49,9 +49,9 @@ interface MockTestData {
   attempts: { questionId: string; overallScore: number | null; scores: any; responseText: string | null; responseAudio: string | null }[];
 }
 
-// Extract the student's saved answer from stored responseText for pre-filling review
 function extractInitialResponse(questionType: string, responseText: string | null): any {
   if (!responseText) return null;
+  const TEXT_TYPES = ["WRITE_ESSAY", "SUMMARIZE_WRITTEN_TEXT", "SUMMARIZE_SPOKEN_TEXT", "WRITE_FROM_DICTATION"];
   try {
     const parsed = JSON.parse(responseText);
     if (["READING_MCQ_SINGLE", "LISTENING_MCQ_SINGLE", "HIGHLIGHT_CORRECT_SUMMARY", "SELECT_MISSING_WORD"].includes(questionType)) {
@@ -66,11 +66,14 @@ function extractInitialResponse(questionType: string, responseText: string | nul
     if (["READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS"].includes(questionType)) {
       return parsed.answers ?? null;
     }
-    if (["WRITE_ESSAY", "SUMMARIZE_WRITTEN_TEXT", "SUMMARIZE_SPOKEN_TEXT", "WRITE_FROM_DICTATION"].includes(questionType)) {
-      return parsed.text ?? null;
+    if (TEXT_TYPES.includes(questionType)) {
+      // Stored as { text: "..." } object
+      return parsed.text ?? (typeof parsed === "string" ? parsed : null);
     }
     return null;
   } catch {
+    // JSON.parse failed — responseText is a raw string (plain text answer)
+    if (TEXT_TYPES.includes(questionType)) return responseText;
     return null;
   }
 }
@@ -425,25 +428,34 @@ export default function MockTestSessionPage() {
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          {currentQuestion?.question && (
-            <QuestionRenderer
-              key={`${currentQuestion.question.id}-${currentIdx}`}
-              question={{
-                ...currentQuestion.question,
-                isPrediction: false,
-                marks: 1,
-              }}
-              submitted={submitted}
-              showAnswer={false}
-              showFeedback={false}
-              onSubmit={handleQuestionSubmit}
-              onResponseChange={(r) => { pendingResponseRef.current = r; }}
-              submitRef={autoSubmitRef}
-              playOnce={true}
-              isMockTest={true}
-              initialAudioUrl={recordingUrlsRef.current.get(currentQuestion.question.id)}
-            />
-          )}
+          {currentQuestion?.question && (() => {
+            const existingAttempt = test?.attempts?.find(
+              (a) => a.questionId === currentQuestion.question.id
+            );
+            const prefilledResponse = existingAttempt
+              ? extractInitialResponse(currentQuestion.question.type, existingAttempt.responseText)
+              : undefined;
+            return (
+              <QuestionRenderer
+                key={`${currentQuestion.question.id}-${currentIdx}`}
+                question={{
+                  ...currentQuestion.question,
+                  isPrediction: false,
+                  marks: 1,
+                }}
+                submitted={submitted}
+                showAnswer={false}
+                showFeedback={false}
+                onSubmit={handleQuestionSubmit}
+                onResponseChange={(r) => { pendingResponseRef.current = r; }}
+                submitRef={autoSubmitRef}
+                playOnce={true}
+                isMockTest={true}
+                initialAudioUrl={recordingUrlsRef.current.get(currentQuestion.question.id)}
+                initialResponse={prefilledResponse ?? undefined}
+              />
+            );
+          })()}
 
           {/* Info banner — only shown after explicit submit or if previously answered */}
           {(submitted || isAttempted) && (
