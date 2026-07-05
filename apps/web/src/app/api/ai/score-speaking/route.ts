@@ -186,6 +186,7 @@ Return ONLY a JSON object: { "content": int, "feedback": "1-2 sentences" }
         { role: "user", content: prompt },
       ],
       temperature: 0.0,
+      seed: 7,
       response_format: { type: "json_object" },
     }),
   });

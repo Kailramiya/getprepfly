@@ -88,7 +88,7 @@ The incoming payload will contain:
 Max Raw Breakdown: Content (2), Form (1), Grammar (2), Vocabulary (2). Total = 7.
 
 1. GATE CHECK (FORM):
-   - Count the total words in "student_response".
+   - Use the "computed_word_count" provided in the payload for all word count rules. Do NOT count the words yourself.
    - Count the total number of sentence-ending periods inside "student_response". To be valid, it must be exactly ONE single sentence.
    - CRITICAL PENALTY: If word count is less than 5, greater than 75, OR the number of sentence-ending periods is not exactly 1, trigger a structural failure override: Set form=0, content=0, grammar=0, vocabulary=0, and instantly return the JSON.
    - If word count is between 5 and 75 AND periods equal 1, assign form=1 and proceed to qualitative evaluation.
@@ -107,7 +107,7 @@ Required Output JSON structure for "swt":
 Max Raw Breakdown: Content (3), Form (2), Grammar (2), Structure (2), Vocabulary (2), Spelling (2). Total = 13.
 
 1. GATE CHECK (FORM):
-   - Count the total words in "student_response".
+   - Use the "computed_word_count" provided in the payload for all word count rules. Do NOT count the words yourself.
    - CRITICAL PENALTY: If word count is less than 120 OR greater than 380, trigger an absolute structural failure override: Set form=0, content=0, grammar=0, structure=0, vocabulary=0, spelling=0, and instantly return the JSON.
    - If word count is 120-199 OR 301-380, assign form=1 and continue.
    - If word count is strictly between 200 and 300 (inclusive), assign form=2 and continue.
@@ -128,7 +128,7 @@ Required Output JSON structure for "we":
 Max Raw Breakdown: Content (2), Form (2), Grammar (2), Vocabulary (2), Spelling (2). Total = 10.
 
 1. GATE CHECK (FORM):
-   - Count the total words in "student_response".
+   - Use the "computed_word_count" provided in the payload for all word count rules. Do NOT count the words yourself.
    - CRITICAL PENALTY: If word count is less than 40 OR greater than 100, trigger an absolute structural failure override: Set form=0, content=0, grammar=0, vocabulary=0, spelling=0, and instantly return the JSON.
    - If word count is 40-49 OR 71-100, assign form=1 and continue.
    - If word count is strictly between 50 and 70 (inclusive), assign form=2 and continue.
@@ -160,7 +160,8 @@ Required Output JSON structure for "sst":
   const userPrompt = JSON.stringify({
     task_type: taskType,
     prompt_context: questionPrompt,
-    student_response: responseText
+    student_response: responseText,
+    computed_word_count: wordCount
   });
 
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
