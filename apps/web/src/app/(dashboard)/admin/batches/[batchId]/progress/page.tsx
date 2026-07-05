@@ -210,7 +210,6 @@ export default function BatchProgressPage() {
                 </div>
               </CardContent>
             </Card>
-            </Card>
           )}
 
           {/* If no templates assigned, still show the card to allow assignment */}
