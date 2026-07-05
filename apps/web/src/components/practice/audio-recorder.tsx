@@ -103,10 +103,40 @@ export function AudioRecorder({
 
   const progress = maxDuration > 0 ? (recordingTime / maxDuration) * 100 : 0;
 
+  const isPermissionDenied = error?.includes("access denied") || error?.includes("access blocked");
+  const isMicNotFound = error?.includes("No microphone");
+
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-800">
       {error && (
-        <div className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">{error}</div>
+        <div className={`mb-3 rounded-lg p-3 text-sm ${
+          isPermissionDenied
+            ? "border border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/40"
+            : "border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/40"
+        }`}>
+          <p className={`font-semibold mb-1 ${
+            isPermissionDenied ? "text-red-700 dark:text-red-400" : "text-amber-700 dark:text-amber-400"
+          }`}>
+            {isPermissionDenied ? "🎤 Microphone Access Blocked" : isMicNotFound ? "🎤 No Microphone Found" : "Recording Error"}
+          </p>
+          <p className={isPermissionDenied ? "text-red-600 dark:text-red-300" : "text-amber-600 dark:text-amber-300"}>
+            {error}
+          </p>
+          {isPermissionDenied && (
+            <div className="mt-2 space-y-1 text-xs text-red-600 dark:text-red-300">
+              <p className="font-medium">How to fix:</p>
+              <p>• <strong>Chrome/Edge:</strong> Click the 🔒 lock icon in the address bar → Microphone → Allow</p>
+              <p>• <strong>Firefox:</strong> Click the camera icon in the address bar → Allow microphone</p>
+              <p>• <strong>Safari:</strong> Safari menu → Settings for this website → Microphone → Allow</p>
+              <p className="mt-1">After allowing access, refresh the page and try again.</p>
+            </div>
+          )}
+          {isMicNotFound && (
+            <p className="mt-1 text-xs text-amber-600 dark:text-amber-300">
+              Please connect a microphone or headset to your device and try again.
+            </p>
+          )}
+        </div>
       )}
 
       {/* Preparation countdown */}

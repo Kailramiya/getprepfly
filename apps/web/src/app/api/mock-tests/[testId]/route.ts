@@ -34,6 +34,7 @@ export async function GET(
           scores: true,
           timeTaken: true,
           responseText: true,
+          responseAudio: true,
         },
       },
     },

@@ -46,7 +46,7 @@ interface MockTestData {
   listeningScore: number | null;
   overallScore: number | null;
   questions: TestQuestion[];
-  attempts: { questionId: string; overallScore: number | null; scores: any; responseText: string | null }[];
+  attempts: { questionId: string; overallScore: number | null; scores: any; responseText: string | null; responseAudio: string | null }[];
 }
 
 // Extract the student's saved answer from stored responseText for pre-filling review
@@ -159,11 +159,14 @@ export default function MockTestSessionPage() {
       setNavigating(true);
       if (!submitted) {
         if (autoSubmitRef.current) {
-          try {
-            await autoSubmitRef.current();
-          } catch (e) {
-            console.error("Auto-submit failed", e);
-          }
+        try {
+          await autoSubmitRef.current();
+        } catch (e) {
+          console.error("Auto-submit failed", e);
+          alert("Network error: Could not save your answer. Please check your connection and try again.");
+          setNavigating(false);
+          return;
+        }
         }
       }
       const nextIdx = currentIdx + 1;
@@ -184,7 +187,7 @@ export default function MockTestSessionPage() {
     setSubmitted(true);
     pendingResponseRef.current = null;
 
-    // Cache blob URL for speaking questions so it survives navigation
+    // Cache blob URL (in-memory, survives current session navigation)
     if (response?.audioUrl && typeof response.audioUrl === "string") {
       recordingUrlsRef.current.set(currentQuestion.question.id, response.audioUrl);
     }
@@ -200,6 +203,7 @@ export default function MockTestSessionPage() {
       body: JSON.stringify({
         questionId: currentQuestion.question.id,
         responseText: typeof response?.text === "string" ? response.text : JSON.stringify(response),
+        responseAudio: response?.persistentAudioUrl || null,
         mockTestId: testId,
         overallScore,
         scores: result?.aiScores || null,
@@ -218,6 +222,9 @@ export default function MockTestSessionPage() {
           await autoSubmitRef.current();
         } catch (e) {
           console.error("Auto-submit failed", e);
+          alert("Network error: Could not save your answer. Please check your connection and try again.");
+          setFinishing(false);
+          return;
         }
       }
     }
@@ -316,6 +323,18 @@ export default function MockTestSessionPage() {
                   </div>
                 </CardHeader>
                 <CardContent className="p-4">
+                  {/* Audio playback for self-evaluation on speaking questions */}
+                  {attempt?.responseAudio && (
+                    <div className="mb-4 rounded-lg border border-teal-200 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-950/30">
+                      <p className="mb-2 text-xs font-semibold text-teal-700 dark:text-teal-300">🎤 Your Recording</p>
+                      <audio
+                        controls
+                        src={attempt.responseAudio}
+                        className="w-full"
+                        style={{ height: "36px" }}
+                      />
+                    </div>
+                  )}
                   <QuestionRenderer
                     key={tq.question.id}
                     question={{ ...tq.question, isPrediction: false, marks: 1 }}

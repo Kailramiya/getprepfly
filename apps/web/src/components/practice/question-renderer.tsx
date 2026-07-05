@@ -376,6 +376,16 @@ export function QuestionRenderer({
   const [response, setResponse] = useState<any>(() => {
     // Pre-fill with a previously saved answer (review mode)
     if (initialResponse !== undefined && initialResponse !== null) return initialResponse;
+    if (typeof window !== "undefined" && question?.id) {
+      const draft = localStorage.getItem(`pte_draft_${question.id}`);
+      if (draft !== null) {
+        try {
+          return JSON.parse(draft);
+        } catch {
+          return draft;
+        }
+      }
+    }
     if (question?.type === "REORDER_PARAGRAPHS") {
       const pars: string[] = (question?.content as any)?.paragraphs || [];
       if (pars.length <= 1) return null;
@@ -399,9 +409,25 @@ export function QuestionRenderer({
   useEffect(() => {
     if (response !== null && response !== undefined) {
       onResponseChange?.(response);
+      if (!submitted && typeof window !== "undefined" && question?.id) {
+        if (typeof response === "string") {
+          localStorage.setItem(`pte_draft_${question.id}`, response);
+        } else if (Array.isArray(response) || (typeof response === "object" && !(response instanceof Blob))) {
+          try {
+            localStorage.setItem(`pte_draft_${question.id}`, JSON.stringify(response));
+          } catch {}
+        }
+      }
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [response]);
+  }, [response, onResponseChange, submitted, question?.id]);
+
+  // Clear draft on successful submission
+  useEffect(() => {
+    if (submitted && typeof window !== "undefined" && question?.id) {
+      localStorage.removeItem(`pte_draft_${question.id}`);
+    }
+  }, [submitted, question?.id]);
+
 
   // Internal submit fn — each type branch sets this before returning.
   // The parent can trigger it via submitRef (e.g. on Next click).
@@ -1657,18 +1683,6 @@ function SpeakingQuestion({
     setAudioUrl(url);
   };
 
-  const blobToBase64 = (blob: Blob): Promise<string> =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        // Strip the "data:audio/webm;base64," prefix
-        const base64 = result.includes(",") ? result.split(",")[1] : result;
-        resolve(base64);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
 
   const handleSubmit = useCallback(async () => {
     if (!audioBlob) return;
@@ -1688,16 +1702,15 @@ function SpeakingQuestion({
     if (questionId && questionType && expectedText) {
       setScoring(true);
       try {
-        const audioBase64 = await blobToBase64(audioBlob);
+        const formData = new FormData();
+        formData.append("questionId", questionId);
+        formData.append("expectedText", expectedText);
+        formData.append("questionType", questionType);
+        formData.append("audio", audioBlob, "recording.webm");
+
         const res = await fetch("/api/ai/score-speaking", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            questionId,
-            audioBase64,
-            expectedText,
-            questionType,
-          }),
+          body: formData,
         });
         const data = await res.json();
 
@@ -1756,10 +1769,30 @@ function SpeakingQuestion({
       }
     }
 
+    // Upload audio to persistent storage for later self-evaluation playback.
+    // This runs in parallel after scoring — we don't block submission if it fails.
+    let persistentAudioUrl: string | null = null;
+    if (questionId && audioBlob) {
+      try {
+        const uploadForm = new FormData();
+        uploadForm.append("audio", audioBlob, "recording.webm");
+        uploadForm.append("questionId", questionId);
+        const uploadRes = await fetch("/api/attempts/upload-audio", {
+          method: "POST",
+          body: uploadForm,
+        });
+        const uploadData = await uploadRes.json();
+        if (uploadData.success) persistentAudioUrl = uploadData.data.audioUrl;
+      } catch {
+        // silent — audio upload is best-effort, scoring is already done
+      }
+    }
+
     onSubmit({
       type: "audio",
       audioBlob,
       audioUrl,
+      persistentAudioUrl,
       scoreResult,
     });
   }, [audioBlob, totalMarks, questionId, questionType, expectedText, audioUrl, onSubmit]);

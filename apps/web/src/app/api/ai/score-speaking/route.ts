@@ -17,12 +17,15 @@ export async function POST(req: NextRequest) {
   const limited = await enforceRateLimit("ai", user!.id);
   if (limited) return limited;
 
-  const body = await req.json();
-  const { questionId, audioBase64, expectedText, questionType } = body;
+  const formData = await req.formData();
+  const questionId = formData.get("questionId") as string;
+  const expectedText = formData.get("expectedText") as string;
+  const questionType = formData.get("questionType") as string;
+  const audioFile = formData.get("audio") as File;
 
-  if (!questionId || !audioBase64) {
+  if (!questionId || !audioFile) {
     return NextResponse.json(
-      { success: false, error: "questionId and audioBase64 are required" },
+      { success: false, error: "questionId and audio file are required" },
       { status: 400 }
     );
   }
@@ -44,7 +47,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // Step 1: Transcribe audio using OpenAI Whisper
-    const transcription = await transcribeAudio(audioBase64);
+    const transcription = await transcribeAudio(audioFile);
 
     // Step 2: Score using GPT based on question type
     const scores = await scoreSpeaking(transcription, expectedText, questionType);
@@ -78,19 +81,15 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function transcribeAudio(audioBase64: string): Promise<string> {
+async function transcribeAudio(audioFile: File): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("OpenAI API key not configured");
   }
 
-  // Convert base64 to buffer
-  const audioBuffer = Buffer.from(audioBase64, "base64");
-
   // Create form data for Whisper API
   const formData = new FormData();
-  const audioBlob = new Blob([audioBuffer], { type: "audio/webm" });
-  formData.append("file", audioBlob, "recording.webm");
+  formData.append("file", audioFile, "recording.webm");
   formData.append("model", "whisper-1");
   formData.append("language", "en");
   formData.append("response_format", "text");
