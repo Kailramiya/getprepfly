@@ -4,11 +4,13 @@ import {
   BookOpen, Mic, Headphones, PenTool, BarChart3, Users, Zap, Sparkles, Target,
   BookMarked, Languages, ShieldCheck, Smartphone, ClipboardList, Flag, TrendingUp,
   FileText, Building2, Megaphone, GraduationCap, CheckCircle2, Brain, Layers, Crown,
+  Download, Globe2, Clock, Award
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { getCurrentUser } from "@/lib/auth-utils";
 import type { Metadata } from "next";
+import { FaqAccordion, FAQItem } from "@/components/faq-accordion";
 
 export const metadata: Metadata = {
   title: "PrepFly — AI-Powered PTE Academic Practice Platform",
@@ -224,6 +226,29 @@ const stats = [
   { value: "3", label: "Languages" },
 ];
 
+const faqItems: FAQItem[] = [
+  {
+    question: "What is the PTE Academic test?",
+    answer: "The Pearson Test of English Academic (PTE Academic) is a computer-based English language test accepted by educational institutions and governments around the world. It assesses Reading, Writing, Listening and Speaking in a single 2-hour session."
+  },
+  {
+    question: "Is PrepFly completely free?",
+    answer: "Yes! PrepFly is currently in its beta phase, which means all of our premium features — including AI speaking scoring, detailed writing feedback, and full mock tests — are completely free to use."
+  },
+  {
+    question: "PTE vs IELTS: What is the difference?",
+    answer: "Unlike IELTS which has a human examiner for speaking, PTE is entirely computer-scored, making it highly objective and unbiased. PTE also delivers results much faster (typically within 48 hours) and is completed in a single 2-hour sitting."
+  },
+  {
+    question: "How does the AI scoring work?",
+    answer: "Our AI engines are calibrated specifically to Pearson's scoring criteria. When you record a Read Aloud or Describe Image, the AI analyzes your fluency, pronunciation at the word level, and content matching to give you an accurate 10-90 score."
+  },
+  {
+    question: "Can I use PrepFly on my phone?",
+    answer: "Absolutely. PrepFly is a Progressive Web App (PWA). You can 'Install' it directly from your browser menu to your mobile home screen and use it just like a native app."
+  }
+];
+
 export default async function HomePage() {
   const user = await getCurrentUser();
   if (user) redirect("/dashboard");
@@ -252,9 +277,24 @@ export default async function HomePage() {
         <section className="relative overflow-hidden bg-gradient-to-br from-teal-50 via-white to-indigo-50 dark:from-slate-900 dark:via-slate-900 dark:to-slate-800">
           <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 sm:py-28 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="mb-6 inline-flex items-center gap-2 rounded-full bg-teal-100 px-4 py-1.5 text-sm font-medium text-teal-700 dark:bg-teal-950/40 dark:text-teal-300">
-                <Zap className="h-4 w-4" />
-                AI-Powered PTE Practice
+              <div className="mb-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+                <div className="inline-flex items-center gap-2 rounded-full bg-teal-100 px-4 py-1.5 text-sm font-medium text-teal-700 dark:bg-teal-950/40 dark:text-teal-300">
+                  <Zap className="h-4 w-4" />
+                  New AI Engine
+                </div>
+                <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-400">
+                  <div className="flex -space-x-2">
+                    {[1, 2, 3, 4, 5].map((i) => (
+                      <img
+                        key={i}
+                        className="inline-block h-8 w-8 rounded-full border-2 border-white dark:border-slate-900"
+                        src={`https://i.pravatar.cc/100?img=${i + 10}`}
+                        alt=""
+                      />
+                    ))}
+                  </div>
+                  <span>Join 10,000+ test takers</span>
+                </div>
               </div>
               <h1 className="text-4xl font-extrabold tracking-tight text-gray-900 dark:text-slate-50 sm:text-5xl lg:text-6xl">
                 Score <span className="bg-gradient-to-r from-teal-600 to-indigo-600 bg-clip-text text-transparent">79+</span> in PTE Academic
@@ -283,6 +323,39 @@ export default async function HomePage() {
                 <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">{stat.label}</p>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* Why Choose PTE? */}
+        <section className="py-20 bg-gray-50 dark:bg-slate-950/40">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-3xl text-center">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Why choose PTE Academic?</h2>
+              <p className="mt-4 text-lg text-gray-600 dark:text-slate-400">Accepted by governments and universities around the world.</p>
+            </div>
+            <div className="mt-16 grid gap-8 sm:grid-cols-3">
+              <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-teal-100 text-teal-600 dark:bg-teal-950/30 dark:text-teal-400">
+                  <Clock className="h-8 w-8" />
+                </div>
+                <h3 className="mt-6 text-xl font-semibold text-gray-900 dark:text-slate-100">2-Hour Single Test</h3>
+                <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">Go worry-free. Assess all 4 skills in a single, short session.</p>
+              </div>
+              <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 dark:bg-indigo-950/30 dark:text-indigo-400">
+                  <Zap className="h-8 w-8" />
+                </div>
+                <h3 className="mt-6 text-xl font-semibold text-gray-900 dark:text-slate-100">Fast Results</h3>
+                <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">Celebrate your results typically within just 48 hours.</p>
+              </div>
+              <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center shadow-sm transition hover:shadow-md dark:border-slate-700 dark:bg-slate-800">
+                <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-amber-100 text-amber-600 dark:bg-amber-950/30 dark:text-amber-400">
+                  <Globe2 className="h-8 w-8" />
+                </div>
+                <h3 className="mt-6 text-xl font-semibold text-gray-900 dark:text-slate-100">Globally Accepted</h3>
+                <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">Approved for all UK, Australian &amp; New Zealand visa applications.</p>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -339,6 +412,42 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Featured Study Tools */}
+        <section className="py-20 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-slate-700">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100">PTE Study Tools</h2>
+              <p className="mt-4 text-lg text-gray-600 dark:text-slate-400">Tools designed to accelerate your score improvement.</p>
+            </div>
+            <div className="mt-16 grid gap-6 lg:grid-cols-3">
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 p-8 shadow-lg transition-transform hover:-translate-y-1">
+                <div className="relative z-10">
+                  <BookMarked className="h-10 w-10 text-white opacity-90" />
+                  <h3 className="mt-6 text-2xl font-bold text-white">Vocab Book</h3>
+                  <p className="mt-2 text-indigo-100">Contains 90% of exam vocabs. Build your foundation with spaced repetition in English, Hindi, and Punjabi.</p>
+                </div>
+                <div className="absolute -bottom-6 -right-6 h-32 w-32 rounded-full bg-white opacity-10 blur-2xl"></div>
+              </div>
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-teal-400 to-emerald-600 p-8 shadow-lg transition-transform hover:-translate-y-1">
+                <div className="relative z-10">
+                  <Mic className="h-10 w-10 text-white opacity-90" />
+                  <h3 className="mt-6 text-2xl font-bold text-white">Shadowing</h3>
+                  <p className="mt-2 text-teal-100">Improve Read Aloud fluency in 14 days by repeating after native speakers word-by-word.</p>
+                </div>
+                <div className="absolute -bottom-6 -right-6 h-32 w-32 rounded-full bg-white opacity-10 blur-2xl"></div>
+              </div>
+              <div className="group relative overflow-hidden rounded-2xl bg-gradient-to-br from-amber-400 to-orange-500 p-8 shadow-lg transition-transform hover:-translate-y-1">
+                <div className="relative z-10">
+                  <Award className="h-10 w-10 text-white opacity-90" />
+                  <h3 className="mt-6 text-2xl font-bold text-white">AI Analysis</h3>
+                  <p className="mt-2 text-amber-100">Accurate score report analysis. Find exactly where you are losing points and how to fix it.</p>
+                </div>
+                <div className="absolute -bottom-6 -right-6 h-32 w-32 rounded-full bg-white opacity-10 blur-2xl"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* How it works */}
         <section className="py-20">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -383,6 +492,37 @@ export default async function HomePage() {
                 <Button size="xl" className="bg-white text-indigo-600 hover:bg-teal-50">Register Your Centre</Button>
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* Download App Banner */}
+        <section className="border-t border-gray-200 bg-gray-50 py-16 dark:border-slate-700 dark:bg-slate-800/50">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col items-center justify-between gap-8 rounded-3xl bg-gradient-to-r from-gray-900 to-slate-800 p-8 shadow-xl sm:flex-row sm:p-12">
+              <div className="max-w-xl text-center sm:text-left">
+                <h2 className="text-2xl font-bold text-white sm:text-3xl">Practice anywhere, anytime.</h2>
+                <p className="mt-4 text-gray-300 text-lg">Download the PrepFly app to practice on the go. Available for iOS, Android, and Desktop via PWA.</p>
+              </div>
+              <div className="flex flex-shrink-0 gap-4">
+                <Link href="/download">
+                  <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 border-none font-semibold px-8 h-14 rounded-full">
+                    <Download className="mr-2 h-5 w-5" />
+                    Download App
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* FAQ */}
+        <section className="border-t border-gray-200 bg-white py-20 dark:border-slate-700 dark:bg-slate-900">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-12 text-center">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100">PTE Knowledge &amp; FAQs</h2>
+              <p className="mt-4 text-lg text-gray-600 dark:text-slate-400">Everything you need to know about the PTE Academic exam.</p>
+            </div>
+            <FaqAccordion items={faqItems} />
           </div>
         </section>
 
