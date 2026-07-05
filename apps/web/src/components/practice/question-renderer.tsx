@@ -1881,6 +1881,7 @@ function SpeakingQuestion({
           onRecordingComplete={handleRecordingComplete}
           autoStart={readyToRecord}
           autoStartDelay={0}
+          hideReRecord={isMockTest}
         />
       )}
 

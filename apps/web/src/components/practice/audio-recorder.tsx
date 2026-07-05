@@ -12,6 +12,7 @@ interface AudioRecorderProps {
   disabled?: boolean;
   autoStart?: boolean; // when true, starts recording automatically after autoStartDelay
   autoStartDelay?: number; // seconds to count down before auto-starting
+  hideReRecord?: boolean; // hides the re-record option
 }
 
 export function AudioRecorder({
@@ -21,6 +22,7 @@ export function AudioRecorder({
   disabled,
   autoStart = false,
   autoStartDelay = 0,
+  hideReRecord = false,
 }: AudioRecorderProps) {
   const {
     isRecording,
@@ -221,10 +223,12 @@ export function AudioRecorder({
             {audioUrl && !isRecording && (
               <>
                 <audio controls src={audioUrl} className="max-w-xs" />
-                <Button onClick={handleReset} variant="outline" size="sm" className="gap-2">
-                  <RotateCcw className="h-4 w-4" />
-                  Re-record
-                </Button>
+                {!hideReRecord && (
+                  <Button onClick={handleReset} variant="outline" size="sm" className="gap-2">
+                    <RotateCcw className="h-4 w-4" />
+                    Re-record
+                  </Button>
+                )}
               </>
             )}
           </div>
