@@ -156,8 +156,9 @@ async function scoreSpeaking(
   const pronScore = Math.max(0, Math.round(avgConfidence * 5));
 
   // --- GPT-4 for Content Scoring Only ---
+  const isASQ = questionType === "ANSWER_SHORT_QUESTION";
   let maxContent = 5;
-  if (questionType === "REPEAT_SENTENCE" || questionType === "ANSWER_SHORT_QUESTION") maxContent = 3;
+  if (questionType === "REPEAT_SENTENCE" || isASQ) maxContent = 3;
 
   const prompt = `
 PTE Speaking - Content Score Only.
@@ -202,19 +203,24 @@ Return ONLY a JSON object: { "content": int, "feedback": "1-2 sentences" }
   }
 
   const contentScore = Math.min(maxContent, Math.max(0, result.content || 0));
-  const rawPointsEarned = pronScore + fluencyScore + contentScore;
-  const maxPointsPossible = 5 + 5 + maxContent;
+  
+  // FIXED: If task is ASQ, strip fluency and pronunciation traits completely
+  const finalFluency = isASQ ? 0 : fluencyScore;
+  const finalPron = isASQ ? 0 : pronScore;
+  
+  const rawPointsEarned = finalPron + finalFluency + contentScore;
+  const maxPointsPossible = isASQ ? 3 : (5 + 5 + maxContent);
   const overall = maxPointsPossible > 0 ? Math.round((rawPointsEarned / maxPointsPossible) * 90) : 0;
 
   return {
-    pronunciation: Math.round((pronScore / 5) * 90), // Fake 0-90 mapping for UI backward compatibility
-    fluency: Math.round((fluencyScore / 5) * 90),
+    pronunciation: isASQ ? 0 : Math.round((finalPron / 5) * 90), // Fake 0-90 mapping for UI backward compatibility
+    fluency: isASQ ? 0 : Math.round((finalFluency / 5) * 90),
     content: Math.round((contentScore / maxContent) * 90),
     overall,
     rawPointsEarned,
     maxPointsPossible,
-    rawPronunciation: pronScore,
-    rawFluency: fluencyScore,
+    rawPronunciation: finalPron,
+    rawFluency: finalFluency,
     rawContent: contentScore,
     wpm: Math.round(wpm),
     unnaturalPauses,

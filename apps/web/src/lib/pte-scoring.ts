@@ -72,7 +72,7 @@ export function calculateSkillScores(
     maxPointsPossible?: number | null;
     scores?: any;
     questionType: string;
-    questionSection: string; // SPEAKING | WRITING | READING | LISTENING
+    questionSection: string;
   }>
 ): Record<SkillKey, number> {
   const earned:    Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
@@ -83,51 +83,8 @@ export function calculateSkillScores(
     if (isLegacy && attempt.overallScore === null) continue;
 
     const contrib = SKILL_CONTRIBUTIONS[attempt.questionType];
-
-    if (contrib) {
-      if (!isLegacy) {
-        const t = attempt.questionType;
-        const s = (attempt.scores as any) || {};
-
-        // ─── TRAIT-TO-SKILL ROUTING ───
-        if (t === "READ_ALOUD") {
-          earned.reading += s.rawContent || 0; possible.reading += 5;
-          earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
-        } else if (t === "REPEAT_SENTENCE") {
-          earned.listening += s.rawContent || 0; possible.listening += 3;
-          earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
-        } else if (t === "RETELL_LECTURE" || t === "SUMMARIZE_GROUP_DISCUSSION") {
-          earned.listening += s.rawContent || 0; possible.listening += 5;
-          earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
-        } else if (t === "SUMMARIZE_WRITTEN_TEXT") {
-          earned.reading += s.rawContent || 0; possible.reading += 2;
-          earned.writing += (s.rawForm || 0) + (s.rawGrammar || 0) + (s.rawVocabulary || 0); possible.writing += 5;
-        } else if (t === "SUMMARIZE_SPOKEN_TEXT") {
-          earned.listening += s.rawContent || 0; possible.listening += 2;
-          earned.writing += (s.rawForm || 0) + (s.rawGrammar || 0) + (s.rawVocabulary || 0) + (s.rawSpelling || 0); possible.writing += 8;
-        } else {
-          // Standard raw accumulation
-          for (const skill of SKILL_KEYS) {
-            const w = contrib[skill];
-            if (w > 0) {
-              earned[skill] += attempt.rawPointsEarned!;
-              possible[skill] += attempt.maxPointsPossible!;
-            }
-          }
-        }
-      } else {
-        // Legacy Logic
-        for (const skill of SKILL_KEYS) {
-          const w = contrib[skill];
-          if (w > 0) {
-            const normalized = attempt.overallScore! / 90;
-            earned[skill] += normalized * w;
-            possible[skill] += w;
-          }
-        }
-      }
-    } else {
-      // Unknown type — contribute to its own section
+    if (!contrib) {
+      // Unknown type — contribute to its own section fallback
       const fallbackSkill = sectionToSkill(attempt.questionSection);
       if (fallbackSkill) {
         if (!isLegacy) {
@@ -140,6 +97,51 @@ export function calculateSkillScores(
           possible[fallbackSkill] += FALLBACK_WEIGHT;
         }
       }
+      continue;
+    }
+
+    if (!isLegacy) {
+      const t = attempt.questionType;
+      const s = (attempt.scores as any) || {};
+
+      // ─── FIXED INTEGRATED TRAIT-TO-SKILL ROUTING ───
+      if (t === "READ_ALOUD") {
+        earned.reading += s.rawContent || 0; possible.reading += 5;
+        earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
+      } else if (t === "REPEAT_SENTENCE") {
+        earned.listening += s.rawContent || 0; possible.listening += 3;
+        earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
+      } else if (t === "RETELL_LECTURE" || t === "SUMMARIZE_GROUP_DISCUSSION") {
+        earned.listening += s.rawContent || 0; possible.listening += 5;
+        earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
+      } else if (t === "ANSWER_SHORT_QUESTION") {
+        // ASQ bypasses audio metrics entirely and routes purely to listening
+        earned.listening += s.rawContent || 0; possible.listening += 3;
+      } else if (t === "SUMMARIZE_WRITTEN_TEXT") {
+        earned.reading += s.rawContent || 0; possible.reading += 2;
+        earned.writing += (s.rawForm || 0) + (s.rawGrammar || 0) + (s.rawVocabulary || 0); possible.writing += 5;
+      } else if (t === "SUMMARIZE_SPOKEN_TEXT") {
+        earned.listening += s.rawContent || 0; possible.listening += 2;
+        earned.writing += (s.rawForm || 0) + (s.rawGrammar || 0) + (s.rawVocabulary || 0) + (s.rawSpelling || 0); possible.writing += 8;
+      } else {
+        // Standard non-integrated clean raw accumulation
+        for (const skill of SKILL_KEYS) {
+          if (contrib[skill] > 0) {
+            earned[skill] += attempt.rawPointsEarned!;
+            possible[skill] += attempt.maxPointsPossible!;
+          }
+        }
+      }
+    } else {
+      // Legacy Backward Compatibility
+      for (const skill of SKILL_KEYS) {
+        const w = contrib[skill];
+        if (w > 0) {
+          const normalized = attempt.overallScore! / 90;
+          earned[skill] += normalized * w;
+          possible[skill] += w;
+        }
+      }
     }
   }
 
@@ -148,7 +150,7 @@ export function calculateSkillScores(
     if (possible[skill] === 0) { result[skill] = 0; continue; }
     const fraction = earned[skill] / possible[skill];
     
-    // Scale: 10 + round(Fraction * 80)
+    // Direct linear scaling onto the official 10-90 report card grid
     result[skill] = Math.min(90, Math.max(10, 10 + Math.round(fraction * 80)));
   }
   return result;

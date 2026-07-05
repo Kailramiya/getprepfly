@@ -168,10 +168,12 @@ export async function POST(
       mistakes.push({ position: idx, yourAnswer: tokens[idx] || "", correctAnswer: "(should not have selected this)" });
     });
     const totalCorrect = correctIncorrectIndices.length || 1;
+    // FIXED: Earned points equal net correct count directly, matching the max points potential
     const netScore = Math.max(0, correctCount - falsePositives.length);
+    
     scoreResult = {
-      marksEarned: Math.round(totalMarks * (netScore / totalCorrect) * 10) / 10,
-      marksTotal: totalMarks,
+      marksEarned: netScore,
+      marksTotal: totalCorrect,
       correct: correctCount,
       total: totalCorrect,
       mistakes,
@@ -231,9 +233,10 @@ export async function POST(
       }
     });
     const total = blanks.length || 1;
+    // FIXED: Marks earned accumulate 1 point per correct answer directly
     scoreResult = {
-      marksEarned: Math.round(totalMarks * (correctCount / total) * 10) / 10,
-      marksTotal: totalMarks,
+      marksEarned: correctCount,
+      marksTotal: total,
       correct: correctCount,
       total,
       mistakes,
