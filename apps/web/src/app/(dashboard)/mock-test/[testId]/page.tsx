@@ -101,7 +101,6 @@ export default function MockTestSessionPage() {
   const [finishing, setFinishing] = useState(false);
 
   const [navigating, setNavigating] = useState(false);
-  const questionStartRef = useRef<number>(Date.now());
 
   // Tracks the latest in-progress response from QuestionRenderer (before explicit submit)
   const pendingResponseRef = useRef<any>(null);
@@ -252,7 +251,7 @@ export default function MockTestSessionPage() {
     if (data.success) setTest(data.data);
   };
 
-  const finishTest = async () => {
+  const finishTest = useCallback(async () => {
     if (finishing) return;
     if (!submitted) {
       if (autoSubmitRef.current) {
@@ -273,7 +272,7 @@ export default function MockTestSessionPage() {
       body: JSON.stringify({ status: "COMPLETED" }),
     });
     router.push(`/mock-test/${testId}/report`);
-  };
+  }, [finishing, submitted, testId, router]);
 
   const formatTime = (secs: number) => {
     const h = Math.floor(secs / 3600);

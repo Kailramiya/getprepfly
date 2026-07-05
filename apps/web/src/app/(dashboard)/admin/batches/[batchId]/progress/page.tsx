@@ -67,7 +67,7 @@ export default function BatchProgressPage() {
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [customTitle, setCustomTitle] = useState("");
 
-  const fetchProgress = () => {
+  const fetchProgress = useCallback(() => {
     fetch(`/api/centres/batches/${batchId}/progress`)
       .then(r => r.json())
       .then(d => {
@@ -76,21 +76,21 @@ export default function BatchProgressPage() {
       })
       .catch(() => setError("Failed to load progress"))
       .finally(() => setLoading(false));
-  };
+  }, [batchId]);
 
-  const fetchGlobalTemplates = () => {
+  const fetchGlobalTemplates = useCallback(() => {
     fetch("/api/mock-tests/global-templates")
       .then(r => r.json())
       .then(d => {
         if (d.success) setGlobalTemplates(d.data);
       });
-  };
+  }, []);
 
   useEffect(() => {
     if (!batchId) return;
     fetchProgress();
     fetchGlobalTemplates();
-  }, [batchId]);
+  }, [batchId, fetchProgress, fetchGlobalTemplates]);
 
   const handleAssign = async () => {
     if (!selectedTemplateId) return;
@@ -339,7 +339,7 @@ export default function BatchProgressPage() {
                 value={customTitle}
                 onChange={(e) => setCustomTitle(e.target.value)}
               />
-              <p className="text-xs text-gray-500 dark:text-slate-400">Leave blank to use the template's default title.</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400">Leave blank to use the template&apos;s default title.</p>
             </div>
           </div>
           <DialogFooter>
