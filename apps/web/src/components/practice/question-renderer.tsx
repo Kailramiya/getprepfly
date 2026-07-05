@@ -475,7 +475,7 @@ export function QuestionRenderer({
   // ---- READ ALOUD ----
   if (type === "READ_ALOUD") {
     return (
-      <SpeakingQuestion
+      <SpeakingQuestion isMockTest={isMockTest}
         instructionText="Read the text above aloud, clearly and naturally."
         prepTime={0}
         maxDuration={40}
@@ -508,7 +508,7 @@ export function QuestionRenderer({
   // ---- REPEAT SENTENCE ----
   if (type === "REPEAT_SENTENCE") {
     return (
-      <SpeakingQuestion
+      <SpeakingQuestion isMockTest={isMockTest}
         instructionText="Listen to the sentence, then repeat it exactly as you heard it."
         prepTime={0}
         maxDuration={15}
@@ -532,7 +532,7 @@ export function QuestionRenderer({
   if (type === "DESCRIBE_IMAGE") {
     const imgSrc = content.imageUrl || question.imageUrl;
     return (
-      <SpeakingQuestion
+      <SpeakingQuestion isMockTest={isMockTest}
         instructionText="Look at the image carefully and describe it in detail. Mention the main elements, trends, or key data."
         prepTime={0}
         maxDuration={40}
@@ -576,7 +576,7 @@ export function QuestionRenderer({
   // ---- RETELL LECTURE ----
   if (type === "RETELL_LECTURE") {
     return (
-      <SpeakingQuestion
+      <SpeakingQuestion isMockTest={isMockTest}
         instructionText="Listen to the lecture, then retell the main points in your own words."
         prepTime={0}
         maxDuration={40}
@@ -599,7 +599,7 @@ export function QuestionRenderer({
   // ---- ANSWER SHORT QUESTION ----
   if (type === "ANSWER_SHORT_QUESTION") {
     return (
-      <SpeakingQuestion
+      <SpeakingQuestion isMockTest={isMockTest}
         instructionText="Answer the question in one or two words."
         prepTime={0}
         maxDuration={10}
@@ -634,7 +634,7 @@ export function QuestionRenderer({
   // ---- RESPOND TO SITUATION ----
   if (type === "RESPOND_TO_SITUATION") {
     return (
-      <SpeakingQuestion
+      <SpeakingQuestion isMockTest={isMockTest}
         instructionText="Read the scenario carefully and respond appropriately in 30-40 seconds."
         prepTime={20}
         maxDuration={40}
@@ -658,7 +658,7 @@ export function QuestionRenderer({
   // ---- SUMMARIZE GROUP DISCUSSION ----
   if (type === "SUMMARIZE_GROUP_DISCUSSION") {
     return (
-      <SpeakingQuestion
+      <SpeakingQuestion isMockTest={isMockTest}
         instructionText="Listen to the group discussion, then summarize the key points and differing viewpoints in your own words."
         prepTime={0}
         maxDuration={40}
@@ -1565,7 +1565,7 @@ function SpeakingQuestion({
   children, instructionText, prepTime, maxDuration, submitted, onSubmit,
   totalMarks = 1, questionId, questionType, expectedText = "",
   audioSrc, audioLabel, autoStartDelay = 0, playOnce, mountAutoStart = false,
-  initialAudioUrl, onRegisterSubmit,
+  initialAudioUrl, onRegisterSubmit, isMockTest = false,
 }: {
   children?: React.ReactNode;
   instructionText: string;
@@ -1589,6 +1589,7 @@ function SpeakingQuestion({
   // Previously recorded answer URL (blob URL cached by mock test page across navigation)
   initialAudioUrl?: string;
   onRegisterSubmit?: (fn: () => void | Promise<void>) => void;
+  isMockTest?: boolean;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
