@@ -234,7 +234,7 @@ export default function MockTestSessionPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status: "COMPLETED" }),
     });
-    router.push(`/mock-test`);
+    router.push(`/mock-test/${testId}/report`);
   };
 
   const formatTime = (secs: number) => {
