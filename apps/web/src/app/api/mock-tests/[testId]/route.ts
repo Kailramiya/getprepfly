@@ -95,21 +95,29 @@ export async function PATCH(
     });
     const attempts = await db.attempt.findMany({
       where: { mockTestId: params.testId },
-      select: { questionId: true, overallScore: true },
+      select: { questionId: true, overallScore: true, rawPointsEarned: true, maxPointsPossible: true, scores: true },
+      orderBy: { createdAt: "desc" }
     });
 
-    // Best (non-null) score per question.
-    const scoreByQ = new Map<string, number | null>();
+    // Best (latest) attempt per question.
+    const attemptByQ = new Map<string, any>();
     for (const a of attempts) {
-      const prev = scoreByQ.get(a.questionId);
-      if (prev == null) scoreByQ.set(a.questionId, a.overallScore);
+      if (!attemptByQ.has(a.questionId)) {
+        attemptByQ.set(a.questionId, a);
+      }
     }
 
-    const scoringInput = (testData?.questions ?? []).map((q) => ({
-      overallScore: scoreByQ.get(q.question.id) ?? 0, // unanswered/unscored → 0
-      questionType: q.question.type,
-      questionSection: q.question.section,
-    }));
+    const scoringInput = (testData?.questions ?? []).map((q) => {
+      const a = attemptByQ.get(q.question.id);
+      return {
+        overallScore: a?.overallScore ?? 0, // unanswered/unscored → 0
+        rawPointsEarned: a?.rawPointsEarned ?? 0,
+        maxPointsPossible: a?.maxPointsPossible ?? (q.question.type === "WRITE_ESSAY" ? 13 : q.question.type === "SUMMARIZE_SPOKEN_TEXT" ? 10 : 0),
+        scores: a?.scores ?? null,
+        questionType: q.question.type,
+        questionSection: q.question.section,
+      };
+    });
 
     const rawSkill = calculateSkillScores(scoringInput);
 

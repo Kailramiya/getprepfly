@@ -70,6 +70,7 @@ export function calculateSkillScores(
     overallScore: number | null;
     rawPointsEarned?: number | null;
     maxPointsPossible?: number | null;
+    scores?: any;
     questionType: string;
     questionSection: string; // SPEAKING | WRITING | READING | LISTENING
   }>
@@ -84,15 +85,38 @@ export function calculateSkillScores(
     const contrib = SKILL_CONTRIBUTIONS[attempt.questionType];
 
     if (contrib) {
-      for (const skill of SKILL_KEYS) {
-        const w = contrib[skill];
-        if (w > 0) {
-          if (!isLegacy) {
-            // New Logic: Raw point accumulation
-            earned[skill] += attempt.rawPointsEarned!;
-            possible[skill] += attempt.maxPointsPossible!;
-          } else {
-            // Legacy Logic: Map the 0-90 score back to a fraction of the weight
+      if (!isLegacy) {
+        const t = attempt.questionType;
+        const s = (attempt.scores as any) || {};
+
+        // ─── TRAIT-TO-SKILL ROUTING ───
+        if (t === "READ_ALOUD") {
+          earned.reading += s.rawContent || 0; possible.reading += 5;
+          earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
+        } else if (t === "REPEAT_SENTENCE") {
+          earned.listening += s.rawContent || 0; possible.listening += 3;
+          earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
+        } else if (t === "RETELL_LECTURE" || t === "SUMMARIZE_GROUP_DISCUSSION") {
+          earned.listening += s.rawContent || 0; possible.listening += 5;
+          earned.speaking += (s.rawFluency || 0) + (s.rawPronunciation || 0); possible.speaking += 10;
+        } else if (t === "SUMMARIZE_WRITTEN_TEXT") {
+          earned.reading += s.rawContent || 0; possible.reading += 2;
+          earned.writing += (s.rawForm || 0) + (s.rawGrammar || 0) + (s.rawVocabulary || 0); possible.writing += 5;
+        } else {
+          // Standard raw accumulation
+          for (const skill of SKILL_KEYS) {
+            const w = contrib[skill];
+            if (w > 0) {
+              earned[skill] += attempt.rawPointsEarned!;
+              possible[skill] += attempt.maxPointsPossible!;
+            }
+          }
+        }
+      } else {
+        // Legacy Logic
+        for (const skill of SKILL_KEYS) {
+          const w = contrib[skill];
+          if (w > 0) {
             const normalized = attempt.overallScore! / 90;
             earned[skill] += normalized * w;
             possible[skill] += w;

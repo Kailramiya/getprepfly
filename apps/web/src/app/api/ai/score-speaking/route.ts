@@ -184,7 +184,7 @@ Return ONLY a JSON object: { "content": int, "feedback": "1-2 sentences" }
         },
         { role: "user", content: prompt },
       ],
-      temperature: 0.2,
+      temperature: 0.0,
       response_format: { type: "json_object" },
     }),
   });
@@ -213,6 +213,9 @@ Return ONLY a JSON object: { "content": int, "feedback": "1-2 sentences" }
     overall,
     rawPointsEarned,
     maxPointsPossible,
+    rawPronunciation: pronScore,
+    rawFluency: fluencyScore,
+    rawContent: contentScore,
     wpm: Math.round(wpm),
     unnaturalPauses,
     feedback: result.feedback || "Good effort!",

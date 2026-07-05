@@ -177,7 +177,7 @@ Required Output JSON structure for "sst":
       ],
       // Low temperature + fixed seed → far more consistent scores for the same
       // answer (students lose trust when identical responses score differently).
-      temperature: 0.2,
+      temperature: 0.0,
       seed: 7,
       response_format: { type: "json_object" },
     }),
@@ -215,6 +215,12 @@ Required Output JSON structure for "sst":
     overall,
     rawPointsEarned,
     maxPointsPossible,
+    rawContent: result.content || 0,
+    rawForm: result.form || 0,
+    rawGrammar: result.grammar || 0,
+    rawVocabulary: result.vocabulary || 0,
+    rawSpelling: result.spelling || 0,
+    rawStructure: result.structure || 0,
     feedback: result.feedback || "Keep practicing!",
     corrections: result.corrections || [],
   };
