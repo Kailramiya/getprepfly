@@ -147,7 +147,7 @@ export default function MockTestSessionPage() {
         finishTest();
       }
     }
-  }, [test, getTimeLimit, timeLeft]);
+  }, [test, getTimeLimit, timeLeft, finishTest]);
 
   // Timer interval
   useEffect(() => {
@@ -165,7 +165,7 @@ export default function MockTestSessionPage() {
       });
     }, 1000);
     return () => clearInterval(interval);
-  }, [test?.status, finishing, timeLeft]);
+  }, [test?.status, finishing, timeLeft, finishTest]);
 
   // Reset submitted and pending response whenever question changes
   useEffect(() => {
