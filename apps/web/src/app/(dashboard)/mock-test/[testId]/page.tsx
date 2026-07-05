@@ -136,6 +136,29 @@ export default function MockTestSessionPage() {
     return 135 * 60;
   }, [test]);
 
+  const finishTest = useCallback(async () => {
+    if (finishing) return;
+    if (!submitted) {
+      if (autoSubmitRef.current) {
+        try {
+          await autoSubmitRef.current();
+        } catch (e) {
+          console.error("Auto-submit failed", e);
+          alert("Network error: Could not save your answer. Please check your connection and try again.");
+          setFinishing(false);
+          return;
+        }
+      }
+    }
+    setFinishing(true);
+    await fetch(`/api/mock-tests/${testId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "COMPLETED" }),
+    });
+    router.push(`/mock-test/${testId}/report`);
+  }, [finishing, submitted, testId, router]);
+
   // Initialize time left based on server start time
   useEffect(() => {
     if (test && test.status === "IN_PROGRESS" && timeLeft === null) {
@@ -253,28 +276,6 @@ export default function MockTestSessionPage() {
     if (data.success) setTest(data.data);
   };
 
-  const finishTest = useCallback(async () => {
-    if (finishing) return;
-    if (!submitted) {
-      if (autoSubmitRef.current) {
-        try {
-          await autoSubmitRef.current();
-        } catch (e) {
-          console.error("Auto-submit failed", e);
-          alert("Network error: Could not save your answer. Please check your connection and try again.");
-          setFinishing(false);
-          return;
-        }
-      }
-    }
-    setFinishing(true);
-    await fetch(`/api/mock-tests/${testId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ status: "COMPLETED" }),
-    });
-    router.push(`/mock-test/${testId}/report`);
-  }, [finishing, submitted, testId, router]);
 
   const formatTime = (secs: number) => {
     const h = Math.floor(secs / 3600);
