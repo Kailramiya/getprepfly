@@ -456,11 +456,22 @@ export default function MockTestSessionPage() {
         </CardContent>
       </Card>
 
-      {/* Navigation — no Previous in mock test */}
+      {/* Navigation */}
       <div className="flex justify-end">
-        <Button onClick={goNext} disabled={currentIdx === totalQuestions - 1 || navigating} loading={navigating} className="gap-2">
-          Next <ChevronRight className="h-4 w-4" />
-        </Button>
+        {currentIdx === totalQuestions - 1 ? (
+          <Button
+            onClick={finishTest}
+            loading={finishing}
+            className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+          >
+            <Flag className="h-4 w-4" />
+            Finish Test
+          </Button>
+        ) : (
+          <Button onClick={goNext} loading={navigating} className="gap-2">
+            Next <ChevronRight className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     </div>
   );
