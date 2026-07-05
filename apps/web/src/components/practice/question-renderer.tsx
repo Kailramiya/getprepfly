@@ -974,14 +974,21 @@ export function QuestionRenderer({
                 key={i}
                 onClick={() => !submitted && setResponse(i)}
                 className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left text-sm transition ${
-                  isCorrect ? "border-green-500 bg-green-50" :
-                  isWrong ? "border-red-500 bg-red-50" :
-                  isSelected ? "border-indigo-500 bg-indigo-50" :
-                  "border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  isCorrect
+                    ? "border-green-500 bg-green-50 dark:bg-green-900/30 dark:text-green-100"
+                    : isWrong
+                    ? "border-red-500 bg-red-50 dark:bg-red-900/30 dark:text-red-100"
+                    : isSelected
+                    ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/40 dark:border-indigo-400 dark:text-slate-100"
+                    : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-700/50"
                 }`}
                 disabled={submitted}
               >
-                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-bold">
+                <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                  isSelected
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-200"
+                }`}>
                   {String.fromCharCode(65 + i)}
                 </span>
                 <span className="flex-1">{opt}</span>
@@ -1024,7 +1031,7 @@ export function QuestionRenderer({
       <div className="space-y-4">
         <QuestionInstruction type={type} />
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen carefully and find the wrong words" playOnce={playOnce} />
-        <div className="rounded-lg border border-gray-200 bg-white p-5 leading-loose">
+        <div className="rounded-lg border border-gray-200 dark:border-slate-600 bg-white dark:bg-slate-800/50 p-5 leading-loose text-gray-800 dark:text-slate-200">
           {tokens.map((tok, i) => {
             if (!wordIndicesSet.has(i)) return <span key={i}>{tok}</span>;
             const isSelected = selectedSet.has(i);
@@ -1032,16 +1039,16 @@ export function QuestionRenderer({
             // After submit: show right/wrong/missed
             let cls = "mx-0.5 inline-block cursor-pointer rounded px-1.5 py-0.5 transition";
             if (submitted && showFeedback) {
-              if (isSelected && isActuallyWrong) cls += " bg-green-500 font-semibold text-white"; // correct catch
-              else if (isSelected && !isActuallyWrong) cls += " bg-red-500 font-semibold text-white line-through"; // wrong selection
-              else if (!isSelected && isActuallyWrong) cls += " bg-amber-200 font-semibold text-amber-900 underline decoration-wavy"; // missed
-              else cls += " text-gray-800";
+              if (isSelected && isActuallyWrong)      cls += " bg-green-500 font-semibold text-white"; // ✓ correct catch
+              else if (isSelected && !isActuallyWrong) cls += " bg-red-500 font-semibold text-white line-through"; // ✗ wrong selection
+              else if (!isSelected && isActuallyWrong) cls += " bg-amber-200 dark:bg-amber-700/60 font-semibold text-amber-900 dark:text-amber-100 underline decoration-wavy"; // missed
+              else cls += " text-gray-800 dark:text-slate-200";
             } else if (submitted) {
-              cls += isSelected ? " bg-teal-500 font-semibold text-white shadow-sm" : " text-gray-800";
+              cls += isSelected ? " bg-teal-500 font-semibold text-white shadow-sm" : " text-gray-800 dark:text-slate-200";
             } else {
               cls += isSelected
                 ? " bg-teal-500 font-semibold text-white shadow-sm"
-                : " text-gray-800 hover:bg-teal-50";
+                : " text-gray-800 dark:text-slate-200 hover:bg-teal-100 dark:hover:bg-teal-800/50 hover:text-teal-900 dark:hover:text-teal-100";
             }
             return (
               <button
@@ -1098,10 +1105,10 @@ export function QuestionRenderer({
                 key={i}
                 onClick={() => !submitted && setResponse(i)}
                 className={`rounded-lg border p-3 text-sm font-medium transition ${
-                  isCorrect ? "border-green-500 bg-green-50 text-green-700" :
-                  isWrong ? "border-red-500 bg-red-50 text-red-700" :
-                  isSelected ? "border-indigo-500 bg-indigo-50 text-indigo-700" :
-                  "border-gray-200 hover:border-gray-300"
+                  isCorrect ? "border-green-500 bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-200" :
+                  isWrong ? "border-red-500 bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-200" :
+                  isSelected ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:border-indigo-400 dark:text-indigo-200" :
+                  "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-700/50"
                 }`}
                 disabled={submitted}
               >
