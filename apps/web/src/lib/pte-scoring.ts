@@ -25,7 +25,7 @@ export interface SkillContribution {
  */
 export const SKILL_CONTRIBUTIONS: Record<string, SkillContribution> = {
   // ─── SPEAKING SECTION ─────────────────────────────────────────────────────
-  READ_ALOUD:                { speaking:  8, listening:  0, reading:  0, writing:  0 },
+  READ_ALOUD:                { speaking:  8, listening:  0, reading:  5, writing:  0 },
   REPEAT_SENTENCE:           { speaking: 14, listening: 15, reading:  0, writing:  0 },
   DESCRIBE_IMAGE:            { speaking: 28, listening:  0, reading:  0, writing:  0 },
   RETELL_LECTURE:            { speaking: 11, listening: 12, reading:  0, writing:  0 },
@@ -102,6 +102,9 @@ export function calculateSkillScores(
         } else if (t === "SUMMARIZE_WRITTEN_TEXT") {
           earned.reading += s.rawContent || 0; possible.reading += 2;
           earned.writing += (s.rawForm || 0) + (s.rawGrammar || 0) + (s.rawVocabulary || 0); possible.writing += 5;
+        } else if (t === "SUMMARIZE_SPOKEN_TEXT") {
+          earned.listening += s.rawContent || 0; possible.listening += 2;
+          earned.writing += (s.rawForm || 0) + (s.rawGrammar || 0) + (s.rawVocabulary || 0) + (s.rawSpelling || 0); possible.writing += 8;
         } else {
           // Standard raw accumulation
           for (const skill of SKILL_KEYS) {
