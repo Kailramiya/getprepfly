@@ -975,12 +975,12 @@ export function QuestionRenderer({
                 onClick={() => !submitted && setResponse(i)}
                 className={`flex w-full items-start gap-3 rounded-lg border p-3 text-left text-sm transition ${
                   isCorrect
-                    ? "border-green-500 bg-green-50 dark:bg-green-900/30 dark:text-green-100"
+                    ? "border-green-500 bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-100"
                     : isWrong
-                    ? "border-red-500 bg-red-50 dark:bg-red-900/30 dark:text-red-100"
+                    ? "border-red-500 bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-100"
                     : isSelected
-                    ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/40 dark:border-indigo-400 dark:text-slate-100"
-                    : "border-gray-200 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-700/50"
+                    ? "border-indigo-500 bg-indigo-50 text-indigo-800 dark:bg-indigo-900/40 dark:border-indigo-400 dark:text-slate-100"
+                    : "border-gray-200 text-gray-700 hover:border-gray-300 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-200 dark:hover:border-slate-500 dark:hover:bg-slate-700/50"
                 }`}
                 disabled={submitted}
               >
