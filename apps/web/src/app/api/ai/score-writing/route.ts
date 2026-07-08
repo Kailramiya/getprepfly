@@ -194,6 +194,16 @@ Required Output JSON structure for "sst":
     throw new Error("Scoring service returned an invalid response");
   }
 
+  // PTE CASCADE RULE: If content is 0, ALL other writing traits must be 0
+  if (result.content === 0) {
+    result.form = 0;
+    result.grammar = 0;
+    result.vocabulary = 0;
+    result.spelling = 0;
+    result.structure = 0;
+    result.general_linguistic_range = 0;
+  }
+
   // Calculate raw points earned by summing the values
   const rawPointsEarned = (result.content || 0) + 
                           (result.form || 0) + 

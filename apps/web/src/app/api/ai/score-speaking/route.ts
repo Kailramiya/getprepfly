@@ -206,8 +206,9 @@ Return ONLY a JSON object: { "content": int, "feedback": "1-2 sentences" }
   const contentScore = Math.min(maxContent, Math.max(0, result.content || 0));
   
   // FIXED: If task is ASQ, strip fluency and pronunciation traits completely
-  const finalFluency = isASQ ? 0 : fluencyScore;
-  const finalPron = isASQ ? 0 : pronScore;
+  // PTE CASCADE RULE: If content is 0, ALL other speaking traits must be 0
+  const finalFluency = contentScore === 0 ? 0 : (isASQ ? 0 : fluencyScore);
+  const finalPron = contentScore === 0 ? 0 : (isASQ ? 0 : pronScore);
   
   const rawPointsEarned = finalPron + finalFluency + contentScore;
   const maxPointsPossible = isASQ ? 3 : (5 + 5 + maxContent);

@@ -26,6 +26,24 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
   const chunksRef = useRef<Blob[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
+  
+  // Audio Context for silence detection
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const silenceStartRef = useRef<number | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
+
+  const cleanupAudioContext = useCallback(() => {
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = null;
+    }
+    if (audioContextRef.current) {
+      audioContextRef.current.close().catch(() => {});
+      audioContextRef.current = null;
+    }
+    analyserRef.current = null;
+  }, []);
 
   const startRecording = useCallback(async () => {
     try {
@@ -34,6 +52,7 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
       setAudioUrl(null);
       setRecordingTime(0);
       chunksRef.current = [];
+      cleanupAudioContext();
 
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: {
@@ -66,10 +85,54 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
 
         // Stop all tracks
         stream.getTracks().forEach((track) => track.stop());
+        cleanupAudioContext();
+      };
+
+      // Set up silence detection
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const audioContext = new AudioContextClass();
+      const analyser = audioContext.createAnalyser();
+      analyser.minDecibels = -60; // PTE noise floor
+      const source = audioContext.createMediaStreamSource(stream);
+      source.connect(analyser);
+      
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+      
+      const dataArray = new Uint8Array(analyser.frequencyBinCount);
+      silenceStartRef.current = Date.now();
+
+      const checkSilence = () => {
+        if (!analyserRef.current || mediaRecorder.state !== "recording") return;
+        
+        analyserRef.current.getByteFrequencyData(dataArray);
+        let sum = 0;
+        for (let i = 0; i < dataArray.length; i++) {
+          sum += dataArray[i];
+        }
+        const average = sum / dataArray.length;
+        
+        // Threshold for detecting speech
+        if (average > 5) {
+          silenceStartRef.current = Date.now();
+        } else {
+          // PTE Rule: 3 seconds of continuous silence terminates recording
+          if (silenceStartRef.current && Date.now() - silenceStartRef.current >= 3000) {
+            mediaRecorder.stop();
+            setIsRecording(false);
+            if (timerRef.current) clearInterval(timerRef.current);
+            cleanupAudioContext();
+            return;
+          }
+        }
+        animationFrameRef.current = requestAnimationFrame(checkSilence);
       };
 
       mediaRecorder.start(100); // collect data every 100ms
       setIsRecording(true);
+      
+      // Start silence checking loop
+      checkSilence();
 
       // Timer
       timerRef.current = setInterval(() => {
@@ -80,6 +143,7 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
             mediaRecorder.stop();
             setIsRecording(false);
             if (timerRef.current) clearInterval(timerRef.current);
+            cleanupAudioContext();
           }
           return next;
         });
@@ -94,7 +158,7 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
       }
       console.error("Recording error:", err);
     }
-  }, [maxDuration]);
+  }, [maxDuration, cleanupAudioContext]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
@@ -102,8 +166,9 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
       setIsRecording(false);
       setIsPaused(false);
       if (timerRef.current) clearInterval(timerRef.current);
+      cleanupAudioContext();
     }
-  }, [isRecording]);
+  }, [isRecording, cleanupAudioContext]);
 
   const resetRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
@@ -113,6 +178,7 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
       streamRef.current.getTracks().forEach((track) => track.stop());
     }
     if (timerRef.current) clearInterval(timerRef.current);
+    cleanupAudioContext();
 
     setIsRecording(false);
     setIsPaused(false);
@@ -122,7 +188,7 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
     setAudioUrl(null);
     setError(null);
     chunksRef.current = [];
-  }, [isRecording, audioUrl]);
+  }, [isRecording, audioUrl, cleanupAudioContext]);
 
   return {
     isRecording,
