@@ -50,6 +50,8 @@ export interface ScoreResult {
   aiScores?: Record<string, number>; // detailed breakdown from AI: pronunciation/fluency/content etc.
   transcription?: string;
   percentile?: number | null; // % of users scored below this attempt (null = not enough data)
+  rawPointsEarned?: number;
+  maxPointsPossible?: number;
 }
 
 // Speak a single word aloud using an Indian English voice (where available)
@@ -1765,7 +1767,12 @@ function SpeakingQuestion({
               fluency: scores.fluency || 0,
               content: scores.content || 0,
               overall,
+              rawPronunciation: scores.rawPronunciation || 0,
+              rawFluency: scores.rawFluency || 0,
+              rawContent: scores.rawContent || 0,
             },
+            rawPointsEarned: scores.rawPointsEarned,
+            maxPointsPossible: scores.maxPointsPossible,
           };
         } else {
           scoreResult.message = data.error || scoreResult.message;
@@ -2016,6 +2023,22 @@ function SummarizeSpokenTextQuestion({
             total: 1,
             mistakes,
             message: scores.feedback || "",
+            rawPointsEarned: scores.rawPointsEarned,
+            maxPointsPossible: scores.maxPointsPossible,
+            aiScores: {
+              grammar: scores.grammar || 0,
+              spelling: scores.spelling || 0,
+              content: scores.content || 0,
+              structure: scores.structure || 0,
+              vocabulary: scores.vocabulary || 0,
+              overall: scores.overall || 0,
+              rawContent: scores.rawContent || 0,
+              rawForm: scores.rawForm || 0,
+              rawGrammar: scores.rawGrammar || 0,
+              rawVocabulary: scores.rawVocabulary || 0,
+              rawSpelling: scores.rawSpelling || 0,
+              rawStructure: scores.rawStructure || 0,
+            },
           } as ScoreResult,
         });
       } else {
@@ -2128,12 +2151,21 @@ function SummarizeWrittenTextQuestion({
             total: 1,
             mistakes,
             message: scores.feedback || "",
+            rawPointsEarned: scores.rawPointsEarned,
+            maxPointsPossible: scores.maxPointsPossible,
             aiScores: {
               grammar: scores.grammar || 0,
               spelling: scores.spelling || 0,
               content: scores.content || 0,
               structure: scores.structure || 0,
+              vocabulary: scores.vocabulary || 0,
               overall: scores.overall || 0,
+              rawContent: scores.rawContent || 0,
+              rawForm: scores.rawForm || 0,
+              rawGrammar: scores.rawGrammar || 0,
+              rawVocabulary: scores.rawVocabulary || 0,
+              rawSpelling: scores.rawSpelling || 0,
+              rawStructure: scores.rawStructure || 0,
             },
           } as ScoreResult,
         });
@@ -2299,6 +2331,8 @@ function WriteEssayQuestion({
             total: 1,
             mistakes,
             message: scores.feedback || "",
+            rawPointsEarned: scores.rawPointsEarned,
+            maxPointsPossible: scores.maxPointsPossible,
             aiScores: {
               grammar: scores.grammar || 0,
               spelling: scores.spelling || 0,
@@ -2306,6 +2340,12 @@ function WriteEssayQuestion({
               structure: scores.structure || 0,
               vocabulary: scores.vocabulary || 0,
               overall: scores.overall || 0,
+              rawContent: scores.rawContent || 0,
+              rawForm: scores.rawForm || 0,
+              rawGrammar: scores.rawGrammar || 0,
+              rawVocabulary: scores.rawVocabulary || 0,
+              rawSpelling: scores.rawSpelling || 0,
+              rawStructure: scores.rawStructure || 0,
             },
           } as ScoreResult,
         });

@@ -269,7 +269,7 @@ export default function MockTestSessionPage() {
         overallScore,
         rawPointsEarned: result?.marksEarned || result?.rawPointsEarned || null,
         maxPointsPossible: result?.marksTotal || result?.maxPointsPossible || null,
-        scores: result?.aiScores || result?.scores || result || null,
+        scores: result?.aiScores || result || null,
       }),
     });
 
