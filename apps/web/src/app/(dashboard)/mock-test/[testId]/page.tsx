@@ -267,7 +267,9 @@ export default function MockTestSessionPage() {
         responseAudio: response?.persistentAudioUrl || null,
         mockTestId: testId,
         overallScore,
-        scores: result?.aiScores || null,
+        rawPointsEarned: result?.marksEarned || result?.rawPointsEarned || null,
+        maxPointsPossible: result?.marksTotal || result?.maxPointsPossible || null,
+        scores: result?.aiScores || result?.scores || result || null,
       }),
     });
 

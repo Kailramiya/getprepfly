@@ -90,7 +90,7 @@ export async function PATCH(
       select: {
         startedAt: true,
         mockType: true,
-        questions: { select: { question: { select: { id: true, section: true, type: true } } } },
+        questions: { select: { question: { select: { id: true, section: true, type: true, marks: true } } } },
       },
     });
     const attempts = await db.attempt.findMany({
@@ -110,9 +110,9 @@ export async function PATCH(
     const scoringInput = (testData?.questions ?? []).map((q) => {
       const a = attemptByQ.get(q.question.id);
       return {
-        overallScore: a?.overallScore ?? 0, // unanswered/unscored → 0
-        rawPointsEarned: a?.rawPointsEarned ?? 0,
-        maxPointsPossible: a?.maxPointsPossible ?? (q.question.type === "WRITE_ESSAY" ? 13 : q.question.type === "SUMMARIZE_SPOKEN_TEXT" ? 10 : 0),
+        overallScore: a ? (a.overallScore ?? 0) : 0,
+        rawPointsEarned: a ? a.rawPointsEarned : 0,
+        maxPointsPossible: a ? a.maxPointsPossible : (q.question.marks ?? 0),
         scores: a?.scores ?? null,
         questionType: q.question.type,
         questionSection: q.question.section,

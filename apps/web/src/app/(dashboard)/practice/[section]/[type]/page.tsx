@@ -105,6 +105,8 @@ export default function PracticeQuestionPage() {
           overallScore: result.marksTotal > 0
             ? Math.round((result.marksEarned / result.marksTotal) * 90)
             : 0,
+          rawPointsEarned: result.marksEarned,
+          maxPointsPossible: result.marksTotal,
           timeTaken,
           feedback: result.message || null,
         }),

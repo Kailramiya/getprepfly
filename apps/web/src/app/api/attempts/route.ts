@@ -48,7 +48,7 @@ export async function POST(req: NextRequest) {
   if (error) return error;
 
   const body = await req.json();
-  const { questionId, responseText, responseAudio, scores, overallScore, timeTaken, feedback, mockTestId } = body;
+  const { questionId, responseText, responseAudio, scores, overallScore, rawPointsEarned, maxPointsPossible, timeTaken, feedback, mockTestId } = body;
 
   if (!questionId) {
     return NextResponse.json(
@@ -70,6 +70,8 @@ export async function POST(req: NextRequest) {
           responseText: responseText || null,
           responseAudio: responseAudio || null,
           scores: scores || null,
+          rawPointsEarned: rawPointsEarned != null ? Math.round(rawPointsEarned) : null,
+          maxPointsPossible: maxPointsPossible != null ? Math.round(maxPointsPossible) : null,
           overallScore: overallScore ?? existing.overallScore,
           timeTaken: timeTaken || null,
           feedback: feedback || null,
@@ -84,6 +86,8 @@ export async function POST(req: NextRequest) {
           responseText: responseText || null,
           responseAudio: responseAudio || null,
           scores: scores || null,
+          rawPointsEarned: rawPointsEarned != null ? Math.round(rawPointsEarned) : null,
+          maxPointsPossible: maxPointsPossible != null ? Math.round(maxPointsPossible) : null,
           overallScore: overallScore || null,
           timeTaken: timeTaken || null,
           feedback: feedback || null,
@@ -100,6 +104,8 @@ export async function POST(req: NextRequest) {
         responseText: responseText || null,
         responseAudio: responseAudio || null,
         scores: scores || null,
+        rawPointsEarned: rawPointsEarned != null ? Math.round(rawPointsEarned) : null,
+        maxPointsPossible: maxPointsPossible != null ? Math.round(maxPointsPossible) : null,
         overallScore: overallScore || null,
         timeTaken: timeTaken || null,
         feedback: feedback || null,
