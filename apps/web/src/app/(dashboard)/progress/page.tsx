@@ -4,20 +4,13 @@ import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  BarChart3, TrendingUp, Target, Clock, Flame,
-  ArrowUp, ArrowDown, Mic, PenTool, BookOpen, Headphones,
+  TrendingUp, Target, Clock, Flame,
+  ArrowUp, ArrowDown,
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
 } from "recharts";
-
-const SECTION_CONFIG: Record<string, { icon: any; color: string; bg: string }> = {
-  SPEAKING: { icon: Mic, color: "text-teal-500", bg: "bg-teal-500/10" },
-  WRITING: { icon: PenTool, color: "text-blue-500", bg: "bg-blue-500/10" },
-  READING: { icon: BookOpen, color: "text-purple-500", bg: "bg-purple-500/10" },
-  LISTENING: { icon: Headphones, color: "text-orange-500", bg: "bg-orange-500/10" },
-};
 
 export default function ProgressPage() {
   const [data, setData] = useState<any>(null);

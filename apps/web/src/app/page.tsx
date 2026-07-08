@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import {
   BookOpen, Mic, Headphones, PenTool, BarChart3, Users, Zap, Sparkles, Target,
   BookMarked, Languages, ShieldCheck, Smartphone, ClipboardList, Flag, TrendingUp,
@@ -287,11 +288,14 @@ export default async function HomePage() {
                 <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-slate-400">
                   <div className="flex -space-x-2">
                     {[1, 2, 3, 4, 5].map((i) => (
-                      <img
+                      <Image
                         key={i}
                         className="inline-block h-8 w-8 rounded-full border-2 border-white dark:border-slate-900"
                         src={`https://i.pravatar.cc/100?img=${i + 10}`}
                         alt=""
+                        width={32}
+                        height={32}
+                        unoptimized
                       />
                     ))}
                   </div>
