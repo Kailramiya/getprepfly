@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,8 +23,10 @@ type PracticeQuestionData = QuestionData & {
 
 export default function PracticeQuestionPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const section = (params.section as string)?.toUpperCase();
-  const type = (params.type as string)?.toUpperCase();
+  const type = (params.type as string)?.toUpperCase().replace(/-/g, "_");
+  const isPrediction = searchParams?.get("prediction") === "true";
 
   const [questions, setQuestions] = useState<PracticeQuestionData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -123,7 +125,8 @@ export default function PracticeQuestionPage() {
 
     try {
       const sourceParam = selectedSource !== "all" ? `&source=${selectedSource}` : "";
-      const res = await fetch(`/api/questions?section=${section}&type=${type}&page=${page}&pageSize=${pageSize}${sourceParam}`);
+      const predictionParam = isPrediction ? "&prediction=true" : "";
+      const res = await fetch(`/api/questions?section=${section}&type=${type}&page=${page}&pageSize=${pageSize}${sourceParam}${predictionParam}`);
       const data = await res.json();
       if (data.success) {
         const items = data.data.items as PracticeQuestionData[];
@@ -148,7 +151,7 @@ export default function PracticeQuestionPage() {
       else setLoadingMore(false);
     }
     return false;
-  }, [section, type, selectedSource]);
+  }, [section, type, selectedSource, isPrediction]);
 
   useEffect(() => {
     if (!section || !type) return;

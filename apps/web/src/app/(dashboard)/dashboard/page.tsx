@@ -374,7 +374,7 @@ export default function DashboardPage() {
             {data.predictions.map((p) => (
               <Link
                 key={p.type}
-                href={`/practice/${p.section.toLowerCase()}/${p.type.toLowerCase().replace(/_/g, "-")}`}
+                href={`/practice/${p.section.toLowerCase()}/${p.type.toLowerCase().replace(/_/g, "-")}?prediction=true`}
               >
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
                   <Zap className="h-3 w-3" />
