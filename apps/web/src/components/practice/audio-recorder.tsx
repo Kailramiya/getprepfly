@@ -2,8 +2,8 @@
 
 import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import { Button } from "@/components/ui/button";
-import { Mic, Square, RotateCcw } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Mic, Square, RotateCcw, FastForward } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
 
 interface AudioRecorderProps {
   maxDuration: number; // seconds
@@ -38,6 +38,7 @@ export function AudioRecorder({
   const [prepCountdown, setPrepCountdown] = useState(prepTime);
   const [isPreparing, setIsPreparing] = useState(false);
   const [hasRecorded, setHasRecorded] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // When blob is ready, notify parent
   useEffect(() => {
@@ -57,6 +58,7 @@ export function AudioRecorder({
         setPrepCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(interval);
+            timerRef.current = null;
             setIsPreparing(false);
             startRecording();
             return 0;
@@ -64,7 +66,11 @@ export function AudioRecorder({
           return prev - 1;
         });
       }, 1000);
-      return () => clearInterval(interval);
+      timerRef.current = interval;
+      return () => {
+        clearInterval(interval);
+        timerRef.current = null;
+      };
     } else {
       startRecording();
     }
@@ -80,6 +86,7 @@ export function AudioRecorder({
         setPrepCountdown((prev) => {
           if (prev <= 1) {
             clearInterval(interval);
+            timerRef.current = null;
             setIsPreparing(false);
             startRecording();
             return 0;
@@ -87,9 +94,20 @@ export function AudioRecorder({
           return prev - 1;
         });
       }, 1000);
+      timerRef.current = interval;
     } else {
       await startRecording();
     }
+  };
+
+  const skipPrepAndStart = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+    setIsPreparing(false);
+    setPrepCountdown(0);
+    startRecording();
   };
 
   const handleReset = () => {
@@ -148,6 +166,14 @@ export function AudioRecorder({
             <span className="text-3xl font-bold text-amber-600">{prepCountdown}</span>
           </div>
           <p className="text-sm font-medium text-amber-700">Preparing... Recording starts in {prepCountdown}s</p>
+          <Button
+            onClick={skipPrepAndStart}
+            variant="outline"
+            className="mt-2 gap-2 text-amber-700 hover:text-amber-800 hover:bg-amber-50 border-amber-200"
+          >
+            <FastForward className="h-4 w-4" />
+            Skip & Start Recording
+          </Button>
         </div>
       )}
 
