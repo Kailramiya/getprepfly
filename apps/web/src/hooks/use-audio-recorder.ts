@@ -116,7 +116,9 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
         if (average > 5) {
           silenceStartRef.current = Date.now();
         } else {
-          // PTE Rule: 3 seconds of continuous silence terminates recording
+          // Disabled 3-second silence rule because it triggers too easily for users gathering their thoughts.
+          // In actual PTE, 3 seconds of silence terminates, but for practice, we let them use manual stop.
+          /*
           if (silenceStartRef.current && Date.now() - silenceStartRef.current >= 3000) {
             mediaRecorder.stop();
             setIsRecording(false);
@@ -124,6 +126,7 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
             cleanupAudioContext();
             return;
           }
+          */
         }
         animationFrameRef.current = requestAnimationFrame(checkSilence);
       };
