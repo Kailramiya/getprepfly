@@ -295,6 +295,7 @@ export default function DashboardPage() {
                   </div>
                   <p className="mt-1.5 text-xs text-gray-500 dark:text-slate-400">
                     {met ? "Goal reached — keep your streak going!" : `${goal - done} more question${goal - done === 1 ? "" : "s"} to hit today's goal`}
+                    {" · "}<Link href="/settings" className="text-indigo-600 hover:underline dark:text-indigo-400">change</Link>
                   </p>
                 </CardContent>
               </Card>
