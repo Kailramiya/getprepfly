@@ -9,6 +9,7 @@ interface AudioRecorderProps {
   maxDuration: number; // seconds
   prepTime?: number; // preparation time before recording starts
   onRecordingComplete: (blob: Blob, url: string) => void;
+  onRecordingStarted?: () => void;
   disabled?: boolean;
   autoStart?: boolean; // when true, starts recording automatically after autoStartDelay
   autoStartDelay?: number; // seconds to count down before auto-starting
@@ -19,6 +20,7 @@ export function AudioRecorder({
   maxDuration,
   prepTime = 0,
   onRecordingComplete,
+  onRecordingStarted,
   disabled,
   autoStart = false,
   autoStartDelay = 0,
@@ -60,7 +62,7 @@ export function AudioRecorder({
             clearInterval(interval);
             timerRef.current = null;
             setIsPreparing(false);
-            startRecording();
+            startRecording().then(() => onRecordingStarted?.());
             return 0;
           }
           return prev - 1;
@@ -72,7 +74,7 @@ export function AudioRecorder({
         timerRef.current = null;
       };
     } else {
-      startRecording();
+      startRecording().then(() => onRecordingStarted?.());
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [autoStart]);
@@ -88,7 +90,7 @@ export function AudioRecorder({
             clearInterval(interval);
             timerRef.current = null;
             setIsPreparing(false);
-            startRecording();
+            startRecording().then(() => onRecordingStarted?.());
             return 0;
           }
           return prev - 1;
@@ -97,6 +99,7 @@ export function AudioRecorder({
       timerRef.current = interval;
     } else {
       await startRecording();
+      onRecordingStarted?.();
     }
   };
 
@@ -107,7 +110,7 @@ export function AudioRecorder({
     }
     setIsPreparing(false);
     setPrepCountdown(0);
-    startRecording();
+    startRecording().then(() => onRecordingStarted?.());
   };
 
   const handleReset = () => {

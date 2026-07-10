@@ -1887,6 +1887,7 @@ function SpeakingQuestion({
           maxDuration={effectiveMaxDuration}
           prepTime={prepTime}
           onRecordingComplete={handleRecordingComplete}
+          onRecordingStarted={() => setPreRecordCountdown(0)}
           autoStart={readyToRecord}
           autoStartDelay={0}
           hideReRecord={isMockTest}
