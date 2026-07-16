@@ -1963,7 +1963,7 @@ function SpeakingQuestion({
       )}
 
 
-      {!submitted && (
+      {!submitted && !isMockTest && (
         <Button
           onClick={handleSubmit}
           disabled={!audioBlob || scoring}

@@ -220,10 +220,18 @@ export default function MockTestSessionPage() {
       setNavigating(true);
       if (!submitted) {
         if (autoSubmitRef.current) {
-          // Fire and forget so we don't block navigation to next question
-          Promise.resolve(autoSubmitRef.current()).catch((e) => {
-            console.error("Background auto-submit failed", e);
-          });
+          // Capture current question ID so background save knows which question it was for
+          const savedQuestionId = currentQuestion?.question?.id;
+          const submitPromise = autoSubmitRef.current();
+          
+          if (submitPromise && typeof (submitPromise as any).then === 'function') {
+            (submitPromise as Promise<any>).then((res) => {
+              // If the renderer returned the response directly instead of calling onSubmit
+              // we can handle it here, but QuestionRenderer usually calls onSubmit itself.
+            }).catch((e) => {
+              console.error("Background auto-submit failed", e);
+            });
+          }
         }
       }
       const nextIdx = currentIdx + 1;
@@ -238,15 +246,22 @@ export default function MockTestSessionPage() {
     }
   }, [currentIdx, totalQuestions, testId, test, submitted]);
 
-  // Called by QuestionRenderer when student explicitly submits
-  const handleQuestionSubmit = async (response: any) => {
-    if (!currentQuestion) return;
-    setSubmitted(true);
-    pendingResponseRef.current = null;
+  // Called by QuestionRenderer when student explicitly submits (or via background auto-submit)
+  const handleQuestionSubmit = async (response: any, questionIdOverride?: string) => {
+    const qId = questionIdOverride || currentQuestion?.question?.id;
+    if (!qId) return;
+    
+    // Only update UI state if the submission is for the question we are currently viewing
+    const isCurrentQuestion = qId === currentQuestion?.question?.id;
+    
+    if (isCurrentQuestion) {
+      setSubmitted(true);
+      pendingResponseRef.current = null;
+    }
 
     // Cache blob URL (in-memory, survives current session navigation)
     if (response?.audioUrl && typeof response.audioUrl === "string") {
-      recordingUrlsRef.current.set(currentQuestion.question.id, response.audioUrl);
+      recordingUrlsRef.current.set(qId, response.audioUrl);
     }
 
     const result: ScoreResult | undefined = response?.scoreResult;
@@ -258,7 +273,7 @@ export default function MockTestSessionPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        questionId: currentQuestion.question.id,
+        questionId: qId,
         responseText: typeof response?.text === "string" ? response.text : JSON.stringify(response),
         responseAudio: response?.persistentAudioUrl || null,
         mockTestId: testId,
@@ -271,7 +286,13 @@ export default function MockTestSessionPage() {
 
     const res = await fetch(`/api/mock-tests/${testId}`);
     const data = await res.json();
-    if (data.success) setTest(data.data);
+    if (data.success) {
+      // Functional update to avoid stale closures
+      setTest((prev) => {
+         // Only update if we haven't navigated away or if we just want to merge attempts
+         return data.data;
+      });
+    }
   };
 
 
@@ -483,7 +504,7 @@ export default function MockTestSessionPage() {
                 submitted={submitted}
                 showAnswer={false}
                 showFeedback={false}
-                onSubmit={handleQuestionSubmit}
+                onSubmit={(res) => handleQuestionSubmit(res, currentQuestion.question.id)}
                 onResponseChange={(r) => { pendingResponseRef.current = r; }}
                 submitRef={autoSubmitRef}
                 playOnce={true}

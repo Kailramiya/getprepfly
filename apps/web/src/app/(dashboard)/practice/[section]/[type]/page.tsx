@@ -647,7 +647,7 @@ export default function PracticeQuestionPage() {
         <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40">
           <CardContent className="p-4">
             <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Explanation:</p>
-            <p className="mt-1 text-sm text-blue-700 dark:text-blue-200">{currentQuestion.explanation}</p>
+            <p className="mt-1 text-sm text-blue-700 whitespace-pre-wrap dark:text-blue-200">{currentQuestion.explanation}</p>
           </CardContent>
         </Card>
       )}
