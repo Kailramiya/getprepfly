@@ -220,14 +220,10 @@ export default function MockTestSessionPage() {
       setNavigating(true);
       if (!submitted) {
         if (autoSubmitRef.current) {
-        try {
-          await autoSubmitRef.current();
-        } catch (e) {
-          console.error("Auto-submit failed", e);
-          alert("Network error: Could not save your answer. Please check your connection and try again.");
-          setNavigating(false);
-          return;
-        }
+          // Fire and forget so we don't block navigation to next question
+          Promise.resolve(autoSubmitRef.current()).catch((e) => {
+            console.error("Background auto-submit failed", e);
+          });
         }
       }
       const nextIdx = currentIdx + 1;
