@@ -477,7 +477,7 @@ export function QuestionRenderer({
   // ---- READ ALOUD ----
   if (type === "READ_ALOUD") {
     return (
-      <SpeakingQuestion isMockTest={isMockTest}
+      <SpeakingQuestion isMockTest={isMockTest} showFeedback={showFeedback}
         instructionText="Read the text above aloud, clearly and naturally."
         prepTime={0}
         maxDuration={40}
@@ -510,7 +510,7 @@ export function QuestionRenderer({
   // ---- REPEAT SENTENCE ----
   if (type === "REPEAT_SENTENCE") {
     return (
-      <SpeakingQuestion isMockTest={isMockTest}
+      <SpeakingQuestion isMockTest={isMockTest} showFeedback={showFeedback}
         instructionText="Listen to the sentence, then repeat it exactly as you heard it."
         prepTime={0}
         maxDuration={15}
@@ -534,7 +534,7 @@ export function QuestionRenderer({
   if (type === "DESCRIBE_IMAGE") {
     const imgSrc = content.imageUrl || question.imageUrl;
     return (
-      <SpeakingQuestion isMockTest={isMockTest}
+      <SpeakingQuestion isMockTest={isMockTest} showFeedback={showFeedback}
         instructionText="Look at the image carefully and describe it in detail. Mention the main elements, trends, or key data."
         prepTime={0}
         maxDuration={40}
@@ -578,7 +578,7 @@ export function QuestionRenderer({
   // ---- RETELL LECTURE ----
   if (type === "RETELL_LECTURE") {
     return (
-      <SpeakingQuestion isMockTest={isMockTest}
+      <SpeakingQuestion isMockTest={isMockTest} showFeedback={showFeedback}
         instructionText="Listen to the lecture, then retell the main points in your own words."
         prepTime={0}
         maxDuration={40}
@@ -601,7 +601,7 @@ export function QuestionRenderer({
   // ---- ANSWER SHORT QUESTION ----
   if (type === "ANSWER_SHORT_QUESTION") {
     return (
-      <SpeakingQuestion isMockTest={isMockTest}
+      <SpeakingQuestion isMockTest={isMockTest} showFeedback={showFeedback}
         instructionText="Answer the question in one or two words."
         prepTime={0}
         maxDuration={10}
@@ -636,7 +636,7 @@ export function QuestionRenderer({
   // ---- RESPOND TO SITUATION ----
   if (type === "RESPOND_TO_SITUATION") {
     return (
-      <SpeakingQuestion isMockTest={isMockTest}
+      <SpeakingQuestion isMockTest={isMockTest} showFeedback={showFeedback}
         instructionText="Read the scenario carefully and respond appropriately in 30-40 seconds."
         prepTime={20}
         maxDuration={40}
@@ -660,7 +660,7 @@ export function QuestionRenderer({
   // ---- SUMMARIZE GROUP DISCUSSION ----
   if (type === "SUMMARIZE_GROUP_DISCUSSION") {
     return (
-      <SpeakingQuestion isMockTest={isMockTest}
+      <SpeakingQuestion isMockTest={isMockTest} showFeedback={showFeedback}
         instructionText="Listen to the group discussion, then summarize the key points and differing viewpoints in your own words."
         prepTime={0}
         maxDuration={40}
@@ -1567,7 +1567,7 @@ function SpeakingQuestion({
   children, instructionText, prepTime, maxDuration, submitted, onSubmit,
   totalMarks = 1, questionId, questionType, expectedText = "",
   audioSrc, audioLabel, autoStartDelay = 0, playOnce, mountAutoStart = false,
-  initialAudioUrl, onRegisterSubmit, isMockTest = false,
+  initialAudioUrl, onRegisterSubmit, isMockTest = false, showFeedback = true,
 }: {
   children?: React.ReactNode;
   instructionText: string;
@@ -1592,6 +1592,7 @@ function SpeakingQuestion({
   initialAudioUrl?: string;
   onRegisterSubmit?: (fn: () => void | Promise<void>) => void;
   isMockTest?: boolean;
+  showFeedback?: boolean;
 }) {
   const [audioBlob, setAudioBlob] = useState<Blob | null>(null);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
@@ -1911,7 +1912,7 @@ function SpeakingQuestion({
       )}
 
       {/* Model-answer audio for shadowing — shown after submission */}
-      {submitted && questionType === "READ_ALOUD" && expectedText && (
+      {submitted && showFeedback && questionType === "READ_ALOUD" && expectedText && (
         <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3">
           <p className="mb-2 text-xs font-medium text-emerald-800 dark:text-emerald-300">
             Model answer — listen and shadow to improve:
@@ -1938,7 +1939,7 @@ function SpeakingQuestion({
       )}
 
       {/* Replay prompt for REPEAT_SENTENCE after submission */}
-      {submitted && questionType === "REPEAT_SENTENCE" && audioSrc && (
+      {submitted && showFeedback && questionType === "REPEAT_SENTENCE" && audioSrc && (
         <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3">
           <p className="mb-2 text-xs font-medium text-emerald-800 dark:text-emerald-300">
             Replay the sentence to compare:
