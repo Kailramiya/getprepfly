@@ -1741,7 +1741,7 @@ function SpeakingQuestion({
         formData.append("questionId", questionId);
         formData.append("expectedText", expectedText);
         formData.append("questionType", questionType);
-        formData.append("audio", audioBlob, "recording.webm");
+        formData.append("audio", currentBlob, "recording.webm");
 
         const res = await fetch("/api/ai/score-speaking", {
           method: "POST",
