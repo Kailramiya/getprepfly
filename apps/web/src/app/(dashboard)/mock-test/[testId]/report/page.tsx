@@ -7,6 +7,20 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer } from "recharts";
 
+function formatResponse(text: string | null): string | null {
+  if (!text) return null;
+  try {
+    const parsed = JSON.parse(text);
+    if (parsed.answers && Array.isArray(parsed.answers)) return parsed.answers.join(", ");
+    if (parsed.answer !== undefined) return String(parsed.answer);
+    if (parsed.order && Array.isArray(parsed.order)) return parsed.order.join(" ➔ ");
+    if (parsed.text !== undefined) return parsed.text;
+    return text; // fallback to raw string if format not recognized
+  } catch {
+    return text; // wasn't JSON
+  }
+}
+
 interface ReportData {
   id: string;
   title: string;
@@ -127,7 +141,7 @@ export default function MockTestReportPage() {
                 <div>
                   <p className="text-2xl font-bold text-green-600">{data.attempted}</p>
                   <p className="text-xs text-gray-500 mt-0.5 dark:text-slate-400">
-                    Answered{data.pending > 0 ? ` · ${data.pending} pending` : ""}
+                    Answered{data.pending > 0 ? ` · ${data.pending} pending scoring` : ""}
                   </p>
                 </div>
                 <div>
@@ -196,7 +210,7 @@ export default function MockTestReportPage() {
                   <div>
                     <h4 className="font-semibold mb-2 text-gray-900 dark:text-slate-100 uppercase text-xs tracking-wider opacity-70">Your Response</h4>
                     <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border dark:border-slate-700 leading-relaxed font-medium">
-                      {attempt.responseText || (attempt.responseAudio ? (
+                      {formatResponse(attempt.responseText) || (attempt.responseAudio ? (
                         <audio src={attempt.responseAudio} controls className="w-full max-w-sm h-10" />
                       ) : <span className="italic text-gray-400">No response recorded</span>)}
                     </div>

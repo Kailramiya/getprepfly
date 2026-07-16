@@ -41,10 +41,18 @@ export async function GET(_req: NextRequest, { params }: { params: { testId: str
   // Count distinct questions the student actually attempted, and how many are
   // AI-scored vs still pending. "Correct" isn't well-defined for AI-scored
   // tasks, so we report Answered (honest) instead of a fake correct count.
-  const answeredQuestionIds = new Set(attempts.map((a) => (a as { questionId?: string }).questionId).filter(Boolean));
-  const attempted = answeredQuestionIds.size || attempts.length;
-  const scored = attempts.filter((a) => a.overallScore !== null).length;
-  const pending = Math.max(0, attempts.length - scored);
+  const attemptMap = new Map();
+  for (const a of attempts) {
+    if (!a.questionId) continue;
+    const existing = attemptMap.get(a.questionId);
+    if (!existing || (a.overallScore !== null && existing.overallScore === null)) {
+      attemptMap.set(a.questionId, a);
+    }
+  }
+  const uniqueAttempts = Array.from(attemptMap.values());
+  const attempted = uniqueAttempts.length;
+  const scored = uniqueAttempts.filter(a => a.overallScore !== null).length;
+  const pending = Math.max(0, attempted - scored);
   const totalTime = attempts.reduce((s, a) => s + (a.timeTaken || 0), 0);
 
   return NextResponse.json({
