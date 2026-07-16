@@ -220,12 +220,10 @@ export default function MockTestSessionPage() {
       setNavigating(true);
       if (!submitted) {
         if (autoSubmitRef.current) {
-          // Capture current question ID so background save knows which question it was for
-          const savedQuestionId = currentQuestion?.question?.id;
           const submitPromise = autoSubmitRef.current();
           
           if (submitPromise && typeof (submitPromise as any).then === 'function') {
-            (submitPromise as Promise<any>).then((res) => {
+            (submitPromise as Promise<any>).then((_res) => {
               // If the renderer returned the response directly instead of calling onSubmit
               // we can handle it here, but QuestionRenderer usually calls onSubmit itself.
             }).catch((e) => {
@@ -244,7 +242,7 @@ export default function MockTestSessionPage() {
         body: JSON.stringify({ currentIndex: nextIdx, currentSection: test?.questions[nextIdx]?.question?.section }),
       });
     }
-  }, [currentIdx, totalQuestions, testId, test, submitted]);
+  }, [currentIdx, totalQuestions, testId, test, submitted, currentQuestion?.question?.id]);
 
   // Called by QuestionRenderer when student explicitly submits (or via background auto-submit)
   const handleQuestionSubmit = async (response: any, questionIdOverride?: string) => {
@@ -288,7 +286,7 @@ export default function MockTestSessionPage() {
     const data = await res.json();
     if (data.success) {
       // Functional update to avoid stale closures
-      setTest((prev) => {
+      setTest((_prev) => {
          // Only update if we haven't navigated away or if we just want to merge attempts
          return data.data;
       });
