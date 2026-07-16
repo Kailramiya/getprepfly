@@ -1,0 +1,1652 @@
+{
+  "user": {
+    "id": "cmpxlradp000wj8e862ik1kpa",
+    "email": "dityasharma3016@gmail.com",
+    "phone": null,
+    "passwordHash": "$2a$12$lq71I5zvG4wIjPn6FGHe0ui8zAfUn7jxwpihv2Z6IgGLt/mx7JAZW",
+    "name": "Ditya sharma",
+    "avatar": null,
+    "role": "STUDENT",
+    "language": "EN",
+    "isActive": true,
+    "emailVerified": "2026-06-18T08:57:49.107Z",
+    "examDate": null,
+    "dailyGoal": 20,
+    "activeSessionId": "a9517faf-e925-4fdb-b229-ea138a0c9a2c",
+    "createdAt": "2026-06-03T05:04:57.421Z",
+    "updatedAt": "2026-07-16T05:20:17.262Z",
+    "centreId": "cmo43y7830000git38uhiac6n"
+  },
+  "mockTest": {
+    "id": "cmrkdboll000126wf359lpmte",
+    "userId": "cmpxlradp000wj8e862ik1kpa",
+    "title": "Full Mock Test#14/07/2026",
+    "status": "COMPLETED",
+    "startedAt": "2026-07-14T08:07:16.809Z",
+    "completedAt": "2026-07-14T09:14:59.532Z",
+    "totalTime": 4064,
+    "speakingScore": 45,
+    "writingScore": 32,
+    "readingScore": 31,
+    "listeningScore": 45,
+    "overallScore": 38,
+    "currentSection": "LISTENING",
+    "currentIndex": 59,
+    "createdAt": "2026-07-14T08:07:16.809Z",
+    "assignedBatchId": null,
+    "isTemplate": false,
+    "mockType": "FULL",
+    "section": null,
+    "isFree": false,
+    "attempts": [
+      {
+        "id": "cmrkddh1i001s26wf3rp02sts",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmp13jxck000f4ppwsfx3gzy0",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/5d24b9b2-953c-468c-922f-54e595556672\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp13jxck000f4ppwsfx3gzy0-1784016516320.webm\",\"scoreResult\":{\"marksEarned\":0.9,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"bra1\",\"correctAnswer\":\"wearable\"},{\"position\":19,\"yourAnswer\":\"clinic\",\"correctAnswer\":\"clinical\"},{\"position\":20,\"yourAnswer\":\"assessment\",\"correctAnswer\":\"assessments\"},{\"position\":54,\"yourAnswer\":\"effectively\",\"correctAnswer\":\"efficiently\"}],\"message\":\"The transcription captures most of the key ideas but contains a few inaccuracies, such as 'BRA1 technology' instead of 'Wearable technology' and 'effectively' instead of 'efficiently'. Overall, the main message is conveyed.\",\"transcription\":\"BRA1 technology is significantly transforming the way patients recover from orthopedic surgeries. Rather than relying solely on periodic clinic assessment, doctors can now monitor a patient's mobility and compliance with exercise regimes remotely. This continuous feedback loop allows medical professionals to adjust rehabilitation plans dynamically, ensuring that recovery milestones are achieved safely and effectively.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":90,\"content\":72,\"overall\":78,\"rawPronunciation\":4,\"rawFluency\":5,\"rawContent\":4},\"rawPointsEarned\":13,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp13jxck000f4ppwsfx3gzy0-1784016516320.webm",
+        "scores": {
+          "content": 72,
+          "fluency": 90,
+          "overall": 78,
+          "rawContent": 4,
+          "rawFluency": 5,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 81,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:08:40.327Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READ_ALOUD",
+          "section": "SPEAKING",
+          "marks": 8,
+          "title": "#079 Technology"
+        }
+      },
+      {
+        "id": "cmrkdfaa10001ftv9yhlgyeu7",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmp13iv65000d4ppw16qcr9st",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/bfbaa8fe-4779-4807-9595-465f17b55153\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp13iv65000d4ppw16qcr9st-1784016607051.webm\",\"scoreResult\":{\"marksEarned\":0.7,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":15,\"yourAnswer\":\"assess\",\"correctAnswer\":\"access\"},{\"position\":22,\"yourAnswer\":\"ambidextrous\",\"correctAnswer\":\"embedded\"},{\"position\":28,\"yourAnswer\":\"ereinforced\",\"correctAnswer\":\"to\"},{\"position\":29,\"yourAnswer\":\"understanding\",\"correctAnswer\":\"reinforce\"},{\"position\":30,\"yourAnswer\":\"immediately\",\"correctAnswer\":\"understanding\"},{\"position\":31,\"yourAnswer\":\"although\",\"correctAnswer\":\"immediately\"},{\"position\":32,\"yourAnswer\":\"concerns\",\"correctAnswer\":\"although\"},{\"position\":33,\"yourAnswer\":\"regarding\",\"correctAnswer\":\"concerns\"},{\"position\":34,\"yourAnswer\":\"screen\",\"correctAnswer\":\"regarding\"},{\"position\":35,\"yourAnswer\":\"fatiguefree\",\"correctAnswer\":\"screen\"},{\"position\":36,\"yourAnswer\":\"proponents\",\"correctAnswer\":\"fatigue\"},{\"position\":37,\"yourAnswer\":\"suggest\",\"correctAnswer\":\"persist\"},{\"position\":38,\"yourAnswer\":\"that\",\"correctAnswer\":\"proponents\"},{\"position\":39,\"yourAnswer\":\"these\",\"correctAnswer\":\"suggest\"},{\"position\":40,\"yourAnswer\":\"dynamic\",\"correctAnswer\":\"that\"},{\"position\":41,\"yourAnswer\":\"features\",\"correctAnswer\":\"these\"},{\"position\":42,\"yourAnswer\":\"significantly\",\"correctAnswer\":\"dynamic\"},{\"position\":43,\"yourAnswer\":\"boost\",\"correctAnswer\":\"features\"},{\"position\":44,\"yourAnswer\":\"eengagement\",\"correctAnswer\":\"significantly\"},{\"position\":45,\"yourAnswer\":\"consequently\",\"correctAnswer\":\"boost\"},{\"position\":46,\"yourAnswer\":\"modern\",\"correctAnswer\":\"engagement\"},{\"position\":47,\"yourAnswer\":\"curriculums\",\"correctAnswer\":\"consequently\"},{\"position\":48,\"yourAnswer\":\"are\",\"correctAnswer\":\"modern\"},{\"position\":49,\"yourAnswer\":\"increasingly\",\"correctAnswer\":\"curriculums\"},{\"position\":50,\"yourAnswer\":\"interrogating\",\"correctAnswer\":\"are\"},{\"position\":51,\"yourAnswer\":\"multimedia\",\"correctAnswer\":\"increasingly\"},{\"position\":52,\"yourAnswer\":\"resources\",\"correctAnswer\":\"integrating\"},{\"position\":53,\"yourAnswer\":\"to\",\"correctAnswer\":\"multimedia\"},{\"position\":54,\"yourAnswer\":\"guide\",\"correctAnswer\":\"resources\"},{\"position\":55,\"yourAnswer\":\"students\",\"correctAnswer\":\"to\"},{\"position\":56,\"yourAnswer\":\"to\",\"correctAnswer\":\"cater\"},{\"position\":57,\"yourAnswer\":\"diverse\",\"correctAnswer\":\"to\"},{\"position\":58,\"yourAnswer\":\"learning\",\"correctAnswer\":\"diverse\"},{\"position\":59,\"yourAnswer\":\"styles\",\"correctAnswer\":\"learning\"},{\"position\":60,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"styles\"}],\"message\":\"The transcription captures some key ideas but contains several inaccuracies and misinterpretations of the original text. Important terms were mispronounced or altered, affecting overall clarity.\",\"transcription\":\"The transition from heavy printed textbooks to digital formats has fundamentally transformed how students assess course materials interactive e-books frequently, include ambidextrous videos and quizzes that serve e-reinforced understanding immediately, although concerns regarding screen fatigue-free proponents suggest that these dynamic features significantly boost e-engagement. Consequently, modern curriculums are increasingly interrogating multimedia resources to guide students to diverse learning styles.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":90,\"content\":36,\"overall\":66,\"rawPronunciation\":4,\"rawFluency\":5,\"rawContent\":2},\"rawPointsEarned\":11,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp13iv65000d4ppw16qcr9st-1784016607051.webm",
+        "scores": {
+          "content": 36,
+          "fluency": 90,
+          "overall": 66,
+          "rawContent": 2,
+          "rawFluency": 5,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 63,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:10:04.874Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READ_ALOUD",
+          "section": "SPEAKING",
+          "marks": 8,
+          "title": "#078 Textbooks"
+        }
+      },
+      {
+        "id": "cmrkdh4fc0005lkw81p9x9pa3",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmp13twkr000l4ppwdror7uzv",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/250875b8-d5b8-42f8-8c15-8546edce6447\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp13twkr000l4ppwdror7uzv-1784016696083.webm\",\"scoreResult\":{\"marksEarned\":0.8,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":28,\"yourAnswer\":\"continuances\",\"correctAnswer\":\"contentious\"},{\"position\":56,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"football\"},{\"position\":57,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"from\"},{\"position\":58,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"what\"},{\"position\":59,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"later\"},{\"position\":60,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"became\"},{\"position\":61,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"rugby\"}],\"message\":\"The response captures most of the key ideas but contains a minor error with the word 'continuances' instead of 'contentious' which slightly affects clarity.\",\"transcription\":\"Before the codified rules of modern soccer were established, different public schools played by their own unique regulations. This inconsistency made matches between institutions chaotic and often continuances. The formation of the Football Association aimed to standardize gameplay, specifically banning the use of hands. Consequently, this critical divergence led to the permanent separation of association\",\"aiScores\":{\"pronunciation\":72,\"fluency\":72,\"content\":72,\"overall\":72,\"rawPronunciation\":4,\"rawFluency\":4,\"rawContent\":4},\"rawPointsEarned\":12,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp13twkr000l4ppwdror7uzv-1784016696083.webm",
+        "scores": {
+          "content": 72,
+          "fluency": 72,
+          "overall": 72,
+          "rawContent": 4,
+          "rawFluency": 4,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 72,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:11:30.601Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READ_ALOUD",
+          "section": "SPEAKING",
+          "marks": 8,
+          "title": "#083 School"
+        }
+      },
+      {
+        "id": "cmrkdiz4g0009lkw8c45f16jx",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmp138n8w00014ppwjuwdvamh",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/a24a3994-2c0f-4485-ba6c-3e1bef72fc76\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp138n8w00014ppwjuwdvamh-1784016779941.webm\",\"scoreResult\":{\"marksEarned\":0.6,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":24,\"yourAnswer\":\"research\",\"correctAnswer\":\"researchers\"},{\"position\":29,\"yourAnswer\":\"search\",\"correctAnswer\":\"searched\"},{\"position\":33,\"yourAnswer\":\"learn\",\"correctAnswer\":\"learned\"},{\"position\":49,\"yourAnswer\":\"diet\",\"correctAnswer\":\"dyed\"},{\"position\":55,\"yourAnswer\":\"a\",\"correctAnswer\":\"subjects\"},{\"position\":56,\"yourAnswer\":\"subject\",\"correctAnswer\":\"they\"},{\"position\":57,\"yourAnswer\":\"they\",\"correctAnswer\":\"lose\"},{\"position\":58,\"yourAnswer\":\"lose\",\"correctAnswer\":\"appetite\"}],\"message\":\"The student captured the main ideas but made several grammatical errors and slight inaccuracies in wording, such as 'food research' instead of 'food researchers' and 'diet blue' instead of 'dyed blue'.\",\"transcription\":\"While blue is one of the most popular colors, it is one of the least appetizing. Blue food is rare in nature. Food research say that when humans search for food, they learn to avoid toxic or spoiled objects, which were often blue, black or purple. When food diet blue is served to study a subject, they lose appetite.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":36,\"content\":54,\"overall\":54,\"rawPronunciation\":4,\"rawFluency\":2,\"rawContent\":3},\"rawPointsEarned\":9,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp138n8w00014ppwjuwdvamh-1784016779941.webm",
+        "scores": {
+          "content": 54,
+          "fluency": 36,
+          "overall": 54,
+          "rawContent": 3,
+          "rawFluency": 2,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 54,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:12:57.040Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READ_ALOUD",
+          "section": "SPEAKING",
+          "marks": 8,
+          "title": "#071"
+        }
+      },
+      {
+        "id": "cmrkdkzpx000hlkw8gobp37z1",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmp13cuy400074ppwitxc8nx7",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/de0c395d-4adb-4562-800f-11f6131c46e0\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp13cuy400074ppwitxc8nx7-1784016866840.webm\",\"scoreResult\":{\"marksEarned\":0.7,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":18,\"yourAnswer\":\"and\",\"correctAnswer\":\"an\"},{\"position\":19,\"yourAnswer\":\"unaccessible\",\"correctAnswer\":\"unassailable\"},{\"position\":45,\"yourAnswer\":\"orthonologists\",\"correctAnswer\":\"ornithologists\"}],\"message\":\"The response captures the main ideas but includes some inaccuracies in wording, such as 'unaccessible' instead of 'unassailable' and 'orthonologists' instead of 'ornithologists'. Overall, the key points are conveyed.\",\"transcription\":\"Before the discovery of Australia, people in the old world were convinced that all swans were white and unaccessible belief as it seemed completely confirmed by empirical evidence. The sighting of the first black swan might have been an interesting surprise for a few orthonologists, but that is not where the significance of the story lies.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":54,\"content\":54,\"overall\":60,\"rawPronunciation\":4,\"rawFluency\":3,\"rawContent\":3},\"rawPointsEarned\":10,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmp13cuy400074ppwitxc8nx7-1784016866840.webm",
+        "scores": {
+          "content": 54,
+          "fluency": 54,
+          "overall": 60,
+          "rawContent": 3,
+          "rawFluency": 3,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 63,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:14:31.125Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READ_ALOUD",
+          "section": "SPEAKING",
+          "marks": 8,
+          "title": "#073 Australia"
+        }
+      },
+      {
+        "id": "cmrkdlhl9000jlkw8njmhop54",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmonuc46w0001ia652nia0fsv",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/fa00ea3c-a112-4c33-9248-80bc0c48b0ea\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmonuc46w0001ia652nia0fsv-1784016898202.webm\",\"scoreResult\":{\"marksEarned\":0.7,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":8,\"yourAnswer\":\"places\",\"correctAnswer\":\"countries\"},{\"position\":9,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"each\"},{\"position\":10,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"year\"}],\"message\":\"The response captures the main idea but substitutes 'places' for 'countries,' which affects accuracy. Overall, it conveys the intended message.\",\"transcription\":\"Many historical landmarks attract visitors from various places.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":54,\"content\":60,\"overall\":62,\"rawPronunciation\":4,\"rawFluency\":3,\"rawContent\":2},\"rawPointsEarned\":9,\"maxPointsPossible\":13}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmonuc46w0001ia652nia0fsv-1784016898202.webm",
+        "scores": {
+          "content": 60,
+          "fluency": 54,
+          "overall": 62,
+          "rawContent": 2,
+          "rawFluency": 3,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 63,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:14:54.286Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "REPEAT_SENTENCE",
+          "section": "SPEAKING",
+          "marks": 9,
+          "title": "#013"
+        }
+      },
+      {
+        "id": "cmrkdmfq5000llkw8km97bs49",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmoo02fns000j93fb457ijsa5",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/c666b9ea-587e-4439-aaeb-65d9e47390d9\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmoo02fns000j93fb457ijsa5-1784016935473.webm\",\"scoreResult\":{\"marksEarned\":0.5,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"business\",\"correctAnswer\":\"marketing\"},{\"position\":5,\"yourAnswer\":\"consumers\",\"correctAnswer\":\"adjustments\"},{\"position\":6,\"yourAnswer\":\"feedback\",\"correctAnswer\":\"based\"},{\"position\":7,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"on\"},{\"position\":8,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"consumer\"},{\"position\":9,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"feedback\"}],\"message\":\"The response captures the general idea but alters key terms, leading to a significant loss of meaning. The phrase 'business strategies' instead of 'marketing strategies' and the omission of 'adjustments' affects the accuracy.\",\"transcription\":\"Business strategies often require consumer's feedback.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":18,\"content\":30,\"overall\":42,\"rawPronunciation\":4,\"rawFluency\":1,\"rawContent\":1},\"rawPointsEarned\":6,\"maxPointsPossible\":13}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmoo02fns000j93fb457ijsa5-1784016935473.webm",
+        "scores": {
+          "content": 30,
+          "fluency": 18,
+          "overall": 42,
+          "rawContent": 1,
+          "rawFluency": 1,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 45,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:15:38.525Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "REPEAT_SENTENCE",
+          "section": "SPEAKING",
+          "marks": 9,
+          "title": "#023"
+        }
+      },
+      {
+        "id": "cmrkdmwa7000bftv9s1g4y1s4",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmoy9c369001hxpo2lmrsjrc9",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/d8de4c47-a538-4eec-add9-a0a6d610380c\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmoy9c369001hxpo2lmrsjrc9-1784016957306.webm\",\"scoreResult\":{\"marksEarned\":0.7,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":5,\"yourAnswer\":\"do\",\"correctAnswer\":\"cite\"},{\"position\":6,\"yourAnswer\":\"your\",\"correctAnswer\":\"all\"},{\"position\":7,\"yourAnswer\":\"cipher\",\"correctAnswer\":\"your\"}],\"message\":\"The response contains a significant error with the word 'cipher' instead of 'cite', which alters the meaning. This affects the overall content accuracy.\",\"transcription\":\"Make sure you correctly do your cipher sources.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":72,\"content\":30,\"overall\":62,\"rawPronunciation\":4,\"rawFluency\":4,\"rawContent\":1},\"rawPointsEarned\":9,\"maxPointsPossible\":13}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmoy9c369001hxpo2lmrsjrc9-1784016957306.webm",
+        "scores": {
+          "content": 30,
+          "fluency": 72,
+          "overall": 62,
+          "rawContent": 1,
+          "rawFluency": 4,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 63,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:15:59.983Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "REPEAT_SENTENCE",
+          "section": "SPEAKING",
+          "marks": 8,
+          "title": "#063"
+        }
+      },
+      {
+        "id": "cmrkdnc66000fftv9db26uli4",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmomkdasq000711hy9occp4ur",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/f687559e-f2db-4ac5-b53e-51d85aa370e0\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmomkdasq000711hy9occp4ur-1784016983627.webm\",\"scoreResult\":{\"marksEarned\":0.8,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":6,\"yourAnswer\":\"on\",\"correctAnswer\":\"until\"},{\"position\":7,\"yourAnswer\":\"the\",\"correctAnswer\":\"next\"},{\"position\":8,\"yourAnswer\":\"next\",\"correctAnswer\":\"monday\"}],\"message\":\"The response captures the main idea but alters the timing, which affects accuracy. The phrase 'on the next day' does not match the original 'until next Monday.'\",\"transcription\":\"The lecture has been postponed on the next day.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":90,\"content\":30,\"overall\":69,\"rawPronunciation\":4,\"rawFluency\":5,\"rawContent\":1},\"rawPointsEarned\":10,\"maxPointsPossible\":13}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmomkdasq000711hy9occp4ur-1784016983627.webm",
+        "scores": {
+          "content": 30,
+          "fluency": 90,
+          "overall": 69,
+          "rawContent": 1,
+          "rawFluency": 5,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 72,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:16:20.575Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "REPEAT_SENTENCE",
+          "section": "SPEAKING",
+          "marks": 8,
+          "title": "#007"
+        }
+      },
+      {
+        "id": "cmrkdobo3000rlkw8qp8222bo",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmob937bl0001148e7rolibte",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/cf00b6de-55c4-4e86-89e2-4011749b21c5\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmob937bl0001148e7rolibte-1784017029852.webm\",\"scoreResult\":{\"marksEarned\":0.7,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"it\",\"correctAnswer\":\"there\"},{\"position\":3,\"yourAnswer\":\"the\",\"correctAnswer\":\"plenty\"},{\"position\":4,\"yourAnswer\":\"heat\",\"correctAnswer\":\"of\"},{\"position\":5,\"yourAnswer\":\"accommodation\",\"correctAnswer\":\"cheap\"},{\"position\":6,\"yourAnswer\":\"of\",\"correctAnswer\":\"accommodation\"},{\"position\":7,\"yourAnswer\":\"the\",\"correctAnswer\":\"off\"}],\"message\":\"The response does not accurately reflect the original sentence. Key elements such as 'cheap accommodation' and 'off campus' are missing.\",\"transcription\":\"It is the heat accommodation of the campus.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":72,\"content\":30,\"overall\":62,\"rawPronunciation\":4,\"rawFluency\":4,\"rawContent\":1},\"rawPointsEarned\":9,\"maxPointsPossible\":13}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmob937bl0001148e7rolibte-1784017029852.webm",
+        "scores": {
+          "content": 30,
+          "fluency": 72,
+          "overall": 62,
+          "rawContent": 1,
+          "rawFluency": 4,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 63,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:17:06.579Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "REPEAT_SENTENCE",
+          "section": "SPEAKING",
+          "marks": 7,
+          "title": "#004"
+        }
+      },
+      {
+        "id": "cmrkdpgmr001u26wf7n53p3hh",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmoya1xdv001xxpo2v0af195r",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/d5230910-d4ec-4a4c-b832-824f8000e7b6\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmoya1xdv001xxpo2v0af195r-1784017081815.webm\",\"scoreResult\":{\"marksEarned\":0.8,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":2,\"yourAnswer\":\"timetable\",\"correctAnswer\":\"timetables\"},{\"position\":7,\"yourAnswer\":\"students\",\"correctAnswer\":\"student\"},{\"position\":8,\"yourAnswer\":\"board\",\"correctAnswer\":\"noticeboard\"}],\"message\":\"The response captures the main idea but misses some details. The phrase 'student noticeboard' is altered to 'student's board,' which affects accuracy.\",\"transcription\":\"New timetable will be posted on student's board.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":72,\"content\":60,\"overall\":69,\"rawPronunciation\":4,\"rawFluency\":4,\"rawContent\":2},\"rawPointsEarned\":10,\"maxPointsPossible\":13}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmoya1xdv001xxpo2v0af195r-1784017081815.webm",
+        "scores": {
+          "content": 60,
+          "fluency": 72,
+          "overall": 69,
+          "rawContent": 2,
+          "rawFluency": 4,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 72,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:17:59.667Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "REPEAT_SENTENCE",
+          "section": "SPEAKING",
+          "marks": 8,
+          "title": "#69"
+        }
+      },
+      {
+        "id": "cmrkdrozx000vlkw8n004ter5",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpw55rge000110jgjra5fw7u",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/1568235e-3e70-492f-9e91-60466e62b25a\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmpw55rge000110jgjra5fw7u-1784017188486.webm\",\"scoreResult\":{\"marksEarned\":0.7,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response provides some relevant information about the image but lacks clarity and accuracy in data representation. Key details about the geographical trends and specific percentages are missing or misrepresented.\",\"transcription\":\"The image gives information about people who never accessed the internet in 2021. The main highlight of the image is internet. Firstly, it shows data about 0.4% with yellow, 4.8, 0-4 with yellow, 4-8 with green and 12-16 with dark green and 16-28 with purple. With no data they are in color grey. The highest element is grey color, there is no data given and the lowest element is yellow color with 0-4.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":72,\"content\":36,\"overall\":60,\"rawPronunciation\":4,\"rawFluency\":4,\"rawContent\":2},\"rawPointsEarned\":10,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmpw55rge000110jgjra5fw7u-1784017188486.webm",
+        "scores": {
+          "content": 36,
+          "fluency": 72,
+          "overall": 60,
+          "rawContent": 2,
+          "rawFluency": 4,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 63,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:19:43.821Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "DESCRIBE_IMAGE",
+          "section": "SPEAKING",
+          "marks": 10,
+          "title": "#1900 Europe in 2021"
+        }
+      },
+      {
+        "id": "cmrkdttnd002626wfxhhwcqwt",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmoqs64xx0003gi116ckepgf0",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/3818d194-0558-406e-ae1b-eef242697c83\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmoqs64xx0003gi116ckepgf0-1784017278688.webm\",\"scoreResult\":{\"marksEarned\":0.6,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response captures the general topic of the stock market but lacks specific details and clarity. Key points about its definition and historical context are missing.\",\"transcription\":\"The lecture was mainly about stock market. Firstly, the speaker was talking about that in 18s a stock market was came into publication. Secondly, he was mentioning that the stock market is related to the...\",\"aiScores\":{\"pronunciation\":72,\"fluency\":54,\"content\":36,\"overall\":54,\"rawPronunciation\":4,\"rawFluency\":3,\"rawContent\":2},\"rawPointsEarned\":9,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmoqs64xx0003gi116ckepgf0-1784017278688.webm",
+        "scores": {
+          "content": 36,
+          "fluency": 54,
+          "overall": 54,
+          "rawContent": 2,
+          "rawFluency": 3,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 54,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:21:23.161Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "RETELL_LECTURE",
+          "section": "SPEAKING",
+          "marks": 13,
+          "title": "#005"
+        }
+      },
+      {
+        "id": "cmrkdvdu30015lkw88w3qnu46",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmomkacvx000511hyn33g4lck",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/53bfc0c2-52d7-4137-b410-516734f2c3c0\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmomkacvx000511hyn33g4lck-1784017361297.webm\",\"scoreResult\":{\"marksEarned\":0.8,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response covers some key points about the importance of sleep and its effects on mental health, but it lacks detail and misses several critical aspects mentioned in the lecture, such as the impact of sleep deprivation and recommendations for improving sleep quality.\",\"transcription\":\"The lecture was about sleep. Firstly, the speaker was talking about that lack of sleep will reduce attention. Secondly, he was mentioning about that 7-9 hours of sleep is important. It gives information about many facts. Finally, the lecture was all about that a good sleep helps you in maintaining your mental health and your...\",\"aiScores\":{\"pronunciation\":72,\"fluency\":90,\"content\":54,\"overall\":72,\"rawPronunciation\":4,\"rawFluency\":5,\"rawContent\":3},\"rawPointsEarned\":12,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmomkacvx000511hyn33g4lck-1784017361297.webm",
+        "scores": {
+          "content": 54,
+          "fluency": 90,
+          "overall": 72,
+          "rawContent": 3,
+          "rawFluency": 5,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 72,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:22:35.979Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "RETELL_LECTURE",
+          "section": "SPEAKING",
+          "marks": 15,
+          "title": "#004 Sleep"
+        }
+      },
+      {
+        "id": "cmrkdwcd9001dlkw8qfhzu5uz",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmos679no0003pgr62gh9irh3",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/dd462519-eeaf-4949-9838-15584792649a\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmos679no0003pgr62gh9irh3-1784017398009.webm\",\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response does not address the question and is irrelevant to the expected answer.\",\"transcription\":\"Thank you very much for your time, and we look forward to seeing you next time. Thank you very much.\",\"aiScores\":{\"pronunciation\":0,\"fluency\":0,\"content\":0,\"overall\":0,\"rawPronunciation\":0,\"rawFluency\":0,\"rawContent\":0},\"rawPointsEarned\":0,\"maxPointsPossible\":3}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmos679no0003pgr62gh9irh3-1784017398009.webm",
+        "scores": {
+          "content": 0,
+          "fluency": 0,
+          "overall": 0,
+          "rawContent": 0,
+          "rawFluency": 0,
+          "pronunciation": 0,
+          "rawPronunciation": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:23:20.733Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "ANSWER_SHORT_QUESTION",
+          "section": "SPEAKING",
+          "marks": 1,
+          "title": "#133"
+        }
+      },
+      {
+        "id": "cmrkdy300001flkw8j2h11m3u",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmos4trc200031234j6b9vvui",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/61046766-31d5-4ed8-a001-b259744768f2\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmos4trc200031234j6b9vvui-1784017477866.webm\",\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response does not address the question about France. It is irrelevant to the expected answer.\",\"transcription\":\"Peace.\",\"aiScores\":{\"pronunciation\":0,\"fluency\":0,\"content\":0,\"overall\":0,\"rawPronunciation\":0,\"rawFluency\":0,\"rawContent\":0},\"rawPointsEarned\":0,\"maxPointsPossible\":3}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmos4trc200031234j6b9vvui-1784017477866.webm",
+        "scores": {
+          "content": 0,
+          "fluency": 0,
+          "overall": 0,
+          "rawContent": 0,
+          "rawFluency": 0,
+          "pronunciation": 0,
+          "rawPronunciation": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:24:41.904Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "ANSWER_SHORT_QUESTION",
+          "section": "SPEAKING",
+          "marks": 1,
+          "title": "#002"
+        }
+      },
+      {
+        "id": "cmrkdyga7001jlkw8d1htlxbx",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmos4v23j00051234wf7yup4f",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/d4e5b525-966e-455b-ba71-87a87b89c214\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmos4v23j00051234wf7yup4f-1784017496637.webm\",\"scoreResult\":{\"marksEarned\":0.3,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response includes relevant information but does not directly answer the question. It mentions 'lakes' but adds 'ocean,' which is not necessary.\",\"transcription\":\"Ocean and lakes.\",\"aiScores\":{\"pronunciation\":0,\"fluency\":0,\"content\":30,\"overall\":30,\"rawPronunciation\":0,\"rawFluency\":0,\"rawContent\":1},\"rawPointsEarned\":1,\"maxPointsPossible\":3}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmos4v23j00051234wf7yup4f-1784017496637.webm",
+        "scores": {
+          "content": 30,
+          "fluency": 0,
+          "overall": 30,
+          "rawContent": 1,
+          "rawFluency": 0,
+          "pronunciation": 0,
+          "rawPronunciation": 0
+        },
+        "rawPointsEarned": 0,
+        "maxPointsPossible": 1,
+        "overallScore": 27,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:24:59.119Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "ANSWER_SHORT_QUESTION",
+          "section": "SPEAKING",
+          "marks": 1,
+          "title": "#122"
+        }
+      },
+      {
+        "id": "cmrkdz8br001plkw84bk0ib54",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmos4w9u800071234m1yg7sdw",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/c47cd66d-00f7-414f-8b4c-4cb44f950a84\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmos4w9u800071234m1yg7sdw-1784017532588.webm\",\"scoreResult\":{\"marksEarned\":1,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response is accurate and directly answers the question. It provides the expected reference without any additional information.\",\"transcription\":\"Hiroshima. \",\"aiScores\":{\"pronunciation\":0,\"fluency\":0,\"content\":90,\"overall\":90,\"rawPronunciation\":0,\"rawFluency\":0,\"rawContent\":3},\"rawPointsEarned\":3,\"maxPointsPossible\":3}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmos4w9u800071234m1yg7sdw-1784017532588.webm",
+        "scores": {
+          "content": 90,
+          "fluency": 0,
+          "overall": 90,
+          "rawContent": 3,
+          "rawFluency": 0,
+          "pronunciation": 0,
+          "rawPronunciation": 0
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 90,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:25:35.463Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "ANSWER_SHORT_QUESTION",
+          "section": "SPEAKING",
+          "marks": 1,
+          "title": "#003"
+        }
+      },
+      {
+        "id": "cmrke1grk002g26wfrbaf5xnk",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmo9puynv0001oj4r0nphbwjd",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/679b5333-1a50-4322-a069-7baf1de47338\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmo9puynv0001oj4r0nphbwjd-1784017644861.webm\",\"scoreResult\":{\"marksEarned\":0.7,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response addresses the situation but lacks clarity and coherence. Key points about contesting incorrect information and steering the discussion towards solutions are not effectively articulated.\",\"transcription\":\"The situation presented here is about in the midst of a group dialogue on climate change. While considering this, we should also focus on, I encounter a participant, dismenting incorrect information and unforced assertions. In addition, it is important to take into account that how do I courteously contest their remarks and state their discourse towards accurate data and practical solutions. Therefore, we need to address the key factors including practical solutions. Finally, this situation should be handled with the focus on in the midst of a group dialogue on a climate change, I encounter a participant, dismenting incorrect information and unfounded assertions.\",\"aiScores\":{\"pronunciation\":72,\"fluency\":72,\"content\":36,\"overall\":60,\"rawPronunciation\":4,\"rawFluency\":4,\"rawContent\":2},\"rawPointsEarned\":10,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmo9puynv0001oj4r0nphbwjd-1784017644861.webm",
+        "scores": {
+          "content": 36,
+          "fluency": 72,
+          "overall": 60,
+          "rawContent": 2,
+          "rawFluency": 4,
+          "pronunciation": 72,
+          "rawPronunciation": 4
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 63,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:27:19.712Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "RESPOND_TO_SITUATION",
+          "section": "SPEAKING",
+          "marks": 12,
+          "title": "#002"
+        }
+      },
+      {
+        "id": "cmrke2sfh002k26wf1vdgckxa",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmq52n0ud0001bamfk4im9wli",
+        "responseText": "{\"type\":\"audio\",\"audioBlob\":{},\"audioUrl\":\"blob:https://www.getprepfly.com/069fc5ce-8bca-448b-8847-2f486ad4041c\",\"persistentAudioUrl\":\"/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmq52n0ud0001bamfk4im9wli-1784017698454.webm\",\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"message\":\"The response does not address the discussion topic or provide any relevant content.\",\"transcription\":\"Thank you.\",\"aiScores\":{\"pronunciation\":0,\"fluency\":0,\"content\":0,\"overall\":0,\"rawPronunciation\":0,\"rawFluency\":0,\"rawContent\":0},\"rawPointsEarned\":0,\"maxPointsPossible\":15}}",
+        "responseAudio": "/api/media-proxy?url=https%3A%2F%2Fj3m0lj0davuakzlx.private.blob.vercel-storage.com%2Fstudent-audio%2Fcmpxlradp000wj8e862ik1kpa%2Fcmq52n0ud0001bamfk4im9wli-1784017698454.webm",
+        "scores": {
+          "content": 0,
+          "fluency": 0,
+          "overall": 0,
+          "rawContent": 0,
+          "rawFluency": 0,
+          "pronunciation": 0,
+          "rawPronunciation": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:28:21.485Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "SUMMARIZE_GROUP_DISCUSSION",
+          "section": "SPEAKING",
+          "marks": 10,
+          "title": "#2102"
+        }
+      },
+      {
+        "id": "cmrke9svz002q26wfpye2o7g6",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpccgn8p0001u0hcf32toym9",
+        "responseText": "Financial statement is a crucial aspect of personal finance that allows individuals to grow their wealth over time while it may seem complex, understanding the essentials of investment is essential for making informed decisions and achieving financial goals however, minimizing these costs can significantly impact your overall returns.",
+        "responseAudio": null,
+        "scores": {
+          "content": 0,
+          "grammar": 0,
+          "overall": 0,
+          "rawForm": 0,
+          "spelling": 0,
+          "structure": 0,
+          "rawContent": 0,
+          "rawGrammar": 0,
+          "vocabulary": 0,
+          "rawSpelling": 0,
+          "rawStructure": 0,
+          "rawVocabulary": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:33:48.671Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "SUMMARIZE_WRITTEN_TEXT",
+          "section": "WRITING",
+          "marks": 10,
+          "title": "#104 Financial investment"
+        }
+      },
+      {
+        "id": "cmrkehuco002s26wfiu9b4j3f",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmoco1uun0001hrgu03hn0x06",
+        "responseText": "C.P. Snow's essay \"The Two Cultures\" addressed the division between literary intellectuals and scientists in society however, snow also acknowledged the wider social and economic implications of the culture divide whereas, by bridging this gap and promoting interdisciplinary collaboration, we can gain a comprehensive understanding of the world and effectively address complex societal issues.",
+        "responseAudio": null,
+        "scores": {
+          "content": 0,
+          "grammar": 0,
+          "overall": 0,
+          "rawForm": 0,
+          "spelling": 0,
+          "structure": 0,
+          "rawContent": 0,
+          "rawGrammar": 0,
+          "vocabulary": 0,
+          "rawSpelling": 0,
+          "rawStructure": 0,
+          "rawVocabulary": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:40:03.816Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "SUMMARIZE_WRITTEN_TEXT",
+          "section": "WRITING",
+          "marks": 90,
+          "title": "#006 Two Cultures"
+        }
+      },
+      {
+        "id": "cmrkf4gs0003d26wf1s8pckfe",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmo9uy24x0005f7muvurmf10f",
+        "responseText": "In view of the complexities of modern society, various issues prompt discussions and debates among individuals. The main reasons people struggle to maintain heathy eating habits in today's society. In light of this, this essay will explore different perspectives on healthy eating habits before arriving at our own reasoned conclusion, considering the diverse viewpoints.\nFirst and foremost there are many reasons in favor of the argument. Moreover, the best explanation is that we appreciate the value of healthy eating habits whenever we are in difficult situation. For example, referring to the views of leading researches, most people gave positive feedback on eating habits and its importance in our daily life. Hence, it is irrefutable that we cannot ignore the positive outcome of the notion.\nOn the other hand, people opposing the argument have strong reasons. In addition, the justification is that when we need the help of eating habits they expose us to their darker side. For example, according to numerous studies, there is substantial evidence pointing to the highly negative impacts of eating habits on human life today. Therefore, I believe this scenario presents many drawbacks that need to be carefully considered.\nIn conclusion, the topic of healthy eating habits evokes a mix of emotions in me, leaving me uncertain about the future. Despite the numerous problems and solutions associated with eating habits, I believe the advantages of eating habits outweigh the disadvantages of people struggle to maintain healthy eating habits in todays society. This uncertainty, invites us all to engage in the exploration of different perspectives and arrive at our own reasoned conclusions.\n",
+        "responseAudio": null,
+        "scores": {
+          "content": 60,
+          "grammar": 45,
+          "overall": 55,
+          "rawForm": 2,
+          "spelling": 45,
+          "structure": 45,
+          "rawContent": 2,
+          "rawGrammar": 1,
+          "vocabulary": 45,
+          "rawSpelling": 1,
+          "rawStructure": 1,
+          "rawVocabulary": 1
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 54,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:57:39.313Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "WRITE_ESSAY",
+          "section": "WRITING",
+          "marks": 1,
+          "title": "#073 Eating Habbits"
+        }
+      },
+      {
+        "id": "cmrkf5nkj0003m6byui483p4r",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpm6av68000d1354yy1js04f",
+        "responseText": "{\"answer\":1,\"scoreResult\":{\"marksEarned\":1,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"percentile\":null},\"modelAnswer\":\"The connection between exercise and mental health\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 1,
+          "correct": 1,
+          "mistakes": [],
+          "marksTotal": 1,
+          "percentile": null,
+          "marksEarned": 1
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 90,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:58:34.772Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READING_MCQ_SINGLE",
+          "section": "READING",
+          "marks": 1,
+          "title": "#118"
+        }
+      },
+      {
+        "id": "cmrkf6b4w0007m6bywntuu7b8",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmo9nd3co000913ap2xe392kv",
+        "responseText": "{\"answer\":[3],\"scoreResult\":{\"marksEarned\":1,\"marksTotal\":3,\"correct\":1,\"total\":3,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"(Missed)\",\"correctAnswer\":\"Make our roads safer.\"},{\"position\":2,\"yourAnswer\":\"(Missed)\",\"correctAnswer\":\"The normal operation.\"}],\"percentile\":14},\"modelAnswer\":null}",
+        "responseAudio": null,
+        "scores": {
+          "total": 3,
+          "correct": 1,
+          "mistakes": [
+            {
+              "position": 1,
+              "yourAnswer": "(Missed)",
+              "correctAnswer": "Make our roads safer."
+            },
+            {
+              "position": 2,
+              "yourAnswer": "(Missed)",
+              "correctAnswer": "The normal operation."
+            }
+          ],
+          "marksTotal": 3,
+          "percentile": 14,
+          "marksEarned": 1
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 3,
+        "overallScore": 30,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:59:05.312Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READING_MCQ_MULTIPLE",
+          "section": "READING",
+          "marks": 3,
+          "title": "#010 TRAFFIC LIGHTS"
+        }
+      },
+      {
+        "id": "cmrkf6e9u000bm6byqqgpd2rk",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpnlox5w0001nbviclgezrsb",
+        "responseText": "{\"answer\":[0],\"scoreResult\":{\"marksEarned\":1,\"marksTotal\":2,\"correct\":1,\"total\":2,\"mistakes\":[{\"position\":3,\"yourAnswer\":\"(Missed)\",\"correctAnswer\":\"Guaranteed elimination of pollution\"}],\"percentile\":null},\"modelAnswer\":\"A,C\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 2,
+          "correct": 1,
+          "mistakes": [
+            {
+              "position": 3,
+              "yourAnswer": "(Missed)",
+              "correctAnswer": "Guaranteed elimination of pollution"
+            }
+          ],
+          "marksTotal": 2,
+          "percentile": null,
+          "marksEarned": 1
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 2,
+        "overallScore": 45,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:59:09.378Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READING_MCQ_MULTIPLE",
+          "section": "READING",
+          "marks": 2,
+          "title": "#501"
+        }
+      },
+      {
+        "id": "cmrkf6qg5003j26wf0bk28gbo",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmo8da9lb000d2ba1y3at0k1g",
+        "responseText": "{\"answer\":[3,2,0,4,1],\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":4,\"correct\":0,\"total\":4,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"Paragraph 4 placed at position 1\",\"correctAnswer\":\"Paragraph 2 should be at position 1\"},{\"position\":2,\"yourAnswer\":\"Paragraph 3 placed at position 2\",\"correctAnswer\":\"Paragraph 1 should be at position 2\"},{\"position\":3,\"yourAnswer\":\"Paragraph 1 placed at position 3\",\"correctAnswer\":\"Paragraph 4 should be at position 3\"},{\"position\":5,\"yourAnswer\":\"Paragraph 2 placed at position 5\",\"correctAnswer\":\"Paragraph 3 should be at position 5\"}],\"percentile\":null},\"modelAnswer\":\"2,1,4,5,3\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 4,
+          "correct": 0,
+          "mistakes": [
+            {
+              "position": 1,
+              "yourAnswer": "Paragraph 4 placed at position 1",
+              "correctAnswer": "Paragraph 2 should be at position 1"
+            },
+            {
+              "position": 2,
+              "yourAnswer": "Paragraph 3 placed at position 2",
+              "correctAnswer": "Paragraph 1 should be at position 2"
+            },
+            {
+              "position": 3,
+              "yourAnswer": "Paragraph 1 placed at position 3",
+              "correctAnswer": "Paragraph 4 should be at position 3"
+            },
+            {
+              "position": 5,
+              "yourAnswer": "Paragraph 2 placed at position 5",
+              "correctAnswer": "Paragraph 3 should be at position 5"
+            }
+          ],
+          "marksTotal": 4,
+          "percentile": null,
+          "marksEarned": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 4,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:59:25.157Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "REORDER_PARAGRAPHS",
+          "section": "READING",
+          "marks": 1,
+          "title": "#029 Chef Maria Lopez"
+        }
+      },
+      {
+        "id": "cmrkf713k003n26wfk57t6a2v",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmo8dif9t000h2ba1y9ahlt5w",
+        "responseText": "{\"answer\":[1,0,3,4,2],\"scoreResult\":{\"marksEarned\":1,\"marksTotal\":4,\"correct\":1,\"total\":4,\"mistakes\":[{\"position\":3,\"yourAnswer\":\"Paragraph 4 placed at position 3\",\"correctAnswer\":\"Paragraph 5 should be at position 3\"},{\"position\":4,\"yourAnswer\":\"Paragraph 5 placed at position 4\",\"correctAnswer\":\"Paragraph 4 should be at position 4\"}],\"percentile\":0},\"modelAnswer\":\"2, 1, 5, 4, 3\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 4,
+          "correct": 1,
+          "mistakes": [
+            {
+              "position": 3,
+              "yourAnswer": "Paragraph 4 placed at position 3",
+              "correctAnswer": "Paragraph 5 should be at position 3"
+            },
+            {
+              "position": 4,
+              "yourAnswer": "Paragraph 5 placed at position 4",
+              "correctAnswer": "Paragraph 4 should be at position 4"
+            }
+          ],
+          "marksTotal": 4,
+          "percentile": 0,
+          "marksEarned": 1
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 4,
+        "overallScore": 23,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T08:59:38.960Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "REORDER_PARAGRAPHS",
+          "section": "READING",
+          "marks": 1,
+          "title": "#031 WATER"
+        }
+      },
+      {
+        "id": "cmrkf7pea003p26wfoh3bhdgk",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmo9pouo700032rtbh6jd2ib5",
+        "responseText": "{\"answers\":[\"supportive\",\"excellence\",\"growth\",\"disturbances\",\"concentrate\"],\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":1,\"correct\":0,\"total\":5,\"mistakes\":[],\"pending\":true,\"message\":\"Submitted for teacher review. Add a model answer to enable auto-scoring.\"}}",
+        "responseAudio": null,
+        "scores": {
+          "total": 5,
+          "correct": 0,
+          "message": "Submitted for teacher review. Add a model answer to enable auto-scoring.",
+          "pending": true,
+          "mistakes": [],
+          "marksTotal": 1,
+          "marksEarned": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:00:10.451Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READING_FILL_BLANKS_DRAG",
+          "section": "READING",
+          "marks": 5,
+          "title": "#1335 COMMUNICATION SKILLS"
+        }
+      },
+      {
+        "id": "cmrkf8ve6000dm6bywbacq859",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmppf5tov0007elftde6u3dgt",
+        "responseText": "{\"answers\":[\"publicly\",\"protect\",\"temporary\",\"curriculum\"],\"scoreResult\":{\"marksEarned\":0.8,\"marksTotal\":1,\"correct\":3,\"total\":4,\"mistakes\":[{\"position\":3,\"yourAnswer\":\"temporary\",\"correctAnswer\":\"important\"}]}}",
+        "responseAudio": null,
+        "scores": {
+          "total": 4,
+          "correct": 3,
+          "mistakes": [
+            {
+              "position": 3,
+              "yourAnswer": "temporary",
+              "correctAnswer": "important"
+            }
+          ],
+          "marksTotal": 1,
+          "marksEarned": 0.8
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 72,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:01:04.878Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READING_FILL_BLANKS_DROPDOWN",
+          "section": "READING",
+          "marks": 4,
+          "title": "#1803"
+        }
+      },
+      {
+        "id": "cmrkf94gn000fm6bysdxm5y2v",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpmh3ner0009owq7ca6w221c",
+        "responseText": "{\"answers\":[\"improve\",\"promote\",\"improve\",\"improve\"],\"scoreResult\":{\"marksEarned\":0.5,\"marksTotal\":1,\"correct\":2,\"total\":4,\"mistakes\":[{\"position\":3,\"yourAnswer\":\"improve\",\"correctAnswer\":\"support\"},{\"position\":4,\"yourAnswer\":\"improve\",\"correctAnswer\":\"gain\"}]}}",
+        "responseAudio": null,
+        "scores": {
+          "total": 4,
+          "correct": 2,
+          "mistakes": [
+            {
+              "position": 3,
+              "yourAnswer": "improve",
+              "correctAnswer": "support"
+            },
+            {
+              "position": 4,
+              "yourAnswer": "improve",
+              "correctAnswer": "gain"
+            }
+          ],
+          "marksTotal": 1,
+          "marksEarned": 0.5
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 45,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:01:16.631Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READING_FILL_BLANKS_DROPDOWN",
+          "section": "READING",
+          "marks": 4,
+          "title": "# 111"
+        }
+      },
+      {
+        "id": "cmrkf9jkj000hm6byf44rakax",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpmhqwck000bowq75nq6cuff",
+        "responseText": "{\"answers\":[\"develop\",\"increase\",\"Affect\",\"develop\"],\"scoreResult\":{\"marksEarned\":0.5,\"marksTotal\":1,\"correct\":2,\"total\":4,\"mistakes\":[{\"position\":3,\"yourAnswer\":\"Affect\",\"correctAnswer\":\"Access\"},{\"position\":4,\"yourAnswer\":\"develop\",\"correctAnswer\":\"Affect\"}]}}",
+        "responseAudio": null,
+        "scores": {
+          "total": 4,
+          "correct": 2,
+          "mistakes": [
+            {
+              "position": 3,
+              "yourAnswer": "Affect",
+              "correctAnswer": "Access"
+            },
+            {
+              "position": 4,
+              "yourAnswer": "develop",
+              "correctAnswer": "Affect"
+            }
+          ],
+          "marksTotal": 1,
+          "marksEarned": 0.5
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 45,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:01:36.212Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "READING_FILL_BLANKS_DROPDOWN",
+          "section": "READING",
+          "marks": 4,
+          "title": "#107"
+        }
+      },
+      {
+        "id": "cmrkffd32002llkw8ndd3gtqe",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmoqsru8p0005gi112nxjsle9",
+        "responseText": "The lecture was mainly about mood. Then the speaker talked about happiness. In addition emotions depend on mood was the main element from the lecture. Additionally the narrator also discussed about cytonsis. Overall, the lecture suggested highlighting the main facts about mood.",
+        "responseAudio": null,
+        "scores": {
+          "content": 0,
+          "grammar": 0,
+          "overall": 0,
+          "rawForm": 0,
+          "spelling": 0,
+          "structure": 0,
+          "rawContent": 0,
+          "rawGrammar": 0,
+          "vocabulary": 0,
+          "rawSpelling": 0,
+          "rawStructure": 0,
+          "rawVocabulary": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:06:07.743Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "SUMMARIZE_SPOKEN_TEXT",
+          "section": "LISTENING",
+          "marks": 10,
+          "title": "#006 MOOD"
+        }
+      },
+      {
+        "id": "cmrkffvj3002plkw8d3n19pv6",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmor2gleg000bnp9htkhfix96",
+        "responseText": "{\"answer\":0,\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"Products online are more affordable for those who have lost their jobs.\",\"correctAnswer\":\"Consumers have learned how convenient it is to shop online.\"}],\"percentile\":0},\"modelAnswer\":\"C\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 1,
+          "correct": 0,
+          "mistakes": [
+            {
+              "position": 1,
+              "yourAnswer": "Products online are more affordable for those who have lost their jobs.",
+              "correctAnswer": "Consumers have learned how convenient it is to shop online."
+            }
+          ],
+          "marksTotal": 1,
+          "percentile": 0,
+          "marksEarned": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:06:31.647Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "LISTENING_MCQ_SINGLE",
+          "section": "LISTENING",
+          "marks": 1,
+          "title": "#008"
+        }
+      },
+      {
+        "id": "cmrkfg44b002tlkw86ydshogq",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpi2xul30001jxfbzaj6ii5o",
+        "responseText": "{\"answer\":2,\"scoreResult\":{\"marksEarned\":1,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"percentile\":null},\"modelAnswer\":\"Good morning everyone. Today’s lecture focuses on renewable energy sources. Among all renewable options, solar power has experienced the fastest growth in the past decade. Improvements in solar panel efficiency and reductions in manufacturing costs have made solar energy more affordable for households and businesses. Although wind and hydroelectric power remain important, experts believe solar energy will dominate future investments because it can be installed in both urban and rural areas with relative.\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 1,
+          "correct": 1,
+          "mistakes": [],
+          "marksTotal": 1,
+          "percentile": null,
+          "marksEarned": 1
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 90,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:06:42.779Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "LISTENING_MCQ_SINGLE",
+          "section": "LISTENING",
+          "marks": 1,
+          "title": "#101"
+        }
+      },
+      {
+        "id": "cmrkfgtix002xlkw8tqi34an2",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpnnsacc000vz8yxw0uis1gk",
+        "responseText": "{\"answer\":[0,1],\"scoreResult\":{\"marksEarned\":2,\"marksTotal\":3,\"correct\":2,\"total\":3,\"mistakes\":[{\"position\":4,\"yourAnswer\":\"(Missed)\",\"correctAnswer\":\" Lower household water bills\"}],\"percentile\":null},\"modelAnswer\":\"A,B,D\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 3,
+          "correct": 2,
+          "mistakes": [
+            {
+              "position": 4,
+              "yourAnswer": "(Missed)",
+              "correctAnswer": " Lower household water bills"
+            }
+          ],
+          "marksTotal": 3,
+          "percentile": null,
+          "marksEarned": 2
+        },
+        "rawPointsEarned": 2,
+        "maxPointsPossible": 3,
+        "overallScore": 60,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:07:15.705Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "LISTENING_MCQ_MULTIPLE",
+          "section": "LISTENING",
+          "marks": 3,
+          "title": "1109"
+        }
+      },
+      {
+        "id": "cmrkfh9om0031lkw8fugnwfoe",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpnmxrf00005z8yxmgas4ycp",
+        "responseText": "{\"answer\":[1,2,4,0],\"scoreResult\":{\"marksEarned\":4,\"marksTotal\":4,\"correct\":4,\"total\":4,\"mistakes\":[],\"percentile\":75},\"modelAnswer\":\"A,B,C,E\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 4,
+          "correct": 4,
+          "mistakes": [],
+          "marksTotal": 4,
+          "percentile": 75,
+          "marksEarned": 4
+        },
+        "rawPointsEarned": 4,
+        "maxPointsPossible": 4,
+        "overallScore": 90,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:07:36.647Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "LISTENING_MCQ_MULTIPLE",
+          "section": "LISTENING",
+          "marks": 4,
+          "title": "#1102"
+        }
+      },
+      {
+        "id": "cmrkfhqi80033lkw82ikz3gmj",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmou0oztj0003cabsmw9lw8es",
+        "responseText": "{\"answers\":[\"music\",\"trigger\",\"college\"],\"scoreResult\":{\"marksEarned\":1,\"marksTotal\":1,\"correct\":3,\"total\":3,\"mistakes\":[]}}",
+        "responseAudio": null,
+        "scores": {
+          "total": 3,
+          "correct": 3,
+          "mistakes": [],
+          "marksTotal": 1,
+          "marksEarned": 1
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 90,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:07:58.449Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "LISTENING_FILL_BLANKS",
+          "section": "LISTENING",
+          "marks": 3,
+          "title": "#003"
+        }
+      },
+      {
+        "id": "cmrkfidlu0035lkw8z2pv6n63",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmouzql4x0001anrq7e0t1rzd",
+        "responseText": "{\"answers\":[\"books\",\"\",\"point\",\"likely\"],\"scoreResult\":{\"marksEarned\":0.8,\"marksTotal\":1,\"correct\":3,\"total\":4,\"mistakes\":[{\"position\":2,\"yourAnswer\":\"(empty)\",\"correctAnswer\":\"bar\"}]}}",
+        "responseAudio": null,
+        "scores": {
+          "total": 4,
+          "correct": 3,
+          "mistakes": [
+            {
+              "position": 2,
+              "yourAnswer": "(empty)",
+              "correctAnswer": "bar"
+            }
+          ],
+          "marksTotal": 1,
+          "marksEarned": 0.8
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 72,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:08:28.387Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "LISTENING_FILL_BLANKS",
+          "section": "LISTENING",
+          "marks": 4,
+          "title": "#006 Books"
+        }
+      },
+      {
+        "id": "cmrkfimxf003r26wf8wox9rem",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmor158au0001h6sq1krrmap9",
+        "responseText": "{\"answer\":0,\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"A. The number of insects doubles near the streetlights.\",\"correctAnswer\":\"Insect population drops by 50% near streetlights.\"}],\"percentile\":null},\"modelAnswer\":\"C\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 1,
+          "correct": 0,
+          "mistakes": [
+            {
+              "position": 1,
+              "yourAnswer": "A. The number of insects doubles near the streetlights.",
+              "correctAnswer": "Insect population drops by 50% near streetlights."
+            }
+          ],
+          "marksTotal": 1,
+          "percentile": null,
+          "marksEarned": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:08:40.467Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "HIGHLIGHT_CORRECT_SUMMARY",
+          "section": "LISTENING",
+          "marks": 1,
+          "title": "#005"
+        }
+      },
+      {
+        "id": "cmrkfixbz003v26wf0gem8g7h",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmor1ewet0001np9hyv1e3wl5",
+        "responseText": "{\"answer\":2,\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"Disdainful\",\"correctAnswer\":\" Expectant\"}],\"percentile\":null},\"modelAnswer\":\"D\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 1,
+          "correct": 0,
+          "mistakes": [
+            {
+              "position": 1,
+              "yourAnswer": "Disdainful",
+              "correctAnswer": " Expectant"
+            }
+          ],
+          "marksTotal": 1,
+          "percentile": null,
+          "marksEarned": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:08:53.951Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "HIGHLIGHT_CORRECT_SUMMARY",
+          "section": "LISTENING",
+          "marks": 1,
+          "title": "#006"
+        }
+      },
+      {
+        "id": "cmrkfj4v900038sbhr6k9fqvh",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpwfukbp0011q2lyln5q8g0e",
+        "responseText": "{\"answer\":1,\"scoreResult\":{\"marksEarned\":1,\"marksTotal\":1,\"correct\":1,\"total\":1,\"mistakes\":[],\"percentile\":null},\"modelAnswer\":\"B\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 1,
+          "correct": 1,
+          "mistakes": [],
+          "marksTotal": 1,
+          "percentile": null,
+          "marksEarned": 1
+        },
+        "rawPointsEarned": 1,
+        "maxPointsPossible": 1,
+        "overallScore": 90,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:09:03.717Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "SELECT_MISSING_WORD",
+          "section": "LISTENING",
+          "marks": 1,
+          "title": "#2004"
+        }
+      },
+      {
+        "id": "cmrkfjfdj00078sbhbkr8kfqw",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpwfowjw000vq2lyn8k3hrx1",
+        "responseText": "{\"answer\":2,\"scoreResult\":{\"marksEarned\":0,\"marksTotal\":1,\"correct\":0,\"total\":1,\"mistakes\":[{\"position\":1,\"yourAnswer\":\"struggling to find inspiration\",\"correctAnswer\":\" writing in collaboration\"}],\"percentile\":null},\"modelAnswer\":\"A\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 1,
+          "correct": 0,
+          "mistakes": [
+            {
+              "position": 1,
+              "yourAnswer": "struggling to find inspiration",
+              "correctAnswer": " writing in collaboration"
+            }
+          ],
+          "marksTotal": 1,
+          "percentile": null,
+          "marksEarned": 0
+        },
+        "rawPointsEarned": null,
+        "maxPointsPossible": 1,
+        "overallScore": null,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:09:17.335Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "SELECT_MISSING_WORD",
+          "section": "LISTENING",
+          "marks": 1,
+          "title": "#2003"
+        }
+      },
+      {
+        "id": "cmrkfk1ud000b8sbh53z2wfoj",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpw8izvv000p1y8v7zx5f0bw",
+        "responseText": "{\"answer\":[26,48,78,98,122],\"scoreResult\":{\"marksEarned\":5,\"marksTotal\":5,\"correct\":5,\"total\":5,\"mistakes\":[],\"percentile\":61},\"modelAnswer\":\"complicated   wonderful     envy     surprise     understanding\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 5,
+          "correct": 5,
+          "mistakes": [],
+          "marksTotal": 5,
+          "percentile": 61,
+          "marksEarned": 5
+        },
+        "rawPointsEarned": 5,
+        "maxPointsPossible": 5,
+        "overallScore": 90,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:09:46.454Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "HIGHLIGHT_INCORRECT_WORDS",
+          "section": "LISTENING",
+          "marks": 5,
+          "title": "# 323"
+        }
+      },
+      {
+        "id": "cmrkfktl6000d8sbh38skx1vj",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmpw9rjpc000df91jrqmhg4qx",
+        "responseText": "{\"answer\":[26,40,86,116,150],\"scoreResult\":{\"marksEarned\":5,\"marksTotal\":5,\"correct\":5,\"total\":5,\"mistakes\":[],\"percentile\":58},\"modelAnswer\":\"philosophy  approaches  feelings  generate dimensions\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 5,
+          "correct": 5,
+          "mistakes": [],
+          "marksTotal": 5,
+          "percentile": 58,
+          "marksEarned": 5
+        },
+        "rawPointsEarned": 5,
+        "maxPointsPossible": 5,
+        "overallScore": 90,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:10:22.410Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "HIGHLIGHT_INCORRECT_WORDS",
+          "section": "LISTENING",
+          "marks": 6,
+          "title": "#319"
+        }
+      },
+      {
+        "id": "cmrkfmkxm000h8sbhew9xl39t",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmonzxi2q000h93fbg7z9o7j1",
+        "responseText": "{\"answer\":\"Reading is essential for comprehensive for improving skills.\",\"scoreResult\":{\"marksEarned\":5,\"marksTotal\":10,\"correct\":5,\"total\":10,\"mistakes\":[{\"position\":2,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"extensively\"},{\"position\":4,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"necessary\"},{\"position\":7,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"vocabulary\"},{\"position\":8,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"and\"},{\"position\":9,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"comprehension\"}],\"message\":\"5/10 words matched\",\"percentile\":50},\"modelAnswer\":\"Reading extensively is necessary for improving vocabulary and comprehension skills.\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 10,
+          "correct": 5,
+          "message": "5/10 words matched",
+          "mistakes": [
+            {
+              "position": 2,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "extensively"
+            },
+            {
+              "position": 4,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "necessary"
+            },
+            {
+              "position": 7,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "vocabulary"
+            },
+            {
+              "position": 8,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "and"
+            },
+            {
+              "position": 9,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "comprehension"
+            }
+          ],
+          "marksTotal": 10,
+          "percentile": 50,
+          "marksEarned": 5
+        },
+        "rawPointsEarned": 5,
+        "maxPointsPossible": 10,
+        "overallScore": 45,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:11:44.506Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "WRITE_FROM_DICTATION",
+          "section": "LISTENING",
+          "marks": 10,
+          "title": "#022"
+        }
+      },
+      {
+        "id": "cmrkfob2q000l8sbh3ibvjxnq",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmonuvrd3000dia655mg2wggx",
+        "responseText": "{\"answer\":\"Research shows that regular exercise can help you to contribute in overall mental well-being.\",\"scoreResult\":{\"marksEarned\":7,\"marksTotal\":10,\"correct\":7,\"total\":10,\"mistakes\":[{\"position\":4,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"daily\"},{\"position\":6,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"contributes\"},{\"position\":10,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"health\"}],\"message\":\"7/10 words matched\",\"percentile\":83},\"modelAnswer\":\"Research shows that daily exercise contributes to overall mental health.\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 10,
+          "correct": 7,
+          "message": "7/10 words matched",
+          "mistakes": [
+            {
+              "position": 4,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "daily"
+            },
+            {
+              "position": 6,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "contributes"
+            },
+            {
+              "position": 10,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "health"
+            }
+          ],
+          "marksTotal": 10,
+          "percentile": 83,
+          "marksEarned": 7
+        },
+        "rawPointsEarned": 7,
+        "maxPointsPossible": 10,
+        "overallScore": 63,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:13:05.042Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "WRITE_FROM_DICTATION",
+          "section": "LISTENING",
+          "marks": 10,
+          "title": "#017"
+        }
+      },
+      {
+        "id": "cmrkfpob4000p8sbhylm96v13",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmqowjxmc00097x7swzti7sy1",
+        "responseText": "{\"answer\":\"Today, we will be discussing the role of the government in social injustice.\",\"scoreResult\":{\"marksEarned\":12,\"marksTotal\":13,\"correct\":12,\"total\":13,\"mistakes\":[{\"position\":12,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"preventing\"}],\"message\":\"12/13 words matched\",\"percentile\":78},\"modelAnswer\":\"Today we will be discussing the role of the government in preventing injustice.\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 13,
+          "correct": 12,
+          "message": "12/13 words matched",
+          "mistakes": [
+            {
+              "position": 12,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "preventing"
+            }
+          ],
+          "marksTotal": 13,
+          "percentile": 78,
+          "marksEarned": 12
+        },
+        "rawPointsEarned": 12,
+        "maxPointsPossible": 13,
+        "overallScore": 83,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:14:08.848Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "WRITE_FROM_DICTATION",
+          "section": "LISTENING",
+          "marks": 13,
+          "title": "#2411"
+        }
+      },
+      {
+        "id": "cmrkfqrex000t8sbh45518ueq",
+        "userId": "cmpxlradp000wj8e862ik1kpa",
+        "questionId": "cmqowh71300037x7s8qk3k4mk",
+        "responseText": "{\"answer\":\"There are lots of students in completing in their computer courses.\",\"scoreResult\":{\"marksEarned\":7,\"marksTotal\":13,\"correct\":7,\"total\":13,\"mistakes\":[{\"position\":3,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"lot\"},{\"position\":6,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"competing\"},{\"position\":7,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"for\"},{\"position\":8,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"the\"},{\"position\":9,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"places\"},{\"position\":11,\"yourAnswer\":\"(missed)\",\"correctAnswer\":\"the\"}],\"message\":\"7/13 words matched\",\"percentile\":40},\"modelAnswer\":\"There are lot of students competing for the places in the computer courses.\"}",
+        "responseAudio": null,
+        "scores": {
+          "total": 13,
+          "correct": 7,
+          "message": "7/13 words matched",
+          "mistakes": [
+            {
+              "position": 3,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "lot"
+            },
+            {
+              "position": 6,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "competing"
+            },
+            {
+              "position": 7,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "for"
+            },
+            {
+              "position": 8,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "the"
+            },
+            {
+              "position": 9,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "places"
+            },
+            {
+              "position": 11,
+              "yourAnswer": "(missed)",
+              "correctAnswer": "the"
+            }
+          ],
+          "marksTotal": 13,
+          "percentile": 40,
+          "marksEarned": 7
+        },
+        "rawPointsEarned": 7,
+        "maxPointsPossible": 13,
+        "overallScore": 48,
+        "timeTaken": null,
+        "feedback": null,
+        "createdAt": "2026-07-14T09:14:59.529Z",
+        "mockTestId": "cmrkdboll000126wf359lpmte",
+        "question": {
+          "type": "WRITE_FROM_DICTATION",
+          "section": "LISTENING",
+          "marks": 13,
+          "title": "#2409"
+        }
+      }
+    ]
+  }
+}

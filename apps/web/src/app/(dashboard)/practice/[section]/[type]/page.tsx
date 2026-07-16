@@ -44,7 +44,7 @@ export default function PracticeQuestionPage() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
-  const [reportSubmitting, setReportSubmitting] = useState(false);
+  const [reportSubmitting, setReportSubmittreing] = useState(false);
   const [reportDone, setReportDone] = useState<Set<string>>(() => new Set());
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [selectedSource, setSelectedSource] = useState<"all" | "my-centre" | "public">("all");
@@ -139,7 +139,7 @@ export default function PracticeQuestionPage() {
           fetch(`/api/questions/flag?questionIds=${ids}`)
             .then(r => r.json())
             .then(d => { if (d.success) setFlags(prev => ({ ...prev, ...d.data })); })
-            .catch(() => {});
+            .catch(() => { });
         }
 
         return items.length > 0;
@@ -190,7 +190,7 @@ export default function PracticeQuestionPage() {
         if (items.length > 0) setLastAttemptScore(Math.round(items[0].overallScore));
         setHistoryLoaded(true);
       })
-      .catch(() => {})
+      .catch(() => { })
       .finally(() => { if (!cancelled) setHistoryLoading(false); });
 
     if (currentQuestion.content) {
@@ -203,7 +203,7 @@ export default function PracticeQuestionPage() {
           if (cancelled || !d.success) return;
           setQuestions(prev => prev.map(q => q.id === questionId ? { ...q, ...d.data } : q));
         })
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => {
           if (!cancelled) setQuestionLoading(false);
         });
@@ -460,30 +460,30 @@ export default function PracticeQuestionPage() {
               {filteredQuestions.map((q) => {
                 const origIdx = questions.indexOf(q);
                 return (
-                <button
-                  key={q.id}
-                  onClick={() => jumpToQuestion(origIdx)}
-                  className={`w-full rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-50 dark:hover:bg-slate-700/40 ${origIdx === currentIndex ? "bg-indigo-50 ring-1 ring-indigo-200 dark:bg-indigo-950/40 dark:ring-indigo-700" : ""}`}
-                >
-                  <div className="flex items-start gap-3">
-                    <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${origIdx === currentIndex ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-slate-400"}`}>
-                      {origIdx + 1}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-gray-900 dark:text-slate-100">{q.title}</p>
-                      <div className="mt-1 flex items-center gap-1.5">
-                        <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${q.difficulty === "EASY" ? "bg-green-100 text-green-700" : q.difficulty === "HARD" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-400"}`}>
-                          {q.difficulty}
-                        </span>
-                        {q.isPrediction && <Star className="h-3 w-3 text-amber-500" />}
-                        {flags[q.id] === "WEAK" && <ThumbsDown className="h-3 w-3 text-red-500" />}
-                        {flags[q.id] === "REVIEW_AGAIN" && <RefreshCw className="h-3 w-3 text-amber-500" />}
-                        {flags[q.id] === "STRONG" && <ThumbsUp className="h-3 w-3 text-green-500" />}
+                  <button
+                    key={q.id}
+                    onClick={() => jumpToQuestion(origIdx)}
+                    className={`w-full rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-50 dark:hover:bg-slate-700/40 ${origIdx === currentIndex ? "bg-indigo-50 ring-1 ring-indigo-200 dark:bg-indigo-950/40 dark:ring-indigo-700" : ""}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${origIdx === currentIndex ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-slate-400"}`}>
+                        {origIdx + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-medium text-gray-900 dark:text-slate-100">{q.title}</p>
+                        <div className="mt-1 flex items-center gap-1.5">
+                          <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${q.difficulty === "EASY" ? "bg-green-100 text-green-700" : q.difficulty === "HARD" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-400"}`}>
+                            {q.difficulty}
+                          </span>
+                          {q.isPrediction && <Star className="h-3 w-3 text-amber-500" />}
+                          {flags[q.id] === "WEAK" && <ThumbsDown className="h-3 w-3 text-red-500" />}
+                          {flags[q.id] === "REVIEW_AGAIN" && <RefreshCw className="h-3 w-3 text-amber-500" />}
+                          {flags[q.id] === "STRONG" && <ThumbsUp className="h-3 w-3 text-green-500" />}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
-              );
+                  </button>
+                );
               })}
               {questions.length < totalQuestions && (
                 <button
@@ -516,7 +516,7 @@ export default function PracticeQuestionPage() {
           )}
           <Badge variant={
             currentQuestion?.difficulty === "EASY" ? "success" :
-            currentQuestion?.difficulty === "HARD" ? "destructive" : "default"
+              currentQuestion?.difficulty === "HARD" ? "destructive" : "default"
           }>
             {currentQuestion?.difficulty}
           </Badge>
@@ -531,13 +531,12 @@ export default function PracticeQuestionPage() {
         {Array.from({ length: totalQuestions || questions.length }).map((_, i) => (
           <div
             key={i}
-            className={`h-1.5 flex-1 rounded-full transition ${
-              i === currentIndex
+            className={`h-1.5 flex-1 rounded-full transition ${i === currentIndex
                 ? "bg-indigo-600"
                 : i < currentIndex
-                ? "bg-indigo-200"
-                : "bg-gray-200"
-            }`}
+                  ? "bg-indigo-200"
+                  : "bg-gray-200"
+              }`}
           />
         ))}
       </div>
@@ -562,66 +561,66 @@ export default function PracticeQuestionPage() {
               local state (textarea, audio recording, MCQ selection, etc.) resets cleanly. */}
           {/* Block copying question text for non-super-admins */}
           <div onCopy={!isSuperAdmin ? (e) => e.preventDefault() : undefined}>
-          {questionLoading || !currentQuestion?.content ? (
-            <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
-            </div>
-          ) : (
-            <QuestionRenderer
-              key={currentQuestion?.id}
-              question={currentQuestion}
-              submitted={submitted}
-              showAnswer={showAnswer}
-              submitRef={autoSubmitRef}
-              allowCopyPaste={isSuperAdmin}
-              onSubmit={(response: any) => {
-                setSubmitted(true);
-                const result = response?.scoreResult as ScoreResult | undefined;
-                // For server-scored types the score endpoint returns modelAnswer; patch the question in-place
-                if (response?.modelAnswer && currentQuestion) {
-                  setQuestions(prev => prev.map((q, i) =>
-                    i === currentIndex ? { ...q, modelAnswer: response.modelAnswer } : q
-                  ));
-                }
-                if (result) {
-                  setScore(result);
-                  saveAttempt(currentQuestion, result, response);
-                  // For AI-scored types, percentile isn't in result yet — fetch it after save
-                  if (result.percentile === undefined && currentQuestion && !result.pending) {
-                    const overallScore = result.marksTotal > 0
-                      ? Math.round((result.marksEarned / result.marksTotal) * 90)
-                      : (result.aiScores?.overall != null ? Math.round(result.aiScores.overall) : 0);
-                    fetch(`/api/questions/${currentQuestion.id}/percentile?score=${overallScore}`)
-                      .then(r => r.json())
-                      .then(d => {
-                        if (d.success && d.data.percentile !== null) {
-                          setScore(prev => prev ? { ...prev, percentile: d.data.percentile } : prev);
-                        }
-                      })
-                      .catch(() => {});
+            {questionLoading || !currentQuestion?.content ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="h-7 w-7 animate-spin text-indigo-600" />
+              </div>
+            ) : (
+              <QuestionRenderer
+                key={currentQuestion?.id}
+                question={currentQuestion}
+                submitted={submitted}
+                showAnswer={showAnswer}
+                submitRef={autoSubmitRef}
+                allowCopyPaste={isSuperAdmin}
+                onSubmit={(response: any) => {
+                  setSubmitted(true);
+                  const result = response?.scoreResult as ScoreResult | undefined;
+                  // For server-scored types the score endpoint returns modelAnswer; patch the question in-place
+                  if (response?.modelAnswer && currentQuestion) {
+                    setQuestions(prev => prev.map((q, i) =>
+                      i === currentIndex ? { ...q, modelAnswer: response.modelAnswer } : q
+                    ));
                   }
-                }
-              }}
-              score={score}
-              onScoringChange={setCheckingAnswer}
-            />
-          )}
+                  if (result) {
+                    setScore(result);
+                    saveAttempt(currentQuestion, result, response);
+                    // For AI-scored types, percentile isn't in result yet — fetch it after save
+                    if (result.percentile === undefined && currentQuestion && !result.pending) {
+                      const overallScore = result.marksTotal > 0
+                        ? Math.round((result.marksEarned / result.marksTotal) * 90)
+                        : (result.aiScores?.overall != null ? Math.round(result.aiScores.overall) : 0);
+                      fetch(`/api/questions/${currentQuestion.id}/percentile?score=${overallScore}`)
+                        .then(r => r.json())
+                        .then(d => {
+                          if (d.success && d.data.percentile !== null) {
+                            setScore(prev => prev ? { ...prev, percentile: d.data.percentile } : prev);
+                          }
+                        })
+                        .catch(() => { });
+                    }
+                  }
+                }}
+                score={score}
+                onScoringChange={setCheckingAnswer}
+              />
+            )}
 
-          {/* Screen-reader score announcement */}
-          <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
-            {submitted && score
-              ? score.correct !== undefined
-                ? `Result: ${score.correct ? "Correct" : "Incorrect"}. ${score.marksEarned} of ${score.marksTotal} marks.${score.message ? ` ${score.message}` : ""}`
-                : `Submitted. ${score.marksEarned} of ${score.marksTotal} marks.`
-              : ""}
-          </p>
+            {/* Screen-reader score announcement */}
+            <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">
+              {submitted && score
+                ? score.correct !== undefined
+                  ? `Result: ${score.correct ? "Correct" : "Incorrect"}. ${score.marksEarned} of ${score.marksTotal} marks.${score.message ? ` ${score.message}` : ""}`
+                  : `Submitted. ${score.marksEarned} of ${score.marksTotal} marks.`
+                : ""}
+            </p>
 
-          {/* Score Summary (shown after submission) */}
-          {submitted && score && (
-            <div className="mt-6">
-              <ScoreSummary result={score} lastAttemptScore={lastAttemptScore} questionType={type} />
-            </div>
-          )}
+            {/* Score Summary (shown after submission) */}
+            {submitted && score && (
+              <div className="mt-6">
+                <ScoreSummary result={score} lastAttemptScore={lastAttemptScore} questionType={type} />
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -630,18 +629,18 @@ export default function PracticeQuestionPage() {
       {/* Hidden for fill-blanks types because the per-blank Correct Answers section already shows this */}
       {(submitted || showAnswer) && currentQuestion?.modelAnswer &&
         !["READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS", "REORDER_PARAGRAPHS"].includes(type) && (
-        <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base text-green-800 dark:text-green-300">
-              <CheckCircle2 className="h-5 w-5" />
-              Model Answer
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-green-900 whitespace-pre-wrap dark:text-green-200">{currentQuestion.modelAnswer}</p>
-          </CardContent>
-        </Card>
-      )}
+          <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base text-green-800 dark:text-green-300">
+                <CheckCircle2 className="h-5 w-5" />
+                Model Answer
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-green-900 whitespace-pre-wrap dark:text-green-200">{currentQuestion.modelAnswer}</p>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Explanation — shown after submission OR when Show Answer is toggled */}
       {(submitted || showAnswer) && currentQuestion?.explanation && (

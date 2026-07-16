@@ -181,7 +181,7 @@ export default function MockTestReportPage() {
                   <span className="font-semibold text-base">{idx + 1}. {attempt.question.type.replace(/_/g, " ")}</span>
                   <div className="flex items-center gap-4">
                     <span className="text-sm px-3 py-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-md font-bold">
-                      Score: {attempt.overallScore ?? "—"}/90
+                      Score: {attempt.overallScore != null ? Math.max(10, attempt.overallScore) : "—"}/90
                     </span>
                     <ChevronDown className="h-5 w-5 text-gray-400 transition-transform group-open:rotate-180" />
                   </div>

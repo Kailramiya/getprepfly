@@ -110,7 +110,7 @@ export async function PATCH(
     const scoringInput = (testData?.questions ?? []).map((q) => {
       const a = attemptByQ.get(q.question.id);
       return {
-        overallScore: a ? (a.overallScore ?? 0) : 0,
+        overallScore: a ? Math.max(10, a.overallScore ?? 10) : 10,
         rawPointsEarned: a ? a.rawPointsEarned : 0,
         maxPointsPossible: a ? a.maxPointsPossible : (q.question.marks ?? 0),
         scores: a?.scores ?? null,

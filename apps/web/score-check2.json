@@ -1,0 +1,19 @@
+{
+  "storedScores": {
+    "speaking": 45,
+    "writing": 32,
+    "reading": 31,
+    "listening": 45,
+    "overall": 38
+  },
+  "calculatedScores": {
+    "speaking": 45,
+    "writing": 32,
+    "reading": 31,
+    "listening": 45,
+    "overall": 38
+  },
+  "discrepancy": false,
+  "answeredCount": 49,
+  "totalQuestions": 60
+}

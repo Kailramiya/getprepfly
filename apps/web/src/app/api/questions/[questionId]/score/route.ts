@@ -251,8 +251,8 @@ export async function POST(
 
   // Save attempt (fire-and-forget; don't block the response)
   const overallScore = scoreResult.marksTotal > 0
-    ? Math.round((scoreResult.marksEarned / scoreResult.marksTotal) * 90)
-    : 0;
+    ? Math.max(10, Math.round((scoreResult.marksEarned / scoreResult.marksTotal) * 90))
+    : 10;
 
   // Save attempt + compute percentile in parallel (non-blocking save)
   const [, percentileResult] = await Promise.all([
