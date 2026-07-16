@@ -1607,6 +1607,9 @@ function SpeakingQuestion({
   const [modelAudioError, setModelAudioError] = useState<string | null>(null);
   const modelAudioRef = useRef<string | null>(null);
 
+  const recorderRef = useRef<{ stopRecording: () => void } | null>(null);
+  const blobRef = useRef<Blob | null>(null);
+
   // Revoke model-answer object URL on unmount to avoid memory leaks
   useEffect(() => {
     return () => { if (modelAudioRef.current) URL.revokeObjectURL(modelAudioRef.current); };
@@ -1690,13 +1693,34 @@ function SpeakingQuestion({
       : maxDuration;
 
   const handleRecordingComplete = (blob: Blob, url: string) => {
+    blobRef.current = blob;
     setAudioBlob(blob);
     setAudioUrl(url);
   };
 
 
   const handleSubmit = useCallback(async () => {
-    if (!audioBlob) return;
+    let currentBlob = blobRef.current;
+    
+    // If we don't have a blob but we might be recording, force stop and wait
+    if (!currentBlob && recorderRef.current) {
+      recorderRef.current.stopRecording();
+      currentBlob = await new Promise<Blob | null>((resolve) => {
+        let attempts = 0;
+        const interval = setInterval(() => {
+          if (blobRef.current) {
+            clearInterval(interval);
+            resolve(blobRef.current);
+          } else if (attempts > 20) { // max 2 seconds wait
+            clearInterval(interval);
+            resolve(null);
+          }
+          attempts++;
+        }, 100);
+      });
+    }
+
+    if (!currentBlob) return;
 
     // Default pending result
     let scoreResult: ScoreResult = {
@@ -1938,15 +1962,6 @@ function SpeakingQuestion({
         </div>
       )}
 
-      {/* Replay prompt for REPEAT_SENTENCE after submission */}
-      {submitted && showFeedback && questionType === "REPEAT_SENTENCE" && audioSrc && (
-        <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3">
-          <p className="mb-2 text-xs font-medium text-emerald-800 dark:text-emerald-300">
-            Replay the sentence to compare:
-          </p>
-          <audio controls src={audioSrc} preload="metadata" className="w-full" />
-        </div>
-      )}
 
       {!submitted && (
         <Button

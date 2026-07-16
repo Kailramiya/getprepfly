@@ -44,7 +44,7 @@ export default function PracticeQuestionPage() {
   const [showReportModal, setShowReportModal] = useState(false);
   const [reportReason, setReportReason] = useState("");
   const [reportDetails, setReportDetails] = useState("");
-  const [reportSubmitting, setReportSubmittreing] = useState(false);
+  const [reportSubmitting, setReportSubmitting] = useState(false);
   const [reportDone, setReportDone] = useState<Set<string>>(() => new Set());
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [selectedSource, setSelectedSource] = useState<"all" | "my-centre" | "public">("all");

@@ -14,6 +14,7 @@ interface AudioRecorderProps {
   autoStart?: boolean; // when true, starts recording automatically after autoStartDelay
   autoStartDelay?: number; // seconds to count down before auto-starting
   hideReRecord?: boolean; // hides the re-record option
+  recorderRef?: React.MutableRefObject<{ stopRecording: () => void } | null>;
 }
 
 export function AudioRecorder({
@@ -25,6 +26,7 @@ export function AudioRecorder({
   autoStart = false,
   autoStartDelay = 0,
   hideReRecord = false,
+  recorderRef,
 }: AudioRecorderProps) {
   const {
     isRecording,
@@ -41,6 +43,16 @@ export function AudioRecorder({
   const [isPreparing, setIsPreparing] = useState(false);
   const [hasRecorded, setHasRecorded] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (recorderRef) {
+      recorderRef.current = {
+        stopRecording: () => {
+          if (isRecording) stopRecording();
+        }
+      };
+    }
+  }, [recorderRef, isRecording, stopRecording]);
 
   // When blob is ready, notify parent
   useEffect(() => {
