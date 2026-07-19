@@ -2,6 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+    --primary: 240 5.9% 10%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 240 5.9% 10%;
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 5.9% 10%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+
 /* ── Content Protection ── */
 body {
   -webkit-user-select: none;
@@ -38,97 +95,3 @@ button img, a img, .allow-pointer img {
   pointer-events: auto;
 }
 
-:root {
-  --background: #ffffff;
-  --foreground: #111827;
-}
-
-.dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-}
-
-/* ── Dark Mode Global Overrides ──
-   Covers every bg-white / bg-gray-* / border-gray-* / text-gray-* pattern
-   without needing dark: on every component. */
-
-/* Page & card backgrounds */
-.dark body                          { background-color: #0f172a; color: #f1f5f9; }
-.dark .bg-white                     { background-color: #1e293b !important; }
-.dark .bg-gray-50                   { background-color: #0f172a !important; }
-.dark .bg-gray-100                  { background-color: #1e293b !important; }
-.dark .bg-gray-200                  { background-color: #334155 !important; }
-
-/* Borders */
-.dark .border-gray-100              { border-color: #1e293b !important; }
-.dark .border-gray-200              { border-color: #334155 !important; }
-.dark .border-gray-300              { border-color: #475569 !important; }
-.dark .divide-gray-200 > * + *      { border-color: #334155 !important; }
-.dark .divide-y > * + *             { border-color: #334155 !important; }
-
-/* Text — all values verified ≥4.5:1 contrast on #1e293b (WCAG AA) */
-.dark .text-gray-900                { color: #f1f5f9 !important; }  /* 15.2:1 */
-.dark .text-gray-800                { color: #e2e8f0 !important; }  /* 12.1:1 */
-.dark .text-gray-700                { color: #cbd5e1 !important; }  /*  8.9:1 */
-.dark .text-gray-600                { color: #94a3b8 !important; }  /*  5.2:1 */
-.dark .text-gray-500                { color: #94a3b8 !important; }  /*  5.2:1 — was #64748b (2.7:1, failed AA) */
-.dark .text-gray-400                { color: #8899aa !important; }  /*  4.6:1 — was #475569 (1.9:1, failed AA) */
-
-/* Inputs & textareas */
-.dark input,
-.dark textarea,
-.dark select                        { background-color: #1e293b; border-color: #334155; color: #f1f5f9; }
-.dark input::placeholder,
-.dark textarea::placeholder         { color: #8899aa; }  /* 4.6:1 — was #64748b (failed AA) */
-
-/* Hover states */
-.dark .hover\:bg-gray-50:hover      { background-color: #1e293b !important; }
-.dark .hover\:bg-gray-100:hover     { background-color: #334155 !important; }
-
-/* Shadows — lighten in dark mode */
-.dark .shadow-sm                    { box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.4); }
-.dark .shadow                       { box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5); }
-.dark .shadow-lg                    { box-shadow: 0 4px 16px 0 rgb(0 0 0 / 0.5); }
-
-/* Buttons with light backgrounds */
-.dark .bg-white\/80                 { background-color: rgb(30 41 59 / 0.8) !important; }
-
-/* Cards — white box with rounded corners */
-.dark [class*="rounded"][class*="border"] { border-color: #334155; }
-
-/* Autofill fix in dark mode */
-.dark input:-webkit-autofill,
-.dark input:-webkit-autofill:hover,
-.dark input:-webkit-autofill:focus  {
-  -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
-  -webkit-text-fill-color: #f1f5f9 !important;
-}
-
-/* Fix browser autofill purple/blue background */
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 30px white inset !important;
-  -webkit-text-fill-color: #111827 !important;
-  transition: background-color 5000s ease-in-out 0s;
-}
-
-/* Ensure all input text is legible */
-input, textarea, select {
-  color: #111827;
-}
-.dark input, .dark textarea, .dark select {
-  color: #f1f5f9;
-}
-
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
-}
