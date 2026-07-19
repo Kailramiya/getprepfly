@@ -95,8 +95,9 @@ const practiceCards = [
   },
 ];
 
-function formatTime(minutes: number): string {
-  if (!minutes) return "0m";
+function formatTime(seconds: number): string {
+  if (!seconds) return "0m";
+  const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m`;
   const h = Math.floor(minutes / 60);
   const m = minutes % 60;
