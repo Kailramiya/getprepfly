@@ -33,10 +33,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         await navigator.share(shareData);
       } else {
         await navigator.clipboard.writeText(shareData.url);
-        toast({
-          title: "Link Copied!",
-          description: "Share link has been copied to your clipboard.",
-        });
+        toast("success", "Share link has been copied to your clipboard.");
       }
     } catch (err) {
       console.error("Share failed:", err);
