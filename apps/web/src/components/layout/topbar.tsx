@@ -63,7 +63,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-md sm:px-6">
+    <header className="sticky top-6 z-30 mx-4 sm:mx-6 lg:mx-8 flex h-14 items-center justify-between rounded-full border border-white/10 bg-background/70 px-4 backdrop-blur-2xl shadow-glass dark:shadow-glass-dark transition-all duration-500 ease-fluid">
       {/* Left — mobile menu + centre name */}
       <div className="flex items-center gap-3">
         <button
@@ -92,7 +92,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
         {/* Feedback */}
         <Link href="/feedback">
-          <button className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground">
+          <button className="flex items-center gap-1.5 rounded-full bg-white/5 border border-white/5 px-4 py-1.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:bg-white/10 hover:text-foreground hover:shadow-glass active:scale-[0.98]">
             <MessageSquare className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Feedback</span>
           </button>
@@ -101,7 +101,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         {/* Share */}
         <button 
           onClick={handleShare}
-          className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted-foreground transition hover:bg-muted hover:text-foreground"
+          className="flex items-center gap-1.5 rounded-full bg-white/5 border border-white/5 px-4 py-1.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:bg-white/10 hover:text-foreground hover:shadow-glass active:scale-[0.98]"
         >
           <Share className="h-3.5 w-3.5" />
           <span className="hidden sm:inline">Share</span>
@@ -113,16 +113,16 @@ export function Topbar({ onMenuClick }: TopbarProps) {
             onClick={() => setDropdownOpen(!dropdownOpen)}
             aria-label="Account menu"
             aria-expanded={dropdownOpen}
-            className="flex items-center gap-2 rounded-lg p-1.5 transition hover:bg-muted"
+            className="flex items-center gap-2 rounded-full p-1 transition-all duration-500 ease-fluid hover:bg-white/5 hover:shadow-glass active:scale-[0.98]"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 text-sm font-bold text-white">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-indigo-600 text-sm font-bold text-white shadow-inner">
               {user?.name?.charAt(0)?.toUpperCase() || "U"}
             </div>
-            <div className="hidden text-left sm:block">
-              <p className="text-sm font-medium text-foreground leading-tight">{user?.name}</p>
+            <div className="hidden text-left sm:block pr-1">
+              <p className="text-sm font-semibold text-foreground leading-tight tracking-tight">{user?.name}</p>
               <p className="text-xs text-muted-foreground leading-tight">{user?.role?.replace(/_/g, " ")}</p>
             </div>
-            <ChevronDown className={`h-4 w-4 text-muted-foreground transition ${dropdownOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`h-4 w-4 mr-2 text-muted-foreground transition-transform duration-500 ease-fluid ${dropdownOpen ? "rotate-180" : ""}`} />
           </button>
 
           {/* Dropdown Menu */}

@@ -101,13 +101,13 @@ export function Sidebar({ onNavClick }: SidebarProps) {
   return (
     <aside
       className={cn(
-        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-gray-200 dark:border-slate-700 bg-white dark:bg-slate-900 transition-all duration-300",
-        collapsed ? "w-[68px]" : "w-64"
+        "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-white/5 bg-background/80 backdrop-blur-2xl transition-all duration-500 ease-fluid shadow-[1px_0_15px_rgba(0,0,0,0.03)] dark:shadow-[1px_0_15px_rgba(0,0,0,0.2)]",
+        collapsed ? "w-[68px]" : "w-[280px]"
       )}
     >
       {/* Logo */}
       <div className={cn(
-        "flex h-16 items-center border-b border-gray-200 dark:border-slate-700 px-4",
+        "flex h-16 items-center border-b border-border px-4",
         collapsed ? "justify-center" : "justify-between"
       )}>
         {!collapsed && (
@@ -123,7 +123,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
         {!collapsed && (
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="hidden rounded-md p-1 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600 lg:block"
+            className="hidden rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground lg:block"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -143,18 +143,18 @@ export function Sidebar({ onNavClick }: SidebarProps) {
                   href={item.href}
                   onClick={onNavClick}
                   className={cn(
-                    "flex items-center rounded-lg py-2.5 text-sm font-medium transition-colors",
-                    collapsed ? "justify-center px-2" : "gap-3 px-3",
+                    "group flex items-center rounded-full py-3 text-sm font-semibold tracking-wide transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-white/10 dark:hover:bg-white/5",
+                    collapsed ? "justify-center px-2 hover:pl-2 hover:pr-2" : "gap-3 px-4",
                     isActive
-                      ? "bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300"
-                      : "text-gray-600 dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100"
+                      ? "bg-primary text-primary-foreground shadow-glass dark:shadow-glass-dark"
+                      : "text-muted-foreground"
                   )}
                   title={collapsed ? item.label : undefined}
                 >
                   <item.icon
                     className={cn(
-                      "h-5 w-5 shrink-0",
-                      isActive ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-slate-500"
+                      "h-[18px] w-[18px] shrink-0 transition-transform duration-500 ease-fluid group-hover:scale-110",
+                      isActive ? "text-primary-foreground" : "text-muted-foreground group-hover:text-foreground"
                     )}
                   />
                   {!collapsed && <span>{item.label}</span>}
@@ -168,7 +168,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
         {collapsed && (
           <button
             onClick={() => setCollapsed(false)}
-            className="mt-3 flex w-full items-center justify-center rounded-lg py-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-800 hover:text-gray-600 dark:hover:text-slate-300"
+            className="mt-3 flex w-full items-center justify-center rounded-lg py-2 text-muted-foreground hover:bg-muted hover:text-foreground"
             title="Expand sidebar"
           >
             <ChevronRight className="h-4 w-4" />
@@ -177,40 +177,40 @@ export function Sidebar({ onNavClick }: SidebarProps) {
       </nav>
 
       {/* User info + Settings */}
-      <div className="border-t border-gray-200 dark:border-slate-700 p-2">
+      <div className="border-t border-border p-2">
         <Link
           href="/settings"
           onClick={onNavClick}
           className={cn(
-            "flex items-center rounded-lg py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100",
-            collapsed ? "justify-center px-2" : "gap-3 px-3"
+            "group flex items-center rounded-full py-3 text-sm font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-white/10 dark:hover:bg-white/5",
+            collapsed ? "justify-center px-2 hover:pl-2 hover:pr-2" : "gap-3 px-4"
           )}
           title={collapsed ? "Settings" : undefined}
         >
-          <Settings className="h-5 w-5 shrink-0 text-gray-400 dark:text-slate-500" />
+          <Settings className="h-[18px] w-[18px] shrink-0 text-muted-foreground transition-transform duration-500 ease-fluid group-hover:scale-110 group-hover:text-foreground" />
           {!collapsed && <span>Settings</span>}
         </Link>
 
         <button
           onClick={toggle}
           className={cn(
-            "flex w-full items-center rounded-lg py-2.5 text-sm font-medium text-gray-600 dark:text-slate-400 transition-colors hover:bg-gray-50 dark:hover:bg-slate-800 hover:text-gray-900 dark:hover:text-slate-100",
-            collapsed ? "justify-center px-2" : "gap-3 px-3"
+            "group mt-1 flex w-full items-center rounded-full py-3 text-sm font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-white/10 dark:hover:bg-white/5",
+            collapsed ? "justify-center px-2 hover:pl-2 hover:pr-2" : "gap-3 px-4"
           )}
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
-          {isDark ? <Sun className="h-5 w-5 shrink-0 text-amber-400" /> : <Moon className="h-5 w-5 shrink-0 text-gray-400" />}
+          {isDark ? <Sun className="h-[18px] w-[18px] shrink-0 text-yellow-500 transition-transform duration-500 ease-fluid group-hover:scale-110" /> : <Moon className="h-[18px] w-[18px] shrink-0 text-muted-foreground transition-transform duration-500 ease-fluid group-hover:scale-110 group-hover:text-foreground" />}
           {!collapsed && <span>{isDark ? "Light Mode" : "Dark Mode"}</span>}
         </button>
 
         {!collapsed && user && (
-          <div className="mt-2 flex items-center gap-3 rounded-lg bg-gray-50 dark:bg-slate-800 px-3 py-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-sm font-bold text-indigo-600 dark:text-indigo-300">
+          <div className="mt-2 flex items-center gap-3 rounded-lg bg-muted px-3 py-2.5">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-sm font-bold text-primary">
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-gray-900 dark:text-slate-100">{user.name}</p>
-              <p className="truncate text-xs text-gray-500 dark:text-slate-400">{user.email}</p>
+              <p className="truncate text-sm font-medium text-foreground">{user.name}</p>
+              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
             </div>
           </div>
         )}

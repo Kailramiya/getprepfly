@@ -8,7 +8,7 @@ const config = {
   prefix: "",
   theme: {
     fontFamily: {
-      sans: ["var(--font-inter)", "sans-serif"],
+      sans: ["var(--font-sans)", "sans-serif"],
     },
     container: {
       center: true,
@@ -71,6 +71,14 @@ const config = {
       animation: {
         'accordion-down': "accordion-down 0.2s ease-out",
         'accordion-up': "accordion-up 0.2s ease-out",
+      },
+      transitionTimingFunction: {
+        'fluid': 'cubic-bezier(0.32, 0.72, 0, 1)',
+      },
+      boxShadow: {
+        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.04), inset 0 1px 1px 0 rgba(255, 255, 255, 0.15)',
+        'glass-dark': '0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 1px 1px 0 rgba(255, 255, 255, 0.1)',
+        'float': '0 20px 40px -10px rgba(0, 0, 0, 0.08), 0 0 20px rgba(0,0,0,0.02)',
       },
     },
   },

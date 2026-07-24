@@ -12,7 +12,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-slate-900">
+    <div className="min-h-[100dvh] bg-background">
       {/* Desktop sidebar */}
       <div className="hidden lg:block">
         <Sidebar />
@@ -32,10 +32,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="transition-all duration-500 ease-fluid lg:pl-[280px]">
         <Topbar onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
         <TrialBanner />
-        <main className="p-4 sm:p-6 lg:p-8">{children}</main>
+        <main className="p-4 sm:p-6 lg:p-12 xl:p-16 2xl:px-24 2xl:py-20">{children}</main>
         <Footer />
       </div>
 

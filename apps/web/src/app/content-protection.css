@@ -1,0 +1,36 @@
+/* ── Content Protection ── */
+body {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow selection in form inputs and textareas */
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Hide the download button on native audio controls */
+audio::-webkit-media-controls-download-button {
+  display: none !important;
+}
+audio::-webkit-media-controls-enclosure {
+  overflow: hidden;
+}
+
+/* Prevent drag-saving images */
+img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
+}
+
+/* But keep images clickable where needed (e.g. buttons with icons) */
+button img, a img, .allow-pointer img {
+  pointer-events: auto;
+}
+
