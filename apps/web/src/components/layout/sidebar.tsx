@@ -29,8 +29,8 @@ import {
   IndianRupee,
   Trophy,
 } from "lucide-react";
-import { useState } from "react";
-import { useDarkMode } from "@/hooks/use-dark-mode";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
 
 interface NavItem {
@@ -92,7 +92,11 @@ export function Sidebar({ onNavClick }: SidebarProps) {
   const pathname = usePathname();
   const { user, isCentreAdmin, isSuperAdmin } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
-  const { isDark, toggle } = useDarkMode();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  const isDark = theme === "dark";
+  const toggle = () => setTheme(isDark ? "light" : "dark");
 
   let navItems = studentNav;
   if (isSuperAdmin) navItems = superAdminNav;
@@ -199,7 +203,13 @@ export function Sidebar({ onNavClick }: SidebarProps) {
           )}
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
         >
-          {isDark ? <Sun className="h-[18px] w-[18px] shrink-0 text-yellow-500 transition-transform duration-500 ease-fluid group-hover:scale-110" /> : <Moon className="h-[18px] w-[18px] shrink-0 text-muted-foreground transition-transform duration-500 ease-fluid group-hover:scale-110 group-hover:text-foreground" />}
+          {!mounted ? (
+            <Moon className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
+          ) : isDark ? (
+            <Sun className="h-[18px] w-[18px] shrink-0 text-yellow-500 transition-transform duration-500 ease-fluid group-hover:scale-110" />
+          ) : (
+            <Moon className="h-[18px] w-[18px] shrink-0 text-muted-foreground transition-transform duration-500 ease-fluid group-hover:scale-110 group-hover:text-foreground" />
+          )}
           {!collapsed && <span>{isDark ? "Light Mode" : "Dark Mode"}</span>}
         </button>
 
