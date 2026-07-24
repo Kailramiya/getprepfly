@@ -52,12 +52,12 @@ export default function QuestionReportsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Question Reports</h1>
-          <p className="text-gray-500 dark:text-slate-400">Student-reported issues with questions</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Question Reports</h1>
+          <p className="text-base font-medium text-muted-foreground">Student-reported issues with questions</p>
         </div>
         <div className="flex gap-2">
-          <Button variant={!showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(false)} className={`rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid ${!showResolved ? "shadow-sm shadow-primary/20" : "bg-transparent border-white/10"}`}>Open</Button>
-          <Button variant={showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(true)} className={`rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid ${showResolved ? "shadow-sm shadow-primary/20" : "bg-transparent border-white/10"}`}>Resolved</Button>
+          <Button variant={!showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(false)} className={`rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid ${!showResolved ? "font-bold" : "bg-transparent border-white/10"}`}>Open</Button>
+          <Button variant={showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(true)} className={`rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid ${showResolved ? "font-bold" : "bg-transparent border-white/10"}`}>Resolved</Button>
         </div>
       </div>
 

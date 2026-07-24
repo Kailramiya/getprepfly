@@ -107,11 +107,11 @@ export default function CouponsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Coupon Management</h1>
-          <p className="text-gray-500 dark:text-slate-400">Create and manage discount codes for student plans</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Coupon Management</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">Create and manage discount codes for student plans</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
-          <Plus className="h-4 w-4" />
+        <Button size="lg" onClick={() => setShowForm(!showForm)} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide">
+          <Plus className="h-5 w-5" />
           New Coupon
         </Button>
       </div>
@@ -119,7 +119,7 @@ export default function CouponsPage() {
       {showForm && (
         <Card className="rounded-[2rem] border-none shadow-glass bg-indigo-500/10 backdrop-blur-xl ring-1 ring-indigo-500/20">
           <CardHeader>
-            <CardTitle className="text-base">Create Coupon</CardTitle>
+            <CardTitle className="text-xl font-bold text-foreground">Create Coupon</CardTitle>
           </CardHeader>
           <CardContent>
             {error && <p className="mb-3 rounded-lg bg-red-50 p-2 text-sm text-red-700">{error}</p>}
@@ -164,9 +164,9 @@ export default function CouponsPage() {
                   required
                 />
               </div>
-              <div className="flex gap-2 sm:col-span-2 lg:col-span-4">
-                <Button type="submit" loading={submitting} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">Create Coupon</Button>
-                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setError(""); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Cancel</Button>
+              <div className="flex gap-2 sm:col-span-2 lg:col-span-4 mt-2">
+                <Button type="submit" size="lg" loading={submitting} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid font-bold tracking-wide">Create Coupon</Button>
+                <Button type="button" size="lg" variant="outline" onClick={() => { setShowForm(false); setError(""); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold tracking-wide">Cancel</Button>
               </div>
             </form>
           </CardContent>
@@ -180,60 +180,61 @@ export default function CouponsPage() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
             </div>
           ) : coupons.length === 0 ? (
-            <div className="py-16 text-center">
-              <Tag className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-3 text-gray-500">No coupons yet. Create one above.</p>
+            <div className="py-20 text-center">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 shadow-inner mb-6"><Tag className="h-10 w-10 text-primary" /></div>
+              <p className="text-lg font-bold text-foreground">No coupons yet.</p>
+              <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">Create one above.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b bg-gray-50 dark:border-slate-700 dark:bg-slate-800">
-                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Code</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Discount</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Usage</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Valid Until</th>
-                    <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Status</th>
-                    <th className="px-4 py-3 text-right font-medium text-gray-500 dark:text-slate-400">Actions</th>
+                  <tr className="border-b border-white/5 bg-black/20 text-xs uppercase tracking-widest text-muted-foreground">
+                    <th className="px-6 py-4 text-left font-bold">Code</th>
+                    <th className="px-6 py-4 text-left font-bold">Discount</th>
+                    <th className="px-6 py-4 text-left font-bold">Usage</th>
+                    <th className="px-6 py-4 text-left font-bold">Valid Until</th>
+                    <th className="px-6 py-4 text-left font-bold">Status</th>
+                    <th className="px-6 py-4 text-right font-bold">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y dark:divide-slate-700">
+                <tbody className="divide-y divide-white/5">
                   {coupons.map((c) => {
                     const expired = isExpired(c.validUntil);
                     const exhausted = c.usedCount >= c.maxUses;
                     const effective = c.isActive && !expired && !exhausted;
                     return (
-                      <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40">
-                        <td className="px-4 py-3">
+                      <tr key={c.id} className="hover:bg-white/5 transition-colors duration-500 ease-fluid group">
+                        <td className="px-6 py-4">
                           <div className="flex items-center gap-2">
-                            <span className="font-mono font-bold text-indigo-700 dark:text-indigo-400">{c.code}</span>
-                            <button onClick={() => copyCode(c.code)} className="text-gray-400 hover:text-gray-600 dark:text-slate-500 dark:hover:text-slate-300">
-                              {copied === c.code ? <CheckCheck className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+                            <span className="font-mono text-base font-extrabold text-primary">{c.code}</span>
+                            <button onClick={() => copyCode(c.code)} className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-white/10 transition-all duration-300 shadow-inner">
+                              {copied === c.code ? <CheckCheck className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
                             </button>
                           </div>
                         </td>
-                        <td className="px-4 py-3 font-semibold text-green-700">{c.discountPercent}% off</td>
-                        <td className="px-4 py-3 text-gray-600 dark:text-slate-300">
+                        <td className="px-6 py-4 font-bold text-green-400 text-base">{c.discountPercent}% off</td>
+                        <td className="px-6 py-4 text-sm font-medium text-foreground">
                           {c.usedCount} / {c.maxUses}
-                          <div className="mt-1 h-1.5 w-24 rounded-full bg-gray-200 dark:bg-slate-700">
-                            <div className="h-full rounded-full bg-indigo-500" style={{ width: `${Math.min((c.usedCount / c.maxUses) * 100, 100)}%` }} />
+                          <div className="mt-1.5 h-1.5 w-24 rounded-full bg-white/10 overflow-hidden">
+                            <div className="h-full rounded-full bg-primary" style={{ width: `${Math.min((c.usedCount / c.maxUses) * 100, 100)}%` }} />
                           </div>
                         </td>
-                        <td className={`px-4 py-3 ${expired ? "text-red-600 font-medium dark:text-red-400" : "text-gray-600 dark:text-slate-300"}`}>
+                        <td className={`px-6 py-4 text-sm font-medium ${expired ? "text-red-400 font-bold" : "text-foreground"}`}>
                           {formatDate(c.validUntil)}
-                          {expired && <span className="ml-1 text-xs">(expired)</span>}
+                          {expired && <span className="ml-1 text-xs opacity-80">(expired)</span>}
                         </td>
-                        <td className="px-4 py-3">
-                          <Badge variant={effective ? "success" : expired ? "destructive" : exhausted ? "warning" : "secondary"}>
+                        <td className="px-6 py-4">
+                          <Badge variant={effective ? "success" : expired ? "destructive" : exhausted ? "warning" : "secondary"} className="px-3 py-1 font-bold">
                             {effective ? "Active" : expired ? "Expired" : exhausted ? "Exhausted" : "Inactive"}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3">
+                        <td className="px-6 py-4">
                           <div className="flex items-center justify-end gap-2">
-                            <button onClick={() => toggleActive(c.id, c.isActive)} className="text-gray-400 hover:text-indigo-600 dark:text-slate-500 dark:hover:text-indigo-400" title={c.isActive ? "Deactivate" : "Activate"}>
-                              {c.isActive ? <ToggleRight className="h-5 w-5 text-indigo-600 dark:text-indigo-400" /> : <ToggleLeft className="h-5 w-5" />}
+                            <button onClick={() => toggleActive(c.id, c.isActive)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-primary/20 hover:text-primary transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100" title={c.isActive ? "Deactivate" : "Activate"}>
+                              {c.isActive ? <ToggleRight className="h-5 w-5 text-primary" /> : <ToggleLeft className="h-5 w-5" />}
                             </button>
-                            <button onClick={() => deleteCoupon(c.id, c.code)} className="text-gray-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400">
+                            <button onClick={() => deleteCoupon(c.id, c.code)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100">
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>

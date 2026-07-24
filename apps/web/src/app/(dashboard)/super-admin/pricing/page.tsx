@@ -158,8 +158,8 @@ export default function SuperAdminPricingPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Pricing Management</h1>
-        <p className="text-sm text-gray-500 dark:text-slate-400">
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Pricing Management</h1>
+        <p className="text-base font-medium text-muted-foreground mt-2">
           Set prices and student limits for all subscription plans. Changes take effect immediately for new purchases.
         </p>
       </div>
@@ -180,10 +180,10 @@ export default function SuperAdminPricingPage() {
           const groupRows = rows.filter(r => PLAN_META[r.key]?.group === group);
           return (
             <div key={group}>
-              <h2 className="mb-3 text-base font-semibold text-gray-700 dark:text-slate-300">{group}</h2>
+              <h2 className="mb-4 text-lg font-bold text-foreground">{group}</h2>
               <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
                 <CardContent className="p-0">
-                  <div className="divide-y divide-gray-100 dark:divide-slate-700">
+                  <div className="divide-y divide-white/5">
                     {groupRows.map(row => {
                       const meta = PLAN_META[row.key];
                       const Icon = meta?.icon ?? IndianRupee;
@@ -194,19 +194,19 @@ export default function SuperAdminPricingPage() {
                       const isDirty = isPriceDirty || isStudentsDirty;
 
                       return (
-                        <div key={row.key} className="flex flex-wrap items-center justify-between gap-3 p-4">
+                        <div key={row.key} className="flex flex-wrap items-center justify-between gap-4 p-5 hover:bg-white/5 transition-colors duration-500 ease-fluid group">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${meta?.bg}`}>
-                              <Icon className={`h-5 w-5 ${meta?.color}`} />
+                            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${meta?.bg} shadow-inner`}>
+                              <Icon className={`h-6 w-6 ${meta?.color}`} />
                             </div>
                             <div className="min-w-0">
                               <div className="flex items-center gap-2">
-                                <p className="font-medium text-gray-900 dark:text-slate-100 truncate">{row.label}</p>
+                                <p className="text-base font-bold text-foreground group-hover:text-primary transition-colors truncate">{row.label}</p>
                                 {row.isCustom && (
-                                  <Badge variant="secondary" className="text-xs shrink-0">Custom</Badge>
+                                  <Badge variant="secondary" className="text-xs shrink-0 font-bold">Custom</Badge>
                                 )}
                               </div>
-                              <p className="text-xs text-gray-400 dark:text-slate-500">
+                              <p className="mt-1 text-sm font-medium text-muted-foreground">
                                 ₹{row.amountRupees}
                                 {hasMaxStudents && (
                                   <> · {currentMax === "∞" ? "Unlimited" : `${currentMax} students`}</>
@@ -219,29 +219,29 @@ export default function SuperAdminPricingPage() {
                             {/* Price input */}
                             <div className="relative">
                               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">₹</span>
-                              <Input
-                                type="number"
-                                min="0"
-                                value={priceEdits[row.key] ?? row.amountRupees}
-                                onChange={e => setPriceEdits(prev => ({ ...prev, [row.key]: e.target.value }))}
-                                className="w-32 pl-7 rounded-full border-none bg-background/40 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
-                                placeholder="Price"
-                              />
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  value={priceEdits[row.key] ?? row.amountRupees}
+                                  onChange={e => setPriceEdits(prev => ({ ...prev, [row.key]: e.target.value }))}
+                                  className="w-32 pl-7 rounded-full border-none bg-white/5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
+                                  placeholder="Price"
+                                />
                             </div>
 
                             {/* Students input — only for centre/annual plans */}
                             {hasMaxStudents && (
                               <div className="relative">
                                 <Users className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400" />
-                                <Input
-                                  type="number"
-                                  min="-1"
-                                  value={studentsEdits[row.key] ?? String(row.maxStudents)}
-                                  onChange={e => setStudentsEdits(prev => ({ ...prev, [row.key]: e.target.value }))}
-                                  className="w-24 pl-7 rounded-full border-none bg-background/40 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
-                                  placeholder="Students"
-                                  title="-1 for unlimited"
-                                />
+                                  <Input
+                                    type="number"
+                                    min="-1"
+                                    value={studentsEdits[row.key] ?? String(row.maxStudents)}
+                                    onChange={e => setStudentsEdits(prev => ({ ...prev, [row.key]: e.target.value }))}
+                                    className="w-24 pl-7 rounded-full border-none bg-white/5 py-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
+                                    placeholder="Students"
+                                    title="-1 for unlimited"
+                                  />
                               </div>
                             )}
 
@@ -250,7 +250,7 @@ export default function SuperAdminPricingPage() {
                               onClick={() => handleSave(row.key, hasMaxStudents)}
                               loading={saving === row.key}
                               disabled={!isDirty && !saving}
-                              className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-1.5"
+                              className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-1.5 font-bold"
                             >
                               <Save className="h-3.5 w-3.5" />
                               Save
@@ -261,7 +261,7 @@ export default function SuperAdminPricingPage() {
                                 variant="ghost"
                                 onClick={() => handleReset(row.key)}
                                 loading={resetting === row.key}
-                                className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 gap-1.5 text-gray-400"
+                                className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-white/5 border-none gap-1.5 text-muted-foreground hover:bg-white/10 font-bold"
                               >
                                 <RotateCcw className="h-3.5 w-3.5" />
                                 Reset
@@ -279,7 +279,7 @@ export default function SuperAdminPricingPage() {
         })
       )}
 
-      <p className="text-xs text-gray-400 dark:text-slate-500">
+      <p className="text-sm font-medium text-muted-foreground text-center bg-black/20 py-3 rounded-2xl">
         All prices are in Indian Rupees (INR). Set students to -1 for unlimited. Changes apply to new purchases only.
       </p>
     </div>

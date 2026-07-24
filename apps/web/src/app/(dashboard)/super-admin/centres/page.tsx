@@ -87,10 +87,10 @@ export default function SuperAdminCentresPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">All Centres</h1>
-          <p className="text-gray-500 dark:text-slate-400">{centres.length} coaching centres registered</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">All Centres</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">{centres.length} coaching centres registered</p>
         </div>
-        <Button className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2"><Plus className="h-4 w-4" /> Add Centre</Button>
+        <Button size="lg" className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide"><Plus className="h-5 w-5" /> Add Centre</Button>
       </div>
 
       {loading ? (
@@ -99,9 +99,9 @@ export default function SuperAdminCentresPage() {
         </div>
       ) : centres.length === 0 ? (
         <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
-          <CardContent className="py-16 text-center">
-            <Building2 className="mx-auto h-12 w-12 text-gray-300" />
-            <p className="mt-4 text-gray-500">No centres registered yet</p>
+          <CardContent className="py-20 text-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 shadow-inner mb-6"><Building2 className="h-10 w-10 text-primary" /></div>
+            <p className="text-lg font-bold text-foreground">No centres registered yet</p>
           </CardContent>
         </Card>
       ) : (
@@ -110,18 +110,18 @@ export default function SuperAdminCentresPage() {
             <Card key={centre.id} className="relative overflow-hidden rounded-[2rem] border-none shadow-glass backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid bg-background/50">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/20">
-                      <Globe className="h-6 w-6 text-indigo-500" />
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 shadow-inner">
+                      <Globe className="h-7 w-7 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-slate-100">{centre.name}</h3>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">
+                      <h3 className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{centre.name}</h3>
+                      <p className="text-sm font-medium text-muted-foreground mt-1">
                         {centre.city || centre.state ? `${centre.city || ""}${centre.city && centre.state ? ", " : ""}${centre.state || ""}` : "Location not set"}
                       </p>
                     </div>
                   </div>
-                  <Badge variant={centre.isActive ? "success" : "destructive"}>
+                  <Badge variant={centre.isActive ? "success" : "destructive"} className="px-3 py-1 font-bold">
                     {centre.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
@@ -130,11 +130,11 @@ export default function SuperAdminCentresPage() {
                 <div className="mt-4 rounded-2xl border-none shadow-inner bg-teal-500/10 p-3 ring-1 ring-teal-500/20">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-teal-600 dark:text-teal-400">
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-teal-600 dark:text-teal-400">
                         Referral Code
                       </p>
-                      <p className="mt-0.5 flex items-center gap-1 font-mono text-sm font-bold text-teal-800 dark:text-teal-300">
-                        <Hash className="h-3.5 w-3.5" />
+                      <p className="mt-1 flex items-center gap-1.5 font-mono text-base font-extrabold text-teal-800 dark:text-teal-300">
+                        <Hash className="h-4 w-4" />
                         {centre.slug || "not-set"}
                       </p>
                     </div>
@@ -157,11 +157,11 @@ export default function SuperAdminCentresPage() {
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-center gap-4 text-sm text-gray-500 dark:text-slate-400">
-                  <span className="flex items-center gap-1">
-                    <Users className="h-3.5 w-3.5" /> {centre._count.users} students
+                <div className="mt-4 flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-1.5 font-medium text-foreground">
+                    <Users className="h-4 w-4 text-muted-foreground" /> {centre._count.users} students
                   </span>
-                  <span className="text-xs text-gray-400 dark:text-slate-500">
+                  <span className="text-xs font-medium text-muted-foreground">
                     Joined {new Date(centre.createdAt).toLocaleDateString("en-IN")}
                   </span>
                 </div>
@@ -176,19 +176,19 @@ export default function SuperAdminCentresPage() {
                     <div className="flex items-center gap-2">
                       <Crown className={`h-4 w-4 ${centre.isPremiumCentre ? "text-amber-600" : "text-gray-400"}`} />
                       <div>
-                        <p className={`text-xs font-semibold uppercase ${
+                        <p className={`text-[10px] font-bold tracking-widest uppercase ${
                           centre.isPremiumCentre ? "text-amber-700 dark:text-amber-400" : "text-gray-500 dark:text-slate-400"
                         }`}>
                           {centre.isPremiumCentre ? "Premium Centre" : "Regular Centre"}
                         </p>
                         {centre.isPremiumCentre && centre.premiumUntil && (
-                          <p className="mt-0.5 flex items-center gap-1 text-[10px] text-amber-600">
+                          <p className="mt-1 flex items-center gap-1.5 text-xs font-medium text-amber-600">
                             <Calendar className="h-3 w-3" />
                             Until {new Date(centre.premiumUntil).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                           </p>
                         )}
                         {centre.isPremiumCentre && !centre.premiumUntil && (
-                          <p className="mt-0.5 text-[10px] text-amber-600">Lifetime access</p>
+                          <p className="mt-1 text-xs font-medium text-amber-600">Lifetime access</p>
                         )}
                       </div>
                     </div>
@@ -197,7 +197,7 @@ export default function SuperAdminCentresPage() {
                       size="sm"
                       onClick={() => togglePremium(centre)}
                       disabled={togglingId === centre.id}
-                      className={`rounded-full shadow-sm hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent ${centre.isPremiumCentre ? "border-red-500/30 text-red-500 hover:bg-red-500/10" : "border-amber-500/30 text-amber-500 hover:bg-amber-500/10"}`}
+                      className={`rounded-full font-bold tracking-wide hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent ${centre.isPremiumCentre ? "border-red-500/30 text-red-500 hover:bg-red-500/10" : "border-amber-500/30 text-amber-500 hover:bg-amber-500/10"}`}
                     >
                       {togglingId === centre.id
                         ? "..."
@@ -207,7 +207,7 @@ export default function SuperAdminCentresPage() {
                     </Button>
                   </div>
                   {centre.isPremiumCentre && (
-                    <p className="mt-2 text-[10px] text-amber-700 dark:text-amber-400">
+                    <p className="mt-3 text-xs font-medium text-amber-700 dark:text-amber-400">
                       ⭐ All students get all modules FREE
                     </p>
                   )}

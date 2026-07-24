@@ -131,7 +131,7 @@ export function VocabularyManager() {
           placeholder="Search by word or meaning..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); fetchList(1, e.target.value); }}
-          className="pl-10 rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
+          className="pl-10 rounded-2xl border-none bg-white/5 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
         />
       </div>
 
@@ -259,9 +259,9 @@ export function VocabularyManager() {
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-4">
-          <Button variant="outline" disabled={page <= 1} onClick={() => fetchList(page - 1, search)} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold">Previous</Button>
+          <Button variant="outline" disabled={page <= 1} onClick={() => fetchList(page - 1, search)} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold">Previous</Button>
           <span className="text-sm font-bold tracking-widest text-muted-foreground/60 uppercase">Page {page} of {totalPages}</span>
-          <Button variant="outline" disabled={page >= totalPages} onClick={() => fetchList(page + 1, search)} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold">Next</Button>
+          <Button variant="outline" disabled={page >= totalPages} onClick={() => fetchList(page + 1, search)} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold">Next</Button>
         </div>
       )}
     </div>

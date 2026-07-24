@@ -94,8 +94,8 @@ export default function SuperAdminUsersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">All Users</h1>
-        <p className="text-gray-500 dark:text-slate-400">{total} users across all centres</p>
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">All Users</h1>
+        <p className="text-base font-medium text-muted-foreground">{total} users across all centres</p>
       </div>
 
       <div className="relative max-w-md">
@@ -104,7 +104,7 @@ export default function SuperAdminUsersPage() {
           placeholder="Search by name, email or phone..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
+          className="pl-10 w-full rounded-2xl border-none bg-white/5 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
         />
       </div>
 
@@ -115,7 +115,7 @@ export default function SuperAdminUsersPage() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
             </div>
           ) : (
-            <div className="divide-y divide-gray-100 dark:divide-slate-700">
+            <div className="divide-y divide-white/5">
               {users.map((u) => {
                 const roleConfig = ROLE_CONFIG[u.role] || ROLE_CONFIG.STUDENT;
                 const RoleIcon = roleConfig.icon;
@@ -126,7 +126,7 @@ export default function SuperAdminUsersPage() {
                       ? "Enrolled via"
                       : "Centre";
                 return (
-                  <div key={u.id} className="flex flex-col gap-3 p-4 hover:bg-gray-50 dark:hover:bg-slate-700/40 sm:flex-row sm:items-center sm:justify-between">
+                  <div key={u.id} className="flex flex-col gap-3 p-4 hover:bg-white/5 dark:hover:bg-slate-700/40 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/20 text-sm font-bold text-indigo-500">
                         {u.name.charAt(0).toUpperCase()}
@@ -184,7 +184,7 @@ export default function SuperAdminUsersPage() {
                           size="sm"
                           onClick={() => handleDelete(u.id, u.name)}
                           disabled={deleting === u.id}
-                          className="h-8 w-8 p-0 rounded-full text-gray-400 hover:bg-red-500/10 hover:text-red-500 transition-all duration-300 bg-transparent"
+                          className="h-8 w-8 p-0 rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-red-500/20 hover:bg-red-500/10 hover:text-red-500"
                         >
                           {deleting === u.id ? (
                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
@@ -214,7 +214,7 @@ export default function SuperAdminUsersPage() {
               size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
-              className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
+              className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
             >
               Previous
             </Button>
@@ -226,7 +226,7 @@ export default function SuperAdminUsersPage() {
               size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
-              className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
+              className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
             >
               Next
             </Button>

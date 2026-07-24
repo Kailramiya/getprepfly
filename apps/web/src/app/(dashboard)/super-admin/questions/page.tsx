@@ -399,10 +399,10 @@ export default function SuperAdminQuestionsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Global Question Bank</h1>
-          <p className="text-gray-500 dark:text-slate-400">{total} questions (visible to all centres)</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Global Question Bank</h1>
+          <p className="text-base font-medium text-muted-foreground">{total} questions (visible to all centres)</p>
         </div>
-        <Button onClick={() => { setEditingQuestion(null); setShowForm(true); }} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
+        <Button onClick={() => { setEditingQuestion(null); setShowForm(true); }} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold">
           <Plus className="h-4 w-4" /> Add Question
         </Button>
       </div>
@@ -415,7 +415,7 @@ export default function SuperAdminQuestionsPage() {
             placeholder="Search questions..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-10 w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
+            className="pl-10 w-full rounded-2xl border-none bg-white/5 py-2.5 px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -473,7 +473,7 @@ export default function SuperAdminQuestionsPage() {
           <select
             value={centreFilter}
             onChange={(e) => { setCentreFilter(e.target.value); setPage(1); }}
-            className="w-full rounded-2xl border-none bg-background/40 py-2.5 pl-10 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
+            className="w-full rounded-2xl border-none bg-white/5 py-2.5 pl-10 pr-8 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
           >
             <option value="">All centres ({centres.length})</option>
             <option value="global">— Global / unassigned —</option>
@@ -486,7 +486,7 @@ export default function SuperAdminQuestionsPage() {
         {/* Sort by date */}
         <button
           onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-          className="flex items-center gap-2 rounded-2xl border-none shadow-inner bg-background/40 px-3 py-2 text-sm font-medium transition-all duration-700 hover:bg-background/60"
+          className="flex items-center gap-2 rounded-2xl border-none shadow-inner bg-white/5 px-3 py-2 text-sm font-medium transition-all duration-700 hover:bg-white/10"
           title="Toggle sort order"
         >
           <Calendar className="h-3.5 w-3.5" />
@@ -500,7 +500,7 @@ export default function SuperAdminQuestionsPage() {
           className={`flex items-center gap-2 rounded-2xl border-none shadow-inner px-3 py-2 text-sm font-medium transition-all duration-700 ease-fluid ${
             mockTestOnly
               ? "bg-indigo-500/10 text-indigo-500 ring-1 ring-indigo-500/20"
-              : "bg-background/40 hover:bg-background/60 text-foreground"
+              : "bg-white/5 hover:bg-white/10 text-foreground"
           }`}
           title="Show only questions used in mock tests"
         >
@@ -554,7 +554,7 @@ export default function SuperAdminQuestionsPage() {
                 const sorted = Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
                 return sorted.map(([centreName, group]) => (
                   <div key={centreName}>
-                    <div className="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 dark:from-purple-950/30 dark:to-indigo-950/30">
+                    <div className="sticky top-0 z-10 flex items-center justify-between bg-gradient-to-r from-purple-50 to-indigo-50 px-4 py-3 dark:from-purple-950/30 dark:to-indigo-950/30 shadow-glass">
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                         <p className="font-semibold text-gray-900 dark:text-slate-100">{centreName}</p>
@@ -583,8 +583,8 @@ export default function SuperAdminQuestionsPage() {
         <div className="flex items-center justify-between">
           <p className="text-sm text-gray-500 dark:text-slate-400">Page {page} of {Math.ceil(total / 20)}</p>
           <div className="flex gap-2">
-            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</Button>
-            <Button variant="outline" size="sm" disabled={page >= Math.ceil(total / 20)} onClick={() => setPage(page + 1)}>Next</Button>
+            <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)} className="shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] font-bold">Previous</Button>
+            <Button variant="outline" size="sm" disabled={page >= Math.ceil(total / 20)} onClick={() => setPage(page + 1)} className="shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] font-bold">Next</Button>
           </div>
         </div>
       )}
