@@ -118,10 +118,10 @@ export function VocabularyManager() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Vocabulary</h1>
-          <p className="text-gray-500 dark:text-slate-400">Manage words shown in the Vocabulary Builder ({total})</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Vocabulary</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">Manage words shown in the Vocabulary Builder ({total})</p>
         </div>
-        <Button onClick={openAdd} className="gap-2"><Plus className="h-4 w-4" /> Add Word</Button>
+        <Button size="lg" onClick={openAdd} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide"><Plus className="h-5 w-5" /> Add Word</Button>
       </div>
 
       {/* Search */}
@@ -131,17 +131,17 @@ export function VocabularyManager() {
           placeholder="Search by word or meaning..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); fetchList(1, e.target.value); }}
-          className="pl-10"
+          className="pl-10 rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
         />
       </div>
 
       {/* Add/Edit form */}
       {showForm && (
-        <Card className="border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/50">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-indigo-500/10 backdrop-blur-xl ring-1 ring-indigo-500/20">
           <CardContent className="p-5">
-            <div className="mb-3 flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900 dark:text-slate-100">{editing ? "Edit Word" : "Add New Word"}</h3>
-              <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600 dark:hover:text-slate-300">
+            <div className="mb-6 flex items-center justify-between">
+              <h3 className="text-xl font-bold text-foreground">{editing ? "Edit Word" : "Add New Word"}</h3>
+              <button type="button" onClick={() => setShowForm(false)} className="rounded-full p-2 text-muted-foreground hover:bg-white/10 transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -149,34 +149,34 @@ export function VocabularyManager() {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Word <span className="text-red-500">*</span></label>
-                  <Input value={form.word} onChange={(e) => setForm({ ...form, word: e.target.value })} placeholder="e.g. Ubiquitous" required />
+                  <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.word} onChange={(e) => setForm({ ...form, word: e.target.value })} placeholder="e.g. Ubiquitous" required />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Category</label>
-                  <Input value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. academic, everyday, topic-specific" />
+                  <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="e.g. academic, everyday, topic-specific" />
                 </div>
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Meaning <span className="text-red-500">*</span></label>
-                <Input value={form.meaning} onChange={(e) => setForm({ ...form, meaning: e.target.value })} placeholder="English meaning" required />
+                <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.meaning} onChange={(e) => setForm({ ...form, meaning: e.target.value })} placeholder="English meaning" required />
               </div>
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Meaning (Hindi)</label>
-                  <Input value={form.meaningHi} onChange={(e) => setForm({ ...form, meaningHi: e.target.value })} placeholder="Optional" />
+                  <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.meaningHi} onChange={(e) => setForm({ ...form, meaningHi: e.target.value })} placeholder="Optional" />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Meaning (Punjabi)</label>
-                  <Input value={form.meaningPa} onChange={(e) => setForm({ ...form, meaningPa: e.target.value })} placeholder="Optional" />
+                  <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.meaningPa} onChange={(e) => setForm({ ...form, meaningPa: e.target.value })} placeholder="Optional" />
                 </div>
               </div>
 
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Example sentence <span className="text-red-500">*</span></label>
                 <textarea
-                  className="min-h-[70px] w-full rounded-lg border border-gray-300 p-3 text-sm focus:border-indigo-500 focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+                  className="min-h-[70px] w-full rounded-2xl border-none bg-background/40 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground placeholder:text-slate-500"
                   placeholder="A sentence using the word"
                   value={form.example}
                   onChange={(e) => setForm({ ...form, example: e.target.value })}
@@ -190,7 +190,7 @@ export function VocabularyManager() {
                   <select
                     value={form.difficulty}
                     onChange={(e) => setForm({ ...form, difficulty: e.target.value })}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    className="w-full rounded-2xl border-none bg-background/40 px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                   >
                     <option value="EASY">Easy</option>
                     <option value="MEDIUM">Medium</option>
@@ -199,15 +199,15 @@ export function VocabularyManager() {
                 </div>
                 <div>
                   <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Day Number</label>
-                  <Input type="number" min="1" value={form.dayNumber} onChange={(e) => setForm({ ...form, dayNumber: e.target.value })} placeholder="Optional — for Word of the Day" />
+                  <Input type="number" min="1" className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.dayNumber} onChange={(e) => setForm({ ...form, dayNumber: e.target.value })} placeholder="Optional — for Word of the Day" />
                 </div>
               </div>
 
               {formError && <p className="text-sm text-red-600 dark:text-red-400">{formError}</p>}
 
               <div className="flex gap-2">
-                <Button type="submit" loading={submitting}>{editing ? "Save Changes" : "Add Word"}</Button>
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)}>Cancel</Button>
+                <Button type="submit" size="lg" loading={submitting} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid font-bold tracking-wide">{editing ? "Save Changes" : "Add Word"}</Button>
+                <Button type="button" size="lg" variant="outline" onClick={() => setShowForm(false)} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold tracking-wide">Cancel</Button>
               </div>
             </form>
           </CardContent>
@@ -215,36 +215,37 @@ export function VocabularyManager() {
       )}
 
       {/* List */}
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex justify-center py-12"><div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" /></div>
           ) : items.length === 0 ? (
-            <div className="py-16 text-center">
-              <BookMarked className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-3 text-gray-500 dark:text-slate-400">No vocabulary words yet. Add your first word above.</p>
+            <div className="py-20 text-center">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 shadow-inner mb-6"><BookMarked className="h-10 w-10 text-primary" /></div>
+              <p className="text-lg font-bold text-foreground">No vocabulary words yet.</p>
+              <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">Add your first word above.</p>
             </div>
           ) : (
-            <div className="divide-y dark:divide-slate-700">
+            <div className="divide-y divide-white/5">
               {items.map((v) => (
-                <div key={v.id} className="flex items-start justify-between gap-4 p-4">
+                <div key={v.id} className="flex items-start justify-between gap-6 p-6 hover:bg-white/5 transition-colors duration-500 ease-fluid group">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold text-gray-900 dark:text-slate-100">{v.word}</p>
-                      <Badge variant={v.difficulty === "EASY" ? "success" : v.difficulty === "HARD" ? "destructive" : "default"} className="text-xs">
+                      <p className="text-xl font-bold text-foreground group-hover:text-primary transition-colors">{v.word}</p>
+                      <Badge variant={v.difficulty === "EASY" ? "success" : v.difficulty === "HARD" ? "destructive" : "default"} className="text-xs px-2 py-0.5 font-bold">
                         {v.difficulty}
                       </Badge>
-                      {v.category && <Badge variant="secondary" className="text-xs">{v.category}</Badge>}
-                      {v.dayNumber != null && <Badge variant="outline" className="text-xs">Day {v.dayNumber}</Badge>}
+                      {v.category && <Badge variant="secondary" className="text-xs px-2 py-0.5 font-bold">{v.category}</Badge>}
+                      {v.dayNumber != null && <Badge variant="outline" className="text-xs px-2 py-0.5 font-bold bg-transparent">Day {v.dayNumber}</Badge>}
                     </div>
-                    <p className="mt-1 text-sm text-gray-600 dark:text-slate-300">{v.meaning}</p>
-                    <p className="mt-1 text-xs italic text-gray-400 dark:text-slate-500">&ldquo;{v.example}&rdquo;</p>
+                    <p className="mt-2 text-sm font-medium text-muted-foreground">{v.meaning}</p>
+                    <p className="mt-1 text-sm italic text-muted-foreground/70">&ldquo;{v.example}&rdquo;</p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    <button onClick={() => openEdit(v)} className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-indigo-600 dark:hover:bg-slate-700 dark:hover:text-indigo-400">
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button onClick={() => openEdit(v)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-blue-500/20 hover:text-blue-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100">
                       <Edit2 className="h-4 w-4" />
                     </button>
-                    <button onClick={() => handleDelete(v)} className="rounded p-1.5 text-gray-400 hover:bg-gray-100 hover:text-red-600 dark:hover:bg-slate-700 dark:hover:text-red-400">
+                    <button onClick={() => handleDelete(v)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100">
                       <Trash2 className="h-4 w-4" />
                     </button>
                   </div>
@@ -257,10 +258,10 @@ export function VocabularyManager() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-center gap-2">
-          <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => fetchList(page - 1, search)}>Previous</Button>
-          <span className="text-sm text-gray-500 dark:text-slate-400">Page {page} of {totalPages}</span>
-          <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => fetchList(page + 1, search)}>Next</Button>
+        <div className="flex items-center justify-center gap-4">
+          <Button variant="outline" disabled={page <= 1} onClick={() => fetchList(page - 1, search)} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold">Previous</Button>
+          <span className="text-sm font-bold tracking-widest text-muted-foreground/60 uppercase">Page {page} of {totalPages}</span>
+          <Button variant="outline" disabled={page >= totalPages} onClick={() => fetchList(page + 1, search)} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold">Next</Button>
         </div>
       )}
     </div>

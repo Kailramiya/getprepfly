@@ -66,14 +66,14 @@ export default function MyFlagsPage() {
           <button
             key={key}
             onClick={() => setFilter(key)}
-            className={`flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-medium transition ${filter === key ? "bg-indigo-600 border-indigo-600 text-white" : "border-gray-200 text-gray-600 hover:border-gray-300 dark:border-slate-600 dark:text-slate-300 dark:hover:border-slate-500"}`}
+            className={`flex items-center gap-1.5 rounded-full border-none shadow-sm px-4 py-1.5 text-sm font-medium transition-all duration-500 ease-fluid hover:-translate-y-0.5 active:scale-95 ${filter === key ? "bg-indigo-600 text-white shadow-indigo-500/25" : "bg-background/40 hover:bg-background/60 text-foreground ring-1 ring-muted-foreground/10"}`}
           >
-            {label} <span className={`rounded-full px-1.5 py-0.5 text-xs ${filter === key ? "bg-white/20 text-white" : "bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-slate-400"}`}>{count}</span>
+            {label} <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${filter === key ? "bg-white/20 text-white" : "bg-foreground/5 text-muted-foreground"}`}>{count}</span>
           </button>
         ))}
       </div>
 
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex justify-center py-12"><div className="h-7 w-7 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" /></div>
@@ -81,7 +81,7 @@ export default function MyFlagsPage() {
             <div className="py-16 text-center">
               <Flag className="mx-auto h-10 w-10 text-gray-300" />
               <p className="mt-3 text-gray-500">No {filter === "ALL" ? "" : filter.replace("_", " ").toLowerCase()} flagged questions yet.</p>
-              <Link href="/practice/speaking"><Button variant="outline" className="mt-4">Start Practicing</Button></Link>
+              <Link href="/practice/speaking"><Button variant="outline" className="mt-4 rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Start Practicing</Button></Link>
             </div>
           ) : (
             <div className="divide-y dark:divide-slate-700">
@@ -104,7 +104,7 @@ export default function MyFlagsPage() {
                     <div className="flex shrink-0 items-center gap-2">
                       <button onClick={() => remove(question.id)} className="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400">Remove</button>
                       <Link href={sectionPath(question.section, question.type)}>
-                        <Button size="sm" variant="outline" className="gap-1.5">
+                        <Button size="sm" variant="outline" className="gap-1.5 rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">
                           Practice <ArrowRight className="h-3.5 w-3.5" />
                         </Button>
                       </Link>

@@ -64,11 +64,11 @@ export default function BatchesPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Batches</h1>
-          <p className="text-gray-500 dark:text-slate-400">Organize students into batches</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Batches</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">Organize students into batches</p>
         </div>
-        <Button onClick={() => setShowCreate(true)} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
-          <Plus className="h-4 w-4" /> Create Batch
+        <Button onClick={() => setShowCreate(true)} size="lg" className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide">
+          <Plus className="h-5 w-5" /> Create Batch
         </Button>
       </div>
 
@@ -93,15 +93,15 @@ export default function BatchesPage() {
 
       {/* Batches List */}
       {loading ? (
-        <div className="flex justify-center py-16">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+        <div className="flex justify-center py-20">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
         </div>
       ) : batches.length === 0 ? (
         <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
-          <CardContent className="py-16 text-center">
-            <Layers className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
-            <p className="mt-4 text-gray-500 dark:text-slate-400">No batches created yet.</p>
-            <p className="text-sm text-gray-400 dark:text-slate-500">Create batches to organize students by timing or level.</p>
+          <CardContent className="py-20 text-center">
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 shadow-inner mb-6"><Layers className="h-10 w-10 text-primary" /></div>
+            <p className="text-lg font-bold text-foreground">No batches created yet.</p>
+            <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">Create batches to organize students by timing or level.</p>
           </CardContent>
         </Card>
       ) : (
@@ -109,41 +109,41 @@ export default function BatchesPage() {
           {batches.map((batch) => (
             <Card key={batch.id} className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid flex flex-col">
               <CardHeader className="pb-2">
-                <CardTitle className="flex items-center justify-between text-base">
+                <CardTitle className="flex items-center justify-between text-lg font-bold">
                   <span>{batch.name}</span>
                   <Badge variant="secondary">{batch._count.members} students</Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {batch.members.length === 0 ? (
-                  <p className="text-sm text-gray-400 dark:text-slate-500">No students in this batch yet</p>
+                  <p className="text-sm font-medium text-muted-foreground">No students in this batch yet</p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {batch.members.slice(0, 5).map((m) => (
-                      <div key={m.user.id} className="flex items-center gap-2">
-                        <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-900 text-xs font-bold text-indigo-600 dark:text-indigo-300">
+                      <div key={m.user.id} className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-extrabold text-primary shadow-inner">
                           {m.user.name.charAt(0).toUpperCase()}
                         </div>
                         <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{m.user.name}</p>
-                          <p className="text-xs text-gray-400 dark:text-slate-500">{m.user.email}</p>
+                          <p className="text-sm font-bold text-foreground">{m.user.name}</p>
+                          <p className="text-xs font-medium text-muted-foreground">{m.user.email}</p>
                         </div>
                       </div>
                     ))}
                     {batch.members.length > 5 && (
-                      <p className="text-xs text-gray-400 dark:text-slate-500">+{batch.members.length - 5} more</p>
+                      <p className="text-xs font-bold tracking-widest text-muted-foreground/60 uppercase mt-2">+{batch.members.length - 5} more</p>
                     )}
                   </div>
                 )}
-                <div className="mt-3 flex items-center justify-between">
-                  <p className="text-xs text-gray-400 dark:text-slate-500">
+                <div className="mt-6 flex items-center justify-between">
+                  <p className="text-xs font-bold tracking-widest text-muted-foreground/60 uppercase">
                     Created {new Date(batch.createdAt).toLocaleDateString("en-IN")}
                   </p>
                   <Link
                     href={`/admin/batches/${batch.id}/progress`}
-                    className="flex items-center gap-1 text-xs text-indigo-600 dark:text-indigo-400 hover:underline"
+                    className="flex items-center gap-1 text-xs font-bold tracking-wide text-primary hover:text-primary/80 transition-colors uppercase"
                   >
-                    <BarChart2 className="h-3.5 w-3.5" />
+                    <BarChart2 className="h-4 w-4" />
                     Progress
                   </Link>
                 </div>

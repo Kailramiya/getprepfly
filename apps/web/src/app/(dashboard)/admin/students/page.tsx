@@ -420,15 +420,15 @@ export default function StudentsPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Students</h1>
-          <p className="text-gray-500 dark:text-slate-400">Manage your coaching centre students</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Students</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">Manage your coaching centre students</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => { setShowImportModal(true); setImportRows([]); setImportResult(null); }} className="gap-2">
+          <Button variant="outline" size="lg" onClick={() => { setShowImportModal(true); setImportRows([]); setImportResult(null); }} className="rounded-full bg-transparent border-white/10 hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide">
             <Upload className="h-4 w-4" />
             Import CSV
           </Button>
-          <Button variant="outline" onClick={exportCSV} disabled={exporting} className="gap-2">
+          <Button variant="outline" size="lg" onClick={exportCSV} disabled={exporting} className="rounded-full bg-transparent border-white/10 hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide">
             {exporting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Download className="h-4 w-4" />}
             Export CSV
           </Button>
@@ -495,15 +495,15 @@ export default function StudentsPage() {
       )}
 
       {/* Invite Student Card */}
-      <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-indigo-500/10 to-teal-500/10 backdrop-blur-xl ring-1 ring-white/10">
+      <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-indigo-500/10 to-teal-500/10 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden relative">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white">
               <UserPlus className="h-5 w-5" />
             </div>
             <div className="flex-1">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">Invite a Student</h3>
-              <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
+              <h3 className="text-lg font-bold text-foreground">Invite a Student</h3>
+              <p className="text-sm font-medium text-muted-foreground mt-1">
                 Enter the student&apos;s email. They&apos;ll receive an invitation link and will be automatically linked to your centre.
               </p>
               <div className="mt-4 flex gap-2">
@@ -518,7 +518,7 @@ export default function StudentsPage() {
                     className="w-full rounded-2xl border-none bg-background/40 py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                   />
                 </div>
-                <Button onClick={sendInvite} disabled={!inviteEmail.trim() || inviting} loading={inviting} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 shrink-0">
+                <Button onClick={sendInvite} disabled={!inviteEmail.trim() || inviting} loading={inviting} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 shrink-0 font-bold px-6">
                   <Send className="h-4 w-4" />
                   {inviting ? "Sending..." : "Send Invite"}
                 </Button>
@@ -533,8 +533,8 @@ export default function StudentsPage() {
               )}
               <div className="mt-4 border-t border-gray-200 dark:border-slate-600 pt-4">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-gray-600 dark:text-slate-400">Email not arriving? Generate a single-use link.</p>
-                  <Button variant="outline" onClick={generateLink} loading={generatingLink} className="gap-2 shrink-0">
+                  <p className="text-sm font-medium text-muted-foreground">Email not arriving? Generate a single-use link.</p>
+                  <Button variant="outline" onClick={generateLink} loading={generatingLink} className="rounded-full shadow-sm hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 gap-2 shrink-0 font-bold">
                     <Link2 className="h-4 w-4" />
                     {generatingLink ? "Generating..." : "Generate invite link"}
                   </Button>
@@ -581,17 +581,17 @@ export default function StudentsPage() {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <Input placeholder="Search by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
+          <Input placeholder="Search by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10 rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" />
         </div>
         <div className="flex gap-1 flex-wrap">
           {(Object.keys(FILTER_LABELS) as ExpiryFilter[]).map(f => (
             <button
               key={f}
               onClick={() => { setExpiryFilter(f); setSelectedIds(new Set()); }}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-500 ease-fluid border border-white/5 ${
                 expiryFilter === f
-                  ? "bg-indigo-600 text-white"
-                  : "bg-gray-100 dark:bg-slate-700 text-gray-600 dark:text-slate-400 hover:bg-gray-200 dark:hover:bg-slate-600"
+                  ? "bg-primary/20 text-primary shadow-inner backdrop-blur-md"
+                  : "bg-background/40 text-foreground hover:bg-background/60 hover:-translate-y-0.5 hover:shadow-float backdrop-blur-sm"
               }`}
             >
               {FILTER_LABELS[f]}
@@ -629,8 +629,8 @@ export default function StudentsPage() {
       {/* Students Table */}
       <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-gray-400" />
+          <CardTitle className="flex items-center gap-2 text-xl font-bold">
+            <Users className="h-6 w-6 text-primary" />
             {loading ? "Loading…" : `Students (${visibleStudents.length}${expiryFilter !== "all" ? ` of ${students.length}` : ""})`}
           </CardTitle>
         </CardHeader>
@@ -640,8 +640,8 @@ export default function StudentsPage() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
             </div>
           ) : visibleStudents.length === 0 ? (
-            <div className="py-12 text-center">
-              <Users className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
+            <div className="py-20 text-center">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 shadow-inner mb-6"><Users className="h-10 w-10 text-primary" /></div>
               <p className="mt-4 text-gray-500 dark:text-slate-400">
                 {students.length === 0 ? "No students yet. Share your invite link to get started." : `No students match the "${FILTER_LABELS[expiryFilter]}" filter.`}
               </p>
@@ -710,9 +710,9 @@ export default function StudentsPage() {
             {/* ── Desktop table (≥ md) ── */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 dark:border-slate-700">
-                    <th className="pb-3 pr-3 text-left">
+                <thead className="bg-white/5 backdrop-blur-md">
+                  <tr className="border-b border-white/5">
+                    <th className="py-4 px-4 text-left">
                       <input
                         type="checkbox"
                         checked={selectedIds.size === visibleStudents.length && visibleStudents.length > 0}
@@ -721,16 +721,16 @@ export default function StudentsPage() {
                         aria-label="Select all"
                       />
                     </th>
-                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Name</th>
-                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Email</th>
-                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Access</th>
-                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Expires</th>
-                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Practice</th>
-                    <th className="pb-3 text-left font-medium text-gray-500 dark:text-slate-400">Joined</th>
-                    <th className="pb-3 text-right font-medium text-gray-500 dark:text-slate-400">Action</th>
+                    <th className="py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Name</th>
+                    <th className="py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Email</th>
+                    <th className="py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Access</th>
+                    <th className="py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Expires</th>
+                    <th className="py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Practice</th>
+                    <th className="py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Joined</th>
+                    <th className="py-4 pr-4 text-right font-bold tracking-widest text-muted-foreground/60 uppercase">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50 dark:divide-slate-700/50">
+                <tbody className="divide-y divide-white/5 bg-black/10">
                   {visibleStudents.map((student) => {
                     const status = seatStatus(student);
                     const isExpiringSoon = status === "expiring7" || status === "expiring30";
@@ -738,7 +738,7 @@ export default function StudentsPage() {
                     return (
                       <tr
                         key={student.id}
-                        className={`hover:bg-gray-50 dark:hover:bg-slate-700/40 ${selectedIds.has(student.id) ? "bg-indigo-50 dark:bg-indigo-950/20" : ""}`}
+                        className={`hover:bg-white/5 transition-colors duration-500 ease-fluid group ${selectedIds.has(student.id) ? "bg-primary/10" : ""}`}
                       >
                         <td className="py-3 pr-3">
                           <input

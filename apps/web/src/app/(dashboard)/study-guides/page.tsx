@@ -532,7 +532,7 @@ export default function StudyGuidesPage() {
       </div>
 
       {/* Quick Tips Banner */}
-      <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
+      <Card className="rounded-[2rem] border-none shadow-glass bg-amber-500/10 backdrop-blur-xl ring-1 ring-amber-500/20">
         <CardContent className="flex items-center gap-4 p-5">
           <Lightbulb className="h-8 w-8 shrink-0 text-amber-500" />
           <div>
@@ -561,15 +561,15 @@ export default function StudyGuidesPage() {
             {templates.map((t) => {
               const isExpanded = expandedTemplateId === t.id;
               return (
-                <Card key={t.id} className="transition">
+                <Card key={t.id} className="rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden transition-all duration-700 ease-fluid hover:shadow-float hover:-translate-y-1">
                   <CardContent className="p-0">
                     <button
                       onClick={() => setExpandedTemplateId(isExpanded ? null : t.id)}
-                      className="flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/40"
+                      className="flex w-full items-center justify-between p-5 text-left hover:bg-muted-foreground/5 transition-colors"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-indigo-100">
-                          <FileText className="h-4 w-4 text-indigo-600" />
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/10 shadow-inner">
+                          <FileText className="h-6 w-6 text-indigo-500" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
@@ -580,7 +580,7 @@ export default function StudyGuidesPage() {
                               </Badge>
                             )}
                           </div>
-                          <Badge variant="secondary" className="mt-1 text-xs">
+                          <Badge variant="secondary" className="mt-1.5 text-xs rounded-full shadow-sm font-bold">
                             {formatType(t.questionType)}
                           </Badge>
                         </div>
@@ -619,11 +619,11 @@ export default function StudyGuidesPage() {
             {section.tips.map((tip) => {
               const isExpanded = expandedTipSlug === tip.slug;
               return (
-                <Card key={tip.slug} className="transition">
+                <Card key={tip.slug} className="rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden transition-all duration-700 ease-fluid hover:shadow-float hover:-translate-y-1">
                   <CardContent className="p-0">
                     <button
                       onClick={() => setExpandedTipSlug(isExpanded ? null : tip.slug)}
-                      className="group flex w-full items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700/40"
+                      className="group flex w-full items-center justify-between p-5 text-left hover:bg-muted-foreground/5 transition-colors"
                     >
                       <div>
                         <h3 className="font-medium text-gray-900 dark:text-slate-100">{tip.title}</h3>
@@ -637,8 +637,8 @@ export default function StudyGuidesPage() {
                     </button>
 
                     {isExpanded && (
-                      <div className="border-t border-gray-100 bg-gradient-to-br from-gray-50 to-white p-5 dark:border-slate-700 dark:from-slate-800 dark:to-slate-800">
-                        <div className="whitespace-pre-wrap rounded-lg bg-white p-4 text-sm leading-relaxed text-gray-700 shadow-sm dark:bg-slate-800/50 dark:text-slate-300">
+                      <div className="border-t border-white/5 bg-background/30 p-6 backdrop-blur-md">
+                        <div className="whitespace-pre-wrap rounded-2xl bg-background/50 p-6 text-sm font-medium leading-relaxed text-muted-foreground/90 shadow-inner ring-1 ring-white/5">
                           {(tip as any).content || "Content coming soon..."}
                         </div>
                       </div>

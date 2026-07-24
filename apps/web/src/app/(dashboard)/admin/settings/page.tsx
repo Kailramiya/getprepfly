@@ -324,8 +324,8 @@ export default function AdminBillingPage() {
 
       <div className="space-y-8">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Billing & Subscription</h1>
-          <p className="text-gray-500 dark:text-slate-400">Manage your coaching centre plan</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Billing & Subscription</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">Manage your coaching centre plan</p>
         </div>
 
         {error && (
@@ -343,7 +343,7 @@ export default function AdminBillingPage() {
         )}
 
         {/* Current Plan Status */}
-        <Card className={centre?.isActive ? "border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/30" : "border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30"}>
+        <Card className={centre?.isActive ? "rounded-[2rem] border-none shadow-glass bg-green-500/10 backdrop-blur-xl ring-1 ring-green-500/20" : "rounded-[2rem] border-none shadow-glass bg-amber-500/10 backdrop-blur-xl ring-1 ring-amber-500/20"}>
           <CardContent className="p-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-4">
@@ -352,7 +352,7 @@ export default function AdminBillingPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                    <h2 className="text-xl font-bold text-foreground">
                       {centre?.isActive ? plan?.planName || "Premium Active" : "No Active Plan"}
                     </h2>
                     <Badge variant={centre?.isActive ? "success" : "warning"}>
@@ -360,11 +360,11 @@ export default function AdminBillingPage() {
                     </Badge>
                   </div>
                   {centre?.isActive && centre.premiumUntil ? (
-                    <p className="text-sm text-gray-600 dark:text-slate-400">
+                    <p className="text-sm font-medium text-muted-foreground mt-1">
                       Expires {formatDate(centre.premiumUntil)} · {centre.daysLeft} days left
                     </p>
                   ) : (
-                    <p className="text-sm text-gray-600 dark:text-slate-400">
+                    <p className="text-sm font-medium text-muted-foreground mt-1">
                       Subscribe to give all your students full access to Prepfly
                     </p>
                   )}
@@ -373,15 +373,15 @@ export default function AdminBillingPage() {
 
               <div className="flex gap-6 text-center">
                 <div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{centre?.studentCount ?? 0}</p>
-                  <p className="text-xs text-gray-500 dark:text-slate-400">Students</p>
+                  <p className="text-3xl font-extrabold text-foreground">{centre?.studentCount ?? 0}</p>
+                  <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground/80 mt-1">Students</p>
                 </div>
                 {plan && (
                   <div>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+                    <p className="text-3xl font-extrabold text-foreground">
                       {plan.maxStudents === -1 ? "∞" : plan.maxStudents}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-slate-400">Max Allowed</p>
+                    <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground/80 mt-1">Max Allowed</p>
                   </div>
                 )}
               </div>
@@ -398,38 +398,38 @@ export default function AdminBillingPage() {
         {/* Plan Cards */}
         <div>
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">
+            <h2 className="text-xl font-bold text-foreground">
               {centre?.isActive ? "Renew or Upgrade Your Plan" : "Choose a Plan"}
             </h2>
 
             {/* Billing cycle toggle */}
-            <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-slate-800">
+            <div className="flex items-center gap-1 rounded-2xl bg-black/20 p-1.5 shadow-inner backdrop-blur-md">
               <button
                 onClick={() => setBillingCycle("1month")}
-                className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+                className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
                   billingCycle === "1month"
-                    ? "bg-white text-gray-900 shadow dark:bg-slate-700 dark:text-slate-100"
-                    : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                    ? "bg-white/10 text-white shadow-glass"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 }`}
               >
                 Monthly
               </button>
               <button
                 onClick={() => setBillingCycle("monthly")}
-                className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+                className={`rounded-xl px-4 py-1.5 text-sm font-medium transition ${
                   billingCycle === "monthly"
-                    ? "bg-white text-gray-900 shadow dark:bg-slate-700 dark:text-slate-100"
-                    : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                    ? "bg-white/10 text-white shadow-glass"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 }`}
               >
                 6 Months
               </button>
               <button
                 onClick={() => setBillingCycle("annual")}
-                className={`flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+                className={`flex items-center gap-1.5 rounded-xl px-4 py-1.5 text-sm font-medium transition ${
                   billingCycle === "annual"
-                    ? "bg-white text-gray-900 shadow dark:bg-slate-700 dark:text-slate-100"
-                    : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                    ? "bg-white/10 text-white shadow-glass"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 }`}
               >
                 Annual
@@ -441,13 +441,13 @@ export default function AdminBillingPage() {
           </div>
 
           {billingCycle === "annual" && (
-            <div className="mb-4 flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-300">
+            <div className="mb-4 flex items-center gap-2 rounded-2xl border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm font-medium text-amber-500 backdrop-blur-md shadow-inner">
               <Star className="h-4 w-4 shrink-0 text-amber-500" />
               Annual plans include bonus seats and save vs the 6-month billing.
             </div>
           )}
           {billingCycle === "1month" && (
-            <div className="mb-4 flex items-center gap-2 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-800 dark:border-teal-800 dark:bg-teal-950/30 dark:text-teal-300">
+            <div className="mb-4 flex items-center gap-2 rounded-2xl border border-teal-500/20 bg-teal-500/10 px-4 py-3 text-sm font-medium text-teal-400 backdrop-blur-md shadow-inner">
               <Star className="h-4 w-4 shrink-0 text-teal-500" />
               Monthly plans renew every 30 days. Great for smaller centres getting started.
             </div>
@@ -461,8 +461,8 @@ export default function AdminBillingPage() {
               return (
                 <Card
                   key={p.key}
-                  className={`relative overflow-hidden transition ${
-                    isCurrent ? "border-2 border-indigo-500 shadow-lg" : "border-gray-200 dark:border-slate-700"
+                  className={`relative overflow-hidden rounded-[2rem] border-none shadow-glass backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid ${
+                    isCurrent ? "bg-indigo-500/10 ring-indigo-500/30" : "bg-background/50"
                   }`}
                 >
                   {p.badge && !isCurrent && (
@@ -479,10 +479,10 @@ export default function AdminBillingPage() {
                   <div className={`h-2 w-full bg-gradient-to-r ${p.color}`} />
 
                   <CardContent className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100">{p.name}</h3>
+                    <h3 className="text-2xl font-extrabold text-foreground">{p.name}</h3>
                     <div className="mt-2 flex items-baseline gap-1">
-                      <span className="text-3xl font-extrabold text-gray-900 dark:text-slate-100">₹{planPrice(p.key, p.price).toLocaleString("en-IN")}</span>
-                      <span className="text-sm text-gray-500 dark:text-slate-400">
+                      <span className="text-4xl font-extrabold text-foreground">₹{planPrice(p.key, p.price).toLocaleString("en-IN")}</span>
+                      <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground/60">
                         /{billingCycle === "annual" ? "year" : billingCycle === "monthly" ? "6 months" : "month"}
                       </span>
                     </div>
@@ -490,7 +490,7 @@ export default function AdminBillingPage() {
 
                     <ul className="mt-5 space-y-2.5">
                       {displayFeatures.map((f) => (
-                        <li key={f} className="flex items-start gap-2 text-sm text-gray-700 dark:text-slate-300">
+                        <li key={f} className="flex items-start gap-3 text-sm font-medium text-muted-foreground">
                           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
                           {f}
                         </li>
@@ -498,7 +498,7 @@ export default function AdminBillingPage() {
                     </ul>
 
                     <Button
-                      className={`mt-6 w-full bg-gradient-to-r ${p.color} text-white`}
+                      className={`mt-6 w-full rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid bg-gradient-to-r ${p.color} text-white`}
                       onClick={() => handleSubscribe(p.key, p.name)}
                       disabled={!!processing}
                       loading={processing === p.key}
@@ -519,9 +519,9 @@ export default function AdminBillingPage() {
         </div>
 
         {/* How it works */}
-        <Card className="border-indigo-100 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/40">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-indigo-500/10 backdrop-blur-xl ring-1 ring-indigo-500/20">
           <CardContent className="p-6">
-            <h3 className="mb-4 font-semibold text-indigo-900 dark:text-indigo-200">How centre plans work</h3>
+            <h3 className="mb-6 text-xl font-bold text-foreground">How centre plans work</h3>
             <div className="grid gap-4 sm:grid-cols-3">
               {[
                 { icon: CreditCard, title: "Subscribe", desc: "Choose a plan and pay via Razorpay — UPI, card, or net banking" },
@@ -531,8 +531,8 @@ export default function AdminBillingPage() {
                 <div key={item.title} className="flex gap-3">
                   <item.icon className="h-5 w-5 shrink-0 text-indigo-600 mt-0.5 dark:text-indigo-400" />
                   <div>
-                    <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-200">{item.title}</p>
-                    <p className="text-xs text-indigo-700 mt-0.5 dark:text-indigo-400">{item.desc}</p>
+                    <p className="text-sm font-bold text-foreground">{item.title}</p>
+                    <p className="text-xs font-medium text-muted-foreground mt-1">{item.desc}</p>
                   </div>
                 </div>
               ))}
@@ -543,34 +543,34 @@ export default function AdminBillingPage() {
         {/* Billing History */}
         {history.length > 0 && (
           <div>
-            <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Billing History</h2>
-            <Card>
+            <h2 className="mb-6 text-xl font-bold text-foreground">Billing History</h2>
+            <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
               <CardContent className="p-0">
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
-                      <tr className="border-b border-gray-100 bg-gray-50 dark:border-slate-700 dark:bg-slate-800">
-                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Plan</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Amount</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Start</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Expiry</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Status</th>
-                        <th className="px-4 py-3 text-left font-medium text-gray-500 dark:text-slate-400">Payment ID</th>
+                      <tr className="border-b border-white/5 bg-white/5 backdrop-blur-md">
+                        <th className="px-6 py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Plan</th>
+                        <th className="px-6 py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Amount</th>
+                        <th className="px-6 py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Start</th>
+                        <th className="px-6 py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Expiry</th>
+                        <th className="px-6 py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Status</th>
+                        <th className="px-6 py-4 text-left font-bold tracking-widest text-muted-foreground/60 uppercase">Payment ID</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-50 dark:divide-slate-700">
+                    <tbody className="divide-y divide-white/5 bg-black/10">
                       {history.map((h) => (
-                        <tr key={h.id} className="hover:bg-gray-50 dark:hover:bg-slate-700/40">
-                          <td className="px-4 py-3 font-medium text-gray-900 dark:text-slate-100">{h.planName}</td>
-                          <td className="px-4 py-3 text-gray-700 dark:text-slate-300">{formatAmount(h.monthlyPrice)}</td>
-                          <td className="px-4 py-3 text-gray-600 dark:text-slate-400">{formatDate(h.startDate)}</td>
-                          <td className="px-4 py-3 text-gray-600 dark:text-slate-400">{h.endDate ? formatDate(h.endDate) : "—"}</td>
-                          <td className="px-4 py-3">
+                        <tr key={h.id} className="hover:bg-white/5 transition-colors duration-500 ease-fluid group">
+                          <td className="px-6 py-4 font-bold text-foreground">{h.planName}</td>
+                          <td className="px-6 py-4 font-medium text-muted-foreground">{formatAmount(h.monthlyPrice)}</td>
+                          <td className="px-6 py-4 font-medium text-muted-foreground">{formatDate(h.startDate)}</td>
+                          <td className="px-6 py-4 font-medium text-muted-foreground">{h.endDate ? formatDate(h.endDate) : "—"}</td>
+                          <td className="px-6 py-4">
                             <Badge variant={h.status === "ACTIVE" ? "success" : "secondary"}>
                               {h.status}
                             </Badge>
                           </td>
-                          <td className="px-4 py-3 font-mono text-xs text-gray-400 dark:text-slate-500">
+                          <td className="px-6 py-4 font-mono text-xs text-muted-foreground">
                             {h.payment?.razorpayPaymentId || "—"}
                           </td>
                         </tr>

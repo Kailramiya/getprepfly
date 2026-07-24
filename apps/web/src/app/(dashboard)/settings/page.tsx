@@ -129,7 +129,7 @@ export default function SettingsPage() {
       <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Settings</h1>
 
       {/* Free Beta */}
-      <Card className="border-teal-200 bg-gradient-to-r from-teal-50 to-indigo-50 dark:border-teal-900 dark:from-slate-800 dark:to-slate-800">
+      <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-r from-teal-500/10 to-indigo-500/10 backdrop-blur-xl ring-1 ring-teal-500/20 overflow-hidden relative">
         <CardContent className="flex items-center gap-4 p-5">
           <Crown className="h-6 w-6 shrink-0 text-teal-600" />
           <div>
@@ -141,7 +141,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Profile */}
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden relative">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <User className="h-5 w-5 text-gray-400" />
@@ -157,7 +157,7 @@ export default function SettingsPage() {
           />
           <div>
             <p className="mb-1.5 text-sm font-medium text-gray-700 dark:text-slate-300">Email</p>
-            <p className="flex h-10 items-center rounded-lg bg-gray-50 px-3 text-sm text-gray-500 dark:bg-slate-700 dark:text-slate-400">{user?.email}</p>
+            <p className="flex h-10 items-center rounded-xl bg-muted-foreground/5 px-3 text-sm text-muted-foreground">{user?.email}</p>
             <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Email cannot be changed</p>
           </div>
           <Input
@@ -170,7 +170,7 @@ export default function SettingsPage() {
           <div>
             <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Language</label>
             <select
-              className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+              className="flex h-10 w-full rounded-xl border border-muted-foreground/20 bg-background/50 px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               value={profile.language}
               onChange={(e) => setProfile({ ...profile, language: e.target.value })}
             >
@@ -188,7 +188,7 @@ export default function SettingsPage() {
                   type="date"
                   value={profile.examDate}
                   onChange={(e) => setProfile({ ...profile, examDate: e.target.value })}
-                  className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                  className="flex h-10 w-full rounded-xl border border-muted-foreground/20 bg-background/50 px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 />
                 <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Shows a countdown on your dashboard. Leave blank to clear.</p>
               </div>
@@ -201,7 +201,7 @@ export default function SettingsPage() {
                   max={200}
                   value={profile.dailyGoal}
                   onChange={(e) => setProfile({ ...profile, dailyGoal: Number(e.target.value) })}
-                  className="flex h-10 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                  className="flex h-10 w-full rounded-xl border border-muted-foreground/20 bg-background/50 px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                 />
                 <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">Tracked daily on your dashboard.</p>
               </div>
@@ -210,12 +210,12 @@ export default function SettingsPage() {
           {user?.centreName && (
             <div>
               <p className="mb-1.5 text-sm font-medium text-gray-700 dark:text-slate-300">Coaching Centre</p>
-              <p className="flex h-10 items-center gap-2 rounded-lg bg-gray-50 px-3 text-sm text-gray-700 dark:bg-slate-700 dark:text-slate-300">
+              <p className="flex h-10 items-center gap-2 rounded-xl bg-muted-foreground/5 px-3 text-sm text-foreground">
                 <Building2 className="h-4 w-4 text-gray-400" />{user.centreName}
               </p>
             </div>
           )}
-          <Button onClick={saveProfile} loading={savingProfile} className="gap-2">
+          <Button onClick={saveProfile} loading={savingProfile} className="gap-2 rounded-full shadow-sm hover:shadow-md transition-all duration-700 ease-fluid active:scale-[0.98]">
             {profileSaved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
             {profileSaved ? "Saved!" : "Save Profile"}
           </Button>
@@ -223,7 +223,7 @@ export default function SettingsPage() {
       </Card>
 
       {/* Change Password */}
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden relative">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Lock className="h-5 w-5 text-gray-400" />
@@ -239,7 +239,7 @@ export default function SettingsPage() {
             onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} placeholder="Min 6 characters" />
           <Input label="Confirm New Password" type="password" value={passwords.confirmPassword}
             onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })} placeholder="Re-enter new password" />
-          <Button onClick={changePassword} loading={savingPassword} variant="outline" className="gap-2"
+          <Button onClick={changePassword} loading={savingPassword} variant="outline" className="gap-2 rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
             disabled={!passwords.currentPassword || !passwords.newPassword}>
             {passwordSaved ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
             {passwordSaved ? "Changed!" : "Change Password"}
@@ -249,7 +249,7 @@ export default function SettingsPage() {
 
       {/* Centre Branding (Centre Admin Only) */}
       {isCentreAdmin && (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden relative">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Palette className="h-5 w-5 text-gray-400" />
@@ -304,7 +304,7 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
-            <Button onClick={saveCentreBranding} loading={savingCentre} className="gap-2">
+            <Button onClick={saveCentreBranding} loading={savingCentre} className="gap-2 rounded-full shadow-sm hover:shadow-md transition-all duration-700 ease-fluid active:scale-[0.98]">
               {centreSaved ? <Check className="h-4 w-4" /> : <Save className="h-4 w-4" />}
               {centreSaved ? "Saved!" : "Save Centre Branding"}
             </Button>
@@ -313,10 +313,10 @@ export default function SettingsPage() {
       )}
 
       {/* Account Info */}
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden relative">
         <CardHeader><CardTitle className="text-base">Account</CardTitle></CardHeader>
         <CardContent className="space-y-3">
-          <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-700/50">
+          <div className="flex items-center justify-between rounded-xl bg-muted-foreground/5 p-4">
             <div>
               <p className="text-sm font-medium text-gray-900 dark:text-slate-100">Role</p>
               <p className="text-xs text-gray-500 dark:text-slate-400">{user?.role?.replace(/_/g, " ")}</p>
@@ -324,12 +324,12 @@ export default function SettingsPage() {
             <Badge variant="secondary">{user?.role?.replace(/_/g, " ")}</Badge>
           </div>
           {user?.centreSlug && (
-            <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-700/50">
+            <div className="flex items-center justify-between rounded-xl bg-muted-foreground/5 p-4">
               <div>
                 <p className="text-sm font-medium text-gray-900 dark:text-slate-100">Centre Code</p>
                 <p className="text-xs text-gray-500 dark:text-slate-400">Share with students to register under your centre</p>
               </div>
-              <code className="rounded border border-teal-200 bg-white px-2 py-1 font-mono text-sm text-teal-700 dark:border-teal-900 dark:bg-slate-700 dark:text-teal-300">{user.centreSlug}</code>
+              <code className="rounded-lg border border-teal-500/20 bg-teal-500/10 px-2 py-1 font-mono text-sm font-bold text-teal-500">{user.centreSlug}</code>
             </div>
           )}
           <div className="pt-2">
@@ -342,7 +342,7 @@ export default function SettingsPage() {
                 variant: "warning",
               });
               if (ok) signOut({ callbackUrl: "/login" });
-            }} className="gap-2">
+            }} className="gap-2 rounded-full shadow-sm hover:shadow-md transition-all duration-700 ease-fluid active:scale-[0.98]">
               <LogOut className="h-4 w-4" /> Log Out
             </Button>
           </div>

@@ -232,7 +232,7 @@ function RegisterForm() {
             placeholder="Full name"
             value={form.name}
             onChange={(e) => updateForm("name", e.target.value)}
-            className="h-12 rounded-full pl-11 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
+            className="h-14 rounded-full pl-11 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
             required
           />
         </div>
@@ -244,7 +244,7 @@ function RegisterForm() {
             placeholder="Email address"
             value={form.email}
             onChange={(e) => updateForm("email", e.target.value)}
-            className="h-12 rounded-full pl-11 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
+            className="h-14 rounded-full pl-11 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
             required
           />
         </div>
@@ -254,7 +254,7 @@ function RegisterForm() {
             aria-label="Country code"
             value={form.countryCode}
             onChange={(e) => updateForm("countryCode", e.target.value)}
-            className="shrink-0 h-12 rounded-full border-none shadow-inner bg-black/5 dark:bg-black/20 text-foreground py-2 pl-4 pr-8 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+            className="shrink-0 h-14 rounded-full border border-white/5 shadow-inner bg-background/50 backdrop-blur-md text-foreground py-2 pl-4 pr-8 text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
           >
             {COUNTRY_CODES.map((c) => (
               <option key={c.label} value={c.code} className="bg-background text-foreground">{c.label}</option>
@@ -268,7 +268,7 @@ function RegisterForm() {
               placeholder="Phone number"
               value={form.phone}
               onChange={(e) => updateForm("phone", e.target.value.replace(/\D/g, ""))}
-              className="h-12 rounded-full pl-11 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
+              className="h-14 rounded-full pl-11 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
               maxLength={10}
               required
             />
@@ -285,7 +285,7 @@ function RegisterForm() {
                 placeholder="Coaching centre name"
                 value={form.centreName}
                 onChange={(e) => updateForm("centreName", e.target.value)}
-                className="h-12 rounded-full pl-11 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
+                className="h-14 rounded-full pl-11 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
                 required
               />
             </div>
@@ -303,7 +303,7 @@ function RegisterForm() {
                       e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "")
                     )
                   }
-                  className="h-12 rounded-full pl-9 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
+                  className="h-14 rounded-full pl-9 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
                   required
                 />
               </div>
@@ -321,7 +321,7 @@ function RegisterForm() {
             placeholder="Password (min 8, incl. a letter & number)"
             value={form.password}
             onChange={(e) => updateForm("password", e.target.value)}
-            className="h-12 rounded-full pl-11 pr-12 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
+            className="h-14 rounded-full pl-11 pr-12 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
             required
           />
           <button
@@ -341,7 +341,7 @@ function RegisterForm() {
             placeholder="Confirm password"
             value={form.confirmPassword}
             onChange={(e) => updateForm("confirmPassword", e.target.value)}
-            className="h-12 rounded-full pl-11 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
+            className="h-14 rounded-full pl-11 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
             required
           />
         </div>

@@ -104,11 +104,11 @@ export default function SuperAdminUsersPage() {
           placeholder="Search by name, email or phone..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="pl-10"
+          className="pl-10 w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
         />
       </div>
 
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex justify-center py-16">
@@ -128,7 +128,7 @@ export default function SuperAdminUsersPage() {
                 return (
                   <div key={u.id} className="flex flex-col gap-3 p-4 hover:bg-gray-50 dark:hover:bg-slate-700/40 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-500/20 text-sm font-bold text-indigo-500">
                         {u.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
@@ -155,7 +155,7 @@ export default function SuperAdminUsersPage() {
                           </div>
                           <button
                             onClick={() => copySlug(u.centre!.slug)}
-                            className="group flex items-center gap-1 rounded-md border border-teal-200 bg-teal-50 px-2 py-1 font-mono text-xs text-teal-700 hover:bg-teal-100 dark:border-teal-800 dark:bg-teal-950/30 dark:text-teal-300 dark:hover:bg-teal-950/50"
+                            className="group flex items-center gap-1 rounded-full border border-teal-500/30 bg-teal-500/10 px-2 py-1 font-mono text-xs text-teal-500 hover:bg-teal-500/20 transition-all duration-300"
                             title="Click to copy referral code"
                           >
                             <Hash className="h-3 w-3" />
@@ -184,7 +184,7 @@ export default function SuperAdminUsersPage() {
                           size="sm"
                           onClick={() => handleDelete(u.id, u.name)}
                           disabled={deleting === u.id}
-                          className="h-8 w-8 p-0 text-gray-400 hover:text-red-600"
+                          className="h-8 w-8 p-0 rounded-full text-gray-400 hover:bg-red-500/10 hover:text-red-500 transition-all duration-300 bg-transparent"
                         >
                           {deleting === u.id ? (
                             <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" />
@@ -214,6 +214,7 @@ export default function SuperAdminUsersPage() {
               size="sm"
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page <= 1}
+              className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
             >
               Previous
             </Button>
@@ -225,6 +226,7 @@ export default function SuperAdminUsersPage() {
               size="sm"
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page >= totalPages}
+              className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
             >
               Next
             </Button>

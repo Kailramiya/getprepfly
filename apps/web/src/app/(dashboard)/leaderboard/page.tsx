@@ -51,7 +51,7 @@ export default function LeaderboardPage() {
       </div>
 
       {!data?.available ? (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="py-16 text-center">
             <Trophy className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
             <p className="mt-4 text-gray-500 dark:text-slate-400">
@@ -63,7 +63,7 @@ export default function LeaderboardPage() {
         <>
           {/* Your rank (if outside the visible top) */}
           {data.you && data.you.ranked && data.you.rank && data.you.rank > (data.top.length) && (
-            <Card className="border-indigo-200 dark:border-indigo-900">
+            <Card className="rounded-[2rem] border-none shadow-glass bg-indigo-500/10 backdrop-blur-xl ring-1 ring-indigo-500/20 overflow-hidden">
               <CardContent className="flex items-center justify-between p-4">
                 <span className="text-sm font-medium text-gray-700 dark:text-slate-300">Your rank</span>
                 <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
@@ -73,7 +73,7 @@ export default function LeaderboardPage() {
             </Card>
           )}
 
-          <Card>
+          <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-base">
                 <Medal className="h-5 w-5 text-amber-500" /> Top {data.top.length}
@@ -84,7 +84,7 @@ export default function LeaderboardPage() {
                 {data.top.map((row) => (
                   <div
                     key={row.rank}
-                    className={`flex items-center gap-4 px-4 py-3 ${row.isYou ? "bg-indigo-50 dark:bg-indigo-950/30" : ""}`}
+                    className={`flex items-center gap-4 px-4 py-3 transition-colors ${row.isYou ? "bg-indigo-500/10" : "hover:bg-background/40"}`}
                   >
                     <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${rankBadge(row.rank)}`}>
                       {row.rank}
@@ -106,7 +106,7 @@ export default function LeaderboardPage() {
           </p>
         </>
       ) : (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="py-16 text-center">
             <Trophy className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
             <p className="mt-4 text-gray-500 dark:text-slate-400">

@@ -229,15 +229,15 @@ export default function PricingPage() {
 
       {/* Duration toggle */}
       <div className="flex justify-center">
-        <div className="flex items-center gap-1 rounded-xl bg-gray-100 p-1 dark:bg-slate-800">
+        <div className="flex items-center gap-1 rounded-full bg-background/50 backdrop-blur-xl ring-1 ring-white/10 p-1.5 shadow-glass">
           {durationOptions.map((d) => (
             <button
               key={d}
               onClick={() => setDuration(d)}
-              className={`flex items-center gap-1.5 rounded-lg px-5 py-2 text-sm font-medium transition ${
+              className={`flex items-center gap-1.5 rounded-full px-5 py-2 text-sm font-bold transition-all duration-500 ease-fluid ${
                 duration === d
-                  ? "bg-white text-gray-900 shadow dark:bg-slate-700 dark:text-slate-100"
-                  : "text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+                  ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                  : "text-muted-foreground/70 hover:text-foreground hover:bg-background/40"
               }`}
             >
               {DURATION_LABEL[d]}
@@ -268,13 +268,14 @@ export default function PricingPage() {
         const owned        = access?.hasAllAccess ?? false;
 
         return (
-          <Card className="relative overflow-hidden border-2 border-indigo-500 bg-gradient-to-br from-indigo-50 via-white to-purple-50 shadow-xl dark:from-indigo-950/40 dark:via-slate-900 dark:to-purple-950/40">
-            <div className="absolute -right-6 -top-6 rotate-12">
-              <Badge className="bg-amber-500 text-white">
+          <Card className="relative overflow-hidden rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent backdrop-blur-xl ring-2 ring-indigo-500/30 group transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float">
+            <div className="absolute inset-0 bg-black/5 mix-blend-overlay pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-fluid" />
+            <div className="absolute -right-6 -top-6 rotate-12 z-10">
+              <Badge className="bg-amber-500 text-white shadow-md border-none">
                 <Sparkles className="mr-1 h-3 w-3" /> BEST VALUE
               </Badge>
             </div>
-            <CardContent className="p-8">
+            <CardContent className="p-8 relative z-10">
               <div className="flex flex-col items-start justify-between gap-6 lg:flex-row lg:items-center">
                 <div className="flex-1">
                   <div className="flex items-center gap-3">
@@ -314,14 +315,14 @@ export default function PricingPage() {
                   </div>
                   {save > 0 && <p className="mt-1 text-xs font-medium text-green-600">Save ₹{save}</p>}
                   {owned ? (
-                    <Button disabled className="mt-4 w-full gap-2 lg:w-auto" size="lg">
+                    <Button disabled className="mt-4 w-full gap-2 lg:w-auto rounded-full" size="lg">
                       <Check className="h-4 w-4" /> Active until {formatExpiry("ALL")}
                     </Button>
                   ) : (
                     <Button
                       onClick={() => handlePurchase(bundlePlanId)}
                       loading={processing === bundlePlanId}
-                      className="mt-4 w-full gap-2 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 lg:w-auto"
+                      className="mt-4 w-full gap-2 rounded-full shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-gradient-to-r from-indigo-600 to-purple-600 lg:w-auto"
                       size="lg"
                     >
                       Unlock Everything — ₹{bundlePrice}
@@ -350,14 +351,14 @@ export default function PricingPage() {
             const price = planPrice(plan.baseId, plan.defaultPrice[duration]);
 
             return (
-              <Card key={plan.baseId} className={`relative transition ${owned ? "border-green-300 bg-green-50/40 dark:border-green-800 dark:bg-green-950/20" : "hover:shadow-lg dark:border-slate-700"}`}>
+              <Card key={plan.baseId} className={`relative rounded-[2rem] border-none shadow-glass backdrop-blur-xl ring-1 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float overflow-hidden ${owned ? "bg-green-500/10 ring-green-500/30" : "bg-background/50 ring-white/10"}`}>
                 <CardContent className="p-5">
                   {owned && (
-                    <Badge className="absolute right-3 top-3 bg-green-600 text-white">
+                    <Badge className="absolute right-3 top-3 bg-green-500 text-white shadow-sm border-none">
                       <Check className="mr-1 h-3 w-3" /> Active
                     </Badge>
                   )}
-                  <div className={`flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br ${plan.color} text-white`}>
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${plan.color} text-white shadow-inner`}>
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-slate-100">{plan.title}</h3>
@@ -383,7 +384,7 @@ export default function PricingPage() {
                     <Button
                       onClick={() => handlePurchase(id)}
                       loading={processing === id}
-                      className="mt-4 w-full"
+                      className="mt-4 w-full rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
                       variant="outline"
                     >
                       Buy for ₹{price}
@@ -397,7 +398,7 @@ export default function PricingPage() {
       </div>
 
       {/* Free Tier Info */}
-      <Card className="border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800/50">
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
         <CardContent className="flex items-start gap-3 p-5">
           <Lock className="mt-0.5 h-5 w-5 text-gray-400" />
           <div>

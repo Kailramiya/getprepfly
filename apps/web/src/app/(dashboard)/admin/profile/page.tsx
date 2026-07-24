@@ -59,18 +59,18 @@ export default function CentreProfilePage() {
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Centre Profile</h1>
-        <p className="text-gray-500 dark:text-slate-400">Update your coaching centre information</p>
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Centre Profile</h1>
+        <p className="text-base font-medium text-muted-foreground mt-2">Update your coaching centre information</p>
       </div>
 
       {centre && (
-        <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-4 dark:bg-slate-700">
-          <div className="flex h-12 w-12 items-center justify-center rounded-xl text-white text-lg font-bold" style={{ backgroundColor: form.primaryColor }}>
+        <div className="flex items-center gap-4 rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 p-6 mb-6 hover:shadow-float transition-all duration-700 ease-fluid group">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl text-white text-xl font-extrabold shadow-inner group-hover:scale-105 transition-transform duration-700 ease-fluid" style={{ backgroundColor: form.primaryColor }}>
             {form.name.charAt(0).toUpperCase()}
           </div>
           <div>
-            <p className="font-semibold text-gray-900 dark:text-slate-100">{form.name}</p>
-            <p className="text-xs text-gray-500 dark:text-slate-400">Slug: <span className="font-mono">{centre.slug}</span></p>
+            <p className="text-xl font-bold text-foreground">{form.name}</p>
+            <p className="text-sm font-medium text-muted-foreground mt-1">Slug: <span className="font-mono bg-white/10 px-2 py-0.5 rounded-md ml-1">{centre.slug}</span></p>
           </div>
           <Badge variant="secondary" className="ml-auto">Centre Admin</Badge>
         </div>
@@ -84,64 +84,64 @@ export default function CentreProfilePage() {
       )}
 
       <form onSubmit={handleSave} className="space-y-5">
-        <Card>
-          <CardHeader><CardTitle className="flex items-center gap-2 text-base"><Building2 className="h-4 w-4" /> Basic Info</CardTitle></CardHeader>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
+          <CardHeader><CardTitle className="flex items-center gap-2 text-lg font-bold"><Building2 className="h-5 w-5 text-primary" /> Basic Info</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Centre Name *</label>
-              <Input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+              <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Phone</label>
-                <Input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="+91 XXXXX XXXXX" />
+                <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} placeholder="+91 XXXXX XXXXX" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Email</label>
-                <Input type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="centre@email.com" />
+                <Input type="email" className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} placeholder="centre@email.com" />
               </div>
             </div>
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Website</label>
-              <Input value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder="https://yourcentre.com" />
+              <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.website} onChange={e => setForm({ ...form, website: e.target.value })} placeholder="https://yourcentre.com" />
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader><CardTitle className="text-base">Address</CardTitle></CardHeader>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
+          <CardHeader><CardTitle className="text-lg font-bold">Address</CardTitle></CardHeader>
           <CardContent className="space-y-4">
             <div>
               <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Street Address</label>
-              <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="123 Main Street" />
+              <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} placeholder="123 Main Street" />
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">City</label>
-                <Input value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} placeholder="Amritsar" />
+                <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.city} onChange={e => setForm({ ...form, city: e.target.value })} placeholder="Amritsar" />
               </div>
               <div>
                 <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">State</label>
-                <Input value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} placeholder="Punjab" />
+                <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.state} onChange={e => setForm({ ...form, state: e.target.value })} placeholder="Punjab" />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader><CardTitle className="text-base">Branding</CardTitle></CardHeader>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
+          <CardHeader><CardTitle className="text-lg font-bold">Branding</CardTitle></CardHeader>
           <CardContent>
             <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Brand Color</label>
             <div className="flex items-center gap-3">
               <input type="color" value={form.primaryColor} onChange={e => setForm({ ...form, primaryColor: e.target.value })} className="h-10 w-20 cursor-pointer rounded border" />
-              <Input value={form.primaryColor} onChange={e => setForm({ ...form, primaryColor: e.target.value })} className="w-32 font-mono text-sm" />
+              <Input className="w-32 rounded-2xl border-none bg-background/40 py-2.5 px-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={form.primaryColor} onChange={e => setForm({ ...form, primaryColor: e.target.value })} />
               <div className="h-10 w-10 rounded-lg border" style={{ backgroundColor: form.primaryColor }} />
             </div>
             <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">This color will be used for your centre&apos;s branding on the platform.</p>
           </CardContent>
         </Card>
 
-        <Button type="submit" loading={saving} className="w-full sm:w-auto">
+        <Button type="submit" loading={saving} size="lg" className="w-full sm:w-auto rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid px-10 font-bold tracking-wide text-md">
           {saving ? "Saving..." : "Save Changes"}
         </Button>
       </form>

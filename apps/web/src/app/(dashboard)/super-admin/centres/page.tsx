@@ -90,7 +90,7 @@ export default function SuperAdminCentresPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">All Centres</h1>
           <p className="text-gray-500 dark:text-slate-400">{centres.length} coaching centres registered</p>
         </div>
-        <Button className="gap-2"><Plus className="h-4 w-4" /> Add Centre</Button>
+        <Button className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2"><Plus className="h-4 w-4" /> Add Centre</Button>
       </div>
 
       {loading ? (
@@ -98,7 +98,7 @@ export default function SuperAdminCentresPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
         </div>
       ) : centres.length === 0 ? (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="py-16 text-center">
             <Building2 className="mx-auto h-12 w-12 text-gray-300" />
             <p className="mt-4 text-gray-500">No centres registered yet</p>
@@ -107,12 +107,12 @@ export default function SuperAdminCentresPage() {
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {centres.map((centre) => (
-            <Card key={centre.id} className="transition hover:shadow-md">
+            <Card key={centre.id} className="relative overflow-hidden rounded-[2rem] border-none shadow-glass backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid bg-background/50">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-100 dark:bg-indigo-950/50">
-                      <Globe className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-500/20">
+                      <Globe className="h-6 w-6 text-indigo-500" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-slate-100">{centre.name}</h3>
@@ -127,7 +127,7 @@ export default function SuperAdminCentresPage() {
                 </div>
 
                 {/* Referral Code */}
-                <div className="mt-4 rounded-lg border border-teal-200 bg-teal-50 p-3 dark:border-teal-900 dark:bg-teal-950/30">
+                <div className="mt-4 rounded-2xl border-none shadow-inner bg-teal-500/10 p-3 ring-1 ring-teal-500/20">
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-[10px] font-semibold uppercase tracking-wide text-teal-600 dark:text-teal-400">
@@ -141,7 +141,7 @@ export default function SuperAdminCentresPage() {
                     {centre.slug && (
                       <button
                         onClick={() => copySlug(centre.slug)}
-                        className="flex items-center gap-1 rounded-md border border-teal-300 bg-white px-2 py-1 text-xs text-teal-700 hover:bg-teal-100 dark:border-teal-700 dark:bg-slate-800 dark:text-teal-300 dark:hover:bg-teal-950/50"
+                        className="flex items-center gap-1 rounded-full border border-teal-500/30 bg-teal-500/10 px-2 py-1 text-xs text-teal-500 hover:bg-teal-500/20 transition-all duration-300"
                       >
                         {copiedSlug === centre.slug ? (
                           <>
@@ -167,10 +167,10 @@ export default function SuperAdminCentresPage() {
                 </div>
 
                 {/* Premium Status */}
-                <div className={`mt-3 rounded-lg border p-3 ${
+                <div className={`mt-3 rounded-2xl border-none shadow-inner p-3 ring-1 ${
                   centre.isPremiumCentre
-                    ? "border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30"
-                    : "border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-800/50"
+                    ? "bg-amber-500/10 ring-amber-500/20"
+                    : "bg-background/40 ring-white/10"
                 }`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@ export default function SuperAdminCentresPage() {
                       size="sm"
                       onClick={() => togglePremium(centre)}
                       disabled={togglingId === centre.id}
-                      className={centre.isPremiumCentre ? "border-red-300 text-red-600 hover:bg-red-50" : "border-amber-300 text-amber-700 hover:bg-amber-100"}
+                      className={`rounded-full shadow-sm hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent ${centre.isPremiumCentre ? "border-red-500/30 text-red-500 hover:bg-red-500/10" : "border-amber-500/30 text-amber-500 hover:bg-amber-500/10"}`}
                     >
                       {togglingId === centre.id
                         ? "..."

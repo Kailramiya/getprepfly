@@ -158,13 +158,13 @@ export default function AdminTemplatesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Study Guide Templates</h1>
-          <p className="text-sm text-gray-500 dark:text-slate-400">
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Study Guide Templates</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">
             Add ready-made templates that students can use while practicing each question type
           </p>
         </div>
-        <Button onClick={() => { resetForm(); setShowForm(true); }} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
-          <Plus className="h-4 w-4" />
+        <Button size="lg" onClick={() => { resetForm(); setShowForm(true); }} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide">
+          <Plus className="h-5 w-5" />
           Add Template
         </Button>
       </div>
@@ -177,11 +177,11 @@ export default function AdminTemplatesPage() {
       ) : templates.length === 0 ? (
         <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="py-16 text-center">
-            <BookOpen className="mx-auto h-12 w-12 text-gray-300" />
-            <p className="mt-4 text-gray-500">No templates yet</p>
-            <p className="mt-1 text-sm text-gray-400">Add your first template to help students ace the exam</p>
-            <Button onClick={() => { resetForm(); setShowForm(true); }} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid mt-4 gap-2">
-              <Plus className="h-4 w-4" />
+            <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 shadow-inner mb-6"><BookOpen className="h-10 w-10 text-primary" /></div>
+            <p className="text-lg font-bold text-foreground">No templates yet</p>
+            <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">Add your first template to help students ace the exam</p>
+            <Button size="lg" onClick={() => { resetForm(); setShowForm(true); }} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid mt-6 gap-2 font-bold tracking-wide">
+              <Plus className="h-5 w-5" />
               Add Template
             </Button>
           </CardContent>
@@ -189,44 +189,44 @@ export default function AdminTemplatesPage() {
       ) : (
         <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="p-0">
-            <div className="divide-y divide-gray-100 dark:divide-slate-700">
+            <div className="divide-y divide-white/5">
               {templates.map((t) => {
                 const isExpanded = expandedId === t.id;
                 return (
                   <div key={t.id}>
                     <div
-                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-slate-700/40"
+                      className="flex cursor-pointer items-center justify-between p-6 hover:bg-white/5 transition-colors duration-500 ease-fluid group"
                       onClick={() => setExpandedId(isExpanded ? null : t.id)}
                     >
-                      <div className="flex items-center gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-indigo-100">
-                          <BookOpen className="h-5 w-5 text-indigo-600" />
+                      <div className="flex items-center gap-4">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 shadow-inner">
+                          <BookOpen className="h-6 w-6 text-primary" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
+                            <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{t.title}</p>
                             {t.isPremium && (
-                              <Badge variant="warning" className="gap-1">
+                              <Badge variant="warning" className="gap-1 px-2 py-0.5">
                                 <Star className="h-3 w-3" /> Premium
                               </Badge>
                             )}
                           </div>
-                          <div className="mt-1 flex items-center gap-2">
+                          <div className="mt-1.5 flex items-center gap-3">
                             <Badge variant="secondary" className="text-xs">{formatType(t.questionType)}</Badge>
                             <span className="text-xs text-gray-400 dark:text-slate-500">{t.language}</span>
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-2">
                         <button
                           onClick={(e) => { e.stopPropagation(); openEdit(t); }}
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 dark:hover:bg-slate-700 dark:hover:text-blue-400"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-blue-500/20 hover:text-blue-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100"
                         >
                           <Edit2 className="h-4 w-4" />
                         </button>
                         <button
                           onClick={(e) => { e.stopPropagation(); handleDelete(t.id, t.title); }}
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 dark:hover:bg-slate-700 dark:hover:text-red-400"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -234,9 +234,9 @@ export default function AdminTemplatesPage() {
                     </div>
 
                     {isExpanded && (
-                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 dark:border-slate-700 dark:bg-slate-800/50">
-                        <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2 dark:text-slate-500">Template Content</h4>
-                        <div className="rounded-lg bg-white p-4 text-sm text-gray-700 whitespace-pre-wrap shadow-sm dark:bg-slate-800 dark:text-slate-300">
+                      <div className="border-t border-white/5 bg-black/10 px-6 py-6">
+                        <h4 className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60 mb-4">Template Content</h4>
+                        <div className="rounded-2xl border border-white/10 bg-background/40 p-6 text-sm font-medium text-foreground whitespace-pre-wrap shadow-inner backdrop-blur-md">
                           {t.content}
                         </div>
                       </div>
@@ -255,10 +255,10 @@ export default function AdminTemplatesPage() {
           <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
             <div className="flex items-center justify-between border-b border-white/10 bg-gradient-to-br from-indigo-500/10 to-teal-500/10 px-6 py-4">
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
+                <h2 className="text-2xl font-bold text-foreground">
                   {editingId ? "Edit Template" : "Add New Template"}
                 </h2>
-                <p className="mt-0.5 text-sm text-gray-500 dark:text-slate-400">
+                <p className="mt-1 text-sm font-medium text-muted-foreground">
                   Templates help students structure their answers for better scores
                 </p>
               </div>
@@ -366,10 +366,10 @@ Conclusion: In conclusion, [restate position]. Overall, [final thought].`}
             </div>
 
             <div className="flex items-center justify-end gap-3 border-t border-white/10 bg-black/20 px-6 py-4">
-              <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">
+              <Button variant="outline" size="lg" onClick={() => { setShowForm(false); resetForm(); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold tracking-wide">
                 Cancel
               </Button>
-              <Button onClick={handleSave} loading={saving} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">
+              <Button onClick={handleSave} size="lg" loading={saving} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid font-bold tracking-wide">
                 {editingId ? "Update Template" : "Create Template"}
               </Button>
             </div>

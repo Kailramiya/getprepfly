@@ -202,16 +202,16 @@ export default function QuestionsPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Question Bank</h1>
-          <p className="text-gray-500 dark:text-slate-400">{total} questions available</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Question Bank</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">{total} questions available</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 gap-2" onClick={() => setShowBulkUpload(true)}>
+          <Button variant="outline" size="lg" className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 gap-2 font-bold tracking-wide" onClick={() => setShowBulkUpload(true)}>
             <Upload className="h-4 w-4" />
             Bulk Upload
           </Button>
-          <Button className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2" onClick={() => { setEditingQuestion(null); setShowForm(true); }}>
-            <Plus className="h-4 w-4" />
+          <Button size="lg" className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide" onClick={() => { setEditingQuestion(null); setShowForm(true); }}>
+            <Plus className="h-5 w-5" />
             Add Question
           </Button>
         </div>
@@ -279,16 +279,17 @@ export default function QuestionsPage() {
       <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
-            <div className="flex items-center justify-center py-16">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+            <div className="flex items-center justify-center py-20">
+              <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
             </div>
           ) : questions.length === 0 ? (
-            <div className="py-16 text-center">
-              <Database className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-4 text-gray-500 dark:text-slate-400">No questions found. Add your first question!</p>
+            <div className="py-20 text-center">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 shadow-inner mb-6"><Database className="h-10 w-10 text-primary" /></div>
+              <p className="text-lg font-bold text-foreground">No questions found.</p>
+              <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">Add your first question!</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100 dark:divide-slate-700">
+            <div className="divide-y divide-white/5">
               {questions.map((q) => {
                 const SectionIcon = SECTION_ICONS[q.section] || Database;
                 const isExpanded = expandedId === q.id;
@@ -296,18 +297,18 @@ export default function QuestionsPage() {
                 return (
                   <div key={q.id}>
                     <div
-                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-background/40 transition-colors duration-500 ease-fluid"
+                      className="flex cursor-pointer items-center justify-between p-6 hover:bg-white/5 transition-colors duration-500 ease-fluid group"
                       onClick={() => toggleExpand(q.id)}
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${SECTION_COLORS[q.section] || "bg-gray-100"}`}>
-                          <SectionIcon className="h-5 w-5" />
+                        <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl shadow-inner ${SECTION_COLORS[q.section] || "bg-secondary text-muted-foreground"}`}>
+                          <SectionIcon className="h-6 w-6" />
                         </div>
                         <div>
                           <div className="flex items-center gap-2">
-                            <p className="font-medium text-gray-900 dark:text-slate-100">{q.title}</p>
+                            <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{q.title}</p>
                             {q.isPrediction && (
-                              <Badge variant="warning" className="gap-1">
+                              <Badge variant="warning" className="gap-1 shadow-[0_0_10px_rgba(245,158,11,0.5)]">
                                 <Star className="h-3 w-3" /> Prediction
                               </Badge>
                             )}
@@ -319,7 +320,7 @@ export default function QuestionsPage() {
                             <Badge className={`text-xs ${DIFFICULTY_COLORS[q.difficulty]}`}>
                               {q.difficulty}
                             </Badge>
-                            <span className="text-xs text-gray-400 dark:text-slate-500">
+                            <span className="text-xs font-bold tracking-wide uppercase text-muted-foreground/60 ml-2">
                               {q._count.attempts} attempts
                             </span>
                           </div>
@@ -327,12 +328,12 @@ export default function QuestionsPage() {
                       </div>
                       <div className="flex items-center gap-1">
                         {typeof q.marks === "number" && (
-                          <span className="mr-2 rounded-md bg-indigo-50 px-2 py-1 text-xs font-semibold text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300">
+                          <span className="mr-3 rounded-xl bg-primary/10 px-3 py-1.5 text-xs font-bold tracking-wide uppercase text-primary shadow-inner">
                             {q.marks} {q.marks === 1 ? "mark" : "marks"}
                           </span>
                         )}
                         <button
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-blue-400"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-blue-500/20 hover:text-blue-400 disabled:opacity-50 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner mr-2 opacity-0 group-hover:opacity-100"
                           onClick={(e) => { e.stopPropagation(); openEditForm(q.id); }}
                           disabled={loadingEdit === q.id}
                           title="Edit question"
@@ -344,7 +345,7 @@ export default function QuestionsPage() {
                           )}
                         </button>
                         <button
-                          className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-red-400"
+                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 disabled:opacity-50 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100"
                           onClick={(e) => { e.stopPropagation(); handleDelete(q.id, q.title); }}
                           disabled={deleting === q.id}
                           title="Delete question"
@@ -360,7 +361,7 @@ export default function QuestionsPage() {
 
                     {/* Expanded Detail */}
                     {isExpanded && (
-                      <div className="border-t border-white/5 bg-background/20 px-4 py-4 pl-18 backdrop-blur-sm">
+                      <div className="border-t border-white/5 bg-black/20 p-6 pl-24 backdrop-blur-md">
                         {loadingDetail === q.id ? (
                           <div className="flex items-center gap-2 py-4">
                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
@@ -370,7 +371,7 @@ export default function QuestionsPage() {
                           <div className="space-y-4 pl-14">
                             {/* Question Content */}
                             <div>
-                              <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Question Content</h4>
+                              <h4 className="text-xs font-bold tracking-widest uppercase text-muted-foreground/80">Question Content</h4>
                               <div className="mt-1 rounded-2xl bg-background/40 p-4 text-sm text-foreground shadow-inner backdrop-blur-md border border-white/5">
                                 {typeof detail.content === "string" ? (
                                   <p>{detail.content}</p>
@@ -434,7 +435,7 @@ export default function QuestionsPage() {
                             {/* Image */}
                             {(detail.imageUrl || detail.content?.imageUrl) && (
                               <div>
-                                <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Image</h4>
+                                <h4 className="text-xs font-bold tracking-widest uppercase text-muted-foreground/80">Image</h4>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
                                 <img
                                   src={detail.imageUrl || detail.content.imageUrl}

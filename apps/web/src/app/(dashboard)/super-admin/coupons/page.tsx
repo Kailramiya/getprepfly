@@ -110,14 +110,14 @@ export default function CouponsPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Coupon Management</h1>
           <p className="text-gray-500 dark:text-slate-400">Create and manage discount codes for student plans</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="gap-2">
+        <Button onClick={() => setShowForm(!showForm)} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
           <Plus className="h-4 w-4" />
           New Coupon
         </Button>
       </div>
 
       {showForm && (
-        <Card className="border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/40">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-indigo-500/10 backdrop-blur-xl ring-1 ring-indigo-500/20">
           <CardHeader>
             <CardTitle className="text-base">Create Coupon</CardTitle>
           </CardHeader>
@@ -127,6 +127,7 @@ export default function CouponsPage() {
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Code</label>
                 <Input
+                  className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                   placeholder="SUMMER50"
                   value={form.code}
                   onChange={(e) => setForm({ ...form, code: e.target.value.toUpperCase() })}
@@ -136,6 +137,7 @@ export default function CouponsPage() {
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Discount %</label>
                 <Input
+                  className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                   type="number" min="1" max="100"
                   value={form.discountPercent}
                   onChange={(e) => setForm({ ...form, discountPercent: e.target.value })}
@@ -145,6 +147,7 @@ export default function CouponsPage() {
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Max Uses</label>
                 <Input
+                  className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                   type="number" min="1"
                   value={form.maxUses}
                   onChange={(e) => setForm({ ...form, maxUses: e.target.value })}
@@ -154,6 +157,7 @@ export default function CouponsPage() {
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Valid Until</label>
                 <Input
+                  className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                   type="date"
                   value={form.validUntil}
                   onChange={(e) => setForm({ ...form, validUntil: e.target.value })}
@@ -161,15 +165,15 @@ export default function CouponsPage() {
                 />
               </div>
               <div className="flex gap-2 sm:col-span-2 lg:col-span-4">
-                <Button type="submit" loading={submitting}>Create Coupon</Button>
-                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setError(""); }}>Cancel</Button>
+                <Button type="submit" loading={submitting} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">Create Coupon</Button>
+                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setError(""); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Cancel</Button>
               </div>
             </form>
           </CardContent>
         </Card>
       )}
 
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex justify-center py-12">

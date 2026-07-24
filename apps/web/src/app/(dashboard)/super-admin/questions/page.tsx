@@ -229,7 +229,7 @@ export default function SuperAdminQuestionsPage() {
           onClick={() => toggleExpand(q.id)}
         >
           <div className="flex items-center gap-4">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg ${SECTION_COLORS[q.section] || "bg-gray-100"}`}>
+            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${SECTION_COLORS[q.section] || "bg-gray-100"}`}>
               <SectionIcon className="h-5 w-5" />
             </div>
             <div>
@@ -269,7 +269,7 @@ export default function SuperAdminQuestionsPage() {
             <button
               onClick={(e) => { e.stopPropagation(); openEditForm(q.id); }}
               disabled={loadingEdit === q.id}
-              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-blue-600 disabled:opacity-50 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-blue-400"
+              className="rounded-full p-2 text-gray-400 hover:bg-blue-500/10 hover:text-blue-500 disabled:opacity-50 transition-all duration-300"
               title="Edit question"
             >
               {loadingEdit === q.id ? (
@@ -280,7 +280,7 @@ export default function SuperAdminQuestionsPage() {
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); deleteQuestion(q.id); }}
-              className="rounded-md p-2 text-gray-400 hover:bg-gray-100 hover:text-red-600 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-red-400"
+              className="rounded-full p-2 text-gray-400 hover:bg-red-500/10 hover:text-red-500 transition-all duration-300"
               title="Delete question"
             >
               <Trash2 className="h-4 w-4" />
@@ -402,7 +402,7 @@ export default function SuperAdminQuestionsPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Global Question Bank</h1>
           <p className="text-gray-500 dark:text-slate-400">{total} questions (visible to all centres)</p>
         </div>
-        <Button onClick={() => { setEditingQuestion(null); setShowForm(true); }} className="gap-2">
+        <Button onClick={() => { setEditingQuestion(null); setShowForm(true); }} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
           <Plus className="h-4 w-4" /> Add Question
         </Button>
       </div>
@@ -415,7 +415,7 @@ export default function SuperAdminQuestionsPage() {
             placeholder="Search questions..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-10"
+            className="pl-10 w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
           />
         </div>
         <div className="flex flex-wrap gap-2">
@@ -473,7 +473,7 @@ export default function SuperAdminQuestionsPage() {
           <select
             value={centreFilter}
             onChange={(e) => { setCentreFilter(e.target.value); setPage(1); }}
-            className="rounded-lg border border-gray-200 bg-white py-2 pl-10 pr-8 text-sm text-gray-700 focus:border-indigo-300 focus:outline-none dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+            className="w-full rounded-2xl border-none bg-background/40 py-2.5 pl-10 pr-8 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
           >
             <option value="">All centres ({centres.length})</option>
             <option value="global">— Global / unassigned —</option>
@@ -486,7 +486,7 @@ export default function SuperAdminQuestionsPage() {
         {/* Sort by date */}
         <button
           onClick={() => setSortOrder(sortOrder === "desc" ? "asc" : "desc")}
-          className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+          className="flex items-center gap-2 rounded-2xl border-none shadow-inner bg-background/40 px-3 py-2 text-sm font-medium transition-all duration-700 hover:bg-background/60"
           title="Toggle sort order"
         >
           <Calendar className="h-3.5 w-3.5" />
@@ -497,10 +497,10 @@ export default function SuperAdminQuestionsPage() {
         {/* Mock test only toggle */}
         <button
           onClick={() => { setMockTestOnly(!mockTestOnly); setPage(1); }}
-          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition ${
+          className={`flex items-center gap-2 rounded-2xl border-none shadow-inner px-3 py-2 text-sm font-medium transition-all duration-700 ease-fluid ${
             mockTestOnly
-              ? "border-indigo-400 bg-indigo-50 text-indigo-700 dark:border-indigo-600 dark:bg-indigo-950/40 dark:text-indigo-300"
-              : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              ? "bg-indigo-500/10 text-indigo-500 ring-1 ring-indigo-500/20"
+              : "bg-background/40 hover:bg-background/60 text-foreground"
           }`}
           title="Show only questions used in mock tests"
         >
@@ -509,19 +509,19 @@ export default function SuperAdminQuestionsPage() {
         </button>
 
         {/* View toggle: List vs Grouped */}
-        <div className="ml-auto inline-flex rounded-lg bg-gray-100 p-1 dark:bg-slate-700">
+        <div className="ml-auto inline-flex rounded-2xl bg-background/40 p-1 shadow-inner ring-1 ring-white/5">
           <button
             onClick={() => setGroupByCentre(false)}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
-              !groupByCentre ? "bg-white text-indigo-600 shadow-sm dark:bg-slate-800 dark:text-indigo-400" : "text-gray-500 dark:text-slate-400"
+            className={`flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs font-medium transition-all ${
+              !groupByCentre ? "bg-indigo-500/10 text-indigo-500 shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-background/20"
             }`}
           >
             <ListIcon className="h-3.5 w-3.5" /> List
           </button>
           <button
             onClick={() => setGroupByCentre(true)}
-            className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-medium transition ${
-              groupByCentre ? "bg-white text-indigo-600 shadow-sm dark:bg-slate-800 dark:text-indigo-400" : "text-gray-500 dark:text-slate-400"
+            className={`flex items-center gap-1.5 rounded-xl px-3 py-1 text-xs font-medium transition-all ${
+              groupByCentre ? "bg-indigo-500/10 text-indigo-500 shadow-sm" : "text-muted-foreground hover:text-foreground hover:bg-background/20"
             }`}
           >
             <LayoutGrid className="h-3.5 w-3.5" /> Group by centre
@@ -530,7 +530,7 @@ export default function SuperAdminQuestionsPage() {
       </div>
 
       {/* Questions List */}
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex justify-center py-16">

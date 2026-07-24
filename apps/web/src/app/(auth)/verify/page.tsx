@@ -57,42 +57,42 @@ function VerifyEmailInner() {
       </div>
 
       {status === "verifying" && (
-        <>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950/50">
-            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+        <div className="group">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-indigo-500/10 ring-1 ring-indigo-500/20 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+            <Loader2 className="h-10 w-10 animate-spin text-indigo-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Verifying your email…</h2>
-        </>
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Verifying your email…</h2>
+        </div>
       )}
 
       {status === "success" && (
-        <>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/50">
-            <CheckCircle2 className="h-8 w-8 text-green-600" />
+        <div className="group">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/20 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+            <CheckCircle2 className="h-10 w-10 text-green-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Email verified!</h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">{message}</p>
-          <Link href="/login" className="mt-6 inline-block">
-            <Button size="lg">Continue to login</Button>
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Email verified!</h2>
+          <p className="mt-4 text-base font-medium text-muted-foreground leading-relaxed">{message}</p>
+          <Link href="/login" className="mt-8 inline-block w-full">
+            <Button size="xl" className="w-full rounded-full shadow-glass hover:shadow-float font-bold tracking-wide transition-all duration-700 ease-fluid active:scale-[0.98]">Continue to login</Button>
           </Link>
-        </>
+        </div>
       )}
 
       {status === "error" && (
-        <>
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-100 dark:bg-red-950/50">
-            <XCircle className="h-8 w-8 text-red-600" />
+        <div className="group">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-red-500/10 ring-1 ring-red-500/20 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+            <XCircle className="h-10 w-10 text-red-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Verification failed</h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">{message}</p>
-          <p className="mt-6 text-sm text-gray-500 dark:text-slate-400">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Verification failed</h2>
+          <p className="mt-4 text-base font-medium text-muted-foreground leading-relaxed">{message}</p>
+          <p className="mt-6 text-sm text-muted-foreground/60 uppercase tracking-widest font-semibold">
             Need a new link?{" "}
-            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/login" className="font-bold text-primary hover:text-primary/80 transition-colors">
               Go to login
             </Link>{" "}
-            and use &quot;Resend verification&quot;.
+            and use "Resend verification".
           </p>
-        </>
+        </div>
       )}
     </div>
   );

@@ -108,10 +108,11 @@ export default function PracticeSectionPage() {
   return (
     <div className="space-y-6">
       {/* Section Header */}
-      <div className={`rounded-2xl bg-gradient-to-r ${config.gradient} p-6 text-white sm:p-8`}>
-        <div className="flex items-center gap-4">
-          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-white/20 backdrop-blur-sm">
-            <SectionIcon className="h-8 w-8 text-white" />
+      <div className={`rounded-[2rem] bg-gradient-to-br ${config.gradient} p-6 text-white sm:p-8 shadow-glass relative overflow-hidden group`}>
+        <div className="absolute inset-0 bg-black/10 mix-blend-overlay pointer-events-none" />
+        <div className="flex items-center gap-5 relative z-10">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-md shadow-inner group-hover:scale-105 transition-transform duration-700 ease-fluid">
+            <SectionIcon className="h-8 w-8 text-white drop-shadow-sm" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">{config.title} Practice</h1>
@@ -126,22 +127,23 @@ export default function PracticeSectionPage() {
       <div className="grid gap-4 sm:grid-cols-2">
         {config.types.map((qt, index) => (
           <Link key={qt.type} href={`/practice/${sectionKey}/${qt.type.toLowerCase()}`}>
-            <Card className="group h-full cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5">
-              <CardContent className="flex h-full items-start gap-4 p-5">
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-${config.color}-100`}>
-                  <PlayCircle className={`h-5 w-5 text-${config.color}-600`} />
+            <Card className="group h-full cursor-pointer rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float overflow-hidden relative">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-fluid" />
+              <CardContent className="flex h-full items-start gap-5 p-6 relative z-10">
+                <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-${config.color}-500/10 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid`}>
+                  <PlayCircle className={`h-7 w-7 text-${config.color}-500`} />
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-gray-900 dark:text-slate-100">{qt.label}</h3>
-                    <ArrowRight className="h-4 w-4 text-gray-300 transition group-hover:text-gray-600 group-hover:translate-x-0.5 dark:text-slate-600 dark:group-hover:text-slate-400" />
+                    <h3 className="font-extrabold tracking-tight text-foreground text-lg group-hover:text-primary transition-colors">{qt.label}</h3>
+                    <ArrowRight className={`h-5 w-5 shrink-0 text-muted-foreground/30 transition-all duration-700 ease-fluid group-hover:text-${config.color}-500 group-hover:translate-x-2`} />
                   </div>
-                  <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{qt.description}</p>
-                  <div className="mt-3 flex items-center gap-2">
-                    <Badge variant="secondary" className="text-xs">
+                  <p className="mt-1.5 text-sm font-medium text-muted-foreground/80 leading-relaxed">{qt.description}</p>
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <Badge variant="secondary" className="text-xs rounded-full font-bold shadow-sm">
                       {qt.timeLimit}
                     </Badge>
-                    <Badge variant="outline" className="text-xs">
+                    <Badge variant="outline" className="text-xs rounded-full font-bold shadow-sm border-white/10">
                       Type {index + 1}
                     </Badge>
                   </div>

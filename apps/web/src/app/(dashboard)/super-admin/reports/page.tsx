@@ -56,12 +56,12 @@ export default function QuestionReportsPage() {
           <p className="text-gray-500 dark:text-slate-400">Student-reported issues with questions</p>
         </div>
         <div className="flex gap-2">
-          <Button variant={!showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(false)}>Open</Button>
-          <Button variant={showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(true)}>Resolved</Button>
+          <Button variant={!showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(false)} className={`rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid ${!showResolved ? "shadow-sm shadow-primary/20" : "bg-transparent border-white/10"}`}>Open</Button>
+          <Button variant={showResolved ? "default" : "outline"} size="sm" onClick={() => setShowResolved(true)} className={`rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid ${showResolved ? "shadow-sm shadow-primary/20" : "bg-transparent border-white/10"}`}>Resolved</Button>
         </div>
       </div>
 
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex justify-center py-12"><div className="h-7 w-7 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" /></div>
@@ -87,7 +87,7 @@ export default function QuestionReportsPage() {
                     </p>
                   </div>
                   {!r.resolved && (
-                    <Button size="sm" variant="outline" onClick={() => resolve(r.id)} className="shrink-0 text-green-600 border-green-200 hover:bg-green-50">
+                    <Button size="sm" variant="outline" onClick={() => resolve(r.id)} className="shrink-0 text-green-500 border-green-500/30 hover:bg-green-500/10 rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent">
                       Mark Resolved
                     </Button>
                   )}

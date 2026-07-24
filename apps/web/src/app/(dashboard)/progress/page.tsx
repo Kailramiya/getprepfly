@@ -134,7 +134,7 @@ export default function ProgressPage() {
 
       <div className="grid gap-6 lg:grid-cols-2">
         {/* 2. Score Trend Area Chart */}
-        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/50 overflow-hidden shadow-lg backdrop-blur-xl">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden transition-all duration-700 ease-fluid hover:shadow-float hover:-translate-y-1">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <TrendingUp className="h-5 w-5 text-indigo-500" />
@@ -180,7 +180,7 @@ export default function ProgressPage() {
         </Card>
 
         {/* 3. Section Radar Chart */}
-        <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/50 shadow-lg backdrop-blur-xl">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden transition-all duration-700 ease-fluid hover:shadow-float hover:-translate-y-1">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
               <Target className="h-5 w-5 text-purple-500" />
@@ -215,7 +215,7 @@ export default function ProgressPage() {
 
       {/* 4. Weak & Strong Areas */}
       <div className="grid gap-6 sm:grid-cols-2">
-        <Card className="border-red-500/20 bg-gradient-to-br from-red-500/5 to-transparent dark:from-red-950/20 shadow-lg">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-red-500/10 via-background/50 to-background/50 backdrop-blur-xl ring-1 ring-red-500/20 overflow-hidden hover:shadow-float transition-all duration-700 ease-fluid group hover:-translate-y-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base text-red-600 dark:text-red-400">
               <ArrowDown className="h-5 w-5" />
@@ -251,7 +251,7 @@ export default function ProgressPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-green-500/20 bg-gradient-to-br from-green-500/5 to-transparent dark:from-green-950/20 shadow-lg">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-green-500/10 via-background/50 to-background/50 backdrop-blur-xl ring-1 ring-green-500/20 overflow-hidden hover:shadow-float transition-all duration-700 ease-fluid group hover:-translate-y-1">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base text-green-600 dark:text-green-400">
               <ArrowUp className="h-5 w-5" />

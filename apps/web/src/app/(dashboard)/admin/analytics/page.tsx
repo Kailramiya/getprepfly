@@ -62,8 +62,8 @@ export default function AdminAnalyticsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Centre Analytics</h1>
-        <p className="text-gray-500 dark:text-slate-400">{user?.centreName} — Performance Overview</p>
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Centre Analytics</h1>
+        <p className="text-base font-medium text-muted-foreground mt-2">{user?.centreName} — Performance Overview</p>
       </div>
 
       {/* Key Metrics */}
@@ -80,8 +80,8 @@ export default function AdminAnalyticsPage() {
                 <stat.icon className={`h-6 w-6 ${stat.color}`} />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{stat.value}</p>
-                <p className="text-xs text-gray-500 dark:text-slate-400">{stat.label}</p>
+                <p className="text-3xl font-extrabold text-foreground">{stat.value}</p>
+                <p className="text-xs font-bold tracking-widest uppercase text-muted-foreground mt-1">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
@@ -98,22 +98,22 @@ export default function AdminAnalyticsPage() {
             <div className="flex items-center gap-6">
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-slate-400">Free</span>
-                  <span className="text-sm font-bold text-gray-900 dark:text-slate-100">{(stats?.totalStudents || 0) - (stats?.vipStudents || 0)}</span>
+                  <span className="text-sm font-bold text-muted-foreground">Free</span>
+                  <span className="text-sm font-extrabold text-foreground">{(stats?.totalStudents || 0) - (stats?.vipStudents || 0)}</span>
                 </div>
-                <div className="h-3 rounded-full bg-gray-200 dark:bg-slate-700">
+                <div className="h-3 rounded-full bg-secondary shadow-inner">
                   <div
-                    className="h-full rounded-full bg-gray-400"
+                    className="h-full rounded-full bg-muted-foreground"
                     style={{ width: stats?.totalStudents > 0 ? `${((stats.totalStudents - stats.vipStudents) / stats.totalStudents) * 100}%` : "0%" }}
                   />
                 </div>
               </div>
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-gray-600 dark:text-slate-400">VIP</span>
-                  <span className="text-sm font-bold text-green-600">{stats?.vipStudents || 0}</span>
+                  <span className="text-sm font-bold text-muted-foreground">VIP</span>
+                  <span className="text-sm font-extrabold text-green-500">{stats?.vipStudents || 0}</span>
                 </div>
-                <div className="h-3 rounded-full bg-gray-200 dark:bg-slate-700">
+                <div className="h-3 rounded-full bg-secondary shadow-inner">
                   <div
                     className="h-full rounded-full bg-green-500"
                     style={{ width: stats?.totalStudents > 0 ? `${(stats.vipStudents / stats.totalStudents) * 100}%` : "0%" }}
@@ -132,12 +132,12 @@ export default function AdminAnalyticsPage() {
             <div className="flex items-center gap-6">
               <div className="flex-1">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="flex items-center gap-1 text-sm text-green-600"><ArrowUp className="h-3 w-3" /> Active</span>
-                  <span className="text-sm font-bold text-gray-900 dark:text-slate-100">{stats?.activeStudents || 0}</span>
+                  <span className="flex items-center gap-1 text-sm font-bold text-green-500"><ArrowUp className="h-3 w-3" /> Active</span>
+                  <span className="text-sm font-extrabold text-foreground">{stats?.activeStudents || 0}</span>
                 </div>
-                <div className="h-3 rounded-full bg-gray-200 dark:bg-slate-700">
+                <div className="h-3 rounded-full bg-secondary shadow-inner">
                   <div
-                    className="h-full rounded-full bg-green-500"
+                    className="h-full rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.5)]"
                     style={{ width: stats?.totalStudents > 0 ? `${(stats.activeStudents / stats.totalStudents) * 100}%` : "0%" }}
                   />
                 </div>
@@ -147,9 +147,9 @@ export default function AdminAnalyticsPage() {
                   <span className="flex items-center gap-1 text-sm text-red-500"><ArrowDown className="h-3 w-3" /> Inactive</span>
                   <span className="text-sm font-bold text-gray-900 dark:text-slate-100">{stats?.inactiveStudents || 0}</span>
                 </div>
-                <div className="h-3 rounded-full bg-gray-200 dark:bg-slate-700">
+                <div className="h-3 rounded-full bg-secondary shadow-inner">
                   <div
-                    className="h-full rounded-full bg-red-400"
+                    className="h-full rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]"
                     style={{ width: stats?.totalStudents > 0 ? `${(stats.inactiveStudents / stats.totalStudents) * 100}%` : "0%" }}
                   />
                 </div>
@@ -162,7 +162,7 @@ export default function AdminAnalyticsPage() {
       {/* Top Performers */}
       <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 mt-4">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
+          <CardTitle className="flex items-center gap-2 text-lg font-bold">
             <Trophy className="h-5 w-5 text-amber-500" />
             Student Leaderboard
           </CardTitle>
@@ -176,20 +176,20 @@ export default function AdminAnalyticsPage() {
                 .sort((a: any, b: any) => b._count.attempts - a._count.attempts)
                 .slice(0, 10)
                 .map((student: any, i: number) => (
-                  <div key={student.id} className="flex items-center justify-between rounded-2xl bg-background/40 p-4 shadow-sm border border-white/5 transition hover:bg-background/60">
-                    <div className="flex items-center gap-3">
-                      <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
-                        i === 0 ? "bg-amber-100 text-amber-700" :
-                        i === 1 ? "bg-gray-200 text-gray-700 dark:bg-slate-600 dark:text-slate-200" :
-                        i === 2 ? "bg-orange-100 text-orange-700" :
-                        "bg-gray-100 text-gray-500 dark:bg-slate-600 dark:text-slate-400"
+                  <div key={student.id} className="flex items-center justify-between rounded-2xl bg-white/5 p-4 shadow-glass border border-white/5 transition-all duration-700 ease-fluid hover:bg-white/10 hover:shadow-float group hover:-translate-y-1">
+                    <div className="flex items-center gap-4">
+                      <span className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-extrabold ${
+                        i === 0 ? "bg-amber-500/20 text-amber-500 ring-1 ring-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.5)]" :
+                        i === 1 ? "bg-gray-300/20 text-gray-300 ring-1 ring-gray-300/50 shadow-[0_0_15px_rgba(209,213,219,0.3)]" :
+                        i === 2 ? "bg-orange-500/20 text-orange-500 ring-1 ring-orange-500/50 shadow-[0_0_15px_rgba(249,115,22,0.3)]" :
+                        "bg-secondary text-muted-foreground"
                       }`}>{i + 1}</span>
                       <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{student.name}</p>
-                        <p className="text-xs text-gray-400 dark:text-slate-500">{student.email}</p>
+                        <p className="text-base font-bold text-foreground">{student.name}</p>
+                        <p className="text-sm font-medium text-muted-foreground">{student.email}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 text-xs text-gray-500 dark:text-slate-400">
+                    <div className="flex items-center gap-4 text-xs font-bold tracking-wide text-muted-foreground uppercase">
                       <span>{student._count.attempts} practice</span>
                       <span>{student._count.mockTests} tests</span>
                       <Badge variant={student.studentPlan?.planType === "FREE" ? "secondary" : "success"}>

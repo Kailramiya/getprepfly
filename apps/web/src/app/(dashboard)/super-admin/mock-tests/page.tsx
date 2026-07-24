@@ -122,7 +122,7 @@ export default function SuperAdminMockTestsPage() {
             Create global mock test templates available to all students
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)} className="gap-2">
+        <Button onClick={() => setShowForm(true)} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
           <Plus className="h-4 w-4" /> Create Template
         </Button>
       </div>
@@ -134,9 +134,9 @@ export default function SuperAdminMockTestsPage() {
           { label: "Full Mock Tests", value: fullCount, icon: Layers, color: "text-teal-600", bg: "bg-teal-50 dark:bg-teal-950/30" },
           { label: "Sectional Tests", value: sectionalCount, icon: Mic, color: "text-purple-600", bg: "bg-purple-50 dark:bg-purple-950/30" },
         ].map(s => (
-          <Card key={s.label}>
+          <Card key={s.label} className="relative overflow-hidden rounded-[2rem] border-none shadow-glass backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid bg-background/50">
             <CardContent className="flex items-center gap-4 p-5">
-              <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${s.bg}`}>
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl ${s.bg}`}>
                 <s.icon className={`h-6 w-6 ${s.color}`} />
               </div>
               <div>
@@ -180,7 +180,7 @@ export default function SuperAdminMockTestsPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
         </div>
       ) : filteredTemplates.length === 0 ? (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="py-16 text-center">
             <ClipboardList className="mx-auto h-12 w-12 text-gray-300" />
             <p className="mt-4 text-gray-500 dark:text-slate-400">
@@ -189,7 +189,7 @@ export default function SuperAdminMockTestsPage() {
             {templates.length === 0 && (
               <>
                 <p className="mt-1 text-sm text-gray-400 dark:text-slate-500">Create your first template — students will see it on their Mock Test page</p>
-                <Button onClick={() => setShowForm(true)} className="mt-4 gap-2">
+                <Button onClick={() => setShowForm(true)} className="mt-4 rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
                   <Plus className="h-4 w-4" /> Create Template
                 </Button>
               </>
@@ -197,7 +197,7 @@ export default function SuperAdminMockTestsPage() {
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="p-0">
             <div className="divide-y divide-gray-100 dark:divide-slate-700">
               {filteredTemplates.map(t => {
@@ -210,7 +210,7 @@ export default function SuperAdminMockTestsPage() {
                 return (
                   <div key={t.id} className="flex items-center justify-between p-4">
                     <div className="flex items-center gap-4">
-                      <div className={`flex h-11 w-11 items-center justify-center rounded-xl ${iconBg}`}>
+                      <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${iconBg}`}>
                         <Icon className={`h-5 w-5 ${iconColor}`} />
                       </div>
                       <div>
@@ -233,7 +233,7 @@ export default function SuperAdminMockTestsPage() {
                     <div className="flex items-center gap-1">
                       <button
                         onClick={() => router.push(`/super-admin/mock-tests/${t.id}`)}
-                        className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 dark:text-indigo-400 dark:hover:bg-indigo-950/30"
+                        className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium text-indigo-500 hover:bg-indigo-500/10 transition-all duration-300"
                       >
                         <Settings2 className="h-4 w-4" /> Manage
                       </button>
@@ -255,7 +255,7 @@ export default function SuperAdminMockTestsPage() {
       {/* Create Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-lg rounded-2xl bg-white shadow-2xl dark:bg-slate-900">
+          <div className="w-full max-w-lg rounded-[2rem] border-none shadow-glass bg-background/80 backdrop-blur-2xl ring-1 ring-white/10 overflow-hidden">
             <div className="flex items-center justify-between border-b border-gray-100 dark:border-slate-700 px-6 py-4">
               <div>
                 <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">Create Mock Test Template</h2>
@@ -270,7 +270,7 @@ export default function SuperAdminMockTestsPage() {
               {/* Title */}
               <div>
                 <label className="mb-1.5 block text-sm font-medium text-gray-700 dark:text-slate-300">Title <span className="text-red-500">*</span></label>
-                <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Full PTE Mock Test #1" />
+                <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g., Full PTE Mock Test #1" />
               </div>
 
               {/* Type */}
@@ -287,8 +287,8 @@ export default function SuperAdminMockTestsPage() {
                       <button
                         key={opt.value}
                         onClick={() => setMockType(opt.value as "FULL" | "SECTIONAL")}
-                        className={`flex flex-col items-start gap-1 rounded-xl border-2 p-4 text-left transition ${
-                          active ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40" : "border-gray-200 dark:border-slate-700 hover:border-gray-300 dark:hover:border-slate-600"
+                        className={`flex flex-col items-start gap-1 rounded-2xl border-2 p-4 text-left transition ${
+                          active ? "border-indigo-500/50 bg-indigo-500/10 shadow-inner" : "border-transparent bg-background/40 hover:bg-background/60 shadow-inner ring-1 ring-white/5"
                         }`}
                       >
                         <Icon className={`h-5 w-5 ${active ? "text-indigo-600 dark:text-indigo-400" : "text-gray-400 dark:text-slate-500"}`} />
@@ -312,8 +312,8 @@ export default function SuperAdminMockTestsPage() {
                         <button
                           key={key}
                           onClick={() => setSection(key)}
-                          className={`flex items-center gap-2.5 rounded-lg border-2 px-4 py-3 text-sm font-medium transition ${
-                            active ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300" : "border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-400 hover:border-gray-300"
+                          className={`flex items-center gap-2.5 rounded-2xl border-2 px-4 py-3 text-sm font-medium transition ${
+                            active ? "border-indigo-500/50 bg-indigo-500/10 text-indigo-500 shadow-inner" : "border-transparent bg-background/40 hover:bg-background/60 shadow-inner ring-1 ring-white/5"
                           }`}
                         >
                           <Icon className="h-4 w-4" />
@@ -351,8 +351,8 @@ export default function SuperAdminMockTestsPage() {
             </div>
 
             <div className="flex justify-end gap-3 border-t border-gray-100 dark:border-slate-700 bg-gray-50 dark:bg-slate-800 px-6 py-4 rounded-b-2xl">
-              <Button variant="outline" onClick={() => { setShowForm(false); setError(""); }}>Cancel</Button>
-              <Button onClick={handleCreate} loading={saving}>Create Template</Button>
+              <Button variant="outline" onClick={() => { setShowForm(false); setError(""); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Cancel</Button>
+              <Button onClick={handleCreate} loading={saving} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">Create Template</Button>
             </div>
           </div>
         </div>

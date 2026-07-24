@@ -56,7 +56,7 @@ export default function FeedbackPage() {
         <CheckCircle2 className="mx-auto h-16 w-16 text-green-500" />
         <h2 className="mt-6 text-2xl font-bold text-gray-900 dark:text-slate-100">Thank you!</h2>
         <p className="mt-2 text-gray-500 dark:text-slate-400">Your feedback has been submitted. We will use it to improve the platform.</p>
-        <Button className="mt-6" onClick={() => { setSubmitted(false); setMessage(""); setRating(0); }}>
+        <Button className="mt-6 rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid" onClick={() => { setSubmitted(false); setMessage(""); setRating(0); }}>
           Submit Another
         </Button>
       </div>
@@ -70,7 +70,7 @@ export default function FeedbackPage() {
         <p className="text-gray-500 dark:text-slate-400">Help us improve Prepfly. Your feedback matters!</p>
       </div>
 
-      <Card className="border-teal-200 bg-teal-50 dark:border-teal-900 dark:bg-teal-950/30">
+      <Card className="rounded-[2rem] border-none shadow-glass bg-teal-500/10 backdrop-blur-xl ring-1 ring-teal-500/20 overflow-hidden">
         <CardContent className="flex items-center gap-3 p-4">
           <MessageSquare className="h-5 w-5 text-teal-600" />
           <p className="text-sm text-teal-800 dark:text-teal-300">
@@ -80,7 +80,7 @@ export default function FeedbackPage() {
       </Card>
 
       <form onSubmit={handleSubmit}>
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardHeader>
             <CardTitle className="text-base">What type of feedback?</CardTitle>
           </CardHeader>
@@ -92,10 +92,10 @@ export default function FeedbackPage() {
                   key={cat.value}
                   type="button"
                   onClick={() => setCategory(cat.value)}
-                  className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium transition ${
+                  className={`flex items-center gap-2 rounded-2xl border-none shadow-inner px-3 py-2 text-sm font-medium transition-all duration-700 ease-fluid ${
                     category === cat.value
-                      ? "border-indigo-500 bg-indigo-50 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300 dark:border-indigo-700"
-                      : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700"
+                      ? "bg-indigo-500/10 text-indigo-500 ring-1 ring-indigo-500/20"
+                      : "bg-background/40 hover:bg-background/60 text-foreground"
                   }`}
                 >
                   <span>{cat.emoji}</span>
@@ -115,7 +115,7 @@ export default function FeedbackPage() {
                     key={r}
                     type="button"
                     onClick={() => setRating(r)}
-                    className="rounded p-1 transition hover:scale-110"
+                    className="rounded-full p-1 transition-all duration-500 hover:scale-110 hover:-translate-y-1"
                   >
                     <Star
                       className={`h-8 w-8 ${
@@ -133,7 +133,7 @@ export default function FeedbackPage() {
                 Your feedback
               </label>
               <textarea
-                className="min-h-[120px] w-full rounded-lg border border-gray-300 p-4 text-sm text-gray-900 placeholder:text-gray-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+                className="min-h-[120px] w-full rounded-2xl border-none bg-background/40 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground placeholder:text-slate-500"
                 placeholder="Tell us what is working, what is broken, or what you would like to see..."
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
@@ -142,7 +142,7 @@ export default function FeedbackPage() {
             </div>
 
             {/* Submit */}
-            <Button type="submit" loading={loading} disabled={!message.trim()} className="gap-2">
+            <Button type="submit" loading={loading} disabled={!message.trim()} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
               <Send className="h-4 w-4" />
               Submit Feedback
             </Button>

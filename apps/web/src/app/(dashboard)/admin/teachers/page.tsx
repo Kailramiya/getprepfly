@@ -62,10 +62,10 @@ export default function TeachersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Teachers</h1>
-          <p className="text-gray-500 dark:text-slate-400">Manage teaching staff for your centre</p>
+          <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Teachers</h1>
+          <p className="text-base font-medium text-muted-foreground mt-2">Manage teaching staff for your centre</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2"><Plus className="h-4 w-4" /> Add Teacher</Button>
+        <Button size="lg" onClick={() => setShowForm(!showForm)} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide"><Plus className="h-5 w-5" /> Add Teacher</Button>
       </div>
 
       {success && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950/50 dark:text-green-300">{success}</div>}
@@ -88,8 +88,8 @@ export default function TeachersPage() {
                 <Input placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid" />
               </div>
               <div className="flex gap-2 sm:col-span-3">
-                <Button type="submit" loading={submitting} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">Add Teacher</Button>
-                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setError(""); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Cancel</Button>
+                <Button type="submit" size="lg" loading={submitting} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid font-bold tracking-wide">Add Teacher</Button>
+                <Button type="button" variant="outline" size="lg" onClick={() => { setShowForm(false); setError(""); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 font-bold tracking-wide">Cancel</Button>
               </div>
             </form>
             <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">A temporary password will be sent to the teacher&apos;s email.</p>
@@ -99,8 +99,8 @@ export default function TeachersPage() {
 
       <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-base">
-            <GraduationCap className="h-5 w-5 text-gray-400" />
+          <CardTitle className="flex items-center gap-2 text-xl font-bold">
+            <GraduationCap className="h-6 w-6 text-primary" />
             {teachers.length === 0 ? "No Teachers Yet" : `Teachers (${teachers.length})`}
           </CardTitle>
         </CardHeader>
@@ -108,29 +108,30 @@ export default function TeachersPage() {
           {loading ? (
             <div className="flex justify-center py-8"><div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" /></div>
           ) : teachers.length === 0 ? (
-            <div className="py-8 text-center">
-              <GraduationCap className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-3 text-gray-500">Add teachers to help manage your students.</p>
+            <div className="py-20 text-center">
+              <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 shadow-inner mb-6"><GraduationCap className="h-10 w-10 text-primary" /></div>
+              <p className="text-lg font-bold text-foreground">No teachers yet.</p>
+              <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">Add teachers to help manage your students.</p>
             </div>
           ) : (
-            <div className="divide-y dark:divide-slate-700">
+            <div className="divide-y divide-white/5">
               {teachers.map(t => (
-                <div key={t.id} className="flex items-center justify-between py-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-300">
+                <div key={t.id} className="flex items-center justify-between p-6 hover:bg-white/5 transition-colors duration-500 ease-fluid group">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-xl font-extrabold text-primary shadow-inner">
                       {t.name.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-slate-100">{t.name}</p>
-                      <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-slate-400">
-                        <span className="flex items-center gap-1"><Mail className="h-3 w-3" />{t.email}</span>
-                        {t.phone && <span className="flex items-center gap-1"><User className="h-3 w-3" />{t.phone}</span>}
+                      <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{t.name}</p>
+                      <div className="mt-1 flex items-center gap-4 text-sm font-medium text-muted-foreground">
+                        <span className="flex items-center gap-1.5"><Mail className="h-4 w-4" />{t.email}</span>
+                        {t.phone && <span className="flex items-center gap-1.5"><User className="h-4 w-4" />{t.phone}</span>}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <Badge variant="secondary">Teacher</Badge>
-                    <button onClick={() => handleRemove(t.id, t.name)} disabled={removing === t.id} className="text-gray-400 hover:text-red-600 dark:hover:text-red-400">
+                    <Badge variant="secondary" className="px-3 py-1 font-bold tracking-wide">Teacher</Badge>
+                    <button onClick={() => handleRemove(t.id, t.name)} disabled={removing === t.id} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 disabled:opacity-50 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100">
                       {removing === t.id ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-gray-300 border-t-red-600" /> : <Trash2 className="h-4 w-4" />}
                     </button>
                   </div>
