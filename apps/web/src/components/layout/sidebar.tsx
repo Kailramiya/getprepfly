@@ -143,7 +143,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
                   href={item.href}
                   onClick={onNavClick}
                   className={cn(
-                    "group flex items-center rounded-full py-3 text-sm font-semibold tracking-wide transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-white/10 dark:hover:bg-white/5",
+                    "group flex items-center rounded-full py-3 text-sm font-semibold tracking-wide transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-muted/80 dark:hover:bg-white/5",
                     collapsed ? "justify-center px-2 hover:pl-2 hover:pr-2" : "gap-3 px-4",
                     isActive
                       ? "bg-primary text-primary-foreground shadow-glass dark:shadow-glass-dark"
@@ -182,7 +182,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
           href="/settings"
           onClick={onNavClick}
           className={cn(
-            "group flex items-center rounded-full py-3 text-sm font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-white/10 dark:hover:bg-white/5",
+            "group flex items-center rounded-full py-3 text-sm font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-muted/80 dark:hover:bg-white/5",
             collapsed ? "justify-center px-2 hover:pl-2 hover:pr-2" : "gap-3 px-4"
           )}
           title={collapsed ? "Settings" : undefined}
@@ -194,7 +194,7 @@ export function Sidebar({ onNavClick }: SidebarProps) {
         <button
           onClick={toggle}
           className={cn(
-            "group mt-1 flex w-full items-center rounded-full py-3 text-sm font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-white/10 dark:hover:bg-white/5",
+            "group mt-1 flex w-full items-center rounded-full py-3 text-sm font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-muted/80 dark:hover:bg-white/5",
             collapsed ? "justify-center px-2 hover:pl-2 hover:pr-2" : "gap-3 px-4"
           )}
           title={isDark ? "Switch to light mode" : "Switch to dark mode"}
