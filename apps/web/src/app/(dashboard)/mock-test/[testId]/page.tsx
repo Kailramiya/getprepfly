@@ -316,79 +316,84 @@ export default function MockTestSessionPage() {
   // Completed — show results + question review
   if (test.status === "COMPLETED") {
     return (
-      <div className="mx-auto max-w-3xl space-y-6">
-        <div className="text-center">
-          <CheckCircle2 className="mx-auto h-16 w-16 text-green-500" />
-          <h1 className="mt-4 text-2xl font-bold text-gray-900 dark:text-slate-100">Test Completed!</h1>
-          <p className="mt-2 text-gray-500 dark:text-slate-400">{test.title}</p>
+      <div className="mx-auto max-w-4xl space-y-8 pb-12">
+        <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-700 ease-fluid">
+          <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-green-500/10 mb-6">
+            <CheckCircle2 className="h-12 w-12 text-green-500" />
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground">Test Completed!</h1>
+          <p className="mt-3 text-lg font-medium text-muted-foreground/80">{test.title}</p>
         </div>
 
         {/* Overall Score */}
-        <Card className="overflow-hidden">
-          <div className="bg-indigo-600 px-6 py-8 text-center text-white">
-            <p className="text-sm text-indigo-200">Overall Score</p>
-            <p className="text-5xl font-bold">{test.overallScore || "--"}<span className="text-2xl text-indigo-200">/90</span></p>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden animate-in fade-in slide-in-from-bottom-6 duration-700 ease-fluid">
+          <div className="bg-gradient-to-br from-primary to-indigo-600 px-6 py-12 text-center text-white relative overflow-hidden">
+            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
+            <p className="text-sm font-bold tracking-widest uppercase text-white/80 relative z-10">Overall Score</p>
+            <p className="text-7xl font-extrabold tracking-tighter mt-2 relative z-10 drop-shadow-md">{test.overallScore || "--"}<span className="text-3xl text-white/60 font-bold ml-1">/90</span></p>
           </div>
-          <CardContent className="grid grid-cols-4 gap-4 p-6">
+          <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-6 p-6 sm:p-8 relative z-10 bg-background/50">
             {[
-              { label: "Speaking", score: test.speakingScore, icon: Mic, color: "text-teal-600" },
-              { label: "Writing", score: test.writingScore, icon: PenTool, color: "text-blue-600" },
-              { label: "Reading", score: test.readingScore, icon: BookOpen, color: "text-purple-600" },
-              { label: "Listening", score: test.listeningScore, icon: Headphones, color: "text-orange-600" },
+              { label: "Speaking", score: test.speakingScore, icon: Mic, color: "text-teal-500" },
+              { label: "Writing", score: test.writingScore, icon: PenTool, color: "text-blue-500" },
+              { label: "Reading", score: test.readingScore, icon: BookOpen, color: "text-purple-500" },
+              { label: "Listening", score: test.listeningScore, icon: Headphones, color: "text-orange-500" },
             ].map((s) => (
-              <div key={s.label} className="text-center">
-                <s.icon className={`mx-auto h-6 w-6 ${s.color}`} />
-                <p className="mt-2 text-2xl font-bold text-gray-900 dark:text-slate-100">{s.score ?? "--"}</p>
-                <p className="text-xs text-gray-500 dark:text-slate-400">{s.label}</p>
+              <div key={s.label} className="text-center flex flex-col items-center">
+                <div className={`flex h-12 w-12 items-center justify-center rounded-[1rem] shadow-inner mb-3 bg-background/80 ${s.color}`}>
+                  <s.icon className={`h-6 w-6`} />
+                </div>
+                <p className="text-3xl font-extrabold tracking-tight text-foreground">{s.score ?? "--"}</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground/60 mt-1">{s.label}</p>
               </div>
             ))}
           </CardContent>
         </Card>
 
-        <div className="flex justify-center gap-3">
-          <Button variant="outline" onClick={() => router.push("/mock-test")}>Back to Mock Tests</Button>
-          <Button onClick={() => router.push("/progress")}>View Progress</Button>
+        <div className="flex justify-center gap-4 animate-in fade-in slide-in-from-bottom-8 duration-700 ease-fluid">
+          <Button size="lg" variant="outline" onClick={() => router.push("/mock-test")} className="rounded-full shadow-glass hover:shadow-float active:scale-[0.98] transition-all">Back to Mock Tests</Button>
+          <Button size="lg" onClick={() => router.push("/progress")} className="rounded-full shadow-glass hover:shadow-float active:scale-[0.98] transition-all">View Progress</Button>
         </div>
 
         {/* Question Review with answers */}
-        <div className="space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Question Review</h2>
+        <div className="space-y-6 mt-12">
+          <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Question Review</h2>
           {test.questions.map((tq, idx) => {
             const attempt = test.attempts.find((a) => a.questionId === tq.question.id);
             return (
-              <Card key={tq.id}>
-                <CardHeader className="flex flex-row items-center justify-between bg-gray-50 dark:bg-slate-800/50 py-3 px-4">
+              <Card key={tq.id} className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
+                <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-transparent border-b border-muted-foreground/10 py-5 px-6 sm:px-8">
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-slate-100">
-                      Q{idx + 1}: {tq.question.title}
+                    <p className="text-lg font-extrabold tracking-tight text-foreground">
+                      <span className="text-primary mr-2">Q{idx + 1}.</span> {tq.question.title}
                     </p>
-                    <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">
-                      {tq.question.type?.replace(/_/g, " ")} · {tq.question.section}
+                    <p className="mt-1.5 text-sm font-medium text-muted-foreground/70 flex items-center gap-2">
+                      <Badge variant="outline" className="border-muted-foreground/20 rounded-full shadow-sm font-bold text-xs">{tq.question.section}</Badge>
+                      {tq.question.type?.replace(/_/g, " ")}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     {attempt ? (
-                      <Badge variant="success">Answered</Badge>
+                      <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20 border-none rounded-full shadow-sm font-bold transition-colors">Answered</Badge>
                     ) : (
-                      <Badge variant="secondary">Skipped</Badge>
+                      <Badge variant="secondary" className="border-none rounded-full shadow-sm font-bold">Skipped</Badge>
                     )}
                     {attempt?.overallScore != null && (
-                      <span className="text-sm font-semibold text-indigo-600 dark:text-indigo-400">
-                        {attempt.overallScore}/90
+                      <span className="text-lg font-extrabold text-primary drop-shadow-sm ml-2">
+                        {attempt.overallScore}<span className="text-sm text-muted-foreground/50">/90</span>
                       </span>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-6 sm:p-8">
                   {/* Audio playback for self-evaluation on speaking questions */}
                   {attempt?.responseAudio && (
-                    <div className="mb-4 rounded-lg border border-teal-200 bg-teal-50 p-3 dark:border-teal-800 dark:bg-teal-950/30">
-                      <p className="mb-2 text-xs font-semibold text-teal-700 dark:text-teal-300">🎤 Your Recording</p>
+                    <div className="mb-6 rounded-[1.5rem] border-none ring-1 ring-teal-500/20 bg-teal-500/5 shadow-inner p-5">
+                      <p className="mb-3 text-sm font-bold tracking-wider uppercase text-teal-600 dark:text-teal-400">🎤 Your Recording</p>
                       <audio
                         controls
                         src={attempt.responseAudio}
-                        className="w-full"
-                        style={{ height: "36px" }}
+                        className="w-full h-10 rounded-full [&::-webkit-media-controls-panel]:bg-teal-50 dark:[&::-webkit-media-controls-panel]:bg-teal-950/50"
                       />
                     </div>
                   )}
@@ -415,75 +420,80 @@ export default function MockTestSessionPage() {
 
   // Active test — show questions
   return (
-    <div className="mx-auto max-w-4xl space-y-4">
+    <div className="mx-auto max-w-4xl space-y-6 pb-12">
       {/* Top Bar — Timer + Progress */}
-      <div className="flex items-center justify-between rounded-xl bg-white p-3 shadow-sm border border-gray-200 dark:bg-slate-800 dark:border-slate-700">
-        <div className="flex items-center gap-4">
-          <Badge className={SECTION_COLORS[qSection]}>{qSection}</Badge>
-          <span className="text-sm text-gray-500 dark:text-slate-400">
-            Q {currentIdx + 1} / {totalQuestions}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between rounded-[2rem] bg-background/80 backdrop-blur-xl p-4 sm:p-6 shadow-glass ring-1 ring-white/10 gap-4">
+        <div className="flex items-center gap-4 flex-wrap">
+          <Badge className={`px-4 py-1.5 text-sm font-bold border-none shadow-sm ${SECTION_COLORS[qSection]}`}>
+            {qSection}
+          </Badge>
+          <span className="text-base font-extrabold tracking-tight text-foreground bg-muted-foreground/10 px-4 py-1.5 rounded-full">
+            Q {currentIdx + 1} <span className="text-muted-foreground/50 mx-1">/</span> {totalQuestions}
           </span>
-          <span className="text-sm text-gray-400 dark:text-slate-500">
-            ({attemptedCount} answered)
+          <span className="text-sm font-bold text-muted-foreground/60 uppercase tracking-wider">
+            {attemptedCount} answered
           </span>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 sm:gap-6">
           {navigating && (
-            <span className="flex items-center gap-1 text-xs text-gray-400 dark:text-slate-500">
-              <Save className="h-3 w-3 animate-pulse" /> Scoring…
+            <span className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-muted-foreground/60">
+              <Save className="h-4 w-4 animate-pulse text-primary" /> Saving…
             </span>
           )}
-          <div className={`flex items-center gap-1.5 text-sm font-mono font-medium ${
-            timeLeft !== null && timeLeft <= 300 ? "text-red-600 animate-pulse" : "text-gray-700 dark:text-slate-300"
+          <div className={`flex items-center gap-2 px-4 py-2 rounded-full font-mono text-lg font-extrabold tracking-tight shadow-inner ${
+            timeLeft !== null && timeLeft <= 300 
+              ? "bg-red-500/10 text-red-500 ring-1 ring-red-500/30 animate-pulse" 
+              : "bg-muted-foreground/10 text-foreground"
           }`}>
-            <Clock className={`h-4 w-4 ${timeLeft !== null && timeLeft <= 300 ? "text-red-600" : "text-gray-400 dark:text-slate-500"}`} />
+            <Clock className={`h-5 w-5 ${timeLeft !== null && timeLeft <= 300 ? "text-red-500" : "text-muted-foreground/60"}`} />
             {timeLeft !== null ? formatTime(timeLeft) : "--:--"}
           </div>
-          <Button variant="destructive" size="sm" onClick={finishTest} loading={finishing}>
-            <Flag className="mr-1.5 h-3.5 w-3.5" />
+          <Button variant="destructive" size="lg" onClick={finishTest} loading={finishing} className="rounded-full shadow-glass hover:shadow-float active:scale-[0.98] transition-all">
+            <Flag className="mr-2 h-4 w-4 fill-current" />
             Finish Test
           </Button>
         </div>
       </div>
 
       {/* Section Progress */}
-      <div className="flex gap-3">
+      <div className="flex flex-wrap gap-4 px-2">
         {Object.entries(sectionBreakdown).map(([sec, info]) => {
           const SIcon = SECTION_ICONS[sec] || BookOpen;
           return (
-            <div key={sec} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-slate-400">
-              <SIcon className="h-3.5 w-3.5" />
-              {sec}: {info.attempted}/{info.total}
+            <div key={sec} className="flex items-center gap-2 text-sm font-bold text-muted-foreground/70 uppercase tracking-wider bg-background/50 backdrop-blur-md px-3 py-1.5 rounded-full shadow-sm">
+              <SIcon className="h-4 w-4 text-primary" />
+              {sec}: <span className="text-foreground">{info.attempted}</span><span className="opacity-50">/{info.total}</span>
             </div>
           );
         })}
       </div>
 
       {/* Progress Bar */}
-      <div className="h-1.5 rounded-full bg-gray-200 dark:bg-slate-700">
+      <div className="h-2 rounded-full bg-muted-foreground/10 overflow-hidden shadow-inner">
         <div
-          className="h-full rounded-full bg-indigo-500 transition-all"
+          className="h-full rounded-full bg-gradient-to-r from-primary to-indigo-500 transition-all duration-1000 ease-fluid"
           style={{ width: `${((currentIdx + 1) / totalQuestions) * 100}%` }}
         />
       </div>
 
       {/* Question Card */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between bg-gray-50 dark:bg-slate-800/50">
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
+        <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-transparent border-b border-muted-foreground/10 py-5 px-6 sm:px-8">
           <div>
-            <CardTitle className="text-base dark:text-slate-100">{currentQuestion?.question?.title}</CardTitle>
-            <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
-              {currentQuestion?.question?.type?.replace(/_/g, " ")} · {currentQuestion?.question?.difficulty}
+            <CardTitle className="text-xl font-extrabold tracking-tight text-foreground">{currentQuestion?.question?.title}</CardTitle>
+            <p className="mt-1.5 text-sm font-medium text-muted-foreground/70 flex items-center gap-2">
+              <Badge variant="outline" className="border-muted-foreground/20 rounded-full shadow-sm font-bold text-xs">{currentQuestion?.question?.difficulty}</Badge>
+              {currentQuestion?.question?.type?.replace(/_/g, " ")}
             </p>
           </div>
           <div className="flex items-center gap-2">
             {isAttempted && !submitted && (
-              <Badge variant="success">Previously Answered — can re-edit</Badge>
+              <Badge className="bg-amber-500/10 text-amber-500 border-none rounded-full shadow-sm font-bold px-3 py-1 text-xs">Previously Answered — can re-edit</Badge>
             )}
-            {submitted && <Badge variant="success">Answered</Badge>}
+            {submitted && <Badge className="bg-green-500/10 text-green-500 border-none rounded-full shadow-sm font-bold px-3 py-1 text-xs">Answered</Badge>}
           </div>
         </CardHeader>
-        <CardContent className="p-6">
+        <CardContent className="p-6 sm:p-8">
           {currentQuestion?.question && (() => {
             const existingAttempt = test?.attempts?.find(
               (a) => a.questionId === currentQuestion.question.id
@@ -515,7 +525,10 @@ export default function MockTestSessionPage() {
 
           {/* Info banner — only shown after explicit submit or if previously answered */}
           {(submitted || isAttempted) && (
-            <div className="mt-4 rounded-lg border border-blue-100 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/30 px-4 py-3 text-sm text-blue-700 dark:text-blue-300">
+            <div className="mt-8 rounded-[1.25rem] border-none ring-1 ring-blue-500/20 bg-blue-500/5 px-5 py-4 text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
               {submitted
                 ? "Answer saved. Complete the test to see correct answers and scores."
                 : "You answered this question before. You can re-submit to update your answer."}
@@ -525,19 +538,20 @@ export default function MockTestSessionPage() {
       </Card>
 
       {/* Navigation */}
-      <div className="flex justify-end">
+      <div className="flex justify-end pt-4">
         {currentIdx === totalQuestions - 1 ? (
           <Button
+            size="lg"
             onClick={finishTest}
             loading={finishing}
-            className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+            className="gap-2 bg-green-500 hover:bg-green-600 text-white rounded-full shadow-glass hover:shadow-float active:scale-[0.98] transition-all"
           >
-            <Flag className="h-4 w-4" />
+            <Flag className="h-5 w-5 fill-current" />
             Finish Test
           </Button>
         ) : (
-          <Button onClick={goNext} loading={navigating} className="gap-2">
-            Next <ChevronRight className="h-4 w-4" />
+          <Button size="lg" onClick={goNext} loading={navigating} className="gap-2 rounded-full shadow-glass hover:shadow-float active:scale-[0.98] transition-all">
+            Next <ChevronRight className="h-5 w-5" />
           </Button>
         )}
       </div>

@@ -155,17 +155,17 @@ export default function MockTestPage() {
   const filteredTests     = tests.filter(t => matchesFilter(t.mockType, t.section));
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="space-y-8 pb-12">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Mock Tests</h1>
-          <p className="text-gray-500 dark:text-slate-400">Simulate the real PTE Academic exam</p>
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-foreground">Mock Tests</h1>
+          <p className="mt-2 text-lg font-medium text-muted-foreground/80">Simulate the real PTE Academic exam</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
           {fullAccessLocked && (
-            <span className="text-sm text-gray-500 dark:text-slate-400">
+            <span className="text-sm font-medium text-muted-foreground/80">
               Full tests need all 4 modules.{" "}
-              <button onClick={() => router.push("/pricing")} className="text-indigo-600 underline dark:text-indigo-400">
+              <button onClick={() => router.push("/pricing")} className="font-bold text-primary hover:text-primary/80 transition-colors">
                 Upgrade
               </button>
             </span>
@@ -173,31 +173,31 @@ export default function MockTestPage() {
           <Button
             onClick={startNewTest}
             loading={creating}
-            size="lg"
-            className="gap-2"
+            size="xl"
+            className={`gap-2 rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid active:scale-[0.98] ${fullAccessLocked ? "bg-background text-foreground hover:bg-muted-foreground/5 border border-muted-foreground/20" : ""}`}
             variant={fullAccessLocked ? "outline" : "default"}
           >
-            {fullAccessLocked ? <Lock className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+            {fullAccessLocked ? <Lock className="h-5 w-5" /> : <Play className="h-5 w-5 fill-current" />}
             {fullAccessLocked ? "Unlock Full Test" : "Start New Mock Test"}
           </Button>
         </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+      <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
         {FILTERS.map((f) => {
           const isActive = activeFilter === f.id;
           return (
             <button
               key={f.id}
               onClick={() => setActiveFilter(f.id)}
-              className={`flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+              className={`flex shrink-0 items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition-all duration-500 ease-fluid shadow-sm hover:shadow-md active:scale-95 ${
                 isActive
-                  ? f.active
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+                  ? `shadow-primary/25 ${f.active}`
+                  : "bg-background border-none ring-1 ring-muted-foreground/10 text-muted-foreground/70 hover:bg-muted-foreground/5 hover:text-foreground"
               }`}
             >
-              <f.icon className={`h-3.5 w-3.5 ${isActive ? "opacity-90" : f.color}`} />
+              <f.icon className={`h-4 w-4 ${isActive ? "opacity-100 drop-shadow-sm" : f.color}`} />
               {f.label}
             </button>
           );
@@ -205,52 +205,55 @@ export default function MockTestPage() {
       </div>
 
       {/* Test Info Card */}
-      <Card className="border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/30">
-        <CardContent className="p-5">
-          <div className="grid gap-4 sm:grid-cols-4">
+      <Card className="rounded-[2rem] border-none ring-1 ring-primary/20 bg-primary/5 shadow-glass backdrop-blur-xl overflow-hidden relative group">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none" />
+        <CardContent className="p-6 sm:p-8 relative z-10">
+          <div className="grid gap-6 sm:grid-cols-4">
             {[
-              { icon: Mic, label: "Speaking", info: "28 questions", color: "text-teal-600", section: "SPEAKING" },
-              { icon: PenTool, label: "Writing", info: "3 questions", color: "text-blue-600", section: "WRITING" },
-              { icon: BookOpen, label: "Reading", info: "11 questions", color: "text-purple-600", section: "READING" },
-              { icon: Headphones, label: "Listening", info: "14 questions", color: "text-orange-600", section: "LISTENING" },
+              { icon: Mic, label: "Speaking", info: "28 questions", color: "text-teal-600 dark:text-teal-400", section: "SPEAKING" },
+              { icon: PenTool, label: "Writing", info: "3 questions", color: "text-blue-600 dark:text-blue-400", section: "WRITING" },
+              { icon: BookOpen, label: "Reading", info: "11 questions", color: "text-purple-600 dark:text-purple-400", section: "READING" },
+              { icon: Headphones, label: "Listening", info: "14 questions", color: "text-orange-600 dark:text-orange-400", section: "LISTENING" },
             ].map((s) => {
               const sectionAccess = access?.hasAllAccess || access?.modules.includes(s.section);
               return (
-                <div key={s.label} className="flex items-center gap-3">
-                  <s.icon className={`h-5 w-5 ${s.color}`} />
+                <div key={s.label} className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] bg-background/50 shadow-inner group-hover:scale-105 transition-transform duration-700 ease-fluid">
+                    <s.icon className={`h-6 w-6 ${s.color}`} />
+                  </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-slate-100 flex items-center gap-1">
+                    <p className="text-base font-extrabold tracking-tight text-foreground flex items-center gap-1.5">
                       {s.label}
-                      {access && !sectionAccess && <Lock className="h-3 w-3 text-gray-400" />}
+                      {access && !sectionAccess && <Lock className="h-3.5 w-3.5 text-muted-foreground/50" />}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-slate-400">{s.info}</p>
+                    <p className="text-xs font-medium text-muted-foreground/80 mt-0.5">{s.info}</p>
                   </div>
                 </div>
               );
             })}
           </div>
-          <p className="mt-3 text-xs text-indigo-700 dark:text-indigo-400">
-            Full mock test: 56 questions across 4 sections. Estimated time: 2-3 hours. Purchase all 4 modules to unlock.
+          <p className="mt-6 text-sm font-bold text-primary/80 uppercase tracking-wider">
+            Full mock test: 56 questions across 4 sections <span className="mx-2 opacity-50">•</span> Estimated time: 2-3 hours <span className="mx-2 opacity-50">•</span> Purchase all 4 modules to unlock
           </p>
         </CardContent>
       </Card>
 
       {/* Assigned by Centre */}
       {assignedTests.length > 0 && (
-        <div>
-          <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-slate-100">Assigned by Your Centre</h2>
-          <div className="space-y-2">
+        <div className="mt-12">
+          <h2 className="mb-6 text-2xl font-extrabold tracking-tight text-foreground">Assigned by Your Centre</h2>
+          <div className="space-y-4">
             {assignedTests.map(t => (
-              <Card key={t.id}>
-                <CardContent className="flex items-center justify-between p-4">
+              <Card key={t.id} className="rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/5 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float">
+                <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6">
                   <div>
-                    <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
-                    <p className="text-xs text-gray-400 mt-0.5 dark:text-slate-500">
+                    <p className="text-xl font-extrabold tracking-tight text-foreground">{t.title}</p>
+                    <p className="text-sm font-medium text-muted-foreground/80 mt-1">
                       Assigned {new Date(t.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                     </p>
                   </div>
-                  <Button size="sm" onClick={() => router.push(`/mock-test/${t.id}`)}>
-                    <Play className="h-4 w-4 mr-1" /> Start
+                  <Button size="lg" onClick={() => router.push(`/mock-test/${t.id}`)} className="rounded-full shadow-sm hover:shadow-md transition-all duration-700 ease-fluid active:scale-[0.98]">
+                    <Play className="h-5 w-5 mr-2 fill-current" /> Start Test
                   </Button>
                 </CardContent>
               </Card>
@@ -261,40 +264,40 @@ export default function MockTestPage() {
 
       {/* Global Templates */}
       {filteredTemplates.length > 0 && (
-        <div>
-          <h2 className="mb-3 text-lg font-semibold text-gray-900 dark:text-slate-100">Available Tests</h2>
-          <div className="space-y-2">
+        <div className="mt-12">
+          <h2 className="mb-6 text-2xl font-extrabold tracking-tight text-foreground">Available Tests</h2>
+          <div className="space-y-4">
             {filteredTemplates.map(t => {
               const accessible = canAccess(t);
               return (
-                <Card key={t.id} className={accessible ? "" : "opacity-80"}>
-                  <CardContent className="flex items-center justify-between p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${
-                        !accessible ? "bg-gray-100 dark:bg-slate-700" :
-                        t.mockType === "FULL" ? "bg-indigo-100 dark:bg-indigo-950/50" :
-                        t.section === "SPEAKING" ? "bg-teal-100 dark:bg-teal-950/50" :
-                        t.section === "WRITING" ? "bg-blue-100 dark:bg-blue-950/50" :
-                        t.section === "READING" ? "bg-purple-100 dark:bg-purple-950/50" :
-                        "bg-orange-100 dark:bg-orange-950/50"
+                <Card key={t.id} className={`rounded-[1.5rem] border-none shadow-glass backdrop-blur-xl transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float ${accessible ? "bg-background/50 ring-1 ring-white/5" : "bg-muted-foreground/5 opacity-80"}`}>
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6">
+                    <div className="flex items-center gap-4">
+                      <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-full shadow-inner ${
+                        !accessible ? "bg-muted-foreground/10 text-muted-foreground" :
+                        t.mockType === "FULL" ? "bg-indigo-500/10 text-indigo-500" :
+                        t.section === "SPEAKING" ? "bg-teal-500/10 text-teal-500" :
+                        t.section === "WRITING" ? "bg-blue-500/10 text-blue-500" :
+                        t.section === "READING" ? "bg-purple-500/10 text-purple-500" :
+                        "bg-orange-500/10 text-orange-500"
                       }`}>
-                        {!accessible ? <Lock className="h-5 w-5 text-gray-400" /> :
-                         t.mockType === "FULL" ? <ClipboardList className="h-5 w-5 text-indigo-600" /> :
-                         t.section === "SPEAKING" ? <Mic className="h-5 w-5 text-teal-600" /> :
-                         t.section === "WRITING" ? <PenTool className="h-5 w-5 text-blue-600" /> :
-                         t.section === "READING" ? <BookOpen className="h-5 w-5 text-purple-600" /> :
-                         <Headphones className="h-5 w-5 text-orange-600" />}
+                        {!accessible ? <Lock className="h-6 w-6 text-muted-foreground/50" /> :
+                         t.mockType === "FULL" ? <ClipboardList className="h-6 w-6 text-indigo-500" /> :
+                         t.section === "SPEAKING" ? <Mic className="h-6 w-6 text-teal-500" /> :
+                         t.section === "WRITING" ? <PenTool className="h-6 w-6 text-blue-500" /> :
+                         t.section === "READING" ? <BookOpen className="h-6 w-6 text-purple-500" /> :
+                         <Headphones className="h-6 w-6 text-orange-500" />}
                       </div>
                       <div>
-                        <div className="flex items-center gap-2">
-                          <p className="font-medium text-gray-900 dark:text-slate-100">{t.title}</p>
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="text-xl font-extrabold tracking-tight text-foreground">{t.title}</p>
                           {t.isFree && (
-                            <Badge className="bg-green-600 text-white gap-1 text-xs py-0">
-                              <Gift className="h-3 w-3" /> Free
+                            <Badge className="bg-green-500/10 text-green-500 hover:bg-green-500/20 border-none rounded-full shadow-sm font-bold transition-colors">
+                              <Gift className="h-3 w-3 mr-1" /> Free
                             </Badge>
                           )}
                           {!accessible && (
-                            <Badge variant="secondary" className="text-xs py-0">
+                            <Badge variant="secondary" className="border-none rounded-full shadow-sm font-bold opacity-70">
                               {t.mockType === "FULL" ? "Needs all 4 modules" : `Needs ${t.section?.toLowerCase()} module`}
                             </Badge>
                           )}
@@ -322,57 +325,65 @@ export default function MockTestPage() {
       )}
 
       {/* Past Tests */}
-      <div>
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Your Mock Tests</h2>
+      <div className="mt-12">
+        <h2 className="mb-6 text-2xl font-extrabold tracking-tight text-foreground">Your Mock Tests</h2>
         {loading ? (
           <div className="flex justify-center py-12">
-            <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
           </div>
         ) : filteredTests.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <ClipboardList className="mx-auto h-12 w-12 text-gray-300" />
-              <p className="mt-4 text-gray-500">
-                {tests.length === 0
-                  ? "No mock tests yet. Start your first one!"
-                  : `No ${activeFilter === "ALL" ? "" : activeFilter.toLowerCase() + " "}tests found.`}
-              </p>
+          <Card className="rounded-[2rem] border border-dashed border-muted-foreground/20 bg-background/30 shadow-none">
+            <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
+              <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/5 text-muted-foreground/30">
+                <ClipboardList className="h-10 w-10" />
+              </div>
+              <div>
+                <p className="text-xl font-extrabold tracking-tight text-foreground">
+                  {tests.length === 0 ? "No mock tests yet" : `No ${activeFilter === "ALL" ? "" : activeFilter.toLowerCase() + " "}tests found`}
+                </p>
+                <p className="mt-2 text-sm font-medium text-muted-foreground/80">
+                  {tests.length === 0 ? "Start your first one above to see your progress." : "Try changing your filters."}
+                </p>
+              </div>
             </CardContent>
           </Card>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-4">
             {filteredTests.map((test) => (
               <Card
                 key={test.id}
-                className="cursor-pointer transition hover:shadow-md"
+                className="group cursor-pointer rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/5 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float"
                 onClick={() => router.push(`/mock-test/${test.id}`)}
               >
-                <CardContent className="flex items-center justify-between p-4">
-                  <div className="flex items-center gap-4">
-                    <div className={`flex h-12 w-12 items-center justify-center rounded-xl ${
-                      test.status === "COMPLETED" ? "bg-green-100" :
-                      test.status === "IN_PROGRESS" ? "bg-amber-100" : "bg-gray-100"
+                <CardContent className="flex flex-col md:flex-row md:items-center justify-between gap-6 p-5 sm:p-6">
+                  <div className="flex items-center gap-5">
+                    <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[1.25rem] shadow-inner transition-transform duration-700 ease-fluid group-hover:scale-105 ${
+                      test.status === "COMPLETED" ? "bg-green-500/10 text-green-500" :
+                      test.status === "IN_PROGRESS" ? "bg-amber-500/10 text-amber-500" : "bg-muted-foreground/10 text-muted-foreground"
                     }`}>
                       {test.status === "COMPLETED" ? (
-                        <Trophy className="h-6 w-6 text-green-600" />
+                        <Trophy className="h-7 w-7" />
                       ) : (
-                        <ClipboardList className="h-6 w-6 text-amber-600" />
+                        <ClipboardList className="h-7 w-7" />
                       )}
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-slate-100">{test.title}</p>
-                      <div className="mt-1 flex items-center gap-3 text-xs text-gray-500 dark:text-slate-400">
-                        <span>{new Date(test.startedAt).toLocaleDateString("en-IN")}</span>
+                      <p className="text-xl font-extrabold tracking-tight text-foreground group-hover:text-primary transition-colors">{test.title}</p>
+                      <div className="mt-2 flex flex-wrap items-center gap-3 text-sm font-medium text-muted-foreground/80">
+                        <span>{new Date(test.startedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span>
                         {test.totalTime && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="h-3 w-3" />
-                            {formatDuration(test.totalTime)}
-                          </span>
+                          <>
+                            <span className="opacity-50">•</span>
+                            <span className="flex items-center gap-1.5">
+                              <Clock className="h-3.5 w-3.5" />
+                              {formatDuration(test.totalTime)}
+                            </span>
+                          </>
                         )}
-                        <Badge variant={
-                          test.status === "COMPLETED" ? "success" :
-                          test.status === "IN_PROGRESS" ? "warning" : "secondary"
-                        }>
+                        <Badge className={`border-none rounded-full shadow-sm font-bold ml-2 ${
+                          test.status === "COMPLETED" ? "bg-green-500/10 text-green-500" :
+                          test.status === "IN_PROGRESS" ? "bg-amber-500/10 text-amber-500" : "bg-muted-foreground/10 text-muted-foreground"
+                        }`}>
                           {test.status.replace("_", " ")}
                         </Badge>
                       </div>
@@ -380,21 +391,21 @@ export default function MockTestPage() {
                   </div>
 
                   {test.overallScore !== null && (
-                    <div className="hidden items-center gap-4 sm:flex">
+                    <div className="hidden items-center gap-6 sm:flex rounded-2xl bg-muted-foreground/5 p-4">
                       {[
-                        { label: "S", score: test.speakingScore, color: "text-teal-600" },
-                        { label: "W", score: test.writingScore, color: "text-blue-600" },
-                        { label: "R", score: test.readingScore, color: "text-purple-600" },
-                        { label: "L", score: test.listeningScore, color: "text-orange-600" },
+                        { label: "S", score: test.speakingScore, color: "text-teal-600 dark:text-teal-400" },
+                        { label: "W", score: test.writingScore, color: "text-blue-600 dark:text-blue-400" },
+                        { label: "R", score: test.readingScore, color: "text-purple-600 dark:text-purple-400" },
+                        { label: "L", score: test.listeningScore, color: "text-orange-600 dark:text-orange-400" },
                       ].map((s) => (
                         <div key={s.label} className="text-center">
-                          <p className="text-xs text-gray-400 dark:text-slate-500">{s.label}</p>
-                          <p className={`text-sm font-bold ${s.color}`}>{s.score || "--"}</p>
+                          <p className="text-xs font-bold text-muted-foreground/50">{s.label}</p>
+                          <p className={`text-lg font-extrabold tracking-tight ${s.color}`}>{s.score || "--"}</p>
                         </div>
                       ))}
-                      <div className="border-l border-gray-200 pl-4 text-center dark:border-slate-600">
-                        <p className="text-xs text-gray-400 dark:text-slate-500">Overall</p>
-                        <p className="text-lg font-bold text-indigo-600">{test.overallScore}</p>
+                      <div className="border-l-2 border-muted-foreground/10 pl-6 text-center">
+                        <p className="text-xs font-bold text-muted-foreground/50 uppercase tracking-widest">Overall</p>
+                        <p className="text-2xl font-extrabold tracking-tight text-primary drop-shadow-sm">{test.overallScore}</p>
                       </div>
                     </div>
                   )}

@@ -206,11 +206,11 @@ export default function QuestionsPage() {
           <p className="text-gray-500 dark:text-slate-400">{total} questions available</p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" className="gap-2" onClick={() => setShowBulkUpload(true)}>
+          <Button variant="outline" className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10 gap-2" onClick={() => setShowBulkUpload(true)}>
             <Upload className="h-4 w-4" />
             Bulk Upload
           </Button>
-          <Button className="gap-2" onClick={() => { setEditingQuestion(null); setShowForm(true); }}>
+          <Button className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2" onClick={() => { setEditingQuestion(null); setShowForm(true); }}>
             <Plus className="h-4 w-4" />
             Add Question
           </Button>
@@ -225,7 +225,7 @@ export default function QuestionsPage() {
             placeholder="Search questions..."
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="pl-10"
+            className="pl-10 rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
           />
         </div>
         <div className="flex gap-2">
@@ -233,10 +233,10 @@ export default function QuestionsPage() {
             <button
               key={s}
               onClick={() => { setSection(s); setQuestionType(""); setPage(1); }}
-              className={`rounded-lg px-3 py-2 text-sm font-medium transition ${
+              className={`rounded-full px-4 py-2 text-sm font-medium transition-all duration-500 ease-fluid border border-white/5 ${
                 section === s
-                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+                  ? "bg-primary/20 text-primary shadow-inner backdrop-blur-md"
+                  : "bg-background/40 text-foreground hover:bg-background/60 hover:-translate-y-0.5 hover:shadow-float backdrop-blur-sm"
               }`}
             >
               {s || "All"}
@@ -251,10 +251,10 @@ export default function QuestionsPage() {
           <span className="text-xs font-medium text-gray-400 dark:text-slate-500">Type:</span>
           <button
             onClick={() => { setQuestionType(""); setPage(1); }}
-            className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+            className={`rounded-full px-3 py-1 text-xs font-medium transition-all duration-500 ease-fluid border border-white/5 ${
               questionType === ""
-                ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
-                : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                ? "bg-primary/20 text-primary shadow-inner backdrop-blur-md"
+                : "bg-background/40 text-foreground hover:bg-background/60 hover:-translate-y-0.5 hover:shadow-float backdrop-blur-sm"
             }`}
           >
             All types
@@ -263,10 +263,10 @@ export default function QuestionsPage() {
             <button
               key={t.value}
               onClick={() => { setQuestionType(t.value); setPage(1); }}
-              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+              className={`rounded-full px-3 py-1 text-xs font-medium transition-all duration-500 ease-fluid border border-white/5 ${
                 questionType === t.value
-                  ? "bg-indigo-100 text-indigo-700 dark:bg-indigo-950/50 dark:text-indigo-300"
-                  : "bg-gray-100 text-gray-500 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-400 dark:hover:bg-slate-600"
+                  ? "bg-primary/20 text-primary shadow-inner backdrop-blur-md"
+                  : "bg-background/40 text-foreground hover:bg-background/60 hover:-translate-y-0.5 hover:shadow-float backdrop-blur-sm"
               }`}
             >
               {t.label}
@@ -276,7 +276,7 @@ export default function QuestionsPage() {
       )}
 
       {/* Questions List */}
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardContent className="p-0">
           {loading ? (
             <div className="flex items-center justify-center py-16">
@@ -296,7 +296,7 @@ export default function QuestionsPage() {
                 return (
                   <div key={q.id}>
                     <div
-                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-slate-700"
+                      className="flex cursor-pointer items-center justify-between p-4 hover:bg-background/40 transition-colors duration-500 ease-fluid"
                       onClick={() => toggleExpand(q.id)}
                     >
                       <div className="flex items-center gap-4">
@@ -360,7 +360,7 @@ export default function QuestionsPage() {
 
                     {/* Expanded Detail */}
                     {isExpanded && (
-                      <div className="border-t border-gray-100 bg-gray-50 px-4 py-4 pl-18 dark:border-slate-700 dark:bg-slate-700/50">
+                      <div className="border-t border-white/5 bg-background/20 px-4 py-4 pl-18 backdrop-blur-sm">
                         {loadingDetail === q.id ? (
                           <div className="flex items-center gap-2 py-4">
                             <div className="h-5 w-5 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
@@ -371,7 +371,7 @@ export default function QuestionsPage() {
                             {/* Question Content */}
                             <div>
                               <h4 className="text-xs font-semibold uppercase text-gray-400 dark:text-slate-500">Question Content</h4>
-                              <div className="mt-1 rounded-lg bg-white p-3 text-sm text-gray-700 shadow-sm dark:bg-slate-800 dark:text-slate-300">
+                              <div className="mt-1 rounded-2xl bg-background/40 p-4 text-sm text-foreground shadow-inner backdrop-blur-md border border-white/5">
                                 {typeof detail.content === "string" ? (
                                   <p>{detail.content}</p>
                                 ) : (

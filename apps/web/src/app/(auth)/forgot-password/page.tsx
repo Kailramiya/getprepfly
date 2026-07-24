@@ -43,19 +43,19 @@ export default function ForgotPasswordPage() {
       </div>
 
       {sent ? (
-        <div className="text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-100 dark:bg-green-950/50">
-            <CheckCircle2 className="h-8 w-8 text-green-600" />
+        <div className="text-center group">
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 ring-1 ring-green-500/20 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+            <CheckCircle2 className="h-10 w-10 text-green-500" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Check your email</h2>
-          <p className="mt-3 text-sm text-gray-600 leading-relaxed dark:text-slate-400">
-            If <span className="font-medium text-gray-900 dark:text-slate-200">{email}</span> is registered with Prepfly,
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Check your email</h2>
+          <p className="mt-4 text-base font-medium text-muted-foreground leading-relaxed">
+            If <span className="font-bold text-foreground">{email}</span> is registered with Prepfly,
             you&apos;ll receive a password reset link shortly. Check your spam folder if you don&apos;t see it.
           </p>
-          <p className="mt-6 text-sm text-gray-500 dark:text-slate-400">Link expires in 1 hour.</p>
+          <p className="mt-6 text-sm font-semibold text-muted-foreground/60 uppercase tracking-widest">Link expires in 1 hour.</p>
           <Link
             href="/login"
-            className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-500"
+            className="mt-8 inline-flex items-center gap-2 text-sm font-bold text-primary hover:text-primary/80 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" /> Back to login
           </Link>
@@ -64,13 +64,13 @@ export default function ForgotPasswordPage() {
         <>
           <Link
             href="/login"
-            className="mb-6 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" /> Back to login
           </Link>
 
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Forgot password?</h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Forgot password?</h2>
+          <p className="mt-2 text-sm font-medium text-muted-foreground">
             Enter your registered email and we&apos;ll send you a link to reset your password.
           </p>
 
@@ -78,19 +78,19 @@ export default function ForgotPasswordPage() {
             <div className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">{error}</div>
           )}
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <form onSubmit={handleSubmit} className="mt-8 space-y-5">
+            <div className="relative group">
+              <Mail className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
                 type="email"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10"
+                className="h-12 rounded-full pl-11 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
                 required
               />
             </div>
-            <Button type="submit" className="w-full" size="lg" loading={loading}>
+            <Button type="submit" className="w-full rounded-full shadow-glass hover:shadow-float font-bold tracking-wide transition-all duration-700 ease-fluid active:scale-[0.98]" size="xl" loading={loading}>
               Send reset link
             </Button>
           </form>

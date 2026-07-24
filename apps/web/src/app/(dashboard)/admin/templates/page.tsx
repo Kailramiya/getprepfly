@@ -163,7 +163,7 @@ export default function AdminTemplatesPage() {
             Add ready-made templates that students can use while practicing each question type
           </p>
         </div>
-        <Button onClick={() => { resetForm(); setShowForm(true); }} className="gap-2">
+        <Button onClick={() => { resetForm(); setShowForm(true); }} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
           <Plus className="h-4 w-4" />
           Add Template
         </Button>
@@ -175,19 +175,19 @@ export default function AdminTemplatesPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
         </div>
       ) : templates.length === 0 ? (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="py-16 text-center">
             <BookOpen className="mx-auto h-12 w-12 text-gray-300" />
             <p className="mt-4 text-gray-500">No templates yet</p>
             <p className="mt-1 text-sm text-gray-400">Add your first template to help students ace the exam</p>
-            <Button onClick={() => { resetForm(); setShowForm(true); }} className="mt-4 gap-2">
+            <Button onClick={() => { resetForm(); setShowForm(true); }} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid mt-4 gap-2">
               <Plus className="h-4 w-4" />
               Add Template
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardContent className="p-0">
             <div className="divide-y divide-gray-100 dark:divide-slate-700">
               {templates.map((t) => {
@@ -252,8 +252,8 @@ export default function AdminTemplatesPage() {
       {/* Form Modal */}
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-teal-50 px-6 py-4 dark:border-slate-700 dark:from-slate-800 dark:to-slate-800">
+          <div className="relative flex max-h-[90vh] w-full max-w-2xl flex-col overflow-hidden rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
+            <div className="flex items-center justify-between border-b border-white/10 bg-gradient-to-br from-indigo-500/10 to-teal-500/10 px-6 py-4">
               <div>
                 <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
                   {editingId ? "Edit Template" : "Add New Template"}
@@ -279,6 +279,7 @@ export default function AdminTemplatesPage() {
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g., Essay Template - Agree/Disagree"
+                  className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                 />
               </div>
 
@@ -289,7 +290,7 @@ export default function AdminTemplatesPage() {
                 <select
                   value={questionType}
                   onChange={(e) => setQuestionType(e.target.value)}
-                  className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                  className="w-full rounded-2xl border-none bg-background/40 px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                 >
                   {Object.entries(QUESTION_TYPES_BY_SECTION).map(([section, types]) => (
                     <optgroup key={section} label={section}>
@@ -321,7 +322,7 @@ Body Paragraph 2: On the other hand, [second argument]. For example, [example]. 
 
 Conclusion: In conclusion, [restate position]. Overall, [final thought].`}
                   rows={12}
-                  className="w-full rounded-lg border border-gray-300 bg-white p-3 text-sm font-mono dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+                  className="w-full rounded-2xl border-none bg-background/40 p-4 text-sm font-mono focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground placeholder:text-slate-500"
                 />
                 <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">
                   Write the template that students can adapt. Use [placeholders] for parts students should fill in.
@@ -334,7 +335,7 @@ Conclusion: In conclusion, [restate position]. Overall, [final thought].`}
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
+                    className="w-full rounded-2xl border-none bg-background/40 px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                   >
                     <option value="EN">English</option>
                     <option value="HI">हिंदी (Hindi)</option>
@@ -364,11 +365,11 @@ Conclusion: In conclusion, [restate position]. Overall, [final thought].`}
               )}
             </div>
 
-            <div className="flex items-center justify-end gap-3 border-t border-gray-100 bg-gray-50 px-6 py-4 dark:border-slate-700 dark:bg-slate-800">
-              <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }}>
+            <div className="flex items-center justify-end gap-3 border-t border-white/10 bg-black/20 px-6 py-4">
+              <Button variant="outline" onClick={() => { setShowForm(false); resetForm(); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">
                 Cancel
               </Button>
-              <Button onClick={handleSave} loading={saving}>
+              <Button onClick={handleSave} loading={saving} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">
                 {editingId ? "Update Template" : "Create Template"}
               </Button>
             </div>

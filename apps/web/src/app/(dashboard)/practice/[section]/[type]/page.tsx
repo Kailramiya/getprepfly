@@ -413,22 +413,22 @@ export default function PracticeQuestionPage() {
       {showList && (
         <div className="fixed inset-0 z-50 flex justify-end">
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowList(false)} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setShowList(false)} />
           {/* Panel */}
-          <div className="relative flex h-full w-full max-w-sm flex-col bg-white shadow-2xl dark:bg-slate-900">
-            <div className="flex items-center justify-between border-b px-4 py-3 dark:border-slate-700">
+          <div className="relative flex h-full w-full max-w-md flex-col bg-background/95 backdrop-blur-2xl shadow-2xl ring-1 ring-white/10 animate-in slide-in-from-right duration-500 ease-fluid">
+            <div className="flex items-center justify-between border-b border-muted-foreground/10 px-6 py-5">
               <div>
-                <p className="font-semibold text-gray-900 dark:text-slate-100">{formatType(type)}</p>
-                <p className="text-xs text-gray-500 dark:text-slate-400">
+                <p className="text-xl font-extrabold tracking-tight text-foreground">{formatType(type)}</p>
+                <p className="mt-1 text-sm font-medium text-muted-foreground/80">
                   {questions.length} of {totalQuestions || questions.length} loaded
                 </p>
               </div>
-              <button onClick={() => setShowList(false)} className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:text-slate-500 dark:hover:bg-slate-700 dark:hover:text-slate-300">
-                <X className="h-5 w-5" />
+              <button onClick={() => setShowList(false)} className="rounded-full p-2 text-muted-foreground/50 hover:bg-muted-foreground/10 hover:text-foreground transition-all duration-300 ease-fluid active:scale-95">
+                <X className="h-6 w-6" />
               </button>
             </div>
             {!accessInfo?.isStaff && accessInfo?.centreId && (
-              <div className="flex flex-wrap gap-1.5 border-b px-3 py-2 dark:border-slate-700">
+              <div className="flex flex-wrap gap-2 border-b border-muted-foreground/10 px-6 py-4">
                 {[
                   { key: "all", label: "All" },
                   { key: "my-centre", label: "My Centre" },
@@ -440,7 +440,7 @@ export default function PracticeQuestionPage() {
                       setSelectedSource(key as "all" | "my-centre" | "public");
                       setSelectedTopic("all");
                     }}
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${selectedSource === key ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"}`}
+                    className={`rounded-full px-4 py-1.5 text-sm font-bold shadow-sm transition-all duration-500 ease-fluid hover:shadow-md active:scale-95 ${selectedSource === key ? "bg-primary text-primary-foreground shadow-primary/25" : "bg-muted-foreground/10 text-muted-foreground/70 hover:bg-muted-foreground/20 hover:text-foreground"}`}
                   >
                     {label}
                   </button>
@@ -449,36 +449,36 @@ export default function PracticeQuestionPage() {
             )}
             {/* Topic filter inside list panel */}
             {allTopics.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 border-b px-3 py-2 dark:border-slate-700">
-                <button onClick={() => setSelectedTopic("all")} className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${selectedTopic === "all" ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"}`}>All</button>
+              <div className="flex flex-wrap gap-2 border-b border-muted-foreground/10 px-6 py-4">
+                <button onClick={() => setSelectedTopic("all")} className={`rounded-full px-4 py-1.5 text-sm font-bold shadow-sm transition-all duration-500 ease-fluid hover:shadow-md active:scale-95 ${selectedTopic === "all" ? "bg-primary text-primary-foreground shadow-primary/25" : "bg-muted-foreground/10 text-muted-foreground/70 hover:bg-muted-foreground/20 hover:text-foreground"}`}>All</button>
                 {allTopics.map(t => (
-                  <button key={t} onClick={() => setSelectedTopic(t)} className={`rounded-full px-2.5 py-1 text-xs font-medium capitalize transition ${selectedTopic === t ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"}`}>{t}</button>
+                  <button key={t} onClick={() => setSelectedTopic(t)} className={`rounded-full px-4 py-1.5 text-sm font-bold shadow-sm capitalize transition-all duration-500 ease-fluid hover:shadow-md active:scale-95 ${selectedTopic === t ? "bg-primary text-primary-foreground shadow-primary/25" : "bg-muted-foreground/10 text-muted-foreground/70 hover:bg-muted-foreground/20 hover:text-foreground"}`}>{t}</button>
                 ))}
               </div>
             )}
-            <div className="flex-1 overflow-y-auto p-2">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
               {filteredQuestions.map((q) => {
                 const origIdx = questions.indexOf(q);
                 return (
                   <button
                     key={q.id}
                     onClick={() => jumpToQuestion(origIdx)}
-                    className={`w-full rounded-lg px-3 py-2.5 text-left transition hover:bg-gray-50 dark:hover:bg-slate-700/40 ${origIdx === currentIndex ? "bg-indigo-50 ring-1 ring-indigo-200 dark:bg-indigo-950/40 dark:ring-indigo-700" : ""}`}
+                    className={`w-full rounded-[1.25rem] px-4 py-3 text-left transition-all duration-500 ease-fluid active:scale-[0.98] ${origIdx === currentIndex ? "bg-primary/10 shadow-glass ring-1 ring-primary/30" : "hover:bg-muted-foreground/5 hover:ring-1 hover:ring-white/5"}`}
                   >
-                    <div className="flex items-start gap-3">
-                      <span className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${origIdx === currentIndex ? "bg-indigo-600 text-white" : "bg-gray-100 text-gray-500 dark:bg-slate-700 dark:text-slate-400"}`}>
+                    <div className="flex items-start gap-4">
+                      <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-extrabold shadow-inner ${origIdx === currentIndex ? "bg-primary text-primary-foreground" : "bg-muted-foreground/10 text-muted-foreground"}`}>
                         {origIdx + 1}
                       </span>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-gray-900 dark:text-slate-100">{q.title}</p>
-                        <div className="mt-1 flex items-center gap-1.5">
-                          <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${q.difficulty === "EASY" ? "bg-green-100 text-green-700" : q.difficulty === "HARD" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-400"}`}>
+                        <p className={`truncate text-base font-extrabold tracking-tight ${origIdx === currentIndex ? "text-primary" : "text-foreground"}`}>{q.title}</p>
+                        <div className="mt-2 flex flex-wrap items-center gap-2">
+                          <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${q.difficulty === "EASY" ? "bg-green-500/10 text-green-500" : q.difficulty === "HARD" ? "bg-red-500/10 text-red-500" : "bg-muted-foreground/10 text-muted-foreground"}`}>
                             {q.difficulty}
                           </span>
-                          {q.isPrediction && <Star className="h-3 w-3 text-amber-500" />}
-                          {flags[q.id] === "WEAK" && <ThumbsDown className="h-3 w-3 text-red-500" />}
-                          {flags[q.id] === "REVIEW_AGAIN" && <RefreshCw className="h-3 w-3 text-amber-500" />}
-                          {flags[q.id] === "STRONG" && <ThumbsUp className="h-3 w-3 text-green-500" />}
+                          {q.isPrediction && <Star className="h-3.5 w-3.5 text-amber-500 drop-shadow-sm" />}
+                          {flags[q.id] === "WEAK" && <ThumbsDown className="h-3.5 w-3.5 text-red-500 drop-shadow-sm" />}
+                          {flags[q.id] === "REVIEW_AGAIN" && <RefreshCw className="h-3.5 w-3.5 text-amber-500 drop-shadow-sm" />}
+                          {flags[q.id] === "STRONG" && <ThumbsUp className="h-3.5 w-3.5 text-green-500 drop-shadow-sm" />}
                         </div>
                       </div>
                     </div>
@@ -489,7 +489,7 @@ export default function PracticeQuestionPage() {
                 <button
                   onClick={() => fetchQuestionPage(questionPage + 1)}
                   disabled={loadingMore}
-                  className="mt-2 flex w-full items-center justify-center rounded-lg border border-gray-200 px-3 py-2 text-sm font-medium text-gray-600 transition hover:bg-gray-50 disabled:opacity-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                  className="mt-4 flex w-full items-center justify-center rounded-full border-2 border-muted-foreground/10 bg-transparent px-4 py-3 text-sm font-bold text-muted-foreground/70 transition-all duration-500 ease-fluid hover:bg-muted-foreground/5 hover:text-foreground active:scale-95 disabled:opacity-50"
                 >
                   {loadingMore ? "Loading..." : "Load more questions"}
                 </button>
@@ -500,60 +500,68 @@ export default function PracticeQuestionPage() {
       )}
 
       {/* Progress Bar */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-slate-100">{formatType(type)}</h1>
-          <div className="flex items-center gap-2">
-            <p className="text-sm text-gray-500 dark:text-slate-400">Question {currentIndex + 1} of {totalQuestions || questions.length}</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground">{formatType(type)}</h1>
+          <div className="mt-1 flex items-center gap-3">
+            <p className="text-sm font-medium text-muted-foreground/80">Question <span className="font-bold text-foreground">{currentIndex + 1}</span> of {totalQuestions || questions.length}</p>
             {lastAttemptScore !== null && (
-              <span className="text-xs text-gray-400 dark:text-slate-500">· Last: <span className="font-semibold text-gray-600 dark:text-slate-300">{lastAttemptScore}/90</span></span>
+              <>
+                <span className="text-muted-foreground/30">•</span>
+                <span className="text-xs font-semibold text-muted-foreground/70 uppercase tracking-wider">Last Score: <span className="text-foreground font-bold">{lastAttemptScore}/90</span></span>
+              </>
             )}
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {currentQuestion?.isPrediction && (
-            <Badge variant="warning">Prediction</Badge>
+            <Badge className="bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-none rounded-full shadow-sm font-bold transition-colors">
+              Prediction
+            </Badge>
           )}
-          <Badge variant={
-            currentQuestion?.difficulty === "EASY" ? "success" :
-              currentQuestion?.difficulty === "HARD" ? "destructive" : "default"
-          }>
+          <Badge className={`border-none rounded-full shadow-sm font-bold transition-colors ${
+            currentQuestion?.difficulty === "EASY" ? "bg-green-500/10 text-green-500 hover:bg-green-500/20" :
+            currentQuestion?.difficulty === "HARD" ? "bg-red-500/10 text-red-500 hover:bg-red-500/20" :
+            "bg-muted-foreground/10 text-muted-foreground hover:bg-muted-foreground/20"
+          }`}>
             {currentQuestion?.difficulty}
           </Badge>
-          <Button variant="outline" size="sm" onClick={() => setShowList(true)} className="gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => setShowList(true)} className="gap-2 rounded-full shadow-sm hover:shadow-md transition-all duration-700 ease-fluid active:scale-[0.98]">
             <List className="h-4 w-4" /> All Questions
           </Button>
         </div>
       </div>
 
       {/* Progress dots */}
-      <div className="flex gap-1">
+      <div className="flex gap-1.5">
         {Array.from({ length: totalQuestions || questions.length }).map((_, i) => (
           <div
             key={i}
-            className={`h-1.5 flex-1 rounded-full transition ${i === currentIndex
-                ? "bg-indigo-600"
+            className={`h-1.5 flex-1 rounded-full transition-all duration-1000 ease-fluid ${i === currentIndex
+                ? "bg-primary shadow-[0_0_8px_rgba(var(--primary),0.5)]"
                 : i < currentIndex
-                  ? "bg-indigo-200"
-                  : "bg-gray-200"
+                  ? "bg-primary/30"
+                  : "bg-muted-foreground/10"
               }`}
           />
         ))}
       </div>
 
       {/* Question Content */}
-      <Card className="overflow-hidden">
-        <CardHeader className="bg-gray-50 dark:bg-slate-800/50">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-base dark:text-slate-100">{currentQuestion?.title}</CardTitle>
-            <button
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
+        <CardHeader className="bg-transparent border-b border-muted-foreground/10 pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <CardTitle className="text-xl font-extrabold tracking-tight text-foreground leading-tight">{currentQuestion?.title}</CardTitle>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => setShowAnswer(a => !a)}
               disabled={questionLoading || !currentQuestion?.content}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 transition dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
+              className="gap-2 rounded-full shadow-sm hover:shadow-md transition-all duration-700 ease-fluid active:scale-[0.98] shrink-0"
             >
-              {showAnswer ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              {showAnswer ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               {showAnswer ? "Hide Answer" : "Show Answer"}
-            </button>
+            </Button>
           </div>
         </CardHeader>
         <CardContent className="p-6">
@@ -629,86 +637,83 @@ export default function PracticeQuestionPage() {
       {/* Hidden for fill-blanks types because the per-blank Correct Answers section already shows this */}
       {(submitted || showAnswer) && currentQuestion?.modelAnswer &&
         !["READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS", "REORDER_PARAGRAPHS"].includes(type) && (
-          <Card className="border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/40">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base text-green-800 dark:text-green-300">
-                <CheckCircle2 className="h-5 w-5" />
-                Model Answer
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-green-900 whitespace-pre-wrap dark:text-green-200">{currentQuestion.modelAnswer}</p>
-            </CardContent>
-          </Card>
+          <div className="rounded-[2rem] border-none ring-1 ring-green-500/20 bg-green-500/5 shadow-glass backdrop-blur-xl p-6 mt-6">
+            <h3 className="flex items-center gap-2 text-base font-extrabold tracking-tight text-green-600 dark:text-green-400 mb-2">
+              <CheckCircle2 className="h-5 w-5" />
+              Model Answer
+            </h3>
+            <p className="text-sm font-medium text-green-800 whitespace-pre-wrap dark:text-green-200 leading-relaxed">{currentQuestion.modelAnswer}</p>
+          </div>
         )}
 
       {/* Explanation — shown after submission OR when Show Answer is toggled */}
       {(submitted || showAnswer) && currentQuestion?.explanation && (
-        <Card className="border-blue-200 bg-blue-50 dark:border-blue-900 dark:bg-blue-950/40">
-          <CardContent className="p-4">
-            <p className="text-sm font-medium text-blue-800 dark:text-blue-300">Explanation:</p>
-            <p className="mt-1 text-sm text-blue-700 whitespace-pre-wrap dark:text-blue-200">{currentQuestion.explanation}</p>
-          </CardContent>
-        </Card>
+        <div className="rounded-[2rem] border-none ring-1 ring-blue-500/20 bg-blue-500/5 shadow-glass backdrop-blur-xl p-6 mt-6">
+          <p className="text-base font-extrabold tracking-tight text-blue-600 dark:text-blue-400 mb-2">Explanation</p>
+          <p className="text-sm font-medium text-blue-800 whitespace-pre-wrap dark:text-blue-200 leading-relaxed">{currentQuestion.explanation}</p>
+        </div>
       )}
 
       {/* Navigation */}
-      <div className="flex items-center justify-between">
-        <Button variant="outline" onClick={goToPrev} disabled={currentIndex === 0} className="gap-2">
-          <ChevronLeft className="h-4 w-4" /> Previous
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <Button variant="outline" size="lg" onClick={goToPrev} disabled={currentIndex === 0} className="w-full sm:w-auto gap-2 rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid active:scale-[0.98]">
+          <ChevronLeft className="h-5 w-5" /> Previous
         </Button>
-        <div className="flex gap-2">
+        <div className="flex w-full sm:w-auto gap-3">
           {!submitted && (
             <Button
+              size="lg"
               onClick={triggerAutoSubmit}
               loading={checkingAnswer}
               disabled={questionLoading || !currentQuestion?.content}
-              className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+              className="w-full sm:w-auto gap-2 rounded-full bg-green-500 hover:bg-green-600 text-white shadow-glass hover:shadow-float transition-all duration-700 ease-fluid active:scale-[0.98]"
             >
-              <CheckCircle2 className="h-4 w-4" /> Check Answer
+              <CheckCircle2 className="h-5 w-5" /> Check Answer
             </Button>
           )}
           {submitted && (
-            <Button variant="outline" onClick={resetQuestion} className="gap-2">
-              <RotateCcw className="h-4 w-4" /> Try Again
+            <Button variant="outline" size="lg" onClick={resetQuestion} className="w-full sm:w-auto gap-2 rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid active:scale-[0.98]">
+              <RotateCcw className="h-5 w-5" /> Try Again
             </Button>
           )}
         </div>
         <Button
+          size="lg"
           onClick={goToNext}
           disabled={currentIndex >= totalQuestions - 1 || loadingMore}
           loading={loadingMore}
-          className="gap-2"
+          className="w-full sm:w-auto gap-2 rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid active:scale-[0.98]"
         >
-          Next <ChevronRight className="h-4 w-4" />
+          Next <ChevronRight className="h-5 w-5" />
         </Button>
       </div>
 
       {/* Score History */}
       {(historyLoaded || historyLoading) ? (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="flex items-center gap-2 text-sm text-gray-700 dark:text-slate-300">
-              <BarChart2 className="h-4 w-4 text-indigo-500" />
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden mt-6">
+          <CardHeader className="pb-2 border-b border-muted-foreground/10">
+            <CardTitle className="flex items-center gap-2 text-base font-extrabold tracking-tight text-foreground">
+              <BarChart2 className="h-5 w-5 text-primary" />
               Your Score History
-              <span className="ml-auto text-xs font-normal text-gray-400 dark:text-slate-500">{attemptHistory.length} attempt{attemptHistory.length !== 1 ? "s" : ""}</span>
+              <span className="ml-auto text-xs font-semibold text-muted-foreground/60 tracking-widest uppercase">{attemptHistory.length} attempt{attemptHistory.length !== 1 ? "s" : ""}</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="pt-6">
             {historyLoading ? (
-              <div className="flex justify-center py-6"><Loader2 className="h-5 w-5 animate-spin text-indigo-400" /></div>
+              <div className="flex justify-center py-6"><Loader2 className="h-6 w-6 animate-spin text-primary" /></div>
             ) : attemptHistory.length === 0 ? (
-              <p className="py-6 text-center text-sm text-gray-500 dark:text-slate-400">No previous scored attempts for this question.</p>
+              <p className="py-6 text-center text-sm font-medium text-muted-foreground/80">No previous scored attempts for this question.</p>
             ) : (
               <ResponsiveContainer width="100%" height={140}>
                 <BarChart data={attemptHistory} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <XAxis dataKey="date" tick={{ fontSize: 11 }} />
-                  <YAxis domain={[0, 90]} tick={{ fontSize: 11 }} />
+                  <XAxis dataKey="date" tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} />
+                  <YAxis domain={[0, 90]} tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }} tickLine={false} axisLine={false} />
                   <Tooltip
                     formatter={(v: number) => [`${v}/90`, "Score"]}
-                    contentStyle={{ fontSize: 12, borderRadius: 8 }}
+                    contentStyle={{ fontSize: 12, borderRadius: 12, border: "none", boxShadow: "0 8px 32px rgba(0,0,0,0.12)", backgroundColor: "hsl(var(--background))" }}
+                    cursor={{ fill: "transparent" }}
                   />
-                  <Bar dataKey="score" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="score" radius={[6, 6, 0, 0]}>
                     {attemptHistory.map((entry, i) => (
                       <Cell
                         key={i}
@@ -719,7 +724,7 @@ export default function PracticeQuestionPage() {
                 </BarChart>
               </ResponsiveContainer>
             )}
-            <p className="mt-1 text-center text-xs text-gray-400 dark:text-slate-500">Green ≥ 60 · Amber ≥ 30 · Red &lt; 30</p>
+            <p className="mt-4 text-center text-xs font-bold text-muted-foreground/50 tracking-wider">GREEN ≥ 60 <span className="mx-2">•</span> AMBER ≥ 30 <span className="mx-2">•</span> RED &lt; 30</p>
           </CardContent>
         </Card>
       ) : (
@@ -732,12 +737,12 @@ export default function PracticeQuestionPage() {
 
       {/* Report Modal */}
       {showReportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/40" onClick={() => setShowReportModal(false)} />
-          <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl dark:bg-slate-800">
-            <h3 className="font-semibold text-gray-900 dark:text-slate-100">Report an Issue</h3>
-            <p className="mt-1 text-xs text-gray-500 dark:text-slate-400">Help us improve by flagging errors in this question.</p>
-            <div className="mt-4 space-y-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={() => setShowReportModal(false)} />
+          <div className="relative w-full max-w-sm rounded-[2rem] bg-background p-8 shadow-2xl ring-1 ring-white/10 dark:bg-slate-900 animate-in fade-in zoom-in-95 duration-500 ease-fluid">
+            <h3 className="text-xl font-extrabold tracking-tight text-foreground">Report an Issue</h3>
+            <p className="mt-2 text-sm font-medium text-muted-foreground/80">Help us improve by flagging errors in this question.</p>
+            <div className="mt-6 space-y-3">
               {[
                 { key: "WRONG_ANSWER", label: "Wrong answer / model answer" },
                 { key: "BAD_AUDIO", label: "Audio not working / wrong audio" },
@@ -745,52 +750,59 @@ export default function PracticeQuestionPage() {
                 { key: "BROKEN_IMAGE", label: "Image missing or broken" },
                 { key: "OTHER", label: "Other issue" },
               ].map(({ key, label }) => (
-                <label key={key} className={`flex cursor-pointer items-center gap-2.5 rounded-lg border p-3 text-sm transition ${reportReason === key ? "border-red-400 bg-red-50 dark:border-red-700 dark:bg-red-950/40" : "border-gray-200 hover:bg-gray-50 dark:border-slate-600 dark:hover:bg-slate-700/40"}`}>
-                  <input type="radio" name="reason" value={key} checked={reportReason === key} onChange={() => setReportReason(key)} className="accent-red-500" />
+                <label key={key} className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-4 text-sm font-medium transition-all duration-300 ease-fluid ${reportReason === key ? "border-red-500 bg-red-500/5 text-foreground" : "border-muted-foreground/20 hover:bg-muted-foreground/5 hover:border-muted-foreground/40 text-muted-foreground/80"}`}>
+                  <input type="radio" name="reason" value={key} checked={reportReason === key} onChange={() => setReportReason(key)} className="accent-red-500 w-4 h-4" />
                   {label}
                 </label>
               ))}
             </div>
             <textarea
-              className="mt-3 w-full rounded-lg border border-gray-200 p-2.5 text-xs focus:border-red-400 focus:outline-none dark:border-slate-600 dark:bg-slate-700 dark:text-slate-100 dark:placeholder:text-slate-500"
+              className="mt-4 w-full rounded-2xl border-2 border-muted-foreground/20 p-4 text-sm font-medium focus:border-red-500 focus:ring-4 focus:ring-red-500/10 focus:outline-none bg-background transition-all"
               placeholder="Any additional details? (optional)"
-              rows={2}
+              rows={3}
               value={reportDetails}
               onChange={e => setReportDetails(e.target.value)}
             />
-            <div className="mt-4 flex gap-2">
-              <Button onClick={submitReport} disabled={!reportReason || reportSubmitting} loading={reportSubmitting} className="flex-1 bg-red-600 hover:bg-red-700">
+            <div className="mt-6 flex gap-3">
+              <Button size="lg" onClick={submitReport} disabled={!reportReason || reportSubmitting} loading={reportSubmitting} className="flex-1 rounded-full bg-red-500 hover:bg-red-600 text-white shadow-glass hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">
                 Submit Report
               </Button>
-              <Button variant="outline" onClick={() => setShowReportModal(false)} className="flex-1">Cancel</Button>
+              <Button size="lg" variant="outline" onClick={() => setShowReportModal(false)} className="flex-1 rounded-full active:scale-[0.98] transition-transform duration-700 ease-fluid">Cancel</Button>
             </div>
           </div>
         </div>
       )}
 
       {/* Flag Buttons */}
-      <div className="flex flex-wrap items-center justify-center gap-2 border-t pt-4 dark:border-slate-700">
-        <Flag className="h-4 w-4 text-gray-400 dark:text-slate-500" />
-        <span className="text-xs text-gray-400 dark:text-slate-500 mr-1">Mark as:</span>
+      <div className="flex flex-wrap items-center justify-center gap-3 border-t border-muted-foreground/10 pt-6 mt-8">
+        <Flag className="h-4 w-4 text-muted-foreground/50" />
+        <span className="text-sm font-bold text-muted-foreground/50 uppercase tracking-wider mr-2">Mark as:</span>
         {FLAG_OPTIONS.map(({ key, label, icon: Icon, color }) => {
           const isActive = flags[currentQuestion?.id] === key;
+          // Simplify color mapping for high-end design
+          const baseStyle = "flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold shadow-sm transition-all duration-500 ease-fluid hover:shadow-md active:scale-[0.98]";
+          let activeColorClass = "";
+          if (key === "WEAK") activeColorClass = "border-red-500 bg-red-500/10 text-red-600 dark:text-red-400";
+          if (key === "REVIEW_AGAIN") activeColorClass = "border-amber-500 bg-amber-500/10 text-amber-600 dark:text-amber-400";
+          if (key === "STRONG") activeColorClass = "border-green-500 bg-green-500/10 text-green-600 dark:text-green-400";
+          
           return (
             <button
               key={key}
               onClick={() => setFlag(key)}
-              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${isActive ? color : "border-gray-200 bg-white text-gray-500 hover:bg-gray-50 dark:border-slate-600 dark:bg-transparent dark:text-slate-400 dark:hover:bg-slate-700/40"}`}
+              className={`${baseStyle} ${isActive ? activeColorClass : "border-muted-foreground/20 bg-background text-muted-foreground/70 hover:bg-muted-foreground/5 hover:text-foreground"}`}
             >
-              <Icon className="h-3.5 w-3.5" />
+              <Icon className="h-4 w-4" />
               {label}
             </button>
           );
         })}
         <button
           onClick={() => setShowReportModal(true)}
-          className={`ml-auto flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-medium transition ${reportDone.has(currentQuestion?.id) ? "border-red-200 bg-red-50 text-red-500" : "border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500"}`}
+          className={`ml-auto flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold shadow-sm transition-all duration-500 ease-fluid active:scale-[0.98] ${reportDone.has(currentQuestion?.id) ? "border-red-500 bg-red-500/10 text-red-500" : "border-muted-foreground/20 text-muted-foreground/70 hover:border-red-500 hover:text-red-500"}`}
         >
-          <AlertTriangle className="h-3.5 w-3.5" />
-          {reportDone.has(currentQuestion?.id) ? "Reported" : "Report"}
+          <AlertTriangle className="h-4 w-4" />
+          {reportDone.has(currentQuestion?.id) ? "Reported" : "Report Issue"}
         </button>
       </div>
     </div>

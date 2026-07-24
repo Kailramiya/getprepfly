@@ -82,8 +82,8 @@ function LoginForm() {
         <Logo size="sm" />
       </div>
 
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Welcome back</h2>
-      <p className="mt-2 text-sm text-gray-600 dark:text-slate-400">
+      <h2 className="text-3xl font-extrabold tracking-tight text-foreground">Welcome back</h2>
+      <p className="mt-2 text-sm font-medium text-muted-foreground">
         Log in to continue your PTE preparation
       </p>
 
@@ -107,10 +107,11 @@ function LoginForm() {
 
       {/* Google Login */}
       <button
+        type="button"
         onClick={handleGoogleLogin}
-        className="mt-6 flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
+        className="group mt-8 flex w-full items-center justify-center gap-3 rounded-full border border-white/10 bg-card px-4 py-3 text-sm font-bold tracking-wide text-foreground shadow-glass transition-all duration-500 ease-fluid hover:bg-white/5 hover:shadow-float active:scale-[0.98]"
       >
-        <svg className="h-5 w-5" viewBox="0 0 24 24">
+        <svg className="h-5 w-5 group-hover:scale-110 transition-transform duration-500 ease-fluid" viewBox="0 0 24 24">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
@@ -119,60 +120,59 @@ function LoginForm() {
         Continue with Google
       </button>
 
-      <div className="my-6 flex items-center gap-3">
-        <div className="h-px flex-1 bg-gray-200 dark:bg-slate-700" />
-        <span className="text-xs text-gray-500 dark:text-slate-400">or continue with email</span>
-        <div className="h-px flex-1 bg-gray-200 dark:bg-slate-700" />
+      <div className="my-8 flex items-center gap-4">
+        <div className="h-px flex-1 bg-white/10" />
+        <span className="text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">or</span>
+        <div className="h-px flex-1 bg-white/10" />
       </div>
 
-      {/* Email Login Form */}
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="relative group">
+          <Mail className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
           <Input
             type="email"
             placeholder="Email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="pl-10"
+            className="h-12 rounded-full pl-11 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
             required
           />
         </div>
 
-        <div className="relative">
-          <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+        <div className="relative group">
+          <Lock className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
           <Input
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="pl-10 pr-10"
+            className="h-12 rounded-full pl-11 pr-12 shadow-inner bg-black/5 dark:bg-black/20 focus-visible:ring-primary/20"
             required
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             aria-label={showPassword ? "Hide password" : "Show password"}
-            className="absolute right-3 top-1/2 z-10 -translate-y-1/2 cursor-pointer text-gray-400 hover:text-gray-600"
+            className="absolute right-4 top-1/2 z-10 -translate-y-1/2 cursor-pointer text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {showPassword ? <EyeOff className="h-[18px] w-[18px]" /> : <Eye className="h-[18px] w-[18px]" />}
           </button>
         </div>
 
-        <div className="flex justify-end">
-          <Link href="/forgot-password" className="text-sm text-indigo-600 hover:text-indigo-500">
+        <div className="flex justify-end pt-1">
+          <Link href="/forgot-password" className="text-sm font-semibold text-primary hover:text-primary/80 transition-colors">
             Forgot password?
           </Link>
         </div>
 
-        <Button type="submit" className="w-full" size="lg" loading={loading}>
+        <Button type="submit" className="w-full rounded-full shadow-glass hover:shadow-float font-bold tracking-wide transition-all duration-700 ease-fluid active:scale-[0.98]" size="xl" loading={loading}>
           Log in
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-600 dark:text-slate-400">
+      <p className="mt-8 text-center text-sm font-medium text-muted-foreground">
         Don&apos;t have an account?{" "}
-        <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+        <Link href="/register" className="font-bold text-primary hover:text-primary/80 transition-colors">
           Sign up free
         </Link>
       </p>

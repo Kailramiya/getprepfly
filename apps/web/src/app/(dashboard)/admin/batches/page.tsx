@@ -67,24 +67,26 @@ export default function BatchesPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Batches</h1>
           <p className="text-gray-500 dark:text-slate-400">Organize students into batches</p>
         </div>
-        <Button onClick={() => setShowCreate(true)} className="gap-2">
+        <Button onClick={() => setShowCreate(true)} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2">
           <Plus className="h-4 w-4" /> Create Batch
         </Button>
       </div>
 
       {/* Create Batch Inline Form */}
       {showCreate && (
-        <Card className="border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-slate-800">
-          <CardContent className="flex items-center gap-3 p-4">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-indigo-500/10 to-teal-500/10 backdrop-blur-xl ring-1 ring-white/10 mt-4">
+          <CardContent className="flex flex-col sm:flex-row sm:items-center gap-3 p-6">
             <Input
               placeholder="Batch name (e.g., Morning Batch, Weekend Batch)"
               value={newBatchName}
               onChange={(e) => setNewBatchName(e.target.value)}
-              className="max-w-md"
+              className="max-w-md rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid"
               onKeyDown={(e) => e.key === "Enter" && createBatch()}
             />
-            <Button onClick={createBatch} loading={creating} size="sm">Create</Button>
-            <Button variant="ghost" size="sm" onClick={() => setShowCreate(false)}>Cancel</Button>
+            <div className="flex gap-2">
+              <Button onClick={createBatch} loading={creating} size="sm" className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">Create</Button>
+              <Button variant="outline" size="sm" onClick={() => setShowCreate(false)} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Cancel</Button>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -95,7 +97,7 @@ export default function BatchesPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
         </div>
       ) : batches.length === 0 ? (
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
           <CardContent className="py-16 text-center">
             <Layers className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
             <p className="mt-4 text-gray-500 dark:text-slate-400">No batches created yet.</p>
@@ -103,9 +105,9 @@ export default function BatchesPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 mt-4">
           {batches.map((batch) => (
-            <Card key={batch.id} className="transition hover:shadow-md">
+            <Card key={batch.id} className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid flex flex-col">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-between text-base">
                   <span>{batch.name}</span>

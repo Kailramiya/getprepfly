@@ -74,7 +74,7 @@ export default function AdminAnalyticsPage() {
           { label: "Total Practice", value: stats?.totalAttempts || 0, icon: BarChart3, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-950/40" },
           { label: "Mock Tests Taken", value: stats?.totalMockTests || 0, icon: Clock, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-950/40" },
         ].map((stat) => (
-          <Card key={stat.label}>
+          <Card key={stat.label} className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid">
             <CardContent className="flex items-center gap-4 p-4">
               <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${stat.bg}`}>
                 <stat.icon className={`h-6 w-6 ${stat.color}`} />
@@ -90,7 +90,7 @@ export default function AdminAnalyticsPage() {
 
       {/* VIP vs Free */}
       <div className="grid gap-4 sm:grid-cols-2">
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
           <CardHeader>
             <CardTitle className="text-base">Plan Distribution</CardTitle>
           </CardHeader>
@@ -124,7 +124,7 @@ export default function AdminAnalyticsPage() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
           <CardHeader>
             <CardTitle className="text-base">Activity Status</CardTitle>
           </CardHeader>
@@ -160,7 +160,7 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Top Performers */}
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 mt-4">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <Trophy className="h-5 w-5 text-amber-500" />
@@ -176,7 +176,7 @@ export default function AdminAnalyticsPage() {
                 .sort((a: any, b: any) => b._count.attempts - a._count.attempts)
                 .slice(0, 10)
                 .map((student: any, i: number) => (
-                  <div key={student.id} className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:bg-slate-700">
+                  <div key={student.id} className="flex items-center justify-between rounded-2xl bg-background/40 p-4 shadow-sm border border-white/5 transition hover:bg-background/60">
                     <div className="flex items-center gap-3">
                       <span className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold ${
                         i === 0 ? "bg-amber-100 text-amber-700" :

@@ -438,7 +438,7 @@ export default function StudentsPage() {
       {/* Seat Usage Gauge */}
       {seatUsage && (
         <div className="grid gap-4 sm:grid-cols-4">
-          <Card className="sm:col-span-2">
+          <Card className="sm:col-span-2 rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
             <CardContent className="p-4">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-sm font-medium text-gray-700 dark:text-slate-300">Seat Usage</p>
@@ -459,7 +459,7 @@ export default function StudentsPage() {
               )}
             </CardContent>
           </Card>
-          <Card className={seatUsage.expiring7 > 0 ? "border-red-200 dark:border-red-900" : ""}>
+          <Card className={`rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 ${seatUsage.expiring7 > 0 ? "ring-red-500/50" : ""}`}>
             <CardContent className="p-4">
               <p className="text-xs font-medium text-gray-500 dark:text-slate-400">Expiring ≤7 days</p>
               <p className={`text-2xl font-bold mt-1 ${seatUsage.expiring7 > 0 ? "text-red-600 dark:text-red-400" : "text-gray-900 dark:text-slate-100"}`}>
@@ -475,7 +475,7 @@ export default function StudentsPage() {
               )}
             </CardContent>
           </Card>
-          <Card className={seatUsage.expiring30 > 0 ? "border-amber-200 dark:border-amber-900" : ""}>
+          <Card className={`rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 ${seatUsage.expiring30 > 0 ? "ring-amber-500/50" : ""}`}>
             <CardContent className="p-4">
               <p className="text-xs font-medium text-gray-500 dark:text-slate-400">Expiring ≤30 days</p>
               <p className={`text-2xl font-bold mt-1 ${seatUsage.expiring30 > 0 ? "text-amber-600 dark:text-amber-400" : "text-gray-900 dark:text-slate-100"}`}>
@@ -495,7 +495,7 @@ export default function StudentsPage() {
       )}
 
       {/* Invite Student Card */}
-      <Card className="border-indigo-200 dark:border-indigo-900 bg-gradient-to-br from-indigo-50 to-teal-50 dark:from-slate-800 dark:to-slate-800">
+      <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-indigo-500/10 to-teal-500/10 backdrop-blur-xl ring-1 ring-white/10">
         <CardContent className="p-6">
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-indigo-600 text-white">
@@ -515,10 +515,10 @@ export default function StudentsPage() {
                     value={inviteEmail}
                     onChange={(e) => { setInviteEmail(e.target.value); setInviteMsg(null); }}
                     onKeyDown={(e) => e.key === "Enter" && sendInvite()}
-                    className="w-full rounded-lg border border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 py-2 pl-10 pr-4 text-sm focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+                    className="w-full rounded-2xl border-none bg-background/40 py-2.5 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
                   />
                 </div>
-                <Button onClick={sendInvite} disabled={!inviteEmail.trim() || inviting} loading={inviting} className="gap-2 shrink-0">
+                <Button onClick={sendInvite} disabled={!inviteEmail.trim() || inviting} loading={inviting} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 shrink-0">
                   <Send className="h-4 w-4" />
                   {inviting ? "Sending..." : "Send Invite"}
                 </Button>
@@ -627,7 +627,7 @@ export default function StudentsPage() {
       )}
 
       {/* Students Table */}
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Users className="h-5 w-5 text-gray-400" />

@@ -65,31 +65,31 @@ export default function TeachersPage() {
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Teachers</h1>
           <p className="text-gray-500 dark:text-slate-400">Manage teaching staff for your centre</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} className="gap-2"><Plus className="h-4 w-4" /> Add Teacher</Button>
+        <Button onClick={() => setShowForm(!showForm)} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2"><Plus className="h-4 w-4" /> Add Teacher</Button>
       </div>
 
       {success && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-800 dark:bg-green-950/50 dark:text-green-300">{success}</div>}
 
       {showForm && (
-        <Card className="border-indigo-200 bg-indigo-50 dark:border-indigo-900 dark:bg-indigo-950/40">
+        <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-indigo-500/10 to-teal-500/10 backdrop-blur-xl ring-1 ring-white/10">
           <CardContent className="p-5">
             {error && <p className="mb-3 text-sm text-red-700 dark:text-red-400">{error}</p>}
             <form onSubmit={handleAdd} className="grid gap-3 sm:grid-cols-3">
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Full Name *</label>
-                <Input placeholder="Priya Sharma" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required />
+                <Input placeholder="Priya Sharma" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} required className="rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid" />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Email *</label>
-                <Input type="email" placeholder="teacher@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required />
+                <Input type="email" placeholder="teacher@email.com" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} required className="rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid" />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Phone</label>
-                <Input placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} />
+                <Input placeholder="+91 XXXXX XXXXX" value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className="rounded-2xl border-none bg-background/40 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid" />
               </div>
               <div className="flex gap-2 sm:col-span-3">
-                <Button type="submit" loading={submitting}>Add Teacher</Button>
-                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setError(""); }}>Cancel</Button>
+                <Button type="submit" loading={submitting} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">Add Teacher</Button>
+                <Button type="button" variant="outline" onClick={() => { setShowForm(false); setError(""); }} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Cancel</Button>
               </div>
             </form>
             <p className="mt-2 text-xs text-gray-500 dark:text-slate-400">A temporary password will be sent to the teacher&apos;s email.</p>
@@ -97,7 +97,7 @@ export default function TeachersPage() {
         </Card>
       )}
 
-      <Card>
+      <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-base">
             <GraduationCap className="h-5 w-5 text-gray-400" />

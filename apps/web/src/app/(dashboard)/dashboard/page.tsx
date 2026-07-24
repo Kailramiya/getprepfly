@@ -162,17 +162,17 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-12">
       {/* Welcome Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">
+          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-foreground">
             Welcome back, {user?.name?.split(" ")[0] || "Student"}!
           </h1>
-          <p className="mt-1 text-gray-500 dark:text-slate-400">Continue your PTE preparation journey</p>
+          <p className="mt-2 text-lg font-medium text-muted-foreground/80">Continue your PTE preparation journey</p>
         </div>
         <Link href="/mock-test">
-          <Button size="lg" className="gap-2">
+          <Button size="xl" className="gap-2 rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid active:scale-[0.98]">
             <ClipboardList className="h-5 w-5" />
             Start Mock Test
           </Button>
@@ -184,25 +184,26 @@ export default function DashboardPage() {
 
       {/* Assigned Mock Tests Alert */}
       {!loading && data?.assignedTests && data.assignedTests.length > 0 && (
-        <div className="rounded-xl border border-indigo-200 bg-indigo-50/50 dark:border-indigo-900/50 dark:bg-indigo-950/20 p-4 shadow-sm relative overflow-hidden">
-          <div className="absolute top-0 right-0 p-4 opacity-10">
-            <ClipboardList className="h-24 w-24" />
+        <div className="rounded-[2rem] border-none bg-indigo-500/10 ring-1 ring-indigo-500/20 p-6 sm:p-8 shadow-glass backdrop-blur-xl relative overflow-hidden group">
+          <div className="absolute -top-12 -right-12 p-4 opacity-10 group-hover:scale-110 transition-transform duration-700 ease-fluid group-hover:rotate-12 group-hover:opacity-20 text-indigo-500">
+            <ClipboardList className="h-48 w-48" />
           </div>
-          <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
+          <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-                <h3 className="text-lg font-bold text-indigo-900 dark:text-indigo-100">
+              <div className="flex items-center gap-3">
+                <Sparkles className="h-6 w-6 text-indigo-500" />
+                <h3 className="text-2xl font-extrabold tracking-tight text-foreground">
                   You have {data.assignedTests.length} new assigned Mock Test{data.assignedTests.length > 1 ? "s" : ""}!
                 </h3>
               </div>
-              <p className="mt-1 text-sm text-indigo-700 dark:text-indigo-300">
+              <p className="mt-2 text-base font-medium text-muted-foreground">
                 Your Centre Admin has assigned practice tests for your batch.
               </p>
             </div>
             <Link href="/mock-test">
-              <Button className="bg-indigo-600 hover:bg-indigo-700 text-white border-none shadow-md">
-                View Tests <ArrowRight className="ml-2 h-4 w-4" />
+              <Button size="lg" className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-full border-none shadow-md hover:shadow-lg transition-all duration-700 ease-fluid active:scale-[0.98]">
+                View Tests <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
               </Button>
             </Link>
           </div>
@@ -210,23 +211,23 @@ export default function DashboardPage() {
       )}
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 lg:gap-6">
         {stats.map((stat) => (
-          <Card key={stat.label} className={stat.isStreak && (data?.streak ?? 0) > 0 ? "border-orange-200 dark:border-orange-900/50 relative overflow-hidden" : ""}>
+          <Card key={stat.label} className={`rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 hover:shadow-float transition-all duration-700 ease-fluid hover:-translate-y-1 relative overflow-hidden ${stat.isStreak && (data?.streak ?? 0) > 0 ? "ring-orange-500/30" : ""}`}>
             {stat.isStreak && (data?.streak ?? 0) > 0 && (
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-orange-400 to-red-500" />
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-orange-400 to-red-500 opacity-80" />
             )}
-            <CardContent className="flex items-center gap-4 p-4">
-              <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${stat.bgLight}`}>
-                <stat.icon className={`h-6 w-6 ${stat.color} ${stat.isStreak && (data?.streak ?? 0) > 0 ? "animate-pulse" : ""}`} />
+            <CardContent className="flex flex-col gap-4 p-5 sm:p-6">
+              <div className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-[1rem] shadow-inner ${stat.bgLight}`}>
+                <stat.icon className={`h-7 w-7 ${stat.color} ${stat.isStreak && (data?.streak ?? 0) > 0 ? "animate-pulse" : ""}`} />
               </div>
               <div>
                 {stat.value === null ? (
-                  <Loader2 className="h-5 w-5 animate-spin text-gray-300 dark:text-slate-600" />
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/30" />
                 ) : (
-                  <p className="text-xl font-bold text-gray-900 dark:text-slate-100">{stat.value}</p>
+                  <p className="text-3xl font-extrabold tracking-tight text-foreground">{stat.value}</p>
                 )}
-                <p className="text-xs font-medium text-gray-500 dark:text-slate-400">{stat.label}</p>
+                <p className="mt-1 text-sm font-semibold text-muted-foreground/80 uppercase tracking-widest">{stat.label}</p>
               </div>
             </CardContent>
           </Card>
@@ -244,31 +245,37 @@ export default function DashboardPage() {
           {(() => {
             if (!data.examDate) {
               return (
-                <Card>
-                  <CardContent className="flex items-center justify-between gap-4 p-4">
+                <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 relative overflow-hidden">
+                  <CardContent className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 p-6 sm:p-8">
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Set your exam date</p>
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">Add it to see a countdown and stay on track.</p>
+                      <p className="text-xl font-extrabold tracking-tight text-foreground">Set your exam date</p>
+                      <p className="mt-1 text-sm font-medium text-muted-foreground/80">Add it to see a countdown and stay on track.</p>
                     </div>
-                    <Link href="/settings"><Button variant="outline" size="sm">Set date</Button></Link>
+                    <Link href="/settings">
+                      <Button variant="outline" size="lg" className="rounded-full shadow-sm hover:shadow-md transition-all duration-700 ease-fluid active:scale-[0.98]">
+                        Set date
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
               );
             }
             const days = Math.ceil((new Date(data.examDate).getTime() - Date.now()) / 86400000);
             return (
-              <Card>
-                <CardContent className="flex items-center gap-4 p-4">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-indigo-50 dark:bg-indigo-950/40">
-                    <Clock className="h-6 w-6 text-indigo-500" />
+              <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
+                <CardContent className="flex items-center gap-5 p-6 sm:p-8 relative z-10">
+                  <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[1.25rem] bg-indigo-500/10 shadow-inner group-hover:scale-105 transition-transform duration-700 ease-fluid">
+                    <Clock className="h-8 w-8 text-indigo-500" />
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                    <p className="text-2xl font-extrabold tracking-tight text-foreground">
                       {days > 0 ? `${days} day${days === 1 ? "" : "s"} to go` : days === 0 ? "Exam is today — good luck!" : "Exam date passed"}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-slate-400">
+                    <p className="mt-1 text-sm font-medium text-muted-foreground/80">
                       PTE exam: {new Date(data.examDate).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}
-                      {" · "}<Link href="/settings" className="text-indigo-600 hover:underline dark:text-indigo-400">change</Link>
+                      <span className="mx-2 opacity-50">·</span>
+                      <Link href="/settings" className="font-bold text-indigo-500 hover:text-indigo-400 transition-colors">change</Link>
                     </p>
                   </div>
                 </CardContent>
@@ -283,20 +290,21 @@ export default function DashboardPage() {
             const pct = Math.min(100, Math.round((done / goal) * 100));
             const met = done >= goal;
             return (
-              <Card>
-                <CardContent className="p-4">
+              <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 relative overflow-hidden group">
+                <CardContent className="p-6 sm:p-8 flex flex-col justify-center h-full">
                   <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">Today&apos;s goal</p>
-                    <p className={`text-sm font-bold ${met ? "text-green-600" : "text-gray-900 dark:text-slate-100"}`}>
+                    <p className="text-xl font-extrabold tracking-tight text-foreground">Today&apos;s goal</p>
+                    <p className={`text-2xl font-extrabold tracking-tight ${met ? "text-green-500" : "text-foreground"}`}>
                       {done}/{goal}{met ? " ✓" : ""}
                     </p>
                   </div>
-                  <div className="mt-2 h-2.5 w-full rounded-full bg-gray-100 dark:bg-slate-700">
-                    <div className={`h-full rounded-full transition-all ${met ? "bg-green-500" : "bg-gradient-to-r from-teal-500 to-indigo-500"}`} style={{ width: `${pct}%` }} />
+                  <div className="mt-4 h-3 w-full rounded-full bg-black/5 dark:bg-white/5 overflow-hidden shadow-inner">
+                    <div className={`h-full rounded-full transition-all duration-1000 ease-fluid ${met ? "bg-green-500" : "bg-gradient-to-r from-teal-500 to-indigo-500"}`} style={{ width: `${pct}%` }} />
                   </div>
-                  <p className="mt-1.5 text-xs text-gray-500 dark:text-slate-400">
+                  <p className="mt-4 text-sm font-medium text-muted-foreground/80">
                     {met ? "Goal reached — keep your streak going!" : `${goal - done} more question${goal - done === 1 ? "" : "s"} to hit today's goal`}
-                    {" · "}<Link href="/settings" className="text-indigo-600 hover:underline dark:text-indigo-400">change</Link>
+                    <span className="mx-2 opacity-50">·</span>
+                    <Link href="/settings" className="font-bold text-indigo-500 hover:text-indigo-400 transition-colors">change</Link>
                   </p>
                 </CardContent>
               </Card>
@@ -307,27 +315,30 @@ export default function DashboardPage() {
 
       {/* Practice Sections — Inspired by DSIC design with modern cards */}
       <div>
-        <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Practice by Section</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
+        <h2 className="mb-6 text-2xl font-extrabold tracking-tight text-foreground">Practice by Section</h2>
+        <div className="grid gap-6 sm:grid-cols-2">
           {practiceCards.map((card) => (
-            <Link key={card.title} href={card.href}>
-              <Card className="group cursor-pointer overflow-hidden transition-all hover:shadow-lg hover:-translate-y-0.5">
+            <Link key={card.title} href={card.href} className="outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-[2.5rem]">
+              <Card className="group cursor-pointer overflow-hidden transition-all duration-700 ease-fluid hover:shadow-float hover:-translate-y-1 rounded-[2.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
                 <CardContent className="p-0">
-                  <div className="flex items-stretch">
+                  <div className="flex items-stretch h-full">
                     {/* Icon section with gradient */}
-                    <div className={`flex w-24 shrink-0 items-center justify-center bg-gradient-to-br ${card.color} sm:w-28`}>
-                      <card.icon className="h-10 w-10 text-white" />
+                    <div className={`relative flex w-32 shrink-0 items-center justify-center bg-gradient-to-br ${card.color} overflow-hidden`}>
+                      <div className="absolute inset-0 bg-black/10 mix-blend-overlay" />
+                      <card.icon className="h-12 w-12 text-white group-hover:scale-110 transition-transform duration-700 ease-fluid drop-shadow-md" />
                     </div>
                     {/* Content */}
-                    <div className="flex flex-1 items-center justify-between p-4">
-                      <div>
-                        <h3 className="text-base font-semibold text-gray-900 dark:text-slate-100">{card.title}</h3>
-                        <p className="mt-0.5 text-xs text-gray-500 dark:text-slate-400">{card.description}</p>
-                        <Badge variant="secondary" className="mt-2">
+                    <div className="flex flex-1 flex-col justify-center p-6 relative">
+                      <div className="absolute top-1/2 right-6 -translate-y-1/2">
+                        <ArrowRight className="h-6 w-6 shrink-0 text-muted-foreground/30 transition-all duration-700 ease-fluid group-hover:text-foreground group-hover:translate-x-2" />
+                      </div>
+                      <div className="pr-8">
+                        <h3 className="text-xl font-extrabold tracking-tight text-foreground">{card.title}</h3>
+                        <p className="mt-1.5 text-sm font-medium text-muted-foreground/80 leading-relaxed">{card.description}</p>
+                        <Badge variant="secondary" className="mt-4 rounded-full font-bold px-3 py-1 shadow-sm">
                           {card.questions} question types
                         </Badge>
                       </div>
-                      <ArrowRight className="h-5 w-5 shrink-0 text-gray-300 dark:text-slate-600 transition group-hover:text-gray-600 dark:group-hover:text-slate-300 group-hover:translate-x-1" />
                     </div>
                   </div>
                 </CardContent>
@@ -340,22 +351,22 @@ export default function DashboardPage() {
       {/* Focus areas — personalized study plan from weakest question types */}
       {loading ? (
         <div>
-          <Sk className="mb-4 h-6 w-48" />
-          <div className="grid gap-3 sm:grid-cols-3"><Sk className="h-16" /><Sk className="h-16" /><Sk className="h-16" /></div>
+          <Sk className="mb-4 h-8 w-48 rounded-full" />
+          <div className="grid gap-4 sm:grid-cols-3"><Sk className="h-20 rounded-[1.5rem]" /><Sk className="h-20 rounded-[1.5rem]" /><Sk className="h-20 rounded-[1.5rem]" /></div>
         </div>
       ) : data && data.weakAreas.length > 0 && (
         <div>
-          <h2 className="mb-4 text-lg font-semibold text-gray-900 dark:text-slate-100">Focus areas — practice these next</h2>
-          <div className="grid gap-3 sm:grid-cols-3">
+          <h2 className="mb-6 text-2xl font-extrabold tracking-tight text-foreground">Focus areas — practice these next</h2>
+          <div className="grid gap-4 sm:grid-cols-3">
             {data.weakAreas.map((area) => (
               <Link key={area.type} href={`/practice/${area.section.toLowerCase()}`}>
-                <Card className="group cursor-pointer transition hover:shadow-md">
-                  <CardContent className="flex items-center justify-between p-4">
+                <Card className="group cursor-pointer rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/5 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float">
+                  <CardContent className="flex items-center justify-between p-5">
                     <div>
-                      <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">{formatType(area.type)}</p>
-                      <p className="text-xs text-gray-500 dark:text-slate-400">Avg {area.averageScore}/90 · {area.count} attempts</p>
+                      <p className="text-base font-extrabold tracking-tight text-foreground group-hover:text-primary transition-colors">{formatType(area.type)}</p>
+                      <p className="text-xs font-medium text-muted-foreground/80 mt-1">Avg {area.averageScore}/90 <span className="mx-1 opacity-50">·</span> {area.count} attempts</p>
                     </div>
-                    <ArrowRight className="h-4 w-4 shrink-0 text-gray-300 transition group-hover:translate-x-1 group-hover:text-indigo-500 dark:text-slate-600" />
+                    <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground/30 transition-all duration-700 ease-fluid group-hover:translate-x-1 group-hover:text-primary" />
                   </CardContent>
                 </Card>
               </Link>
@@ -366,22 +377,26 @@ export default function DashboardPage() {
 
       {/* Prediction questions available */}
       {!loading && data && data.predictions.length > 0 && (
-        <div>
-          <div className="mb-3 flex items-center gap-2">
-            <Zap className="h-4 w-4 text-amber-500" />
-            <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100">High-frequency predictions</h2>
-            <span className="text-xs text-gray-400 dark:text-slate-500">— expected in upcoming exams</span>
+        <div className="rounded-[2rem] border-none shadow-glass bg-amber-500/5 ring-1 ring-amber-500/10 p-6 sm:p-8 backdrop-blur-xl">
+          <div className="mb-4 flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-500">
+              <Zap className="h-5 w-5" />
+            </div>
+            <div>
+              <h2 className="text-xl font-extrabold tracking-tight text-foreground">High-frequency predictions</h2>
+              <span className="text-sm font-medium text-muted-foreground/80">Expected in upcoming exams</span>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-3">
             {data.predictions.map((p) => (
               <Link
                 key={p.type}
                 href={`/practice/${p.section.toLowerCase()}/${p.type.toLowerCase().replace(/_/g, "-")}?prediction=true`}
               >
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/40 px-3 py-1.5 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/50 transition-colors">
-                  <Zap className="h-3 w-3" />
+                <span className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-sm font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 hover:scale-105 transition-all duration-500 ease-fluid cursor-pointer">
+                  <Zap className="h-4 w-4" />
                   {p.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
-                  <span className="ml-0.5 rounded-full bg-amber-200 dark:bg-amber-800 px-1.5 py-0.5 text-[10px] font-semibold text-amber-800 dark:text-amber-200">
+                  <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-[11px] font-extrabold text-amber-700 dark:text-amber-300">
                     {p.count}
                   </span>
                 </span>
@@ -394,61 +409,63 @@ export default function DashboardPage() {
       {/* Recent Attempts */}
       {loading ? (
         <div>
-          <div className="mb-4 flex items-center justify-between">
-            <Sk className="h-6 w-36" />
-            <Sk className="h-4 w-16" />
+          <div className="mb-6 flex items-center justify-between">
+            <Sk className="h-8 w-48 rounded-full" />
+            <Sk className="h-6 w-20 rounded-full" />
           </div>
-          <div className="space-y-2">
-            {[0, 1, 2].map((i) => <Sk key={i} className="h-14" />)}
+          <div className="space-y-3">
+            {[0, 1, 2].map((i) => <Sk key={i} className="h-20 rounded-[1.5rem]" />)}
           </div>
         </div>
       ) : data && data.recentAttempts.length === 0 ? (
-        <Card className="border-dashed">
-          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-            <Sparkles className="h-8 w-8 text-indigo-300" />
-            <p className="font-semibold text-gray-900 dark:text-slate-100">No practice yet — let&apos;s start!</p>
-            <p className="text-sm text-gray-500 dark:text-slate-400">Pick a section below and complete your first question.</p>
-            <Link href="/practice/speaking"><Button size="sm" className="mt-1">Start practising</Button></Link>
+        <Card className="rounded-[2rem] border border-dashed border-muted-foreground/20 bg-background/30 shadow-none">
+          <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Sparkles className="h-8 w-8" />
+            </div>
+            <p className="text-xl font-extrabold tracking-tight text-foreground">No practice yet — let&apos;s start!</p>
+            <p className="text-sm font-medium text-muted-foreground/80">Pick a section below and complete your first question.</p>
+            <Link href="/practice/speaking"><Button size="lg" className="mt-4 rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid">Start practising</Button></Link>
           </CardContent>
         </Card>
       ) : data && data.recentAttempts.length > 0 && (
         <div>
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Recent Practice</h2>
-            <Link href="/progress" className="text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-500">
-              View all
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Recent Practice</h2>
+            <Link href="/progress" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors flex items-center gap-1 group">
+              View all <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </Link>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {data.recentAttempts.slice(0, 5).map((attempt) => (
               <Link key={attempt.id} href={`/progress/attempts/${attempt.id}`}>
-                <Card className="cursor-pointer hover:border-indigo-200 dark:hover:border-indigo-800 transition-colors">
-                  <CardContent className="flex items-center justify-between p-3">
-                    <div className="flex items-center gap-3">
-                      <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-xs font-bold text-white ${
-                        attempt.section === "SPEAKING" ? "bg-teal-500" :
-                        attempt.section === "WRITING" ? "bg-blue-500" :
-                        attempt.section === "READING" ? "bg-purple-500" : "bg-orange-500"
+                <Card className="cursor-pointer rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/5 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float">
+                  <CardContent className="flex items-center justify-between p-4 sm:p-5">
+                    <div className="flex items-center gap-4">
+                      <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-base font-extrabold text-white shadow-inner ${
+                        attempt.section === "SPEAKING" ? "bg-gradient-to-br from-teal-400 to-teal-600" :
+                        attempt.section === "WRITING" ? "bg-gradient-to-br from-blue-400 to-blue-600" :
+                        attempt.section === "READING" ? "bg-gradient-to-br from-purple-400 to-purple-600" : "bg-gradient-to-br from-orange-400 to-orange-600"
                       }`}>
                         {attempt.section[0]}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-slate-100">{attempt.title}</p>
-                        <p className="text-xs text-gray-500 dark:text-slate-400">{formatType(attempt.questionType)}</p>
+                        <p className="text-base font-extrabold tracking-tight text-foreground">{attempt.title}</p>
+                        <p className="text-xs font-medium text-muted-foreground/80 uppercase tracking-wider mt-0.5">{formatType(attempt.questionType)}</p>
                       </div>
                     </div>
                     <div className="text-right">
                       {attempt.score !== null ? (
-                        <p className={`text-sm font-bold ${
-                          attempt.score >= 70 ? "text-green-600" :
-                          attempt.score >= 40 ? "text-amber-600" : "text-red-600"
+                        <p className={`text-xl font-extrabold tracking-tight ${
+                          attempt.score >= 70 ? "text-green-500" :
+                          attempt.score >= 40 ? "text-amber-500" : "text-red-500"
                         }`}>
-                          {attempt.score}/90
+                          {attempt.score}<span className="text-sm font-bold text-muted-foreground/50">/90</span>
                         </p>
                       ) : (
-                        <p className="text-xs text-gray-400 dark:text-slate-500">Pending</p>
+                        <p className="text-sm font-bold text-muted-foreground/50">Pending</p>
                       )}
-                      <p className="text-xs text-gray-400 dark:text-slate-500">
+                      <p className="text-xs font-medium text-muted-foreground/60 mt-1">
                         {new Date(attempt.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}
                       </p>
                     </div>
@@ -463,36 +480,42 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div className="grid gap-4 sm:grid-cols-3">
         <Link href="/mock-test">
-          <Card className="group cursor-pointer border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/40 transition hover:bg-indigo-100 dark:hover:bg-indigo-950/70">
-            <CardContent className="flex items-center gap-4 p-5">
-              <ClipboardList className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
+          <Card className="group cursor-pointer rounded-[2rem] border-none shadow-glass bg-indigo-500/5 backdrop-blur-xl ring-1 ring-indigo-500/20 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float hover:bg-indigo-500/10">
+            <CardContent className="flex flex-col items-center text-center gap-4 p-8">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-indigo-500/20 text-indigo-500 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+                <ClipboardList className="h-8 w-8" />
+              </div>
               <div>
-                <h3 className="font-semibold text-indigo-900 dark:text-indigo-300">Full Mock Test</h3>
-                <p className="text-sm text-indigo-600 dark:text-indigo-400">Simulate the real PTE exam</p>
+                <h3 className="text-xl font-extrabold tracking-tight text-foreground">Full Mock Test</h3>
+                <p className="mt-2 text-sm font-medium text-muted-foreground/80">Simulate the real PTE exam</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/study-guides">
-          <Card className="group cursor-pointer border-teal-200 dark:border-teal-900 bg-teal-50 dark:bg-teal-950/40 transition hover:bg-teal-100 dark:hover:bg-teal-950/70">
-            <CardContent className="flex items-center gap-4 p-5">
-              <Star className="h-8 w-8 text-teal-600 dark:text-teal-400" />
+          <Card className="group cursor-pointer rounded-[2rem] border-none shadow-glass bg-teal-500/5 backdrop-blur-xl ring-1 ring-teal-500/20 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float hover:bg-teal-500/10">
+            <CardContent className="flex flex-col items-center text-center gap-4 p-8">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-teal-500/20 text-teal-500 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+                <Star className="h-8 w-8" />
+              </div>
               <div>
-                <h3 className="font-semibold text-teal-900 dark:text-teal-300">Study Guides</h3>
-                <p className="text-sm text-teal-600 dark:text-teal-400">Tips & strategies for each section</p>
+                <h3 className="text-xl font-extrabold tracking-tight text-foreground">Study Guides</h3>
+                <p className="mt-2 text-sm font-medium text-muted-foreground/80">Tips & strategies for each section</p>
               </div>
             </CardContent>
           </Card>
         </Link>
 
         <Link href="/vocabulary">
-          <Card className="group cursor-pointer border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/40 transition hover:bg-purple-100 dark:hover:bg-purple-950/70">
-            <CardContent className="flex items-center gap-4 p-5">
-              <BookOpen className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+          <Card className="group cursor-pointer rounded-[2rem] border-none shadow-glass bg-purple-500/5 backdrop-blur-xl ring-1 ring-purple-500/20 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float hover:bg-purple-500/10">
+            <CardContent className="flex flex-col items-center text-center gap-4 p-8">
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-purple-500/20 text-purple-500 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+                <BookOpen className="h-8 w-8" />
+              </div>
               <div>
-                <h3 className="font-semibold text-purple-900 dark:text-purple-300">Vocabulary</h3>
-                <p className="text-sm text-purple-600 dark:text-purple-400">Build your PTE word bank</p>
+                <h3 className="text-xl font-extrabold tracking-tight text-foreground">Vocabulary</h3>
+                <p className="mt-2 text-sm font-medium text-muted-foreground/80">Build your PTE word bank</p>
               </div>
             </CardContent>
           </Card>
