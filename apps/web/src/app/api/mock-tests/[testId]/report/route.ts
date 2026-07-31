@@ -31,7 +31,23 @@ export async function GET(_req: NextRequest, { params }: { params: { testId: str
           }
         } 
       },
-      questions: { select: { question: { select: { section: true } } } },
+      questions: {
+        orderBy: { order: "asc" },
+        select: {
+          id: true,
+          question: {
+            select: {
+              id: true,
+              title: true,
+              type: true,
+              section: true,
+              content: true,
+              modelAnswer: true,
+              marks: true,
+            }
+          }
+        }
+      },
     },
   });
 
@@ -71,6 +87,7 @@ export async function GET(_req: NextRequest, { params }: { params: { testId: str
       pending,
       timeTaken: totalTime || null,
       attempts: attempts, // Now includes detailed attempt and question data
+      questions: test.questions,
     },
   });
 }

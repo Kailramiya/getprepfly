@@ -34,7 +34,9 @@ interface ReportData {
   attempted: number;
   pending: number;
   timeTaken: number | null;
+  timeTaken: number | null;
   attempts: any[];
+  questions: any[];
 }
 
 function ScoreBar({ label, score, color }: { label: string; score: number | null; color: string }) {
@@ -186,79 +188,92 @@ export default function MockTestReportPage() {
         </div>
 
         {/* Detailed Question Review Accordion */}
-        {data.attempts && data.attempts.length > 0 && (
+        {data.questions && data.questions.length > 0 && (
           <div className="no-print mt-8 space-y-4 pb-12">
             <h2 className="text-2xl font-extrabold tracking-tight text-foreground pl-2">Detailed Question Review</h2>
-            {data.attempts.map((attempt, idx) => (
-              <details key={attempt.id} className="group rounded-[1.5rem] bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden shadow-glass transition-all">
-                <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-white/5 dark:hover:bg-white/5 font-medium text-foreground outline-none select-none">
-                  <span className="font-semibold text-base">{idx + 1}. {attempt.question.type.replace(/_/g, " ")}</span>
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm px-3 py-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-md font-bold">
-                      Score: {attempt.overallScore != null ? Math.max(10, attempt.overallScore) : "—"}/90
-                    </span>
-                    <ChevronDown className="h-5 w-5 text-gray-400 transition-transform group-open:rotate-180" />
-                  </div>
-                </summary>
-                <div className="p-6 border-t border-white/10 bg-background/30 space-y-6 text-sm text-muted-foreground">
-                  <div>
-                    <h4 className="font-semibold mb-2 text-gray-900 dark:text-slate-100 uppercase text-xs tracking-wider opacity-70">Prompt / Content</h4>
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border dark:border-slate-700 leading-relaxed max-h-60 overflow-y-auto">
-                      {attempt.question.content?.text || attempt.question.content?.transcript || attempt.question.title || "See original question for audio/media."}
+            {data.questions.map((tq, idx) => {
+              const attempt = data.attempts.find((a: any) => a.questionId === tq.question.id);
+              return (
+                <details key={tq.id} className="group rounded-[1.5rem] bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden shadow-glass transition-all">
+                  <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-white/5 dark:hover:bg-white/5 font-medium text-foreground outline-none select-none">
+                    <span className="font-semibold text-base">{idx + 1}. {tq.question.type.replace(/_/g, " ")}</span>
+                    <div className="flex items-center gap-4">
+                      {attempt ? (
+                        <span className="text-sm px-3 py-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-md font-bold">
+                          Score: {attempt.overallScore != null ? Math.max(10, attempt.overallScore) : "—"}/90
+                        </span>
+                      ) : (
+                        <span className="text-sm px-3 py-1 bg-gray-50 text-gray-700 dark:bg-slate-800 dark:text-slate-300 rounded-md font-bold">
+                          Skipped
+                        </span>
+                      )}
+                      <ChevronDown className="h-5 w-5 text-gray-400 transition-transform group-open:rotate-180" />
                     </div>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2 text-gray-900 dark:text-slate-100 uppercase text-xs tracking-wider opacity-70">Your Response</h4>
-                    <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border dark:border-slate-700 leading-relaxed font-medium">
-                      {formatResponse(attempt.responseText) || (attempt.responseAudio ? (
-                        <audio src={attempt.responseAudio} controls className="w-full max-w-sm h-10" />
-                      ) : <span className="italic text-gray-400">No response recorded</span>)}
-                    </div>
-                  </div>
-                  {attempt.scores && Object.keys(attempt.scores).length > 0 && (
+                  </summary>
+                  <div className="p-6 border-t border-white/10 bg-background/30 space-y-6 text-sm text-muted-foreground">
                     <div>
-                      <h4 className="font-semibold mb-2 text-indigo-600 dark:text-indigo-400 uppercase text-xs tracking-wider">AI Trait Analysis</h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Render simple metrics like grammar, spelling visually */}
-                        {["grammar", "spelling", "content", "fluency", "pronunciation", "vocabulary", "structure", "form"].map(trait => {
-                          if (attempt.scores[trait] !== undefined) {
-                            return (
-                              <div key={trait} className="bg-white dark:bg-slate-800 p-3 rounded-lg border dark:border-slate-700 flex justify-between items-center">
-                                <span className="capitalize">{trait}</span>
-                                <span className="font-bold text-indigo-600 dark:text-indigo-400">{attempt.scores[trait]}/90</span>
-                              </div>
-                            );
-                          }
-                          return null;
-                        })}
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-slate-100 uppercase text-xs tracking-wider opacity-70">Prompt / Content</h4>
+                      <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border dark:border-slate-700 leading-relaxed max-h-60 overflow-y-auto">
+                        {tq.question.content?.text || tq.question.content?.transcript || tq.question.title || "See original question for audio/media."}
                       </div>
-                      
-                      {/* Render detailed feedback if available */}
-                      {attempt.scores.feedback && (
-                        <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30 text-indigo-900 dark:text-indigo-200">
-                          <p className="font-semibold mb-1">Feedback</p>
-                          <p>{attempt.scores.feedback}</p>
-                        </div>
-                      )}
-                      
-                      {/* Render objective mistakes if available */}
-                      {attempt.scores.mistakes && attempt.scores.mistakes.length > 0 && (
-                        <div className="mt-4">
-                          <p className="font-semibold mb-2 text-red-600 dark:text-red-400">Mistakes</p>
-                          <ul className="space-y-2">
-                            {attempt.scores.mistakes.map((m: any, i: number) => (
-                              <li key={i} className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-3 rounded-lg text-red-800 dark:text-red-200">
-                                <span className="font-semibold">Pos {m.position}:</span> You answered &quot;{m.yourAnswer}&quot;, expected &quot;{m.correctAnswer}&quot;
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      )}
                     </div>
-                  )}
-                </div>
-              </details>
-            ))}
+                    <div>
+                      <h4 className="font-semibold mb-2 text-gray-900 dark:text-slate-100 uppercase text-xs tracking-wider opacity-70">Your Response</h4>
+                      <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border dark:border-slate-700 leading-relaxed font-medium">
+                        {attempt ? (
+                          formatResponse(attempt.responseText) || (attempt.responseAudio ? (
+                            <audio src={attempt.responseAudio} controls className="w-full max-w-sm h-10" />
+                          ) : <span className="italic text-gray-400">No response recorded</span>)
+                        ) : (
+                          <span className="italic text-gray-400">Question was skipped</span>
+                        )}
+                      </div>
+                    </div>
+                    {attempt?.scores && Object.keys(attempt.scores).length > 0 && (
+                      <div>
+                        <h4 className="font-semibold mb-2 text-indigo-600 dark:text-indigo-400 uppercase text-xs tracking-wider">AI Trait Analysis</h4>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Render simple metrics like grammar, spelling visually */}
+                          {["grammar", "spelling", "content", "fluency", "pronunciation", "vocabulary", "structure", "form"].map(trait => {
+                            if (attempt.scores[trait] !== undefined) {
+                              return (
+                                <div key={trait} className="bg-white dark:bg-slate-800 p-3 rounded-lg border dark:border-slate-700 flex justify-between items-center">
+                                  <span className="capitalize">{trait}</span>
+                                  <span className="font-bold text-indigo-600 dark:text-indigo-400">{attempt.scores[trait]}/90</span>
+                                </div>
+                              );
+                            }
+                            return null;
+                          })}
+                        </div>
+                        
+                        {/* Render detailed feedback if available */}
+                        {attempt.scores.feedback && (
+                          <div className="mt-4 bg-indigo-50 dark:bg-indigo-900/20 p-4 rounded-xl border border-indigo-100 dark:border-indigo-800/30 text-indigo-900 dark:text-indigo-200">
+                            <p className="font-semibold mb-1">Feedback</p>
+                            <p>{attempt.scores.feedback}</p>
+                          </div>
+                        )}
+                        
+                        {/* Render objective mistakes if available */}
+                        {attempt.scores.mistakes && attempt.scores.mistakes.length > 0 && (
+                          <div className="mt-4">
+                            <p className="font-semibold mb-2 text-red-600 dark:text-red-400">Mistakes</p>
+                            <ul className="space-y-2">
+                              {attempt.scores.mistakes.map((m: any, i: number) => (
+                                <li key={i} className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-900/30 p-3 rounded-lg text-red-800 dark:text-red-200">
+                                  <span className="font-semibold">Pos {m.position}:</span> You answered &quot;{m.yourAnswer}&quot;, expected &quot;{m.correctAnswer}&quot;
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </details>
+              );
+            })}
           </div>
         )}
       </div>
