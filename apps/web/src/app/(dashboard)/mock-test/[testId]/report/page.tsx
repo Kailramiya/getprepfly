@@ -34,7 +34,6 @@ interface ReportData {
   attempted: number;
   pending: number;
   timeTaken: number | null;
-  timeTaken: number | null;
   attempts: any[];
   questions: any[];
 }
