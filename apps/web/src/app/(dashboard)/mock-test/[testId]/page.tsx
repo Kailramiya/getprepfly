@@ -523,15 +523,22 @@ export default function MockTestSessionPage() {
             );
           })()}
 
-          {/* Info banner — only shown after explicit submit or if previously answered */}
-          {(submitted || isAttempted) && (
+          {/* Info banner — only shown after an explicit submit in this session */}
+          {submitted && (
             <div className="mt-8 rounded-[1.25rem] border-none ring-1 ring-blue-500/20 bg-blue-500/5 px-5 py-4 text-sm font-medium text-blue-700 dark:text-blue-300 flex items-center gap-3">
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400">
                 <CheckCircle2 className="h-5 w-5" />
               </div>
-              {submitted
-                ? "Answer saved. Complete the test to see correct answers and scores."
-                : "You answered this question before. You can re-submit to update your answer."}
+              Answer saved. Complete the test to see correct answers and scores.
+            </div>
+          )}
+          {/* Re-edit nudge — shown when navigating back to a previously answered question */}
+          {!submitted && isAttempted && (
+            <div className="mt-8 rounded-[1.25rem] border-none ring-1 ring-amber-500/20 bg-amber-500/5 px-5 py-4 text-sm font-medium text-amber-700 dark:text-amber-300 flex items-center gap-3">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              You answered this question before. You can re-submit to update your answer.
             </div>
           )}
         </CardContent>
