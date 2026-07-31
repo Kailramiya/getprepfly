@@ -136,8 +136,13 @@ export default function MockTestSessionPage() {
     return 135 * 60;
   }, [test]);
 
+  // Stop every <audio> element on the page (question audio, recording playback, etc.)
+  const stopAllAudio = () =>
+    document.querySelectorAll("audio").forEach((a) => { a.pause(); a.currentTime = 0; });
+
   const finishTest = useCallback(async () => {
     if (finishing) return;
+    stopAllAudio();
     if (!submitted) {
       if (autoSubmitRef.current) {
         try {
@@ -217,6 +222,7 @@ export default function MockTestSessionPage() {
 
   const goNext = useCallback(async () => {
     if (currentIdx < totalQuestions - 1) {
+      stopAllAudio();
       setNavigating(true);
       if (!submitted) {
         if (autoSubmitRef.current) {
