@@ -965,7 +965,7 @@ export function QuestionRenderer({
       <div className="space-y-4">
         <QuestionInstruction type={type} />
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
-        <p className="font-medium text-gray-900">{content.question || "Which summary best matches the audio?"}</p>
+        <p className="font-medium text-foreground">{content.question || "Which summary best matches the audio?"}</p>
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
@@ -1026,6 +1026,7 @@ export function QuestionRenderer({
 
     const startTime = Date.now();
     internalSubmitFn.current = () => {
+      if (response === null) return; // Don't auto-submit if user never interacted
       return scoreOnServer(selected, startTime);
     };
 
