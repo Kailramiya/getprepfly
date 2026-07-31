@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   ChevronRight, Clock,
-  Mic, PenTool, BookOpen, Headphones,
+  CheckCircle2, Mic, PenTool, BookOpen, Headphones,
   Flag, Loader2, Save,
 } from "lucide-react";
 import {
