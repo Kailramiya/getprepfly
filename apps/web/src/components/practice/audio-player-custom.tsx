@@ -100,10 +100,22 @@ export function AudioPlayerCustom({
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={() => { setIsPlaying(false); if (playOnce) setHasPlayed(true); onEnded?.(); }}
-        onTimeUpdate={() => setCurrentTime(audioRef.current?.currentTime || 0)}
+        onTimeUpdate={() => {
+          const a = audioRef.current;
+          if (a) {
+            setCurrentTime(a.currentTime || 0);
+            if (a.duration && isFinite(a.duration) && a.duration !== duration) {
+              setDuration(a.duration);
+            }
+          }
+        }}
+        onDurationChange={() => {
+          const d = audioRef.current?.duration || 0;
+          if (isFinite(d)) setDuration(d);
+        }}
         onLoadedMetadata={() => {
           const d = audioRef.current?.duration || 0;
-          setDuration(d);
+          if (isFinite(d)) setDuration(d);
           if (onLoadedMetadata && isFinite(d) && d > 0) onLoadedMetadata(d);
         }}
         onError={onError}
