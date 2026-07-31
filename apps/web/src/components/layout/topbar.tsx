@@ -135,12 +135,12 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                     {user?.name?.charAt(0)?.toUpperCase() || "U"}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-foreground">{user?.name}</p>
-                    <p className="truncate text-xs text-muted-foreground">{user?.email}</p>
+                    <p className="truncate text-sm font-semibold text-foreground" title="">{user?.name}</p>
+                    <p className="truncate text-xs text-muted-foreground" title="">{user?.email}</p>
                   </div>
                 </div>
                 {user?.centreName && (
-                  <p className="mt-2 truncate text-xs text-teal-600 dark:text-teal-400">{user.centreName}</p>
+                  <p className="mt-2 truncate text-xs text-teal-600 dark:text-teal-400" title="">{user.centreName}</p>
                 )}
               </div>
 

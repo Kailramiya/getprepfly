@@ -219,8 +219,8 @@ export function Sidebar({ onNavClick }: SidebarProps) {
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-foreground">{user.name}</p>
-              <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+              <p className="truncate text-sm font-medium text-foreground" title="">{user.name}</p>
+              <p className="truncate text-xs text-muted-foreground" title="">{user.email}</p>
             </div>
           </div>
         )}
