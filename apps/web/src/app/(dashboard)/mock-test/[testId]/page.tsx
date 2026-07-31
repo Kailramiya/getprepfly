@@ -110,6 +110,8 @@ export default function MockTestSessionPage() {
   const autoSubmitRef = useRef<(() => void | Promise<void>) | null>(null);
   // Cache student recording blob URLs so they survive navigation between questions
   const recordingUrlsRef = useRef<Map<string, string>>(new Map());
+  // Always holds the live current question ID — used in async handlers to avoid stale closures
+  const currentQIdRef = useRef<string | null>(null);
 
   // Fetch test data
   useEffect(() => {
@@ -204,6 +206,8 @@ export default function MockTestSessionPage() {
   }, [currentIdx]);
 
   const currentQuestion = test?.questions[currentIdx];
+  // Keep ref in sync with current question — used inside async handlers to avoid stale closures
+  currentQIdRef.current = currentQuestion?.question?.id ?? null;
   const isAttempted = test?.attempts?.some((a) => a.questionId === currentQuestion?.question?.id);
 
   const totalQuestions = test?.questions?.length || 0;
@@ -252,11 +256,12 @@ export default function MockTestSessionPage() {
 
   // Called by QuestionRenderer when student explicitly submits (or via background auto-submit)
   const handleQuestionSubmit = async (response: any, questionIdOverride?: string) => {
-    const qId = questionIdOverride || currentQuestion?.question?.id;
+    const qId = questionIdOverride || currentQIdRef.current;
     if (!qId) return;
     
-    // Only update UI state if the submission is for the question we are currently viewing
-    const isCurrentQuestion = qId === currentQuestion?.question?.id;
+    // Use ref (not stale closure) so async submits from a previous question don't mark
+    // the newly-displayed question as submitted.
+    const isCurrentQuestion = qId === currentQIdRef.current;
     
     if (isCurrentQuestion) {
       setSubmitted(true);
