@@ -188,10 +188,10 @@ export default function MockTestReportPage() {
         {/* Detailed Question Review Accordion */}
         {data.attempts && data.attempts.length > 0 && (
           <div className="no-print mt-8 space-y-4 pb-12">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100 pl-2">Detailed Question Review</h2>
+            <h2 className="text-2xl font-extrabold tracking-tight text-foreground pl-2">Detailed Question Review</h2>
             {data.attempts.map((attempt, idx) => (
-              <details key={attempt.id} className="group border rounded-xl bg-white dark:bg-slate-800 dark:border-slate-700 overflow-hidden shadow-sm transition-all">
-                <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-gray-50 dark:hover:bg-slate-750 font-medium text-gray-900 dark:text-slate-100 outline-none">
+              <details key={attempt.id} className="group rounded-[1.5rem] bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden shadow-glass transition-all">
+                <summary className="flex items-center justify-between p-5 cursor-pointer hover:bg-white/5 dark:hover:bg-white/5 font-medium text-foreground outline-none select-none">
                   <span className="font-semibold text-base">{idx + 1}. {attempt.question.type.replace(/_/g, " ")}</span>
                   <div className="flex items-center gap-4">
                     <span className="text-sm px-3 py-1 bg-indigo-50 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300 rounded-md font-bold">
@@ -200,7 +200,7 @@ export default function MockTestReportPage() {
                     <ChevronDown className="h-5 w-5 text-gray-400 transition-transform group-open:rotate-180" />
                   </div>
                 </summary>
-                <div className="p-6 border-t dark:border-slate-700 bg-gray-50 dark:bg-slate-900/50 space-y-6 text-sm text-gray-700 dark:text-slate-300">
+                <div className="p-6 border-t border-white/10 bg-background/30 space-y-6 text-sm text-muted-foreground">
                   <div>
                     <h4 className="font-semibold mb-2 text-gray-900 dark:text-slate-100 uppercase text-xs tracking-wider opacity-70">Prompt / Content</h4>
                     <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border dark:border-slate-700 leading-relaxed max-h-60 overflow-y-auto">
