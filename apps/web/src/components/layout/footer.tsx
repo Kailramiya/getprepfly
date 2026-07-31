@@ -41,13 +41,13 @@ export function Footer() {
   ].filter(Boolean) as { icon: any; href: string; label: string }[];
 
   return (
-    <footer className="mt-12 border-t border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-900">
+    <footer className="mt-12 border-t border-border bg-background/50 backdrop-blur-xl">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">
             <Logo size="sm" />
-            <p className="mt-3 max-w-xs text-sm text-gray-500 dark:text-slate-400">
+            <p className="mt-3 max-w-xs text-sm text-muted-foreground">
               {APP_TAGLINE}. Made in India for students aiming to study and work abroad.
             </p>
             {social.length > 0 && (
@@ -59,7 +59,7 @@ export function Footer() {
                     target={s.href.startsWith("http") ? "_blank" : undefined}
                     rel="noopener noreferrer"
                     title={s.label}
-                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 text-gray-500 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-700 dark:text-slate-400 dark:hover:text-indigo-400"
+                    className="flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground transition hover:border-primary/50 hover:text-primary"
                   >
                     <s.icon className="h-4 w-4" />
                   </a>
@@ -70,11 +70,11 @@ export function Footer() {
 
           {/* Practice */}
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Practice</h4>
+            <h4 className="text-sm font-semibold text-foreground">Practice</h4>
             <ul className="mt-3 space-y-2">
               {practiceLinks.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-gray-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400">
+                  <Link href={l.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -84,11 +84,11 @@ export function Footer() {
 
           {/* Support */}
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Support</h4>
+            <h4 className="text-sm font-semibold text-foreground">Support</h4>
             <ul className="mt-3 space-y-2">
               {supportLinks.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-gray-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400">
+                  <Link href={l.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -98,11 +98,11 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100">Legal</h4>
+            <h4 className="text-sm font-semibold text-foreground">Legal</h4>
             <ul className="mt-3 space-y-2">
               {legalLinks.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-sm text-gray-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400">
+                  <Link href={l.href} className="text-sm text-muted-foreground hover:text-primary transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -111,7 +111,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-gray-100 pt-6 text-xs text-gray-400 dark:border-slate-800 dark:text-slate-500 sm:flex-row">
+        <div className="mt-10 flex flex-col items-center justify-between gap-3 border-t border-border/50 pt-6 text-xs text-muted-foreground sm:flex-row">
           <p>© {new Date().getFullYear()} {APP_NAME}. All rights reserved.</p>
           <p>{APP_NAME} is an independent practice platform and is not affiliated with Pearson PTE.</p>
         </div>
