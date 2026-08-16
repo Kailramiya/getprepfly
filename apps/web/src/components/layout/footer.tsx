@@ -41,8 +41,12 @@ export function Footer() {
   ].filter(Boolean) as { icon: any; href: string; label: string }[];
 
   return (
-    <footer className="mt-12 border-t border-border bg-background/50 backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+    <footer className="mt-12 border-t border-border bg-white dark:border-white/10 dark:bg-[#0B0F19] relative z-10 overflow-hidden">
+      {/* Decorative gradient blur in dark mode */}
+      <div className="pointer-events-none absolute inset-0 hidden dark:block">
+        <div className="absolute -top-[200px] left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[100px]" />
+      </div>
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 relative">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand */}
           <div className="lg:col-span-2">

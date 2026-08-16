@@ -18,6 +18,7 @@ interface UserItem {
   isActive: boolean;
   createdAt: string;
   centre: { name: string; slug: string } | null;
+  moduleAccess?: { section: string | null; expiresAt: string; isActive: boolean }[];
 }
 
 const ROLE_CONFIG: Record<string, { icon: any; color: string }> = {
@@ -145,35 +146,47 @@ export default function SuperAdminUsersPage() {
                       </div>
                     </div>
                     <div className="flex flex-wrap items-center gap-3">
-                      {u.centre ? (
-                        <div className="flex items-center gap-2">
-                          <div className="flex flex-col items-end">
-                            <span className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-slate-500">
-                              {referralLabel}
-                            </span>
-                            <span className="text-xs font-medium text-gray-600 dark:text-slate-300">{u.centre.name}</span>
+                      <div className="flex flex-col items-end gap-1">
+                        {u.centre ? (
+                          <div className="flex items-center gap-2">
+                            <div className="flex flex-col items-end">
+                              <span className="text-[10px] uppercase tracking-wide text-gray-400 dark:text-slate-500">
+                                {referralLabel}
+                              </span>
+                              <span className="text-xs font-medium text-gray-600 dark:text-slate-300">{u.centre.name}</span>
+                            </div>
+                            <button
+                              onClick={() => copySlug(u.centre!.slug)}
+                              className="group flex items-center gap-1 rounded-full border border-teal-500/30 bg-teal-500/10 px-2 py-1 font-mono text-xs text-teal-500 hover:bg-teal-500/20 transition-all duration-300"
+                              title="Click to copy referral code"
+                            >
+                              <Hash className="h-3 w-3" />
+                              {u.centre.slug}
+                              {copiedSlug === u.centre.slug ? (
+                                <CheckCheck className="h-3 w-3 text-green-600" />
+                              ) : (
+                                <Copy className="h-3 w-3 opacity-0 transition group-hover:opacity-100" />
+                              )}
+                            </button>
                           </div>
-                          <button
-                            onClick={() => copySlug(u.centre!.slug)}
-                            className="group flex items-center gap-1 rounded-full border border-teal-500/30 bg-teal-500/10 px-2 py-1 font-mono text-xs text-teal-500 hover:bg-teal-500/20 transition-all duration-300"
-                            title="Click to copy referral code"
-                          >
-                            <Hash className="h-3 w-3" />
-                            {u.centre.slug}
-                            {copiedSlug === u.centre.slug ? (
-                              <CheckCheck className="h-3 w-3 text-green-600" />
-                            ) : (
-                              <Copy className="h-3 w-3 opacity-0 transition group-hover:opacity-100" />
-                            )}
-                          </button>
-                        </div>
-                      ) : u.role === "CENTRE_ADMIN" ? (
-                        <Badge className="bg-amber-100 text-amber-700">
-                          ⚠ No centre — will auto-create on next login
-                        </Badge>
-                      ) : u.role === "STUDENT" ? (
-                        <span className="text-xs italic text-gray-400 dark:text-slate-500">Not enrolled in any centre</span>
-                      ) : null}
+                        ) : u.role === "CENTRE_ADMIN" ? (
+                          <Badge className="bg-amber-100 text-amber-700">
+                            ⚠ No centre — will auto-create on next login
+                          </Badge>
+                        ) : u.role === "STUDENT" ? (
+                          <span className="text-xs italic text-gray-400 dark:text-slate-500">Not enrolled in any centre</span>
+                        ) : null}
+                        
+                        {u.moduleAccess && u.moduleAccess.filter(m => m.isActive && new Date(m.expiresAt) > new Date()).length > 0 && (
+                          <div className="flex flex-wrap justify-end gap-1 mt-1">
+                             {u.moduleAccess.filter(m => m.isActive && new Date(m.expiresAt) > new Date()).map((m, idx) => (
+                               <Badge key={idx} variant="outline" className="text-[10px] uppercase border-indigo-200 text-indigo-600 bg-indigo-50/50">
+                                 {m.section ? m.section : 'ALL MODULES'} PRO
+                               </Badge>
+                             ))}
+                          </div>
+                        )}
+                      </div>
                       <Badge className={roleConfig.color}>
                         <RoleIcon className="mr-1 h-3 w-3" />
                         {u.role}

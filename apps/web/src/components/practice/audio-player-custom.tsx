@@ -96,7 +96,11 @@ export function AudioPlayerCustom({
       <audio
         ref={audioRef}
         src={src}
-        preload="metadata"
+        preload="auto"
+        onCanPlay={() => {
+          const d = audioRef.current?.duration || 0;
+          if (isFinite(d)) setDuration(d);
+        }}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
         onEnded={() => { setIsPlaying(false); if (playOnce) setHasPlayed(true); onEnded?.(); }}

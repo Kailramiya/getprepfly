@@ -34,6 +34,7 @@ export async function GET(req: NextRequest) {
         isActive: true,
         createdAt: true,
         centre: { select: { name: true, slug: true } },
+        moduleAccess: { select: { section: true, expiresAt: true, isActive: true } },
       },
       skip: (page - 1) * pageSize,
       take: pageSize,

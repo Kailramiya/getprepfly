@@ -128,9 +128,10 @@ export async function POST(req: NextRequest) {
     for (const [, types] of Object.entries(MOCK_TEST_STRUCTURE)) {
       for (const [type, count] of Object.entries(types)) {
         const pool = byType.get(type) ?? [];
+        if (pool.length === 0) continue; // Skip if absolutely no questions available for this type
         const shuffled = pool.sort(() => Math.random() - 0.5);
-        for (const id of shuffled.slice(0, count)) {
-          questionSelections.push({ questionId: id, order: order++ });
+        for (let i = 0; i < count; i++) {
+          questionSelections.push({ questionId: shuffled[i % shuffled.length], order: order++ });
         }
       }
     }
