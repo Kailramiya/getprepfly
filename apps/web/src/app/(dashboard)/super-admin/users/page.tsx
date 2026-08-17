@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
-import { Users, Search, Shield, Building2, GraduationCap, Trash2, Hash, Copy, CheckCheck, Phone } from "lucide-react";
+import { Users, Search, Shield, Building2, GraduationCap, Trash2, Hash, Copy, CheckCheck, Phone, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface UserItem {
@@ -40,6 +40,8 @@ export default function SuperAdminUsersPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [copiedSlug, setCopiedSlug] = useState<string | null>(null);
 
+  const [hasPlan, setHasPlan] = useState(false);
+
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   const copySlug = (slug: string) => {
@@ -68,10 +70,10 @@ export default function SuperAdminUsersPage() {
     }
   };
 
-  // Reset to the first page whenever the search term changes.
+  // Reset to the first page whenever the search term or filter changes.
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, [search, hasPlan]);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -80,6 +82,7 @@ export default function SuperAdminUsersPage() {
         page: String(page),
         pageSize: String(PAGE_SIZE),
         ...(search && { search }),
+        ...(hasPlan && { hasPlan: "true" }),
       });
       const res = await fetch(`/api/users?${params}`);
       const data = await res.json();
@@ -90,7 +93,7 @@ export default function SuperAdminUsersPage() {
       setLoading(false);
     };
     fetchUsers();
-  }, [search, page]);
+  }, [search, page, hasPlan]);
 
   return (
     <div className="space-y-6">
@@ -99,14 +102,24 @@ export default function SuperAdminUsersPage() {
         <p className="text-base font-medium text-muted-foreground">{total} users across all centres</p>
       </div>
 
-      <div className="relative max-w-md">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-        <Input
-          placeholder="Search by name, email or phone..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10 w-full rounded-2xl border-none bg-white/5 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
-        />
+      <div className="flex flex-col sm:flex-row gap-4 items-center">
+        <div className="relative w-full max-w-md">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <Input
+            placeholder="Search by name, email or phone..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-10 w-full rounded-2xl border-none bg-white/5 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground"
+          />
+        </div>
+        <Button
+          variant={hasPlan ? "default" : "outline"}
+          onClick={() => setHasPlan(!hasPlan)}
+          className={`rounded-full shadow-glass hover:shadow-float transition-all duration-300 ${hasPlan ? 'bg-amber-500 hover:bg-amber-600 text-white border-amber-500' : 'bg-transparent border-white/10'}`}
+        >
+          <BadgeCheck className="mr-2 h-4 w-4" />
+          Premium Only
+        </Button>
       </div>
 
       <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
