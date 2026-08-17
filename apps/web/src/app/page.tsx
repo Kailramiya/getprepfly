@@ -504,20 +504,20 @@ export default async function HomePage() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(20,184,166,0.15),transparent_50%)]"></div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-white shadow-glass backdrop-blur-md">
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-background/10 text-background shadow-glass backdrop-blur-md">
                 <Building2 className="h-8 w-8" />
               </div>
               <h2 className="text-4xl font-extrabold tracking-tighter text-background sm:text-5xl">Built for coaching centres too</h2>
-              <p className="mt-6 text-xl font-medium text-white/70">
+              <p className="mt-6 text-xl font-medium text-background/70">
                 Run your PTE coaching on Prepfly — your brand, your students, your batches.
               </p>
             </div>
             <div className="mx-auto mt-20 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {centreFeatures.map((f) => (
-                <div key={f.title} className="rounded-[1.5rem] bg-white/5 p-6 ring-1 ring-white/10 backdrop-blur-md hover:bg-white/10 transition-colors duration-500">
-                  <f.icon className="h-6 w-6 text-teal-400" />
-                  <h3 className="mt-4 text-sm font-bold tracking-wide text-white">{f.title}</h3>
-                  <p className="mt-2 text-xs font-medium text-white/60 leading-relaxed">{f.desc}</p>
+                <div key={f.title} className="rounded-[1.5rem] bg-background/5 p-6 ring-1 ring-background/10 backdrop-blur-md hover:bg-background/10 transition-colors duration-500">
+                  <f.icon className="h-6 w-6 text-teal-500" />
+                  <h3 className="mt-4 text-sm font-bold tracking-wide text-background">{f.title}</h3>
+                  <p className="mt-2 text-xs font-medium text-background/60 leading-relaxed">{f.desc}</p>
                 </div>
               ))}
             </div>
