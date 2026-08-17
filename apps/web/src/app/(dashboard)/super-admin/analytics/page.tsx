@@ -2,28 +2,31 @@
 
 import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Building2, Users, Database } from "lucide-react";
+import { Building2, Users, Database, BadgeCheck } from "lucide-react";
 
 export default function SuperAdminAnalyticsPage() {
-  const [stats, setStats] = useState({ centres: 0, users: 0, questions: 0 });
+  const [stats, setStats] = useState({ centres: 0, users: 0, questions: 0, premiumUsers: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const [centresRes, usersRes, questionsRes] = await Promise.all([
+        const [centresRes, usersRes, questionsRes, premiumUsersRes] = await Promise.all([
           fetch("/api/centres"),
           fetch("/api/users?pageSize=1"),
           fetch("/api/questions?pageSize=1"),
+          fetch("/api/users?pageSize=1&hasPlan=true"),
         ]);
         const centresData = await centresRes.json();
         const usersData = await usersRes.json();
         const questionsData = await questionsRes.json();
+        const premiumUsersData = await premiumUsersRes.json();
 
         setStats({
           centres: Array.isArray(centresData.data) ? centresData.data.length : 0,
           users: usersData.data?.total || 0,
           questions: questionsData.data?.total || 0,
+          premiumUsers: premiumUsersData.data?.total || 0,
         });
       } catch {
         // silent fail
@@ -45,10 +48,11 @@ export default function SuperAdminAnalyticsPage() {
           <div className="h-8 w-8 animate-spin rounded-full border-4 border-indigo-200 border-t-indigo-600" />
         </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {[
             { label: "Total Centres", value: stats.centres, icon: Building2, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-950/40" },
             { label: "Total Users", value: stats.users, icon: Users, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-950/40" },
+            { label: "Premium Users", value: stats.premiumUsers, icon: BadgeCheck, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/40" },
             { label: "Total Questions", value: stats.questions, icon: Database, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-950/40" },
           ].map((stat) => (
             <Card key={stat.label} className="relative overflow-hidden rounded-[2rem] border-none shadow-glass backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid bg-background/50">

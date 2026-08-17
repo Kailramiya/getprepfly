@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   const search = url.searchParams.get("search") || "";
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1") || 1);
   const pageSize = Math.min(200, Math.max(1, parseInt(url.searchParams.get("pageSize") || "50") || 50));
+  const hasPlan = url.searchParams.get("hasPlan") === "true";
 
   const where: any = {
     ...(search && {
@@ -19,6 +20,11 @@ export async function GET(req: NextRequest) {
         { email: { contains: search, mode: "insensitive" } },
         { phone: { contains: search, mode: "insensitive" } },
       ],
+    }),
+    ...(hasPlan && {
+      moduleAccess: {
+        some: { isActive: true },
+      },
     }),
   };
 
