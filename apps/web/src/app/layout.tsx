@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { PWARegister } from "@/components/pwa-register";
 import { ContentProtection } from "@/components/content-protection";
+import { CookieConsent } from "@/components/ui/cookie-consent";
 import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 
@@ -86,7 +87,7 @@ export default function RootLayout({
     <html lang="en" className={fontSans.variable} suppressHydrationWarning>
       <head>
         <meta name="theme-color" content="#14B8A6" />
-<link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml" />
         <link rel="icon" href="/favicon.png" type="image/png" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
       </head>
@@ -95,6 +96,7 @@ export default function RootLayout({
           <ContentProtection />
           {children}
         </Providers>
+        <CookieConsent />
         <PWARegister />
         <Analytics />
       </body>
