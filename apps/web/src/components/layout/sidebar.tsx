@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import {
   LayoutDashboard,
+  Activity,
   Mic,
   PenTool,
   BookOpen,
@@ -81,6 +82,7 @@ const superAdminNav: NavItem[] = [
   { label: "Coupons", href: "/super-admin/coupons", icon: CreditCard },
   { label: "Pricing", href: "/super-admin/pricing", icon: IndianRupee },
   { label: "Analytics", href: "/super-admin/analytics", icon: BarChart3 },
+  { label: "Practice Tracker", href: "/super-admin/practice-tracker", icon: Activity },
 ];
 
 
