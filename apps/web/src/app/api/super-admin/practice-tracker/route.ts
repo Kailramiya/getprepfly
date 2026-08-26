@@ -323,7 +323,7 @@ export async function GET(req: NextRequest) {
     totalMocks += mockTests;
   }
 
-  const centreList = [...centreAggById.values()];
+  const centreList = Array.from(centreAggById.values());
   if (unassigned.users.length > 0) centreList.push(unassigned);
 
   const centresOut = centreList
