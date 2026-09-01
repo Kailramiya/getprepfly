@@ -3,8 +3,8 @@ import { db } from "./db";
 export type PTESection = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
 // TRIAL DURATIONS
-export const STUDENT_TRIAL_DAYS = 1;
-export const CENTRE_TRIAL_DAYS = 1;
+export const STUDENT_TRIAL_DAYS = 0;
+export const CENTRE_TRIAL_DAYS = 0;
 // DAILY FREE SPEAKING SCORINGS (after trial, for non-premium users)
 export const FREE_DAILY_SPEAKING_SCORINGS = 7;
 
