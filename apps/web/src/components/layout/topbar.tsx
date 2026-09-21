@@ -82,11 +82,6 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
       {/* Right — actions */}
       <div className="flex items-center gap-3">
-        {/* Free Beta Badge */}
-        <Badge className="gap-1 bg-gradient-to-r from-teal-500 to-indigo-500 text-white hidden sm:inline-flex">
-          <Sparkles className="h-3 w-3" />
-          Free Beta
-        </Badge>
 
         <ThemeToggle />
 
