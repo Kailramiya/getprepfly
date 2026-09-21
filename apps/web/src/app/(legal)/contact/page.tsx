@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { APP_NAME, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/lib/constants";
-import { Mail, Phone, MapPin, MessageSquare, Send } from "lucide-react";
+import { Mail, Phone, MessageSquare, Send } from "lucide-react";
 
 export const metadata: Metadata = { title: `Contact Us — ${APP_NAME}` };
 
@@ -19,57 +19,43 @@ export default function ContactPage() {
       </div>
 
       <div className="grid gap-8 sm:grid-cols-2">
-        {/* Contact Cards */}
-        <div className="space-y-6">
-          <div className="flex items-start gap-4 rounded-[1.5rem] border border-white/5 bg-background/50 p-6 shadow-glass backdrop-blur-xl ring-1 ring-white/10 group hover:shadow-float hover:-translate-y-1 transition-all duration-700 ease-fluid">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
-              <Mail className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-foreground">Email us</h3>
-              <p className="mt-1 text-sm font-medium text-muted-foreground">Our friendly team is here to help.</p>
-              <div className="mt-3">
-                {SUPPORT_EMAIL ? (
-                  <a href={`mailto:${SUPPORT_EMAIL}`} className="text-sm font-bold text-primary hover:text-primary/80 transition-colors duration-500 ease-fluid">
-                    {SUPPORT_EMAIL}
-                  </a>
-                ) : (
-                  <span className="text-sm font-medium text-red-500">[SET NEXT_PUBLIC_SUPPORT_EMAIL]</span>
-                )}
-              </div>
-            </div>
+        {/* Email Card */}
+        <div className="flex items-start gap-4 rounded-[1.5rem] border border-white/5 bg-background/50 p-6 shadow-glass backdrop-blur-xl ring-1 ring-white/10 group hover:shadow-float hover:-translate-y-1 transition-all duration-700 ease-fluid">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+            <Mail className="h-6 w-6" />
           </div>
-
-          <div className="flex items-start gap-4 rounded-[1.5rem] border border-white/5 bg-background/50 p-6 shadow-glass backdrop-blur-xl ring-1 ring-white/10 group hover:shadow-float hover:-translate-y-1 transition-all duration-700 ease-fluid">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-500 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
-              <Phone className="h-6 w-6" />
-            </div>
-            <div>
-              <h3 className="text-xl font-bold text-foreground">Call us</h3>
-              <p className="mt-1 text-sm font-medium text-muted-foreground">Mon-Fri from 9am to 6pm.</p>
-              <div className="mt-3">
-                {SUPPORT_PHONE ? (
-                  <a href={`tel:${SUPPORT_PHONE}`} className="text-sm font-bold text-teal-500 hover:text-teal-400 transition-colors duration-500 ease-fluid">
-                    {SUPPORT_PHONE}
-                  </a>
-                ) : (
-                  <span className="text-sm font-medium text-red-500">[SET NEXT_PUBLIC_SUPPORT_PHONE]</span>
-                )}
-              </div>
+          <div>
+            <h3 className="text-xl font-bold text-foreground">Email us</h3>
+            <p className="mt-1 text-sm font-medium text-muted-foreground">Our friendly team is here to help.</p>
+            <div className="mt-3">
+              {SUPPORT_EMAIL ? (
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="text-sm font-bold text-primary hover:text-primary/80 transition-colors duration-500 ease-fluid">
+                  {SUPPORT_EMAIL}
+                </a>
+              ) : (
+                <span className="text-sm font-medium text-red-500">[SET NEXT_PUBLIC_SUPPORT_EMAIL]</span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Registered Office */}
-        <div className="rounded-[1.5rem] border border-white/5 bg-card/50 p-8 shadow-glass backdrop-blur-xl ring-1 ring-white/10 group">
-          <div className="flex items-center gap-3">
-            <MapPin className="h-6 w-6 text-muted-foreground/50 group-hover:text-primary transition-colors duration-700 ease-fluid" />
-            <h3 className="text-xl font-bold text-foreground">Registered Office</h3>
+        {/* Phone Card */}
+        <div className="flex items-start gap-4 rounded-[1.5rem] border border-white/5 bg-background/50 p-6 shadow-glass backdrop-blur-xl ring-1 ring-white/10 group hover:shadow-float hover:-translate-y-1 transition-all duration-700 ease-fluid">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-500/10 text-teal-500 shadow-inner group-hover:scale-110 transition-transform duration-700 ease-fluid">
+            <Phone className="h-6 w-6" />
           </div>
-          <div className="mt-6 space-y-2 text-sm font-medium text-muted-foreground leading-relaxed">
-            <p className="font-bold text-foreground">[LEGAL ENTITY NAME]</p>
-            <p>[REGISTERED ADDRESS]</p>
-            <p>[CITY], [STATE], India [PIN]</p>
+          <div>
+            <h3 className="text-xl font-bold text-foreground">Call us</h3>
+            <p className="mt-1 text-sm font-medium text-muted-foreground">Mon-Fri from 9am to 6pm.</p>
+            <div className="mt-3">
+              {SUPPORT_PHONE ? (
+                <a href={`tel:${SUPPORT_PHONE}`} className="text-sm font-bold text-teal-500 hover:text-teal-400 transition-colors duration-500 ease-fluid">
+                  {SUPPORT_PHONE}
+                </a>
+              ) : (
+                <span className="text-sm font-medium text-red-500">[SET NEXT_PUBLIC_SUPPORT_PHONE]</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
