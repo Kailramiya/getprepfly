@@ -70,14 +70,14 @@ export function TrialBanner() {
   // Trial expired
   if (access.trialExpired) {
     return (
-      <div className="border-b border-red-200 bg-red-50 px-4 py-2.5 text-sm sm:px-6 lg:px-8 dark:border-red-900 dark:bg-red-950/30">
-        <div className="flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-center">
+      <div className="border-b border-red-200 bg-red-50 px-4 py-4 text-base sm:px-6 lg:px-8 dark:border-red-900 dark:bg-red-950/30">
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
           <div className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 text-red-600" />
-            <p className="text-red-800 dark:text-red-300">
-              <strong>Trial expired.</strong>{" "}
+            <AlertCircle className="h-5 w-5 text-red-600 shrink-0" />
+            <p className="text-red-900 dark:text-red-200 font-medium leading-snug">
+              <strong className="font-extrabold">Trial expired.</strong>{" "}
               {access.freeSpeakingScoringsRemaining !== null && (
-                <span className="text-red-700 dark:text-red-400">
+                <span className="text-red-800 dark:text-red-300">
                   You can still practice Speaking (<strong>{access.freeSpeakingScoringsRemaining}</strong> free AI scorings left today).
                 </span>
               )}{" "}

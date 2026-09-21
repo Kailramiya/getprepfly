@@ -105,7 +105,11 @@ function formatTime(seconds: number): string {
 }
 
 function formatType(t: string): string {
-  return t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+  if (t === "MCQ") return "MCQ";
+  return t
+    .replace(/_/g, " ")
+    .toLowerCase()
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export default function DashboardPage() {
@@ -162,7 +166,7 @@ export default function DashboardPage() {
   ];
 
   return (
-    <div className="space-y-10 pb-12">
+    <div className="space-y-10 pb-32">
       {/* Welcome Header */}
       <div className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div>
@@ -387,18 +391,21 @@ export default function DashboardPage() {
               <span className="text-sm font-medium text-muted-foreground/80">Expected in upcoming exams</span>
             </div>
           </div>
-          <div className="flex flex-wrap gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {data.predictions.map((p) => (
               <Link
                 key={p.type}
                 href={`/practice/${p.section.toLowerCase()}/${p.type.toLowerCase().replace(/_/g, "-")}?prediction=true`}
+                className="flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 hover:bg-amber-500/20 hover:-translate-y-0.5 transition-all duration-300 ease-fluid cursor-pointer"
               >
-                <span className="inline-flex items-center gap-2 rounded-full border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-sm font-bold text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 hover:scale-105 transition-all duration-500 ease-fluid cursor-pointer">
-                  <Zap className="h-4 w-4" />
-                  {p.type.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase())}
-                  <span className="ml-1 flex h-5 w-5 items-center justify-center rounded-full bg-amber-500/20 text-[11px] font-extrabold text-amber-700 dark:text-amber-300">
-                    {p.count}
+                <div className="flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-amber-500 shrink-0" />
+                  <span className="text-sm font-bold text-amber-700 dark:text-amber-300 truncate">
+                    {formatType(p.type)}
                   </span>
+                </div>
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-[11px] font-extrabold text-amber-700 dark:text-amber-300">
+                  {p.count}
                 </span>
               </Link>
             ))}
@@ -430,7 +437,7 @@ export default function DashboardPage() {
         </Card>
       ) : data && data.recentAttempts.length > 0 && (
         <div>
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex items-baseline gap-4">
             <h2 className="text-2xl font-extrabold tracking-tight text-foreground">Recent Practice</h2>
             <Link href="/progress" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors flex items-center gap-1 group">
               View all <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
