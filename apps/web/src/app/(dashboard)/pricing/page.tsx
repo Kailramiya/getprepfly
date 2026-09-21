@@ -242,7 +242,13 @@ export default function PricingPage() {
             >
               {DURATION_LABEL[d]}
               {d !== "1M" && (
-                <span className="rounded-full bg-green-100 px-1.5 py-0.5 text-xs font-semibold text-green-700 dark:bg-green-900/50 dark:text-green-400">
+                <span
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
+                    duration === d
+                      ? "bg-primary-foreground/20 text-primary-foreground"
+                      : "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400"
+                  }`}
+                >
                   {d === "6M" ? "Save 16%" : "Save 25%"}
                 </span>
               )}
