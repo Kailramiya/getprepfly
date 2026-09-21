@@ -23,6 +23,8 @@ const SAMPLE_VOCAB = [
 interface VocabWord {
   word: string;
   meaning: string;
+  meaningHi?: string | null;
+  meaningPa?: string | null;
   example: string;
   category: string | null;
   difficulty: string;
@@ -110,6 +112,12 @@ export default function VocabularyPage() {
                   <>
                     <h2 className="text-2xl font-bold text-indigo-600">{current.word}</h2>
                     <p className="mt-3 text-lg text-gray-700 dark:text-slate-300">{current.meaning}</p>
+                    {(current.meaningHi || current.meaningPa) && (
+                      <div className="mt-3 flex flex-wrap justify-center gap-2">
+                        {current.meaningHi && <Badge variant="outline" className="text-sm bg-orange-500/10 text-orange-700 border-orange-500/20">{current.meaningHi}</Badge>}
+                        {current.meaningPa && <Badge variant="outline" className="text-sm bg-blue-500/10 text-blue-700 border-blue-500/20">{current.meaningPa}</Badge>}
+                      </div>
+                    )}
                     <div className="mt-6 rounded-2xl bg-muted-foreground/5 px-6 py-4 border border-white/5 shadow-inner">
                       <p className="text-sm italic text-muted-foreground/80">&ldquo;{current.example}&rdquo;</p>
                     </div>
@@ -160,7 +168,15 @@ export default function VocabularyPage() {
                     </Badge>
                     {mastered.has(i) && <Check className="h-4 w-4 text-green-500" />}
                   </div>
-                  <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">{v.meaning}</p>
+                  <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
+                    {v.meaning}
+                    {(v.meaningHi || v.meaningPa) && (
+                      <span className="ml-2 inline-flex gap-1.5 align-middle">
+                        {v.meaningHi && <span className="text-orange-600 dark:text-orange-400 font-medium text-xs">({v.meaningHi})</span>}
+                        {v.meaningPa && <span className="text-blue-600 dark:text-blue-400 font-medium text-xs">({v.meaningPa})</span>}
+                      </span>
+                    )}
+                  </p>
                   <p className="mt-1 text-xs italic text-gray-400 dark:text-slate-500">&ldquo;{v.example}&rdquo;</p>
                 </div>
               </CardContent>
