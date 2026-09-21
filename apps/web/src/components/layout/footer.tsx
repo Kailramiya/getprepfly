@@ -41,7 +41,7 @@ export function Footer() {
   ].filter(Boolean) as { icon: any; href: string; label: string }[];
 
   return (
-    <footer className="mt-12 border-t border-border bg-white dark:border-white/10 dark:bg-[#0B0F19] relative z-10 overflow-hidden">
+    <footer className="mt-12 border-t border-border bg-background relative z-10 overflow-hidden">
       {/* Decorative gradient blur in dark mode */}
       <div className="pointer-events-none absolute inset-0 hidden dark:block">
         <div className="absolute -top-[200px] left-1/2 h-[400px] w-[800px] -translate-x-1/2 rounded-full bg-indigo-500/10 blur-[100px]" />
