@@ -92,19 +92,19 @@ export function Topbar({ onMenuClick }: TopbarProps) {
 
         {/* Feedback */}
         <Link href="/feedback">
-          <button className="flex items-center gap-1.5 rounded-full bg-white/5 border border-white/5 px-4 py-1.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:bg-white/10 hover:text-foreground hover:shadow-glass active:scale-[0.98]">
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Feedback</span>
+          <button className="flex items-center justify-center rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3 sm:py-1.5">
+            <MessageSquare className="h-4 w-4 sm:mr-1.5" />
+            <span className="hidden text-sm font-medium sm:inline">Feedback</span>
           </button>
         </Link>
 
         {/* Share */}
         <button 
           onClick={handleShare}
-          className="flex items-center gap-1.5 rounded-full bg-white/5 border border-white/5 px-4 py-1.5 text-xs font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:bg-muted/60 hover:text-foreground hover:shadow-glass active:scale-[0.98]"
+          className="flex items-center justify-center rounded-full p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground sm:px-3 sm:py-1.5"
         >
-          <Share className="h-3.5 w-3.5" />
-          <span className="hidden sm:inline">Share</span>
+          <Share className="h-4 w-4 sm:mr-1.5" />
+          <span className="hidden text-sm font-medium sm:inline">Share</span>
         </button>
 
         {/* Profile Dropdown */}

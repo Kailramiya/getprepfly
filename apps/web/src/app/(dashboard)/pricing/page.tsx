@@ -198,7 +198,7 @@ export default function PricingPage() {
   const durationOptions: Duration[] = ["1M", "6M", "1Y"];
 
   return (
-    <div className="mx-auto max-w-6xl space-y-8">
+    <div className="mx-auto max-w-6xl space-y-8 pb-32">
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
       {/* Header */}
@@ -283,7 +283,7 @@ export default function PricingPage() {
                       <Star className="h-6 w-6" />
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-slate-100">All Modules Bundle</h3>
+                      <h2 className="text-2xl font-bold text-gray-900 dark:text-slate-100">All Modules Bundle</h2>
                       <p className="text-sm text-gray-600 dark:text-slate-400">
                         Everything unlocked — {DURATION_DAYS[duration]} days access
                       </p>
@@ -315,9 +315,9 @@ export default function PricingPage() {
                   </div>
                   {save > 0 && <p className="mt-1 text-xs font-medium text-green-600">Save ₹{save}</p>}
                   {owned ? (
-                    <Button disabled className="mt-4 w-full gap-2 lg:w-auto rounded-full" size="lg">
+                    <div className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-full bg-green-50 px-6 py-3 text-sm font-semibold text-green-700 lg:w-auto dark:bg-green-950/30 dark:text-green-400">
                       <Check className="h-4 w-4" /> Active until {formatExpiry("ALL")}
-                    </Button>
+                    </div>
                   ) : (
                     <Button
                       onClick={() => handlePurchase(bundlePlanId)}
@@ -339,7 +339,7 @@ export default function PricingPage() {
       <div>
         <div className="mb-4 flex items-center gap-3">
           <div className="h-px flex-1 bg-gray-200 dark:bg-slate-700" />
-          <p className="text-sm font-medium text-gray-500 dark:text-slate-400">OR BUY INDIVIDUAL MODULES</p>
+          <p className="text-sm font-medium text-gray-500 dark:text-slate-400">Or buy individual modules</p>
           <div className="h-px flex-1 bg-gray-200 dark:bg-slate-700" />
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -376,11 +376,7 @@ export default function PricingPage() {
                     ))}
                   </ul>
 
-                  {owned ? (
-                    <div className="mt-4 rounded-md bg-white p-2 text-center text-xs text-green-700 dark:bg-slate-700 dark:text-green-300">
-                      Active until {expiry}
-                    </div>
-                  ) : (
+                  {!owned && (
                     <Button
                       onClick={() => handlePurchase(id)}
                       loading={processing === id}
@@ -402,7 +398,7 @@ export default function PricingPage() {
         <CardContent className="flex items-start gap-3 p-5">
           <Lock className="mt-0.5 h-5 w-5 text-gray-400" />
           <div>
-            <h3 className="font-semibold text-gray-900 dark:text-slate-100">Free Tier</h3>
+            <h2 className="font-semibold text-gray-900 dark:text-slate-100">Free Tier</h2>
             <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
               Free users can practice with questions that coaching centres have publicly shared. Purchase a module to unlock the full question bank and AI-powered feedback for that section.
             </p>
