@@ -14,7 +14,7 @@ export default function RefundPolicyPage() {
 
       <p>
         This policy applies to purchases made on {APP_NAME}, operated by
-        [LEGAL ENTITY NAME]. By completing a purchase you agree to the terms below.
+        {APP_NAME}. By completing a purchase you agree to the terms below.
       </p>
 
       <h2>1. Digital nature of the Service</h2>
@@ -25,7 +25,7 @@ export default function RefundPolicyPage() {
       </p>
 
       <h2>2. Refund eligibility</h2>
-      <p>You may request a refund within [7] days of purchase if:</p>
+      <p>You may request a refund within 7 days of purchase if:</p>
       <ul>
         <li>you were charged in error or charged more than once for the same plan; or</li>
         <li>you were unable to access the purchased content due to a technical fault on our side that we could not resolve within a reasonable time; and</li>
@@ -40,13 +40,13 @@ export default function RefundPolicyPage() {
       <p>
         Email us via the <a href="/contact">Contact</a> page with your registered
         email, order/payment ID, and the reason for the request. We aim to respond
-        within [3] business days.
+        within 3 business days.
       </p>
 
       <h2>4. Processing</h2>
       <p>
         Approved refunds are issued to the original payment method via Razorpay and
-        typically settle within [5–7] business days, depending on your bank.
+        typically settle within 5–7 business days, depending on your bank.
       </p>
 
       <h2>5. Cancellations</h2>

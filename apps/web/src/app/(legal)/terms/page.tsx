@@ -3,8 +3,7 @@ import { APP_NAME } from "@/lib/constants";
 
 export const metadata: Metadata = { title: `Terms of Service — ${APP_NAME}` };
 
-// NOTE FOR OWNER: replace every [PLACEHOLDER] with your registered legal details
-// and have this reviewed by a lawyer before going live. This is a starting draft,
+// NOTE FOR OWNER: Have this reviewed by a lawyer before going live. This is a starting draft,
 // not legal advice.
 export default function TermsPage() {
   return (
@@ -14,8 +13,7 @@ export default function TermsPage() {
 
       <p>
         These Terms of Service (&quot;Terms&quot;) govern your access to and use of {APP_NAME}
-        (the &quot;Service&quot;), operated by [LEGAL ENTITY NAME], [REGISTERED ADDRESS, CITY,
-        STATE, INDIA] (&quot;we&quot;, &quot;us&quot;). By creating an account or using the Service,
+        (the &quot;Service&quot;), operated by {APP_NAME} (&quot;we&quot;, &quot;us&quot;). By creating an account or using the Service,
         you agree to these Terms.
       </p>
 
@@ -77,7 +75,7 @@ export default function TermsPage() {
       <h2>8. Governing law</h2>
       <p>
         These Terms are governed by the laws of India. Disputes are subject to the
-        exclusive jurisdiction of the courts of [CITY], [STATE].
+        exclusive jurisdiction of the courts of India.
       </p>
 
       <h2>9. Contact</h2>

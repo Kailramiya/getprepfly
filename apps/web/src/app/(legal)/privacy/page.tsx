@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <p><em>Last updated: 18 June 2026</em></p>
 
       <p>
-        This Privacy Policy explains how {APP_NAME}, operated by [LEGAL ENTITY NAME]
+        This Privacy Policy explains how {APP_NAME}
         (&quot;we&quot;), collects, uses, and protects your personal data when you use our
         Service. We process data in accordance with applicable Indian law,
         including the Digital Personal Data Protection Act, 2023.
@@ -39,7 +39,7 @@ export default function PrivacyPage() {
       <ul>
         <li><strong>OpenAI</strong> — audio/text you submit for AI scoring is sent for processing.</li>
         <li><strong>Razorpay</strong> — payment processing.</li>
-        <li><strong>Hosting &amp; storage</strong> — [HOSTING PROVIDER, e.g. Vercel], blob/object storage for media.</li>
+        <li><strong>Hosting &amp; storage</strong> — Vercel, blob/object storage for media.</li>
         <li><strong>Email</strong> — our transactional email provider.</li>
       </ul>
 
