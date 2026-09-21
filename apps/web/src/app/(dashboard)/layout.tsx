@@ -33,8 +33,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Main content */}
       <div className="transition-all duration-500 ease-fluid lg:pl-[280px]">
-        <Topbar onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
         <TrialBanner />
+        <Topbar onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
         <main className="p-4 sm:p-6 lg:p-12 xl:p-16 2xl:px-24 2xl:py-20">{children}</main>
         <Footer />
       </div>

@@ -63,7 +63,7 @@ export function Topbar({ onMenuClick }: TopbarProps) {
   }, []);
 
   return (
-    <header className="sticky top-6 z-30 mx-4 sm:mx-6 lg:mx-8 flex h-14 items-center justify-between rounded-full border border-white/10 bg-background/70 px-4 backdrop-blur-2xl shadow-glass dark:shadow-glass-dark transition-all duration-500 ease-fluid">
+    <header className="sticky top-6 z-30 mt-6 mx-4 sm:mx-6 lg:mx-8 flex h-14 items-center justify-between rounded-full border border-white/10 bg-background/70 px-4 backdrop-blur-2xl shadow-glass dark:shadow-glass-dark transition-all duration-500 ease-fluid">
       {/* Left — mobile menu + centre name */}
       <div className="flex items-center gap-3">
         <button
