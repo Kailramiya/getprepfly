@@ -5,7 +5,7 @@ import {
   BookOpen, Mic, Headphones, PenTool, BarChart3, Users, Zap, Sparkles, Target,
   BookMarked, Languages, ShieldCheck, Smartphone, ClipboardList, Flag, TrendingUp,
   FileText, Building2, Megaphone, GraduationCap, CheckCircle2, Brain, Layers, Crown,
-  Download, Globe2, Clock, Award
+  Download, Globe2, Clock, Award, Check
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
@@ -216,10 +216,21 @@ const centreFeatures = [
 ];
 
 const whyPrepflyFeatures = [
-  { icon: Languages, title: "Regional Languages", desc: "Interface and instant word meanings fully supported in Hindi and Punjabi." },
-  { icon: TrendingUp, title: "Weekly Predictions", desc: "Practice the exact questions most likely to appear in your upcoming exam." },
-  { icon: Building2, title: "Coaching Tools", desc: "Manage batches, assign tests, and apply your own white-label branding." },
-  { icon: CheckCircle2, title: "Clear Pricing", desc: "A price that's clearly listed with no hidden VIP credits or surprises." },
+  { icon: Languages, title: "Your language", desc: "Interface and instant word meanings in English, Hindi and Punjabi." },
+  { icon: TrendingUp, title: "Weekly predictions", desc: "Practise the high-frequency questions most likely to appear, updated every week." },
+  { icon: Building2, title: "Built for coaching centres", desc: "Batches, assigned mock tests, teacher accounts and your own branding." },
+  { icon: CheckCircle2, title: "Clear pricing", desc: "Full access from ₹599/month. Single sections from ₹249/month. See every price before you sign up." },
+];
+
+const buyerChecklist = [
+  { q: "Does the feedback explain your mistakes, or just give a score?", a: "Word-level pronunciation and fluency feedback on Speaking. Inline corrections on Writing." },
+  { q: "Is your language supported?", a: "English, Hindi and Punjabi interface, with word meanings in all three." },
+  { q: "Does it cover every question type?", a: "20+ types across Speaking, Writing, Reading and Listening." },
+  { q: "Are mock tests timed like the real exam?", a: "Full and sectional mocks with a 0-90 estimate per skill." },
+  { q: "Are predictions included?", a: "Weekly predictions of high-frequency questions." },
+  { q: "Can a coaching centre run batches on it?", a: "Batches, assigned tests, teacher accounts and student analytics. Branding options depend on the plan." },
+  { q: "Do you see the price before you commit?", a: "Prices are on this page. Full access from ₹599/month." },
+  { q: "Can you try it before paying?", a: "Free plan: 3-day full access, then 3 AI-scored attempts a day." },
 ];
 
 const steps = [
@@ -270,6 +281,7 @@ export default async function HomePage() {
           <div className="mx-auto flex h-12 items-center justify-between px-4">
             <Link href="/" className="hover:scale-105 transition-transform duration-500 ease-fluid"><Logo size="sm" /></Link>
             <div className="hidden items-center gap-8 md:flex">
+              <Link href="#why-prepfly" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Why PrepFly</Link>
               <Link href="#skills" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Question Types</Link>
               <Link href="#features" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Features</Link>
               <Link href="#centres" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">For Centres</Link>
@@ -337,75 +349,89 @@ export default async function HomePage() {
         </section>
 
         {/* Why PrepFly? */}
-        <section className="py-32 sm:py-40 bg-background border-t border-white/5">
+        <section id="why-prepfly" className="py-32 sm:py-40 bg-background border-t border-white/5">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
-              <div className="mx-auto mb-6 inline-flex rounded-full bg-teal-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-600 dark:text-teal-400 ring-1 ring-teal-500/20">The PrepFly Advantage</div>
-              <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-5xl">Why choose PrepFly?</h2>
+              <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-5xl">What to look for in a PTE practice platform</h2>
               <p className="mt-6 text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
-                Built specifically for students and coaching centres who demand more transparency, better tools, and localized support.
+                Before you pay for any PTE prep tool, ask these questions. Here's how PrepFly answers each one.
               </p>
             </div>
 
             {/* Highlights Grid */}
-            <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
               {whyPrepflyFeatures.map((f) => (
                 <div key={f.title} className="group rounded-[2rem] border border-white/5 bg-card/50 p-1 shadow-glass dark:shadow-glass-dark transition-all duration-700 ease-fluid hover:shadow-float">
-                  <div className="h-full rounded-[calc(2rem-0.25rem)] bg-card p-6 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] transition-colors duration-500 hover:bg-white/5">
-                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-300">
+                  <div className="h-full rounded-[calc(2rem-0.25rem)] bg-card p-6 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] transition-colors duration-500 hover:bg-white/5 flex flex-col items-center sm:flex-row sm:text-left sm:gap-6 sm:p-8">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-300 mb-4 sm:mb-0">
                       <f.icon className="h-6 w-6" />
                     </div>
-                    <h3 className="mt-6 text-lg font-bold text-foreground">{f.title}</h3>
-                    <p className="mt-2 text-sm text-muted-foreground font-medium leading-relaxed">{f.desc}</p>
+                    <div>
+                      <h3 className="text-lg font-bold text-foreground">{f.title}</h3>
+                      <p className="mt-2 text-sm text-muted-foreground font-medium leading-relaxed">{f.desc}</p>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Comparison Table */}
-            <div className="mt-24 mx-auto max-w-5xl">
-              <div className="rounded-[2rem] border border-white/5 bg-card/60 p-1 backdrop-blur-2xl shadow-glass dark:shadow-glass-dark">
-                <div className="rounded-[calc(2rem-0.25rem)] bg-card overflow-hidden">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left border-collapse">
-                      <thead>
-                        <tr>
-                          <th className="w-1/3 p-6 text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 bg-background/50">Feature</th>
-                          <th className="w-1/5 p-6 text-sm font-bold uppercase tracking-wider text-foreground border-b border-border/50 bg-teal-500/5 text-center">PrepFly</th>
-                          <th className="w-1/5 p-6 text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 text-center">APEUni</th>
-                          <th className="w-1/5 p-6 text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 text-center">Typical Platform</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border/50 text-sm font-medium">
-                        <tr className="transition-colors hover:bg-white/5">
-                          <td className="p-6 text-foreground font-semibold">Interface in Hindi & Punjabi</td>
-                          <td className="p-6 text-center bg-teal-500/5 text-teal-600 dark:text-teal-400 font-bold">✅ Yes</td>
-                          <td className="p-6 text-center text-muted-foreground">❌ English / Chinese only</td>
-                          <td className="p-6 text-center text-muted-foreground">❌ English only</td>
-                        </tr>
-                        <tr className="transition-colors hover:bg-white/5">
-                          <td className="p-6 text-foreground font-semibold">Weekly Exam Predictions</td>
-                          <td className="p-6 text-center bg-teal-500/5 text-teal-600 dark:text-teal-400 font-bold">✅ Included</td>
-                          <td className="p-6 text-center text-foreground font-bold">✅ Included</td>
-                          <td className="p-6 text-center text-muted-foreground">❌ Paid extra / None</td>
-                        </tr>
-                        <tr className="transition-colors hover:bg-white/5">
-                          <td className="p-6 text-foreground font-semibold">White-label Coaching Tools</td>
-                          <td className="p-6 text-center bg-teal-500/5 text-teal-600 dark:text-teal-400 font-bold">✅ Batches & Branding</td>
-                          <td className="p-6 text-center text-muted-foreground">❌ Basic / No white-label</td>
-                          <td className="p-6 text-center text-muted-foreground">❌ None</td>
-                        </tr>
-                        <tr className="transition-colors hover:bg-white/5">
-                          <td className="p-6 text-foreground font-semibold">Pricing Transparency</td>
-                          <td className="p-6 text-center bg-teal-500/5 text-teal-600 dark:text-teal-400 font-bold">✅ Clear (From ₹249/mo)</td>
-                          <td className="p-6 text-center text-orange-500">⚠️ Hidden VIP Subscriptions</td>
-                          <td className="p-6 text-center text-muted-foreground">❌ Hidden / Expensive</td>
-                        </tr>
-                      </tbody>
-                    </table>
+            {/* Checklist Table (Mobile: Cards, Desktop: Table) */}
+            <div className="mt-24 mx-auto max-w-4xl">
+              {/* Mobile View */}
+              <div className="md:hidden space-y-4">
+                {buyerChecklist.map((item, idx) => (
+                  <div key={idx} className="rounded-2xl border border-border/50 bg-card p-6 shadow-sm">
+                    <p className="font-semibold text-foreground">{item.q}</p>
+                    <div className="mt-4 flex items-start gap-3 rounded-xl bg-teal-500/5 p-4 ring-1 ring-teal-500/20">
+                      <Check className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" aria-label="Yes" />
+                      <p className="text-sm font-medium text-teal-900 dark:text-teal-100">{item.a}</p>
+                    </div>
                   </div>
+                ))}
+              </div>
+
+              {/* Desktop View */}
+              <div className="hidden md:block rounded-[2rem] border border-white/5 bg-card/60 p-1 backdrop-blur-2xl shadow-glass dark:shadow-glass-dark">
+                <div className="rounded-[calc(2rem-0.25rem)] bg-card overflow-hidden">
+                  <table className="w-full text-left border-collapse table-fixed">
+                    <thead>
+                      <tr>
+                        <th className="w-1/2 p-6 text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 bg-background/50">Ask this</th>
+                        <th className="w-1/2 p-6 text-sm font-bold uppercase tracking-wider text-teal-700 dark:text-teal-300 border-b border-border/50 bg-teal-500/10">PrepFly</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border/50 text-sm font-medium">
+                      {buyerChecklist.map((item, idx) => (
+                        <tr key={idx} className="transition-colors hover:bg-white/5">
+                          <td className="p-6 text-foreground font-semibold leading-relaxed align-top">{item.q}</td>
+                          <td className="p-6 bg-teal-500/5 align-top">
+                            <div className="flex items-start gap-3">
+                              <Check className="h-5 w-5 text-teal-600 dark:text-teal-400 shrink-0 mt-0.5" aria-label="Yes" />
+                              <span className="text-teal-950 dark:text-teal-50 leading-relaxed">{item.a}</span>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
+
+              <div className="mt-12 flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
+                <Link href="/register">
+                  <Button size="xl" className="rounded-full bg-foreground text-background shadow-glass hover:shadow-float font-bold tracking-wide transition-all duration-300 hover:-translate-y-1 hover:bg-foreground/90">
+                    Start Free
+                  </Button>
+                </Link>
+                <Link href="/pricing">
+                  <Button variant="outline" size="xl" className="rounded-full shadow-sm hover:shadow-md transition-all duration-300 font-bold tracking-wide hover:-translate-y-1">
+                    See Pricing
+                  </Button>
+                </Link>
+              </div>
+              <p className="mt-6 text-center text-xs font-medium text-muted-foreground">
+                Features and prices as of {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}.
+              </p>
             </div>
           </div>
         </section>
