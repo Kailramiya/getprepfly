@@ -248,24 +248,40 @@ const stats = [
 
 const faqItems: FAQItem[] = [
   {
+    question: "What does the free plan include?",
+    answer: "When you sign up, you get a 3-day free trial with full access to all premium features. After that, you remain on the free tier which gives you 3 AI-scored attempts every single day, with no credit card required."
+  },
+  {
+    question: "How accurate is the AI scoring?",
+    answer: "Our AI engines are calibrated specifically to Pearson's official scoring criteria. When you practice, the AI analyzes your fluency, word-level pronunciation, grammar, and content matching to give you a highly accurate 10-90 score that mirrors the real exam."
+  },
+  {
+    question: "Can I get a refund?",
+    answer: "Yes. We offer a simple refund policy if you are not satisfied with the platform. You can read the full details and conditions in our Refund & Cancellation policy linked at the bottom of the page."
+  },
+  {
+    question: "Which payment methods do you accept?",
+    answer: "We securely accept all major payment methods including UPI (Google Pay, PhonePe, Paytm), Credit/Debit cards, and Net Banking."
+  },
+  {
+    question: "How is PrepFly different from APEUni?",
+    answer: "PrepFly is designed with a focus on usability and local support. We offer word meanings and interfaces in Hindi and Punjabi, completely transparent pricing with no hidden VIP tiers, and powerful built-in tools specifically for coaching centres."
+  },
+  {
+    question: "Do I need to install an app?",
+    answer: "No app store installation is required. PrepFly is a Progressive Web App (PWA). You can use it instantly in your browser on desktop, or tap 'Add to Home Screen' on your mobile browser to use it just like a native app."
+  },
+  {
+    question: "Can my coaching centre use PrepFly?",
+    answer: "Absolutely! We offer dedicated plans for coaching centres starting from just ₹1,199/month. You get your own dashboard to create batches, assign mock tests, track student progress, and add your own branding."
+  },
+  {
     question: "What is the PTE Academic test?",
     answer: "The Pearson Test of English Academic (PTE Academic) is a computer-based English language test accepted by educational institutions and governments around the world. It assesses Reading, Writing, Listening and Speaking in a single 2-hour session."
   },
   {
-    question: "Is there a free trial?",
-    answer: "Yes! When you sign up, you automatically receive a 3-day free trial that gives you full access to all premium features, including AI speaking scoring and detailed writing feedback."
-  },
-  {
     question: "PTE vs IELTS: What is the difference?",
     answer: "Unlike IELTS which has a human examiner for speaking, PTE is entirely computer-scored, making it highly objective and unbiased. PTE also delivers results much faster (typically within 48 hours) and is completed in a single 2-hour sitting."
-  },
-  {
-    question: "How does the AI scoring work?",
-    answer: "Our AI engines are calibrated specifically to Pearson's scoring criteria. When you record a Read Aloud or Describe Image, the AI analyzes your fluency, pronunciation at the word level, and content matching to give you an accurate 10-90 score."
-  },
-  {
-    question: "Can I use PrepFly on my phone?",
-    answer: "Absolutely. PrepFly is a Progressive Web App (PWA). You can 'Install' it directly from your browser menu to your mobile home screen and use it just like a native app."
   }
 ];
 
