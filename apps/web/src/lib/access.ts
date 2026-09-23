@@ -3,10 +3,10 @@ import { db } from "./db";
 export type PTESection = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
 // TRIAL DURATIONS
-export const STUDENT_TRIAL_DAYS = 0;
+export const STUDENT_TRIAL_DAYS = 3;
 export const CENTRE_TRIAL_DAYS = 0;
 // DAILY FREE SPEAKING SCORINGS (after trial, for non-premium users)
-export const FREE_DAILY_SPEAKING_SCORINGS = 7;
+export const FREE_DAILY_SPEAKING_SCORINGS = 3;
 
 export interface UserAccess {
   hasAllAccess: boolean;
@@ -207,7 +207,7 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
   // Other modules stay locked — only public questions visible
   baseResult.reason = isCentreAdmin
     ? "Centre trial expired — please purchase a plan"
-    : "Trial expired — Speaking is free to practice (7 AI scorings/day). Other modules need purchase.";
+    : "Trial expired — Speaking is free to practice (3 AI scorings/day). Other modules need purchase.";
   return baseResult;
 }
 

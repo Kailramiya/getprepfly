@@ -53,7 +53,7 @@ const MONTHLY_PLANS = [
   {
     key: "CENTRE_STARTER",
     name: "Starter",
-    price: 2999,
+    price: 24999,
     maxStudents: 50,
     studentLabel: "Up to 50 students",
     color: "from-teal-500 to-teal-600",
@@ -70,7 +70,7 @@ const MONTHLY_PLANS = [
   {
     key: "CENTRE_GROWTH",
     name: "Growth",
-    price: 6999,
+    price: 59999,
     maxStudents: 150,
     studentLabel: "Up to 150 students",
     color: "from-indigo-500 to-purple-600",
@@ -88,7 +88,7 @@ const MONTHLY_PLANS = [
   {
     key: "CENTRE_PRO",
     name: "Pro",
-    price: 14999,
+    price: 129999,
     maxStudents: 500,
     studentLabel: "Up to 500 students",
     color: "from-amber-500 to-orange-600",
@@ -109,7 +109,7 @@ const ANNUAL_PLANS = [
   {
     key: "ANNUAL_STARTER",
     name: "Starter",
-    price: 11999,
+    price: 39999,
     maxStudents: 65,
     studentLabel: "50 Students + 15 Bonus",
     color: "from-teal-500 to-teal-600",
@@ -126,7 +126,7 @@ const ANNUAL_PLANS = [
   {
     key: "ANNUAL_GROWTH",
     name: "Growth",
-    price: 29999,
+    price: 89999,
     maxStudents: 180,
     studentLabel: "150 Students + 30 Bonus",
     color: "from-indigo-500 to-purple-600",
@@ -142,15 +142,15 @@ const ANNUAL_PLANS = [
     ],
   },
   {
-    key: "ANNUAL_UNLIMITED",
-    name: "Unlimited",
-    price: 79999,
-    maxStudents: -1,
-    studentLabel: "Unlimited Students",
+    key: "ANNUAL_SCALE",
+    name: "Scale",
+    price: 199999,
+    maxStudents: 500,
+    studentLabel: "Up to 500 Students",
     color: "from-amber-500 to-orange-600",
     badge: "Best Value" as string | null,
     features: [
-      "Unlimited students",
+      "Up to 500 students",
       "All 4 modules for all students",
       "AI scoring — all question types",
       "Full analytics + centre branding",

@@ -25,17 +25,17 @@ interface AccessData {
   freeSpeakingScoringsRemaining?: number | null;
 }
 
-type Duration = "1M" | "6M" | "1Y";
+type Duration = "1M" | "3M" | "6M" | "1Y";
 
-const DURATION_SUFFIX: Record<Duration, string> = { "1M": "", "6M": "_6M", "1Y": "_1Y" };
-const DURATION_LABEL: Record<Duration, string>  = { "1M": "1 Month", "6M": "6 Months", "1Y": "1 Year" };
-const DURATION_DAYS: Record<Duration, number>   = { "1M": 30, "6M": 180, "1Y": 365 };
+const DURATION_SUFFIX: Record<Duration, string> = { "1M": "", "3M": "_3M", "6M": "_6M", "1Y": "_1Y" };
+const DURATION_LABEL: Record<Duration, string>  = { "1M": "1 Month", "3M": "3 Months", "6M": "6 Months", "1Y": "1 Year" };
+const DURATION_DAYS: Record<Duration, number>   = { "1M": 30, "3M": 90, "6M": 180, "1Y": 365 };
 
 const BASE_PLANS = [
   {
     baseId: "MODULE_SPEAKING",
     title: "Speaking Module",
-    defaultPrice: { "1M": 199, "6M": 999, "1Y": 1799 },
+    defaultPrice: { "1M": 249, "3M": 649, "6M": 1099, "1Y": 1799 },
     icon: Mic,
     color: "from-teal-500 to-teal-600",
     features: [
@@ -49,7 +49,7 @@ const BASE_PLANS = [
   {
     baseId: "MODULE_WRITING",
     title: "Writing Module",
-    defaultPrice: { "1M": 199, "6M": 999, "1Y": 1799 },
+    defaultPrice: { "1M": 249, "3M": 649, "6M": 1099, "1Y": 1799 },
     icon: PenTool,
     color: "from-blue-500 to-blue-600",
     features: [
@@ -62,7 +62,7 @@ const BASE_PLANS = [
   {
     baseId: "MODULE_READING",
     title: "Reading Module",
-    defaultPrice: { "1M": 199, "6M": 999, "1Y": 1799 },
+    defaultPrice: { "1M": 249, "3M": 649, "6M": 1099, "1Y": 1799 },
     icon: BookOpen,
     color: "from-purple-500 to-purple-600",
     features: [
@@ -75,7 +75,7 @@ const BASE_PLANS = [
   {
     baseId: "MODULE_LISTENING",
     title: "Listening Module",
-    defaultPrice: { "1M": 199, "6M": 999, "1Y": 1799 },
+    defaultPrice: { "1M": 249, "3M": 649, "6M": 1099, "1Y": 1799 },
     icon: Headphones,
     color: "from-orange-500 to-orange-600",
     features: [
@@ -195,7 +195,7 @@ export default function PricingPage() {
     return new Date(expiry).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
   };
 
-  const durationOptions: Duration[] = ["1M", "6M", "1Y"];
+  const durationOptions: Duration[] = ["1M", "3M", "6M", "1Y"];
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 pb-32">
@@ -249,7 +249,7 @@ export default function PricingPage() {
                       : "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400"
                   }`}
                 >
-                  {d === "6M" ? "Save 16%" : "Save 25%"}
+                  {d === "3M" ? "Most Popular" : d === "6M" ? "Save 25%" : "Save 37%"}
                 </span>
               )}
             </button>
@@ -268,7 +268,7 @@ export default function PricingPage() {
         const bundleBaseId = "ALL_MODULES";
         const bundlePlanId = planId(bundleBaseId);
         const modulePrice  = planPrice("MODULE_SPEAKING", BASE_PLANS[0].defaultPrice[duration]);
-        const bundlePrice  = planPrice(bundleBaseId, { "1M": 599, "6M": 2999, "1Y": 4999 }[duration]);
+        const bundlePrice  = planPrice(bundleBaseId, { "1M": 599, "3M": 1499, "6M": 2699, "1Y": 4499 }[duration]);
         const separately   = modulePrice * 4;
         const save         = separately - bundlePrice;
         const owned        = access?.hasAllAccess ?? false;
