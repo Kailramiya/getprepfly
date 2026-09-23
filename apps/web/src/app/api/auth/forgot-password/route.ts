@@ -36,6 +36,11 @@ export async function POST(req: NextRequest) {
 
   const resetUrl = `${process.env.NEXTAUTH_URL}/reset-password?token=${token}`;
 
+  // Log in development so you don't need to configure an email provider to test it
+  if (process.env.NODE_ENV !== "production") {
+    console.log("[DEV] Password Reset URL:", resetUrl);
+  }
+
   await sendEmail({
     to: normalizedEmail,
     subject: "Reset your Prepfly password",
