@@ -17,12 +17,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export const metadata: Metadata = {
   title: "PrepFly — AI-Powered PTE Academic Practice Platform",
   description:
-    "Score 79+ in PTE Academic with PrepFly. Practice all 20+ question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback, full mock tests, predictions, vocabulary and progress analytics. Free during beta.",
+    "Score 79+ in PTE Academic with PrepFly. Practice all 20+ question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback, full mock tests, predictions, vocabulary and progress analytics.",
   alternates: { canonical: "https://getprepfly.com" },
   openGraph: {
     title: "PrepFly — AI-Powered PTE Academic Practice Platform",
     description:
-      "Score 79+ in PTE Academic with PrepFly. All 20+ question types, AI scoring, mock tests, predictions, vocabulary & analytics. Free during beta.",
+      "Score 79+ in PTE Academic with PrepFly. All 20+ question types, AI scoring, mock tests, predictions, vocabulary & analytics.",
     url: "https://getprepfly.com",
     type: "website",
     images: [
@@ -103,7 +103,7 @@ const jsonLd = {
         "@type": "Offer",
         price: "0",
         priceCurrency: "INR",
-        description: "Free during beta — all features unlocked",
+        description: "Start with a 3-day free trial — all features unlocked",
         availability: "https://schema.org/InStock",
       },
       aggregateRating: {
@@ -143,7 +143,7 @@ const jsonLd = {
           name: "Is PrepFly free?",
           acceptedAnswer: {
             "@type": "Answer",
-            text: "Yes, PrepFly is completely free during the beta phase. All features including AI scoring, mock tests, vocabulary and analytics are fully unlocked.",
+            text: "PrepFly offers a 3-day free trial that gives you full access to all premium features including AI scoring, mock tests, vocabulary and analytics.",
           },
         },
         {
@@ -216,7 +216,7 @@ const centreFeatures = [
 ];
 
 const steps = [
-  { n: "1", title: "Create your free account", desc: "Sign up in under a minute — no credit card needed during beta." },
+  { n: "1", title: "Create your free account", desc: "Sign up in under a minute — start your 3-day free trial instantly." },
   { n: "2", title: "Practice with instant AI feedback", desc: "Attempt any of 20+ question types and get scored immediately." },
   { n: "3", title: "Mock test & track your band", desc: "Take full mock tests and watch your skill scores climb." },
 ];
@@ -234,8 +234,8 @@ const faqItems: FAQItem[] = [
     answer: "The Pearson Test of English Academic (PTE Academic) is a computer-based English language test accepted by educational institutions and governments around the world. It assesses Reading, Writing, Listening and Speaking in a single 2-hour session."
   },
   {
-    question: "Is PrepFly completely free?",
-    answer: "Yes! PrepFly is currently in its beta phase, which means all of our premium features — including AI speaking scoring, detailed writing feedback, and full mock tests — are completely free to use."
+    question: "Is there a free trial?",
+    answer: "Yes! When you sign up, you automatically receive a 3-day free trial that gives you full access to all premium features, including AI speaking scoring and detailed writing feedback."
   },
   {
     question: "PTE vs IELTS: What is the difference?",
