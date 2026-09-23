@@ -591,6 +591,95 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Pricing */}
+        <section id="pricing" className="py-32 sm:py-40 bg-background">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <div className="mx-auto mb-6 inline-flex rounded-full bg-teal-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-600 dark:text-teal-400 ring-1 ring-teal-500/20">Plans</div>
+              <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-5xl">Simple, transparent pricing</h2>
+              <p className="mt-6 text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
+                Start for free, upgrade when you need unlimited access.
+              </p>
+            </div>
+
+            <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {/* Free */}
+              <div className="flex flex-col rounded-[2rem] border border-border/50 bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h3 className="text-2xl font-bold text-foreground">Free</h3>
+                <div className="mt-4 flex items-baseline text-5xl font-extrabold text-foreground">
+                  ₹0
+                </div>
+                <p className="mt-6 text-sm font-medium text-muted-foreground">Limited AI-scored attempts</p>
+                <div className="mt-auto pt-8">
+                  <Link href="/register">
+                    <Button variant="outline" size="lg" className="w-full rounded-full font-bold">Get Started</Button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* 1 Month */}
+              <div className="flex flex-col rounded-[2rem] border border-border/50 bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h3 className="text-2xl font-bold text-foreground">1 month</h3>
+                <div className="mt-4 flex items-baseline text-5xl font-extrabold text-foreground">
+                  ₹599
+                </div>
+                <p className="mt-6 text-sm font-medium text-muted-foreground">Full access to all features</p>
+                <div className="mt-auto pt-8">
+                  <Link href="/register">
+                    <Button variant="outline" size="lg" className="w-full rounded-full font-bold">Start 1 Month</Button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* 3 Months */}
+              <div className="relative flex flex-col rounded-[2rem] border-2 border-teal-500 bg-teal-500/5 p-8 shadow-md transform md:-translate-y-4">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 rounded-full bg-teal-500 px-4 py-1 text-xs font-bold text-white uppercase tracking-wider shadow-sm">
+                  Most popular
+                </div>
+                <h3 className="text-2xl font-bold text-teal-900 dark:text-teal-50">3 months</h3>
+                <div className="mt-4 flex items-baseline text-5xl font-extrabold text-teal-950 dark:text-teal-100">
+                  ₹1,499
+                </div>
+                <p className="mt-6 text-sm font-medium text-teal-800/80 dark:text-teal-200/80">Full access to all features</p>
+                <div className="mt-auto pt-8">
+                  <Link href="/register">
+                    <Button size="lg" className="w-full rounded-full font-bold bg-teal-600 text-white hover:bg-teal-700 shadow-sm">Start 3 Months</Button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* 1 Year */}
+              <div className="flex flex-col rounded-[2rem] border border-border/50 bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-md">
+                <h3 className="text-2xl font-bold text-foreground">1 year</h3>
+                <div className="mt-4 flex items-baseline text-5xl font-extrabold text-foreground">
+                  ₹4,499
+                </div>
+                <p className="mt-6 text-sm font-medium text-muted-foreground">Full access to all features</p>
+                <div className="mt-auto pt-8">
+                  <Link href="/register">
+                    <Button variant="outline" size="lg" className="w-full rounded-full font-bold">Start 1 Year</Button>
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-16 text-center flex flex-col items-center gap-6">
+              <Link href="/pricing" className="text-sm font-bold text-teal-600 dark:text-teal-400 hover:underline">
+                Single-module pricing from ₹249 &rarr;
+              </Link>
+              
+              <div className="flex flex-col gap-2 items-center text-xs font-medium text-muted-foreground">
+                <p>Prices include GST. Accepted payment methods: UPI, Credit/Debit cards, Net Banking.</p>
+                <Link href="/refunds" className="underline hover:text-foreground transition-colors">Read our refund policy</Link>
+              </div>
+
+              <Link href="#centres" className="mt-4 text-sm font-semibold text-muted-foreground hover:text-foreground transition-all duration-300 border border-border/50 rounded-full px-6 py-2.5 hover:bg-white/5 hover:border-white/20">
+                For coaching centres, from ₹1,199/month
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* For Centres */}
         <section id="centres" className="relative overflow-hidden py-32 sm:py-40 bg-slate-50 dark:bg-slate-900/20 border-y border-border/50">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.1),transparent_70%)]"></div>
