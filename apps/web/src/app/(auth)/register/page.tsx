@@ -290,7 +290,9 @@ function RegisterForm() {
                 className="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10"
               >
                 {COUNTRY_CODES.map((c) => (
-                  <option key={c.label} value={c.code} className="bg-background text-foreground">{c.label}</option>
+                  <option key={c.label} value={c.code} className="bg-background text-foreground">
+                    {c.name} ({c.code})
+                  </option>
                 ))}
               </select>
               <div className="h-14 rounded-xl border border-white/5 shadow-inner bg-background/50 backdrop-blur-md text-foreground py-2 pl-4 pr-3 text-base font-medium flex items-center justify-between pointer-events-none">
