@@ -499,31 +499,30 @@ export default async function HomePage() {
         </section>
 
         {/* For Centres */}
-        <section id="centres" className="relative overflow-hidden py-32 sm:py-40">
-          <div className="absolute inset-0 bg-foreground"></div>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(20,184,166,0.15),transparent_50%)]"></div>
+        <section id="centres" className="relative overflow-hidden py-32 sm:py-40 bg-slate-50 dark:bg-slate-900/20 border-y border-border/50">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.1),transparent_70%)]"></div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-background/10 text-background shadow-glass backdrop-blur-md">
+              <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-teal-100 text-teal-600 dark:bg-teal-500/10 dark:text-teal-400 shadow-sm ring-1 ring-teal-500/20">
                 <Building2 className="h-8 w-8" />
               </div>
-              <h2 className="text-4xl font-extrabold tracking-tighter text-background sm:text-5xl">Built for coaching centres too</h2>
-              <p className="mt-6 text-xl font-medium text-background/70">
+              <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-5xl">Built for coaching centres too</h2>
+              <p className="mt-6 text-xl font-medium text-muted-foreground">
                 Run your PTE coaching on Prepfly — your brand, your students, your batches.
               </p>
             </div>
-            <div className="mx-auto mt-20 grid max-w-5xl gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mx-auto mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {centreFeatures.map((f) => (
-                <div key={f.title} className="rounded-[1.5rem] bg-background/5 p-6 ring-1 ring-background/10 backdrop-blur-md hover:bg-background/10 transition-colors duration-500">
-                  <f.icon className="h-6 w-6 text-teal-500" />
-                  <h3 className="mt-4 text-sm font-bold tracking-wide text-background">{f.title}</h3>
-                  <p className="mt-2 text-xs font-medium text-background/60 leading-relaxed">{f.desc}</p>
+                <div key={f.title} className="group rounded-[1.5rem] bg-background p-6 ring-1 ring-border shadow-sm hover:shadow-md hover:ring-teal-500/30 transition-all duration-300">
+                  <f.icon className="h-6 w-6 text-teal-600 dark:text-teal-400 mb-4 group-hover:scale-110 transition-transform duration-300" />
+                  <h3 className="text-base font-bold tracking-tight text-foreground">{f.title}</h3>
+                  <p className="mt-2 text-sm font-medium text-muted-foreground leading-relaxed">{f.desc}</p>
                 </div>
               ))}
             </div>
             <div className="mt-16 text-center">
               <Link href="/register?role=centre">
-                <Button size="xl" className="rounded-full bg-background text-foreground shadow-glass hover:shadow-float font-bold tracking-wide transition-all duration-700 ease-fluid hover:scale-105">Register Your Centre</Button>
+                <Button size="xl" className="rounded-full bg-foreground text-background shadow-md hover:shadow-lg font-bold tracking-wide transition-all duration-300 hover:-translate-y-1 hover:bg-foreground/90">Register Your Centre</Button>
               </Link>
             </div>
           </div>
