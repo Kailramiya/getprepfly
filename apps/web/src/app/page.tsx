@@ -215,6 +215,13 @@ const centreFeatures = [
   { icon: BookOpen, title: "Question bank", desc: "Add your own questions plus the shared global bank." },
 ];
 
+const whyPrepflyFeatures = [
+  { icon: Languages, title: "Regional Languages", desc: "Interface and instant word meanings fully supported in Hindi and Punjabi." },
+  { icon: TrendingUp, title: "Weekly Predictions", desc: "Practice the exact questions most likely to appear in your upcoming exam." },
+  { icon: Building2, title: "Coaching Tools", desc: "Manage batches, assign tests, and apply your own white-label branding." },
+  { icon: CheckCircle2, title: "Clear Pricing", desc: "A price that's clearly listed with no hidden VIP credits or surprises." },
+];
+
 const steps = [
   { n: "1", title: "Create your free account", desc: "Sign up in under a minute — start your 3-day free trial instantly." },
   { n: "2", title: "Practice with instant AI feedback", desc: "Attempt any of 20+ question types and get scored immediately." },
@@ -329,8 +336,82 @@ export default async function HomePage() {
           </div>
         </section>
 
+        {/* Why PrepFly? */}
+        <section className="py-32 sm:py-40 bg-background border-t border-white/5">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="text-center">
+              <div className="mx-auto mb-6 inline-flex rounded-full bg-teal-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-600 dark:text-teal-400 ring-1 ring-teal-500/20">The PrepFly Advantage</div>
+              <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-5xl">Why choose PrepFly?</h2>
+              <p className="mt-6 text-xl text-muted-foreground font-medium max-w-2xl mx-auto">
+                Built specifically for students and coaching centres who demand more transparency, better tools, and localized support.
+              </p>
+            </div>
+
+            {/* Highlights Grid */}
+            <div className="mt-20 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {whyPrepflyFeatures.map((f) => (
+                <div key={f.title} className="group rounded-[2rem] border border-white/5 bg-card/50 p-1 shadow-glass dark:shadow-glass-dark transition-all duration-700 ease-fluid hover:shadow-float">
+                  <div className="h-full rounded-[calc(2rem-0.25rem)] bg-card p-6 text-center shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] transition-colors duration-500 hover:bg-white/5">
+                    <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-teal-500/10 text-teal-600 dark:text-teal-400 group-hover:scale-110 transition-transform duration-300">
+                      <f.icon className="h-6 w-6" />
+                    </div>
+                    <h3 className="mt-6 text-lg font-bold text-foreground">{f.title}</h3>
+                    <p className="mt-2 text-sm text-muted-foreground font-medium leading-relaxed">{f.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Comparison Table */}
+            <div className="mt-24 mx-auto max-w-5xl">
+              <div className="rounded-[2rem] border border-white/5 bg-card/60 p-1 backdrop-blur-2xl shadow-glass dark:shadow-glass-dark">
+                <div className="rounded-[calc(2rem-0.25rem)] bg-card overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr>
+                          <th className="w-1/3 p-6 text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 bg-background/50">Feature</th>
+                          <th className="w-1/5 p-6 text-sm font-bold uppercase tracking-wider text-foreground border-b border-border/50 bg-teal-500/5 text-center">PrepFly</th>
+                          <th className="w-1/5 p-6 text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 text-center">APEUni</th>
+                          <th className="w-1/5 p-6 text-sm font-bold uppercase tracking-wider text-muted-foreground border-b border-border/50 text-center">Typical Platform</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border/50 text-sm font-medium">
+                        <tr className="transition-colors hover:bg-white/5">
+                          <td className="p-6 text-foreground font-semibold">Interface in Hindi & Punjabi</td>
+                          <td className="p-6 text-center bg-teal-500/5 text-teal-600 dark:text-teal-400 font-bold">✅ Yes</td>
+                          <td className="p-6 text-center text-muted-foreground">❌ English / Chinese only</td>
+                          <td className="p-6 text-center text-muted-foreground">❌ English only</td>
+                        </tr>
+                        <tr className="transition-colors hover:bg-white/5">
+                          <td className="p-6 text-foreground font-semibold">Weekly Exam Predictions</td>
+                          <td className="p-6 text-center bg-teal-500/5 text-teal-600 dark:text-teal-400 font-bold">✅ Included</td>
+                          <td className="p-6 text-center text-foreground font-bold">✅ Included</td>
+                          <td className="p-6 text-center text-muted-foreground">❌ Paid extra / None</td>
+                        </tr>
+                        <tr className="transition-colors hover:bg-white/5">
+                          <td className="p-6 text-foreground font-semibold">White-label Coaching Tools</td>
+                          <td className="p-6 text-center bg-teal-500/5 text-teal-600 dark:text-teal-400 font-bold">✅ Batches & Branding</td>
+                          <td className="p-6 text-center text-muted-foreground">❌ Basic / No white-label</td>
+                          <td className="p-6 text-center text-muted-foreground">❌ None</td>
+                        </tr>
+                        <tr className="transition-colors hover:bg-white/5">
+                          <td className="p-6 text-foreground font-semibold">Pricing Transparency</td>
+                          <td className="p-6 text-center bg-teal-500/5 text-teal-600 dark:text-teal-400 font-bold">✅ Clear (From ₹249/mo)</td>
+                          <td className="p-6 text-center text-orange-500">⚠️ Hidden VIP Subscriptions</td>
+                          <td className="p-6 text-center text-muted-foreground">❌ Hidden / Expensive</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Why Choose PTE? */}
-        <section className="py-32 sm:py-40 bg-background">
+        <section className="py-32 sm:py-40 bg-background border-t border-white/5">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-white/10">The Standard</div>
