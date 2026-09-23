@@ -288,42 +288,28 @@ export default async function HomePage() {
                   <Zap className="h-3 w-3" />
                   New AI Engine
                 </div>
-                <div className="flex items-center gap-3 text-sm font-medium text-muted-foreground">
-                  <div className="flex -space-x-3">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <Image
-                        key={i}
-                        className="inline-block h-8 w-8 rounded-full ring-2 ring-background shadow-glass"
-                        src={`https://i.pravatar.cc/100?img=${i + 10}`}
-                        alt=""
-                        width={32}
-                        height={32}
-                        unoptimized
-                      />
-                    ))}
-                  </div>
-                  <span>Join 10,000+ test takers</span>
-                </div>
               </div>
               <h1 className="text-5xl font-extrabold tracking-tighter text-foreground sm:text-7xl lg:text-[5.5rem] leading-[1.1]">
-                Score <span className="bg-gradient-to-r from-teal-500 to-indigo-500 bg-clip-text text-transparent">79+</span> in PTE Academic
+                Practice PTE with <span className="bg-gradient-to-r from-teal-500 to-indigo-500 bg-clip-text text-transparent">AI scoring</span> that shows exactly where you lose marks
               </h1>
               <p className="mt-8 text-xl text-muted-foreground sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed">
-                Everything you need in one place — all 20+ question types, instant AI scoring,
-                full mock tests, predictions, vocabulary and progress analytics.
-                Free during beta.
+                Scored Speaking and Writing, full mock tests and weekly predictions, in English, Hindi and Punjabi. Start free, no card needed.
               </p>
               <div className="mt-14 flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
                 <Link href="/register">
                   <Button size="xl" className="group rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-float hover:scale-105 transition-all duration-700 ease-fluid">
-                    <span className="font-bold tracking-wide">Start Practicing Free</span>
+                    <span className="font-bold tracking-wide">Start Free</span>
                   </Button>
                 </Link>
                 <Link href="#skills">
                   <Button variant="outline" size="xl" className="rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid font-bold tracking-wide">
-                    Explore Features
+                    See a sample score report
                   </Button>
                 </Link>
+              </div>
+              <div className="mt-8 flex flex-col items-center gap-2 text-sm font-medium text-muted-foreground">
+                <p>Free plan available · Paid plans from ₹249/month</p>
+                <p className="text-xs text-muted-foreground/70">Free: 3-day full access, then 3 AI-scored attempts a day.</p>
               </div>
             </div>
           </div>
