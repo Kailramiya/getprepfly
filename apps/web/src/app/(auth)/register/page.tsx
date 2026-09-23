@@ -3,7 +3,7 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, User, Eye, EyeOff, Building2, CheckCircle2, XCircle, Phone } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Building2, CheckCircle2, XCircle, Phone, ChevronDown } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -117,17 +117,14 @@ function RegisterForm() {
     }
 
     const nationalDigits = form.phone.replace(/\D/g, "");
-    let fullPhone = undefined;
-    if (nationalDigits.length > 0) {
-      if (nationalDigits.length < 10) {
-        setError("Phone number must be at least 10 digits.");
-        return;
-      }
-      fullPhone = `${form.countryCode}${nationalDigits}`;
-      if (!/^\+\d{10,15}$/.test(fullPhone)) {
-        setError("Please enter a valid phone number with your country code.");
-        return;
-      }
+    if (nationalDigits.length < 10) {
+      setError("Phone number must be at least 10 digits.");
+      return;
+    }
+    const fullPhone = `${form.countryCode}${nationalDigits}`;
+    if (!/^\+\d{10,15}$/.test(fullPhone)) {
+      setError("Please enter a valid phone number with your country code.");
+      return;
     }
 
     if (isCentre) {
@@ -283,18 +280,24 @@ function RegisterForm() {
         </div>
 
         <div className="space-y-2">
-          <label className="text-sm font-bold text-foreground">Phone (optional): for exam reminders</label>
+          <label className="text-sm font-bold text-foreground">Phone number</label>
           <div className="flex gap-3">
-            <select
-              aria-label="Country code"
-              value={form.countryCode}
-              onChange={(e) => updateForm("countryCode", e.target.value)}
-              className="shrink-0 h-14 rounded-xl border border-white/5 shadow-inner bg-background/50 backdrop-blur-md text-foreground py-2 pl-4 pr-8 text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
-            >
-              {COUNTRY_CODES.map((c) => (
-                <option key={c.label} value={c.code} className="bg-background text-foreground">{c.label}</option>
-              ))}
-            </select>
+            <div className="relative shrink-0 w-[110px]">
+              <select
+                aria-label="Country code"
+                value={form.countryCode}
+                onChange={(e) => updateForm("countryCode", e.target.value)}
+                className="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10"
+              >
+                {COUNTRY_CODES.map((c) => (
+                  <option key={c.label} value={c.code} className="bg-background text-foreground">{c.label}</option>
+                ))}
+              </select>
+              <div className="h-14 rounded-xl border border-white/5 shadow-inner bg-background/50 backdrop-blur-md text-foreground py-2 pl-4 pr-3 text-base font-medium flex items-center justify-between pointer-events-none">
+                <span>{COUNTRY_CODES.find(c => c.code === form.countryCode)?.label.split(" ")[0]} {form.countryCode}</span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </div>
+            </div>
             <div className="relative flex-1 group">
               <Phone className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <Input
@@ -305,6 +308,7 @@ function RegisterForm() {
                 onChange={(e) => updateForm("phone", e.target.value.replace(/\D/g, ""))}
                 className="h-14 rounded-xl pl-11 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
                 maxLength={10}
+                required
               />
             </div>
           </div>
