@@ -3,10 +3,12 @@
 import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Mail, Lock, User, Eye, EyeOff, Building2, CheckCircle2, XCircle } from "lucide-react";
+import { Mail, Lock, User, Eye, EyeOff, Building2, CheckCircle2, XCircle, Phone } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+import { COUNTRY_CODES } from "@/lib/countries";
 
 export default function RegisterPage() {
   return (
@@ -37,7 +39,10 @@ function RegisterForm() {
   const [form, setForm] = useState({
     name: "",
     email: prefilledEmail,
+    countryCode: "+91",
+    phone: "",
     password: "",
+    confirmPassword: "",
     centreName: "",
     centreReferralCode: "",
     slugManuallyEdited: false,
@@ -101,9 +106,28 @@ function RegisterForm() {
     e.preventDefault();
     setError("");
 
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     if (!passValid) {
       setError("Please meet all password requirements.");
       return;
+    }
+
+    const nationalDigits = form.phone.replace(/\D/g, "");
+    let fullPhone = undefined;
+    if (nationalDigits.length > 0) {
+      if (nationalDigits.length < 10) {
+        setError("Phone number must be at least 10 digits.");
+        return;
+      }
+      fullPhone = `${form.countryCode}${nationalDigits}`;
+      if (!/^\+\d{10,15}$/.test(fullPhone)) {
+        setError("Please enter a valid phone number with your country code.");
+        return;
+      }
     }
 
     if (isCentre) {
@@ -130,6 +154,7 @@ function RegisterForm() {
         body: JSON.stringify({
           name: form.name,
           email: form.email,
+          phone: fullPhone,
           password: form.password,
           role: isCentre ? "centre" : "student",
           centreName: isCentre ? form.centreName : undefined,
@@ -257,6 +282,34 @@ function RegisterForm() {
           )}
         </div>
 
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-foreground">Phone (optional): for exam reminders</label>
+          <div className="flex gap-3">
+            <select
+              aria-label="Country code"
+              value={form.countryCode}
+              onChange={(e) => updateForm("countryCode", e.target.value)}
+              className="shrink-0 h-14 rounded-xl border border-white/5 shadow-inner bg-background/50 backdrop-blur-md text-foreground py-2 pl-4 pr-8 text-base font-medium focus:outline-none focus:ring-2 focus:ring-primary/20 cursor-pointer"
+            >
+              {COUNTRY_CODES.map((c) => (
+                <option key={c.label} value={c.code} className="bg-background text-foreground">{c.label}</option>
+              ))}
+            </select>
+            <div className="relative flex-1 group">
+              <Phone className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+              <Input
+                type="tel"
+                inputMode="numeric"
+                placeholder="Phone number"
+                value={form.phone}
+                onChange={(e) => updateForm("phone", e.target.value.replace(/\D/g, ""))}
+                className="h-14 rounded-xl pl-11 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
+                maxLength={10}
+              />
+            </div>
+          </div>
+        </div>
+
         {isCentre && (
           <>
             <div className="space-y-2">
@@ -332,6 +385,21 @@ function RegisterForm() {
             <div className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${passNumber ? "text-teal-600 dark:text-teal-400" : "text-muted-foreground/70"}`}>
               <CheckCircle2 className="h-3 w-3" /> A number
             </div>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-foreground">Confirm Password</label>
+          <div className="relative group">
+            <Lock className="absolute left-4 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
+            <Input
+              type="password"
+              placeholder="Confirm password"
+              value={form.confirmPassword}
+              onChange={(e) => updateForm("confirmPassword", e.target.value)}
+              className="h-14 rounded-xl pl-11 shadow-inner bg-background/50 border-white/5 backdrop-blur-md focus-visible:ring-primary/20 text-base"
+              required
+            />
           </div>
         </div>
 
