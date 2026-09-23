@@ -8,24 +8,7 @@ import { Logo } from "@/components/logo";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-// Common dial codes for PTE students (India default + major study/work destinations).
-const COUNTRY_CODES: { code: string; label: string }[] = [
-  { code: "+91", label: "🇮🇳 +91" },
-  { code: "+1", label: "🇺🇸 +1" },
-  { code: "+44", label: "🇬🇧 +44" },
-  { code: "+61", label: "🇦🇺 +61" },
-  { code: "+64", label: "🇳🇿 +64" },
-  { code: "+971", label: "🇦🇪 +971" },
-  { code: "+977", label: "🇳🇵 +977" },
-  { code: "+880", label: "🇧🇩 +880" },
-  { code: "+92", label: "🇵🇰 +92" },
-  { code: "+94", label: "🇱🇰 +94" },
-  { code: "+974", label: "🇶🇦 +974" },
-  { code: "+966", label: "🇸🇦 +966" },
-  { code: "+65", label: "🇸🇬 +65" },
-  { code: "+60", label: "🇲🇾 +60" },
-  { code: "+49", label: "🇩🇪 +49" },
-];
+import { COUNTRY_CODES } from "@/lib/countries";
 
 export default function RegisterPage() {
   return (
