@@ -805,10 +805,10 @@ export default async function HomePage() {
                 </p>
                 <div className="mt-6 flex items-center gap-4 p-4 rounded-2xl bg-card border border-border shadow-sm max-w-sm">
                   <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
-                    <img src="/images/founder.jpg" alt="Founder" className="w-full h-full object-cover" />
+                    <img src="/images/aman.jpg" alt="Aman, Founder of PrepFly" className="w-full h-full object-cover" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-foreground">Kailash</p>
+                    <p className="text-sm font-semibold text-foreground">Aman</p>
                     <p className="text-xs text-muted-foreground mt-0.5">Founder, PrepFly. Built to help you ace your PTE with honest, accurate AI scoring.</p>
                   </div>
                 </div>
