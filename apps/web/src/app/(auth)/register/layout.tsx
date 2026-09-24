@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Create your Prepfly account",
-  description: "Sign up for Prepfly and start practising PTE Academic with AI-powered scoring — free during beta.",
+  description: "Sign up for Prepfly and start practising PTE Academic with AI-powered scoring — free plan + paid plans.",
   alternates: { canonical: "/register" },
 };
 

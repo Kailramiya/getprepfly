@@ -192,7 +192,7 @@ const features = [
   { icon: Brain, title: "AI Speaking Scoring", desc: "Whisper-powered transcription with word-level pronunciation, fluency and content feedback on every recording." },
   { icon: Sparkles, title: "AI Writing Feedback", desc: "Detailed grammar, spelling, structure and content scoring with inline corrections and improvement tips." },
   { icon: ClipboardList, title: "Full & Sectional Mock Tests", desc: "Timed, real-exam simulation with section-wise and overall band score estimates." },
-  { icon: Target, title: "Skill Score Estimate", desc: "A 0–90 estimate for each skill using the official PTE weighted scoring model." },
+  { icon: Target, title: "Skill Score Estimate", desc: "A 10-90 estimate for each skill using the official PTE weighted scoring model." },
   { icon: TrendingUp, title: "Progress Analytics", desc: "Track your practice streak, spot weak vs strong areas, and watch your score trend over time." },
   { icon: Zap, title: "Weekly Predictions", desc: "Practice the high-frequency questions most likely to appear in the real exam." },
   { icon: FileText, title: "Templates & Study Guides", desc: "Proven essay and speaking templates, plus strategy guides for every question type." },
@@ -226,7 +226,7 @@ const buyerChecklist = [
   { q: "Does the feedback explain your mistakes, or just give a score?", a: "Word-level pronunciation and fluency feedback on Speaking. Inline corrections on Writing." },
   { q: "Is your language supported?", a: "English, Hindi and Punjabi interface, with word meanings in all three." },
   { q: "Does it cover every question type?", a: "20+ types across Speaking, Writing, Reading and Listening." },
-  { q: "Are mock tests timed like the real exam?", a: "Full and sectional mocks with a 0-90 estimate per skill." },
+  { q: "Are mock tests timed like the real exam?", a: "Full and sectional mocks with a 10-90 estimate per skill." },
   { q: "Are predictions included?", a: "Weekly predictions of high-frequency questions." },
   { q: "Can a coaching centre run batches on it?", a: "Batches, assigned tests, teacher accounts and student analytics. Branding options depend on the plan." },
   { q: "Do you see the price before you commit?", a: "Prices are on this page. Full access from ₹599/month." },
@@ -752,13 +752,15 @@ export default async function HomePage() {
             <div className="flex flex-col items-center justify-between gap-12 rounded-[3rem] bg-card p-10 ring-1 ring-white/10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] sm:flex-row sm:p-16">
               <div className="max-w-2xl text-center sm:text-left">
                 <h2 className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">Practice anywhere, anytime.</h2>
-                <p className="mt-4 text-lg font-medium text-muted-foreground">Download the PrepFly app to practice on the go. Available for iOS, Android, and Desktop via PWA.</p>
+                <p className="mt-4 text-lg font-medium text-muted-foreground">Install PrepFly in 10 seconds. Just tap 'Share' then 'Add to Home Screen' on iOS, or 'Install App' from your browser menu on Android.</p>
               </div>
-              <div className="flex flex-shrink-0 gap-4">
+              <div className="flex flex-shrink-0 flex-col items-center gap-4">
+                <div className="relative overflow-hidden rounded-2xl w-48 h-auto border border-border shadow-sm">
+                  <img src="/images/install-pwa.gif" alt="How to install Prepfly PWA" className="w-full h-auto" />
+                </div>
                 <Link href="/download">
-                  <Button size="xl" className="rounded-full font-bold tracking-wide shadow-glass hover:shadow-float transition-all duration-700 ease-fluid hover:scale-105">
-                    <Download className="mr-2 h-5 w-5" />
-                    Download App
+                  <Button variant="outline" className="rounded-full font-bold tracking-wide transition-all duration-300">
+                    See full instructions
                   </Button>
                 </Link>
               </div>
@@ -783,7 +785,7 @@ export default async function HomePage() {
           <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.15),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.1),transparent_60%)]"></div>
           <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
             <h2 className="text-5xl font-extrabold tracking-tighter text-foreground sm:text-6xl">Ready to score 79+?</h2>
-            <p className="mt-6 text-xl font-medium text-muted-foreground">Join Prepfly free during beta and start improving today.</p>
+            <p className="mt-6 text-xl font-medium text-muted-foreground">Join PrepFly with a free plan and start improving today.</p>
             <div className="mt-12">
               <Link href="/register">
                 <Button size="xl" className="group rounded-full bg-foreground text-background shadow-float hover:scale-105 transition-all duration-700 ease-fluid font-bold tracking-wide">Create Free Account</Button>
@@ -795,28 +797,36 @@ export default async function HomePage() {
         {/* Footer */}
         <footer className="border-t border-white/5 bg-background py-16">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-              <div>
+            <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-5">
+              <div className="lg:col-span-2">
                 <Logo size="sm" />
                 <p className="mt-4 text-sm font-medium leading-relaxed text-muted-foreground">
                   AI-powered PTE practice platform. Made in India for students who dream of going abroad.
                 </p>
+                <div className="mt-6 flex items-center gap-4 p-4 rounded-2xl bg-card border border-border shadow-sm max-w-sm">
+                  <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center overflow-hidden flex-shrink-0">
+                    <img src="/images/founder.jpg" alt="Founder" className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-foreground">Kailash</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">Founder, PrepFly. Built to help you ace your PTE with honest, accurate AI scoring.</p>
+                  </div>
+                </div>
               </div>
               <div>
                 <h4 className="text-sm font-bold tracking-wide text-foreground">Platform</h4>
                 <ul className="mt-6 space-y-4">
                   <li><Link href="/register" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Sign Up Free</Link></li>
                   <li><Link href="/login" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Log In</Link></li>
-                  <li><Link href="/download" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Download App</Link></li>
                   <li><Link href="/register?role=centre" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Register Centre</Link></li>
                 </ul>
               </div>
               <div>
-                <h4 className="text-sm font-bold tracking-wide text-foreground">Get the App</h4>
+                <h4 className="text-sm font-bold tracking-wide text-foreground">Support</h4>
                 <ul className="mt-6 space-y-4">
-                  <li><Link href="/download" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Web App (PWA)</Link></li>
-                  <li><span className="text-sm font-medium text-muted-foreground/50">Android — Coming Soon</span></li>
-                  <li><span className="text-sm font-medium text-muted-foreground/50">iOS — Coming Soon</span></li>
+                  <li><a href="https://wa.me/919999999999" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">WhatsApp us</a></li>
+                  <li><a href="mailto:support@getprepfly.com" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">support@getprepfly.com</a></li>
+                  <li><Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Contact Us</Link></li>
                 </ul>
               </div>
               <div>
@@ -825,7 +835,6 @@ export default async function HomePage() {
                   <li><Link href="/privacy" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Privacy Policy</Link></li>
                   <li><Link href="/terms" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Terms of Service</Link></li>
                   <li><Link href="/refund-policy" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Refund & Cancellation</Link></li>
-                  <li><Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Contact Us</Link></li>
                 </ul>
               </div>
             </div>

@@ -71,7 +71,7 @@ export default function Image() {
           fontSize: 20,
           border: "1px solid rgba(255,255,255,0.2)",
         }}>
-          Score 79+ · All 22 question types · Free during beta
+          Score 79+ · All 22 question types · Free plan + paid plans
         </div>
       </div>
     ),

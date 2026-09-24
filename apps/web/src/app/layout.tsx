@@ -17,7 +17,7 @@ const fontSans = Plus_Jakarta_Sans({
 const SITE_NAME = "PrepFly";
 const SITE_URL = "https://getprepfly.com";
 const SITE_DESCRIPTION =
-  "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Free during beta.";
+  "Practice PTE Academic with AI-powered scoring. Speaking, Writing, Reading & Listening practice with instant feedback. Free plan + paid plans.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
