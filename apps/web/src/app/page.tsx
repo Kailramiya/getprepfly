@@ -69,7 +69,7 @@ const jsonLd = {
       contactPoint: {
         "@type": "ContactPoint",
         contactType: "customer support",
-        email: "support@getprepfly.com",
+        email: "prepfly.app@gmail.com",
         availableLanguage: ["English", "Hindi"],
       },
     },
@@ -825,7 +825,7 @@ export default async function HomePage() {
                 <h4 className="text-sm font-bold tracking-wide text-foreground">Support</h4>
                 <ul className="mt-6 space-y-4">
                   <li><a href="https://wa.me/919466460761" target="_blank" rel="noopener noreferrer" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">WhatsApp us</a></li>
-                  <li><a href="mailto:support@getprepfly.com" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">support@getprepfly.com</a></li>
+                  <li><a href="mailto:prepfly.app@gmail.com" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">prepfly.app@gmail.com</a></li>
                   <li><Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Contact Us</Link></li>
                 </ul>
               </div>
