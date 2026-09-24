@@ -297,16 +297,16 @@ export default async function HomePage() {
           <div className="mx-auto flex h-12 items-center justify-between px-4">
             <Link href="/" className="hover:scale-105 transition-transform duration-500 ease-fluid"><Logo size="sm" /></Link>
             <div className="hidden items-center gap-8 md:flex">
-              <Link href="#why-prepfly" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Why PrepFly</Link>
-              <Link href="#skills" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Question Types</Link>
-              <Link href="#features" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Features</Link>
-              <Link href="#centres" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">For Centres</Link>
+              <a href="#why-prepfly" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Why PrepFly</a>
+              <a href="#skills" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Question Types</a>
+              <a href="#features" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Features</a>
+              <a href="#centres" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">For Centres</a>
               <Link href="/download" className="text-sm font-medium tracking-wide text-muted-foreground hover:text-foreground transition-colors duration-500 ease-fluid">Download App</Link>
             </div>
             <div className="flex items-center gap-3">
               <ThemeToggle />
-              <Link href="/login"><Button variant="ghost" size="sm" className="rounded-full font-semibold">Log in</Button></Link>
-              <Link href="/register"><Button size="sm" className="rounded-full shadow-glass dark:shadow-glass-dark hover:shadow-float font-semibold">Start Free</Button></Link>
+              <Button variant="ghost" size="sm" className="rounded-full font-semibold" asChild><Link href="/login">Log in</Link></Button>
+              <Button size="sm" className="rounded-full shadow-glass dark:shadow-glass-dark hover:shadow-float font-semibold" asChild><Link href="/register">Start Free</Link></Button>
             </div>
           </div>
         </nav>
@@ -331,16 +331,16 @@ export default async function HomePage() {
                 Scored Speaking and Writing, full mock tests and weekly predictions, in English, Hindi and Punjabi. Start free, no card needed.
               </p>
               <div className="mt-14 flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
-                <Link href="/register">
-                  <Button size="xl" className="group rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-float hover:scale-105 transition-all duration-700 ease-fluid">
+                <Button size="xl" className="group rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-float hover:scale-105 transition-all duration-700 ease-fluid" asChild>
+                  <Link href="/register">
                     <span className="font-bold tracking-wide">Start Free</span>
-                  </Button>
-                </Link>
-                <Link href="#skills">
-                  <Button variant="outline" size="xl" className="rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid font-bold tracking-wide">
+                  </Link>
+                </Button>
+                <Button variant="outline" size="xl" className="rounded-full shadow-glass hover:shadow-float transition-all duration-700 ease-fluid font-bold tracking-wide" asChild>
+                  <a href="#skills">
                     See a sample score report
-                  </Button>
-                </Link>
+                  </a>
+                </Button>
               </div>
               <div className="mt-8 flex flex-col items-center gap-2 text-sm font-medium text-muted-foreground">
                 <p>Free plan available · Paid plans from ₹249/month</p>
@@ -434,16 +434,16 @@ export default async function HomePage() {
               </div>
 
               <div className="mt-12 flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
-                <Link href="/register">
-                  <Button size="xl" className="rounded-full bg-foreground text-background shadow-glass hover:shadow-float font-bold tracking-wide transition-all duration-300 hover:-translate-y-1 hover:bg-foreground/90">
+                <Button size="xl" className="rounded-full bg-foreground text-background shadow-glass hover:shadow-float font-bold tracking-wide transition-all duration-300 hover:-translate-y-1 hover:bg-foreground/90" asChild>
+                  <Link href="/register">
                     Start Free
-                  </Button>
-                </Link>
-                <Link href="/pricing">
-                  <Button variant="outline" size="xl" className="rounded-full shadow-sm hover:shadow-md transition-all duration-300 font-bold tracking-wide hover:-translate-y-1">
+                  </Link>
+                </Button>
+                <Button variant="outline" size="xl" className="rounded-full shadow-sm hover:shadow-md transition-all duration-300 font-bold tracking-wide hover:-translate-y-1" asChild>
+                  <Link href="/pricing">
                     See Pricing
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
               <p className="mt-6 text-center text-xs font-medium text-muted-foreground">
                 Features and prices as of {new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}.
@@ -627,9 +627,9 @@ export default async function HomePage() {
                 </div>
                 <p className="mt-6 text-sm font-medium text-muted-foreground">Limited AI-scored attempts</p>
                 <div className="mt-auto pt-8">
-                  <Link href="/register">
-                    <Button variant="outline" size="lg" className="w-full rounded-full font-bold">Get Started</Button>
-                  </Link>
+                  <Button variant="outline" size="lg" className="w-full rounded-full font-bold" asChild>
+                    <Link href="/register">Get Started</Link>
+                  </Button>
                 </div>
               </div>
 
@@ -641,9 +641,9 @@ export default async function HomePage() {
                 </div>
                 <p className="mt-6 text-sm font-medium text-muted-foreground">Full access to all features</p>
                 <div className="mt-auto pt-8">
-                  <Link href="/register">
-                    <Button variant="outline" size="lg" className="w-full rounded-full font-bold">Start 1 Month</Button>
-                  </Link>
+                  <Button variant="outline" size="lg" className="w-full rounded-full font-bold" asChild>
+                    <Link href="/register">Start 1 Month</Link>
+                  </Button>
                 </div>
               </div>
 
@@ -658,9 +658,9 @@ export default async function HomePage() {
                 </div>
                 <p className="mt-6 text-sm font-medium text-teal-800/80 dark:text-teal-200/80">Full access to all features</p>
                 <div className="mt-auto pt-8">
-                  <Link href="/register">
-                    <Button size="lg" className="w-full rounded-full font-bold bg-teal-600 text-white hover:bg-teal-700 shadow-sm">Start 3 Months</Button>
-                  </Link>
+                  <Button size="lg" className="w-full rounded-full font-bold bg-teal-600 text-white hover:bg-teal-700 shadow-sm" asChild>
+                    <Link href="/register">Start 3 Months</Link>
+                  </Button>
                 </div>
               </div>
 
@@ -672,9 +672,9 @@ export default async function HomePage() {
                 </div>
                 <p className="mt-6 text-sm font-medium text-muted-foreground">Full access to all features</p>
                 <div className="mt-auto pt-8">
-                  <Link href="/register">
-                    <Button variant="outline" size="lg" className="w-full rounded-full font-bold">Start 1 Year</Button>
-                  </Link>
+                  <Button variant="outline" size="lg" className="w-full rounded-full font-bold" asChild>
+                    <Link href="/register">Start 1 Year</Link>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -758,11 +758,11 @@ export default async function HomePage() {
                 <div className="relative overflow-hidden rounded-2xl w-48 h-auto border border-border shadow-sm">
                   <img src="/images/install-pwa.gif" alt="How to install Prepfly PWA" className="w-full h-auto" />
                 </div>
-                <Link href="/download">
-                  <Button variant="outline" className="rounded-full font-bold tracking-wide transition-all duration-300">
+                <Button variant="outline" className="rounded-full font-bold tracking-wide transition-all duration-300" asChild>
+                  <Link href="/download">
                     See full instructions
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             </div>
           </div>
@@ -787,9 +787,9 @@ export default async function HomePage() {
             <h2 className="text-5xl font-extrabold tracking-tighter text-foreground sm:text-6xl">Ready to score 79+?</h2>
             <p className="mt-6 text-xl font-medium text-muted-foreground">Join PrepFly with a free plan and start improving today.</p>
             <div className="mt-12">
-              <Link href="/register">
-                <Button size="xl" className="group rounded-full bg-foreground text-background shadow-float hover:scale-105 transition-all duration-700 ease-fluid font-bold tracking-wide">Create Free Account</Button>
-              </Link>
+              <Button size="xl" className="group rounded-full bg-foreground text-background shadow-float hover:scale-105 transition-all duration-700 ease-fluid font-bold tracking-wide" asChild>
+                <Link href="/register">Create Free Account</Link>
+              </Button>
             </div>
           </div>
         </section>
