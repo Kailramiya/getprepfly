@@ -101,8 +101,19 @@ export default function PricingPage() {
       fetch("/api/access/me").then(r => r.json()),
       fetch("/api/pricing").then(r => r.json()),
     ]).then(([accessData, priceData]) => {
-      if (accessData.success) setAccess(accessData.data);
-      if (priceData.success) setLivePrices(priceData.data);
+      if (accessData.success) {
+        setAccess(accessData.data);
+      } else if (accessData.error && accessData.error !== "Unauthorized") {
+        setError(accessData.error);
+      }
+      
+      if (priceData.success) {
+        setLivePrices(priceData.data);
+      } else if (priceData.error) {
+        setError(priceData.error);
+      }
+    }).catch(err => {
+      console.error(err);
     }).finally(() => setLoading(false));
   }, []);
 
@@ -128,6 +139,10 @@ export default function PricingPage() {
       const data = await res.json();
 
       if (!data.success) {
+        if (data.error === "Unauthorized" || data.error === "unauthorized") {
+          router.push("/register");
+          return;
+        }
         setError(data.error || "Failed to start payment");
         setProcessing(null);
         return;
