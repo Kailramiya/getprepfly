@@ -57,7 +57,7 @@ const nextConfig = {
       "@radix-ui/react-tooltip",
     ],
     // Required on Next 14.2 so instrumentation.ts runs (Sentry server init).
-    instrumentationHook: true,
+    instrumentationHook: process.env.NODE_ENV === "production",
   },
 };
 
