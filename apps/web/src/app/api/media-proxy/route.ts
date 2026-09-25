@@ -40,11 +40,19 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const responseHeaders = new Headers(upstream.headers);
-  // Cache for 1 hour in browser
+  const responseHeaders = new Headers();
+  responseHeaders.set("Content-Type", upstream.headers.get("content-type") || "application/octet-stream");
+  responseHeaders.set("Accept-Ranges", "bytes");
   responseHeaders.set("Cache-Control", "private, max-age=3600");
 
-  return new NextResponse(upstream.body, {
+  if (upstream.headers.has("content-length")) {
+    responseHeaders.set("Content-Length", upstream.headers.get("content-length")!);
+  }
+  if (upstream.headers.has("content-range")) {
+    responseHeaders.set("Content-Range", upstream.headers.get("content-range")!);
+  }
+
+  return new Response(upstream.body, {
     status: upstream.status,
     headers: responseHeaders,
   });
