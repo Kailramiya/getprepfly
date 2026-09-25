@@ -22,9 +22,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Blob token not configured" }, { status: 500 });
   }
 
-  const upstream = await fetch(blobUrl, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const headers = new Headers();
+  headers.set("Authorization", `Bearer ${token}`);
+  
+  // Forward Range header for Safari/Chrome audio playback
+  const range = req.headers.get("range");
+  if (range) {
+    headers.set("Range", range);
+  }
+
+  const upstream = await fetch(blobUrl, { headers });
 
   if (!upstream.ok) {
     return NextResponse.json(
@@ -33,15 +40,12 @@ export async function GET(req: NextRequest) {
     );
   }
 
-  const contentType = upstream.headers.get("content-type") || "application/octet-stream";
-  const body = await upstream.arrayBuffer();
+  const responseHeaders = new Headers(upstream.headers);
+  // Cache for 1 hour in browser
+  responseHeaders.set("Cache-Control", "private, max-age=3600");
 
-  return new NextResponse(body, {
-    status: 200,
-    headers: {
-      "Content-Type": contentType,
-      // Cache for 1 hour in browser, revalidate via CDN for 24h
-      "Cache-Control": "private, max-age=3600",
-    },
+  return new NextResponse(upstream.body, {
+    status: upstream.status,
+    headers: responseHeaders,
   });
 }

@@ -1241,6 +1241,7 @@ export function AudioBlock({
   const isDataUrl = audioSrc.startsWith("data:");
   const isHttpUrl = audioSrc.startsWith("http://") || audioSrc.startsWith("https://");
   const isBlobUrl = audioSrc.startsWith("blob:");
+  const isRelativeUrl = audioSrc.startsWith("/");
   const urlPreview = audioSrc.length > 80 ? audioSrc.slice(0, 80) + "..." : audioSrc;
 
   return (
@@ -1267,8 +1268,8 @@ export function AudioBlock({
           {loadError && (
             <div className="mt-2 rounded-md bg-red-50 p-2 text-xs text-red-700">
               ⚠ Audio file could not be loaded.{" "}
-              {!isDataUrl && !isHttpUrl && !isBlobUrl && (
-                <span>The URL format looks invalid (not http/https/data/blob).</span>
+              {!isDataUrl && !isHttpUrl && !isBlobUrl && !isRelativeUrl && (
+                <span>The URL format looks invalid.</span>
               )}
               {isHttpUrl && (
                 <span>Check that the URL is publicly accessible.</span>
