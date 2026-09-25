@@ -25,35 +25,56 @@ export async function GET(req: NextRequest) {
   const headers = new Headers();
   headers.set("Authorization", `Bearer ${token}`);
   
-  // Forward Range header for Safari/Chrome audio playback
-  const range = req.headers.get("range");
-  if (range) {
-    headers.set("Range", range);
-  }
-
+  // Don't forward Range header to Vercel Blob to avoid conflicting stream states
   const upstream = await fetch(blobUrl, { headers });
 
   if (!upstream.ok) {
+    console.error("[MediaProxy] Upstream fetch failed:", upstream.status, upstream.statusText, blobUrl);
     return NextResponse.json(
       { success: false, error: `Blob fetch failed: ${upstream.status}` },
       { status: upstream.status }
     );
   }
 
+  // Load the entire file into memory (safe for small audio files)
+  const body = await upstream.arrayBuffer();
+  const contentType = upstream.headers.get("content-type") || "audio/mpeg";
+
+  console.log(`[MediaProxy] Successfully fetched ${body.byteLength} bytes from ${blobUrl}`);
+
+  // Manually handle Range requests for Safari/Chrome compatibility
+  const range = req.headers.get("range");
+  if (range) {
+    console.log(`[MediaProxy] Handling Range request: ${range}`);
+    const parts = range.replace(/bytes=/, "").split("-");
+    const start = parseInt(parts[0], 10);
+    const end = parts[1] ? parseInt(parts[1], 10) : body.byteLength - 1;
+    const chunksize = (end - start) + 1;
+    const sliced = body.slice(start, end + 1);
+
+    const responseHeaders = new Headers();
+    responseHeaders.set("Content-Range", `bytes ${start}-${end}/${body.byteLength}`);
+    responseHeaders.set("Accept-Ranges", "bytes");
+    responseHeaders.set("Content-Length", chunksize.toString());
+    responseHeaders.set("Content-Type", contentType);
+    responseHeaders.set("Cache-Control", "private, max-age=3600");
+
+    return new Response(sliced, {
+      status: 206,
+      headers: responseHeaders,
+    });
+  }
+
+  console.log(`[MediaProxy] Serving full file (${body.byteLength} bytes)`);
+  // Return the full file if no Range header was sent
   const responseHeaders = new Headers();
-  responseHeaders.set("Content-Type", upstream.headers.get("content-type") || "application/octet-stream");
+  responseHeaders.set("Content-Length", body.byteLength.toString());
   responseHeaders.set("Accept-Ranges", "bytes");
+  responseHeaders.set("Content-Type", contentType);
   responseHeaders.set("Cache-Control", "private, max-age=3600");
 
-  if (upstream.headers.has("content-length")) {
-    responseHeaders.set("Content-Length", upstream.headers.get("content-length")!);
-  }
-  if (upstream.headers.has("content-range")) {
-    responseHeaders.set("Content-Range", upstream.headers.get("content-range")!);
-  }
-
-  return new Response(upstream.body, {
-    status: upstream.status,
+  return new Response(body, {
+    status: 200,
     headers: responseHeaders,
   });
 }
