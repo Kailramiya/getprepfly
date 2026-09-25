@@ -245,7 +245,15 @@ export default function AdminBillingPage() {
         return;
       }
 
-      const { orderId, amount, currency, keyId, planLabel, userName, userEmail } = orderData.data;
+      const { orderId, amount, currency, keyId, planLabel, userName, userEmail, isFreeBypass } = orderData.data;
+
+      // Skip payment gateway for free plans (price = 0)
+      if (isFreeBypass) {
+        setSuccessMsg(`${planName} activated for free! All your students now have access.`);
+        fetchData();
+        setProcessing(null);
+        return;
+      }
 
       if (!window.Razorpay) {
         setError("Payment library not loaded. Please refresh.");

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
-import { MODULE_PRICING, CENTRE_PLANS } from "@/lib/access";
+import { MODULE_PRICING, CENTRE_PLANS, activateCentrePlan, grantModuleAccess } from "@/lib/access";
 import { parseBody } from "@/lib/validation";
 
 const CreateOrderSchema = z.object({
@@ -66,6 +66,42 @@ export async function POST(req: NextRequest) {
       finalPrice = Math.round(plan.amount * (1 - coupon.discountPercent / 100));
       appliedCoupon = coupon.code; // persisted so usedCount is bumped on success
     }
+  }
+
+  // If the price is exactly 0, completely bypass Razorpay and instantly grant access
+  if (finalPrice === 0) {
+    const payment = await db.payment.create({
+      data: { amount: 0, status: "SUCCESS", planType, couponCode: appliedCoupon, method: "free" },
+    });
+
+    if (appliedCoupon) {
+      await db.coupon.updateMany({
+        where: { code: appliedCoupon },
+        data: { usedCount: { increment: 1 } },
+      });
+    }
+
+    if (isCentrePlan) {
+      await activateCentrePlan(user!.centreId!, planType, payment.id);
+    } else {
+      const modPlan = MODULE_PRICING[planType];
+      await grantModuleAccess(user!.id, modPlan.section as any, payment.id, modPlan.days);
+    }
+
+    return NextResponse.json({
+      success: true,
+      data: {
+        orderId: "free_" + payment.id,
+        amount: 0,
+        currency: "INR",
+        isFreeBypass: true, // Signals frontend to skip Razorpay modal
+        planType,
+        planLabel: plan.label,
+        userName: user!.name,
+        userEmail: user!.email,
+        isCentrePlan,
+      },
+    });
   }
 
   const keyId = process.env.RAZORPAY_KEY_ID;
