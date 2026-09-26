@@ -16,7 +16,7 @@ export const maxDuration = 60;
 
 function isCronAuthed(req: NextRequest): boolean {
   const secret = process.env.CRON_SECRET;
-  if (!secret) return true; // dev / local — allow without auth
+  if (!secret) return false; // Fail closed if secret is missing
   return req.headers.get("authorization") === `Bearer ${secret}`;
 }
 
