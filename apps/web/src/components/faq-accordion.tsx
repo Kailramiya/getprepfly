@@ -14,14 +14,14 @@ export function FaqAccordion({ items }: { items: FAQItem[] }) {
   return (
     <div className="mx-auto max-w-4xl space-y-4">
       {items.map((item, index) => (
-        <div key={index} className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-slate-700 dark:bg-slate-800">
+        <div key={index} className="overflow-hidden rounded-2xl border border-border/50 bg-card transition-all duration-300 hover:shadow-sm">
           <button
             onClick={() => setOpenIndex(openIndex === index ? null : index)}
             className="flex w-full items-center justify-between p-6 text-left"
           >
-            <span className="text-lg font-medium text-gray-900 dark:text-slate-100">{item.question}</span>
+            <span className="text-lg font-medium text-foreground">{item.question}</span>
             <ChevronDown
-              className={`h-5 w-5 flex-shrink-0 text-gray-500 transition-transform duration-200 ${
+              className={`h-5 w-5 flex-shrink-0 text-muted-foreground transition-transform duration-200 ${
                 openIndex === index ? "rotate-180" : ""
               }`}
             />
@@ -31,7 +31,7 @@ export function FaqAccordion({ items }: { items: FAQItem[] }) {
               openIndex === index ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
             }`}
           >
-            <div className="px-6 pb-6 pt-0 text-base leading-relaxed text-gray-600 dark:text-slate-400">
+            <div className="px-6 pb-6 pt-0 text-base leading-relaxed text-muted-foreground">
               {item.answer}
             </div>
           </div>

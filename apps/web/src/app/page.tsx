@@ -291,7 +291,7 @@ export default async function HomePage() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="min-h-screen">
+      <div className="min-h-screen flex flex-col [&>section:not(.no-shared-padding)]:py-16 sm:[&>section:not(.no-shared-padding)]:py-24">
         {/* Navbar */}
         <nav className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[92%] max-w-5xl rounded-full border border-white/10 bg-background/60 px-2 py-2 backdrop-blur-2xl shadow-glass dark:shadow-glass-dark transition-all duration-700 ease-fluid">
           <div className="mx-auto flex h-12 items-center justify-between px-4">
@@ -312,7 +312,7 @@ export default async function HomePage() {
         </nav>
 
         {/* Hero */}
-        <section className="relative overflow-hidden bg-background">
+        <section className="relative overflow-hidden bg-background no-shared-padding">
           {/* Ethereal Glow */}
           <div className="pointer-events-none absolute left-1/2 top-0 -z-10 h-[800px] w-[1200px] -translate-x-1/2 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.15),transparent_50%)] dark:bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.1),transparent_50%)]"></div>
           
@@ -351,7 +351,7 @@ export default async function HomePage() {
         </section>
 
         {/* Stats */}
-        <section className="relative z-10 -mt-16 mx-4 sm:mx-6 lg:mx-8">
+        <section className="relative z-10 -mt-16 mx-4 sm:mx-6 lg:mx-8 no-shared-padding">
           <div className="mx-auto max-w-5xl rounded-[2rem] border border-white/5 bg-card/60 p-1 backdrop-blur-2xl shadow-glass dark:shadow-glass-dark">
             <div className="grid grid-cols-2 gap-px rounded-[calc(2rem-0.25rem)] overflow-hidden bg-white/5 md:grid-cols-4">
               {stats.map((stat) => (
@@ -365,7 +365,7 @@ export default async function HomePage() {
         </section>
 
         {/* Why PrepFly? */}
-        <section id="why-prepfly" className="py-32 sm:py-40 bg-background border-t border-white/5">
+        <section id="why-prepfly" className="bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-5xl">What to look for in a PTE practice platform</h2>
@@ -453,7 +453,7 @@ export default async function HomePage() {
         </section>
 
         {/* Why Choose PTE? */}
-        <section className="py-32 sm:py-40 bg-background border-t border-white/5">
+        <section className="bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mx-auto max-w-3xl text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-white/10">The Standard</div>
@@ -493,7 +493,7 @@ export default async function HomePage() {
         </section>
 
         {/* Skills / question types */}
-        <section id="skills" className="py-32 sm:py-40">
+        <section id="skills">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-white/10">The Curriculum</div>
@@ -528,7 +528,7 @@ export default async function HomePage() {
         </section>
 
         {/* Core features */}
-        <section id="features" className="bg-card/30 py-32 sm:py-40">
+        <section id="features" className="bg-card/30">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-white/10">The Ecosystem</div>
@@ -550,7 +550,7 @@ export default async function HomePage() {
         </section>
 
         {/* Featured Study Tools */}
-        <section className="py-32 sm:py-40 bg-background border-t border-white/5">
+        <section className="bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-white/10">Study Assets</div>
@@ -587,7 +587,7 @@ export default async function HomePage() {
         </section>
 
         {/* How it works */}
-        <section className="py-32 sm:py-40 bg-background">
+        <section className="bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-white/10">The Process</div>
@@ -608,7 +608,7 @@ export default async function HomePage() {
         </section>
 
         {/* Pricing */}
-        <section id="pricing" className="py-32 sm:py-40 bg-background">
+        <section id="pricing" className="bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-teal-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-teal-600 dark:text-teal-400 ring-1 ring-teal-500/20">Plans</div>
@@ -697,7 +697,7 @@ export default async function HomePage() {
         </section>
 
         {/* For Centres */}
-        <section id="centres" className="relative overflow-hidden py-32 sm:py-40 bg-slate-50 dark:bg-slate-900/20 border-y border-border/50">
+        <section id="centres" className="relative overflow-hidden bg-slate-50 dark:bg-slate-900/20">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(20,184,166,0.1),transparent_70%)]"></div>
           <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 z-10">
             <div className="mx-auto max-w-3xl text-center">
@@ -747,7 +747,7 @@ export default async function HomePage() {
         </section>
 
         {/* Download App Banner */}
-        <section className="bg-background py-24 sm:py-32 border-t border-white/5">
+        <section className="bg-background">
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="flex flex-col items-center justify-between gap-12 rounded-[3rem] bg-card p-10 ring-1 ring-white/10 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] sm:flex-row sm:p-16">
               <div className="max-w-2xl text-center sm:text-left">
@@ -769,7 +769,7 @@ export default async function HomePage() {
         </section>
 
         {/* FAQ */}
-        <section className="bg-background py-32 sm:py-40">
+        <section className="bg-background">
           <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
             <div className="mb-16 text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-white/10">Knowledge</div>
@@ -781,7 +781,7 @@ export default async function HomePage() {
         </section>
 
         {/* Final CTA */}
-        <section className="relative overflow-hidden py-40 border-t border-white/5">
+        <section className="relative overflow-hidden">
           <div className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-[600px] w-[1000px] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.15),transparent_60%)] dark:bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.1),transparent_60%)]"></div>
           <div className="mx-auto max-w-3xl px-4 text-center sm:px-6 lg:px-8">
             <h2 className="text-5xl font-extrabold tracking-tighter text-foreground sm:text-6xl">Ready to score 79+?</h2>
