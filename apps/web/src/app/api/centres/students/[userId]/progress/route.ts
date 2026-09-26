@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth-utils";
+import { requireRole } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 
 // GET /api/centres/students/[userId]/progress
 export async function GET(_req: NextRequest, { params }: { params: { userId: string } }) {
-  const { user, error } = await requireAuth();
+  const { user, error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"]);
   if (error) return error;
 
   const centreId = user!.centreId;

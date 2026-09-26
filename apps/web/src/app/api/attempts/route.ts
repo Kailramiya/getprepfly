@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { Prisma } from "@prisma/client";
 import { requireAuth } from "@/lib/auth-utils";
+import { canAccessQuestion } from "@/lib/access";
+
+const SCORE_ADOPT_WINDOW_MS = 30 * 60 * 1000;
 
 // GET /api/attempts — get user's attempt history
 export async function GET(req: NextRequest) {
@@ -48,14 +52,57 @@ export async function POST(req: NextRequest) {
   if (error) return error;
 
   const body = await req.json();
-  const { questionId, responseText, responseAudio, scores, overallScore, rawPointsEarned, maxPointsPossible, timeTaken, feedback, mockTestId } = body;
+  // Score fields in the body (scores/overallScore/rawPoints*/feedback) are deliberately ignored:
+  // the client is untrusted, so we adopt the scores the server-side scorers already recorded.
+  const { questionId, responseText, responseAudio, timeTaken, mockTestId } = body;
 
-  if (!questionId) {
+  if (!questionId || typeof questionId !== "string") {
     return NextResponse.json(
       { success: false, error: "questionId is required" },
       { status: 400 }
     );
   }
+
+  const question = await db.question.findUnique({
+    where: { id: questionId },
+    select: { isActive: true, isPublic: true, centreId: true, section: true },
+  });
+  if (!question || !question.isActive || !(await canAccessQuestion(user!, question))) {
+    return NextResponse.json({ success: false, error: "Question not found" }, { status: 404 });
+  }
+
+  if (mockTestId) {
+    const ownsTest = await db.mockTest.findFirst({
+      where: { id: String(mockTestId), userId: user!.id },
+      select: { id: true },
+    });
+    if (!ownsTest) {
+      return NextResponse.json({ success: false, error: "Mock test not found" }, { status: 404 });
+    }
+  }
+
+  // Latest server-scored attempt by this user for this question (window covers a single sitting).
+  const scored = await db.attempt.findFirst({
+    where: {
+      userId: user!.id,
+      questionId,
+      overallScore: { not: null },
+      createdAt: { gte: new Date(Date.now() - SCORE_ADOPT_WINDOW_MS) },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+
+  const data = {
+    responseText: responseText || null,
+    responseAudio: responseAudio || null,
+    scores: scored?.scores ?? Prisma.JsonNull,
+    rawPointsEarned: scored?.rawPointsEarned ?? null,
+    maxPointsPossible: scored?.maxPointsPossible ?? null,
+    overallScore: scored?.overallScore ?? null,
+    feedback: scored?.feedback ?? null,
+    timeTaken: timeTaken || null,
+  };
+  const include = { question: { select: { id: true, title: true, type: true, section: true } } };
 
   let attempt;
   if (mockTestId) {
@@ -63,55 +110,13 @@ export async function POST(req: NextRequest) {
     const existing = await db.attempt.findFirst({
       where: { userId: user!.id, questionId, mockTestId },
     });
-    if (existing) {
-      attempt = await db.attempt.update({
-        where: { id: existing.id },
-        data: {
-          responseText: responseText || null,
-          responseAudio: responseAudio || null,
-          scores: scores || null,
-          rawPointsEarned: rawPointsEarned != null ? Math.round(rawPointsEarned) : null,
-          maxPointsPossible: maxPointsPossible != null ? Math.round(maxPointsPossible) : null,
-          overallScore: overallScore ?? existing.overallScore,
-          timeTaken: timeTaken || null,
-          feedback: feedback || null,
-        },
-        include: { question: { select: { id: true, title: true, type: true, section: true } } },
-      });
-    } else {
-      attempt = await db.attempt.create({
-        data: {
-          userId: user!.id,
-          questionId,
-          responseText: responseText || null,
-          responseAudio: responseAudio || null,
-          scores: scores || null,
-          rawPointsEarned: rawPointsEarned != null ? Math.round(rawPointsEarned) : null,
-          maxPointsPossible: maxPointsPossible != null ? Math.round(maxPointsPossible) : null,
-          overallScore: overallScore ?? null,
-          timeTaken: timeTaken || null,
-          feedback: feedback || null,
-          mockTestId,
-        },
-        include: { question: { select: { id: true, title: true, type: true, section: true } } },
-      });
-    }
+    attempt = existing
+      ? await db.attempt.update({ where: { id: existing.id }, data, include })
+      : await db.attempt.create({ data: { ...data, userId: user!.id, questionId, mockTestId }, include });
   } else {
     attempt = await db.attempt.create({
-      data: {
-        userId: user!.id,
-        questionId,
-        responseText: responseText || null,
-        responseAudio: responseAudio || null,
-        scores: scores || null,
-        rawPointsEarned: rawPointsEarned != null ? Math.round(rawPointsEarned) : null,
-        maxPointsPossible: maxPointsPossible != null ? Math.round(maxPointsPossible) : null,
-        overallScore: overallScore ?? null,
-        timeTaken: timeTaken || null,
-        feedback: feedback || null,
-        mockTestId: null,
-      },
-      include: { question: { select: { id: true, title: true, type: true, section: true } } },
+      data: { ...data, userId: user!.id, questionId, mockTestId: null },
+      include,
     });
   }
 

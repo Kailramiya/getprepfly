@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth, requireRole } from "@/lib/auth-utils";
-import { getUserAccess, PTESection } from "@/lib/access";
+import { canAccessQuestion } from "@/lib/access";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
 // GET /api/questions/:id — get full question with content
@@ -29,27 +29,7 @@ export async function GET(
 
   const isSuperAdmin = user!.role === "SUPER_ADMIN";
   const isCentreStaff = user!.role === "CENTRE_ADMIN" || user!.role === "TEACHER";
-  let canView = false;
-
-  if (isSuperAdmin) {
-    canView = true;
-  } else if (isCentreStaff) {
-    canView = question.centreId === null || question.centreId === user!.centreId;
-  } else {
-    const access = await getUserAccess(user!.id);
-    const accessibleSections: PTESection[] = access.hasAllAccess
-      ? ["SPEAKING", "WRITING", "READING", "LISTENING"]
-      : Array.from(access.modules);
-
-    if (access.canPracticeSpeaking && !accessibleSections.includes("SPEAKING")) {
-      accessibleSections.push("SPEAKING");
-    }
-
-    canView =
-      question.isPublic ||
-      (!!user!.centreId && question.centreId === user!.centreId) ||
-      accessibleSections.includes(question.section as PTESection);
-  }
+  const canView = await canAccessQuestion(user!, question);
 
   if (!canView) {
     return NextResponse.json(

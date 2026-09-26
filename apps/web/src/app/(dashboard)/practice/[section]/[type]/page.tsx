@@ -48,7 +48,6 @@ export default function PracticeQuestionPage() {
   const [reportDone, setReportDone] = useState<Set<string>>(() => new Set());
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [selectedSource, setSelectedSource] = useState<"all" | "my-centre" | "public">("all");
-  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
   const [lastAttemptScore, setLastAttemptScore] = useState<number | null>(null);
   const [attemptHistory, setAttemptHistory] = useState<Array<{ date: string; score: number }>>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -74,48 +73,6 @@ export default function PracticeQuestionPage() {
       });
     });
   }, []);
-
-  // Types scored server-side via POST /api/questions/:id/score — attempt already saved there
-  const SERVER_SCORED_TYPES = new Set([
-    "READING_MCQ_SINGLE", "READING_MCQ_MULTIPLE",
-    "LISTENING_MCQ_SINGLE", "LISTENING_MCQ_MULTIPLE",
-    "REORDER_PARAGRAPHS", "HIGHLIGHT_INCORRECT_WORDS",
-    "SELECT_MISSING_WORD", "WRITE_FROM_DICTATION",
-    "LISTENING_FILL_BLANKS",
-  ]);
-
-  const saveAttempt = async (q: QuestionData, result: ScoreResult, response: any) => {
-    if (SERVER_SCORED_TYPES.has(q.type)) return; // already saved by score endpoint
-    const timeTaken = Math.round((Date.now() - questionStartTime) / 1000);
-    try {
-      await fetch("/api/attempts", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          questionId: q.id,
-          responseText: typeof response?.text === "string" ? response.text : null,
-          scores: {
-            correct: result.correct,
-            total: result.total,
-            marksEarned: result.marksEarned,
-            marksTotal: result.marksTotal,
-            mistakes: result.mistakes,
-            ...(result.aiScores && { aiScores: result.aiScores }),
-            ...(result.transcription && { transcription: result.transcription }),
-          },
-          overallScore: result.marksTotal > 0
-            ? Math.round((result.marksEarned / result.marksTotal) * 90)
-            : 0,
-          rawPointsEarned: result.marksEarned,
-          maxPointsPossible: result.marksTotal,
-          timeTaken,
-          feedback: result.message || null,
-        }),
-      });
-    } catch {
-      // ignore — non-blocking
-    }
-  };
 
   const fetchQuestionPage = useCallback(async (page: number, replace = false) => {
     const pageSize = 20;
@@ -171,7 +128,6 @@ export default function PracticeQuestionPage() {
     setLastAttemptScore(null);
     setHistoryLoaded(false);
     setHistoryLoading(true);
-    setQuestionStartTime(Date.now());
     autoSubmitRef.current = null;
 
     let cancelled = false;
@@ -591,7 +547,6 @@ export default function PracticeQuestionPage() {
                   }
                   if (result) {
                     setScore(result);
-                    saveAttempt(currentQuestion, result, response);
                     // For AI-scored types, percentile isn't in result yet — fetch it after save
                     if (result.percentile === undefined && currentQuestion && !result.pending) {
                       const overallScore = result.marksTotal > 0

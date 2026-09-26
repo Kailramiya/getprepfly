@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
+import { stripAnswerKeys } from "@/lib/answer-keys";
 import { calculateSkillScores, PTE_MIN_SCORE } from "@/lib/pte-scoring";
 
 // GET /api/mock-tests/:testId — get mock test with questions
@@ -45,6 +46,13 @@ export async function GET(
       { success: false, error: "Mock test not found" },
       { status: 404 }
     );
+  }
+
+  // Mid-test the browser must not receive answer keys; the report needs them after completion.
+  if (test.status !== "COMPLETED") {
+    for (const q of test.questions) {
+      q.question.content = stripAnswerKeys(q.question.type, q.question.content) as typeof q.question.content;
+    }
   }
 
   return NextResponse.json({ success: true, data: test });

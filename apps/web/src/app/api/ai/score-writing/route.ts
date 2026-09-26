@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { enforceRateLimit } from "@/lib/rate-limit";
+import { canAccessQuestion } from "@/lib/access";
 
 export const maxDuration = 60;
 
@@ -21,6 +22,17 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(
       { success: false, error: "questionId and responseText are required" },
       { status: 400 }
+    );
+  }
+
+  const question = await db.question.findUnique({ where: { id: questionId } });
+  if (!question || !question.isActive) {
+    return NextResponse.json({ success: false, error: "Question not found" }, { status: 404 });
+  }
+  if (!(await canAccessQuestion(user!, question))) {
+    return NextResponse.json(
+      { success: false, error: "You don't have access to the Writing module" },
+      { status: 403 }
     );
   }
 

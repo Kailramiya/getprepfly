@@ -23,9 +23,16 @@ export async function POST(req: NextRequest, { params }: { params: { batchId: st
       return NextResponse.json({ success: false, error: "Batch not found" }, { status: 404 });
     }
 
+    // Only users in the same centre may be added (blocks cross-tenant ids)
+    const ids = studentIds.filter((id): id is string => typeof id === "string");
+    const inCentre = await db.user.findMany({
+      where: { id: { in: ids }, centreId: user!.centreId! },
+      select: { id: true },
+    });
+
     // Insert batch members, skipping if they already exist
     const result = await db.batchMember.createMany({
-      data: studentIds.map((userId: string) => ({
+      data: inCentre.map(({ id: userId }) => ({
         batchId: params.batchId,
         userId,
       })),

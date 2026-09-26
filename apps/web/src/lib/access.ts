@@ -220,6 +220,30 @@ export async function hasModuleAccess(userId: string, section: PTESection): Prom
 }
 
 /**
+ * Can this user view/answer/score this question? Mirrors the visibility rules
+ * used by GET /api/questions/:id — centralized so scoring endpoints (which
+ * grant paid content like answer keys and AI feedback) enforce the same
+ * paywall instead of trusting any authenticated user.
+ */
+export async function canAccessQuestion(
+  user: { id: string; role: string; centreId?: string | null },
+  question: { isPublic: boolean; centreId: string | null; section: string }
+): Promise<boolean> {
+  if (user.role === "SUPER_ADMIN") return true;
+  if (user.role === "CENTRE_ADMIN" || user.role === "TEACHER") {
+    return question.centreId === null || question.centreId === user.centreId;
+  }
+
+  if (question.isPublic) return true;
+  if (user.centreId && question.centreId === user.centreId) return true;
+
+  const access = await getUserAccess(user.id);
+  if (access.hasAllAccess) return true;
+  if (question.section === "SPEAKING" && access.canPracticeSpeaking) return true;
+  return access.modules.has(question.section as PTESection);
+}
+
+/**
  * Grant module access after successful payment.
  * Creates or extends existing ModuleAccess by 30 days.
  */

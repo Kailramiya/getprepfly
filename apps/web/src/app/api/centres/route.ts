@@ -31,8 +31,11 @@ export async function GET() {
   return NextResponse.json({ success: true, data: centre });
 }
 
-// POST /api/centres — create a new centre (super admin or new centre registration)
+// POST /api/centres — create a new centre (super admin only; public self-registration uses /api/centres/register)
 export async function POST(req: NextRequest) {
+  const { error } = await requireRole(["SUPER_ADMIN"]);
+  if (error) return error;
+
   const body = await req.json();
   const { name, slug, email, phone, city, state, address, primaryColor, adminUserId } = body;
 

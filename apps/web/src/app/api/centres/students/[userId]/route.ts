@@ -65,6 +65,10 @@ export async function GET(
   const { user, error } = await requireAuth();
   if (error) return error;
 
+  if (!["CENTRE_ADMIN", "SUPER_ADMIN", "TEACHER"].includes(user!.role)) {
+    return NextResponse.json({ success: false, error: "Not authorized" }, { status: 403 });
+  }
+
   const centreId = user!.centreId;
   if (!centreId) {
     return NextResponse.json({ success: false, error: "Not associated with a centre" }, { status: 400 });

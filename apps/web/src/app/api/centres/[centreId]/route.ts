@@ -7,6 +7,16 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { centreId: string } }
 ) {
+  const { user, error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN"]);
+  if (error) return error;
+
+  if (user!.role === "CENTRE_ADMIN" && user!.centreId !== params.centreId) {
+    return NextResponse.json(
+      { success: false, error: "You can only view your own centre" },
+      { status: 403 }
+    );
+  }
+
   const centre = await db.centre.findUnique({
     where: { id: params.centreId },
     include: {

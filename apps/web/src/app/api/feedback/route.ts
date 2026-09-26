@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { requireAuth } from "@/lib/auth-utils";
+import { requireAuth, requireRole } from "@/lib/auth-utils";
 import { sendEmail, feedbackEmailTemplate } from "@/lib/email";
 import { parseBody } from "@/lib/validation";
 
@@ -60,7 +60,7 @@ export async function POST(req: NextRequest) {
 
 // GET /api/feedback — list all feedback (super admin only)
 export async function GET() {
-  const { error } = await requireAuth();
+  const { error } = await requireRole(["SUPER_ADMIN"]);
   if (error) return error;
 
   const feedbacks = await db.announcement.findMany({

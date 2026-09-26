@@ -437,7 +437,7 @@ export function QuestionRenderer({
 
   // Server-side scoring helper for objective question types.
   // Calls POST /api/questions/:id/score, stores revealed answer keys, calls onSubmit.
-  const scoreOnServer = async (answer: unknown, startTime: number) => {
+  const scoreOnServer = async (answer: unknown, startTime: number, key: "answer" | "answers" = "answer") => {
     onScoringChange?.(true);
     try {
       const timeTaken = Math.round((Date.now() - startTime) / 1000);
@@ -450,12 +450,12 @@ export function QuestionRenderer({
       if (data.success) {
         setRevealedContent(data.data.revealedContent);
         const sr: ScoreResult = { ...data.data.scoreResult, percentile: data.data.percentile ?? null };
-        onSubmit({ answer, scoreResult: sr, modelAnswer: data.data.modelAnswer });
+        onSubmit({ [key]: answer, scoreResult: sr, modelAnswer: data.data.modelAnswer });
       } else {
-        onSubmit({ answer, scoreResult: null });
+        onSubmit({ [key]: answer, scoreResult: null });
       }
     } catch {
-      onSubmit({ answer, scoreResult: null });
+      onSubmit({ [key]: answer, scoreResult: null });
     } finally {
       onScoringChange?.(false);
     }
@@ -900,11 +900,10 @@ export function QuestionRenderer({
           passage={content.passage || ""}
           blanks={content.blanks || []}
           extraOptions={content.extraOptions || []}
-          totalMarks={totalMarks}
           submitted={submitted}
           showAnswer={showAnswer}
           showFeedback={showFeedback}
-          onSubmit={onSubmit}
+          onSubmit={(r) => scoreOnServer(r.answers, Date.now(), "answers")}
           modelAnswers={modelAnswers}
           initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
@@ -922,11 +921,10 @@ export function QuestionRenderer({
           passage={content.passage || ""}
           blanks={content.blanks || []}
           options={content.options || content.blanks || []}
-          totalMarks={totalMarks}
           submitted={submitted}
           showAnswer={showAnswer}
           showFeedback={showFeedback}
-          onSubmit={onSubmit}
+          onSubmit={(r) => scoreOnServer(r.answers, Date.now(), "answers")}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
           initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
         />
@@ -1133,11 +1131,10 @@ export function QuestionRenderer({
         <FillBlanksText
           passage={content.passage || ""}
           blanks={content.blanks || []}
-          totalMarks={totalMarks}
           submitted={submitted}
           showAnswer={showAnswer}
           showFeedback={showFeedback}
-          onSubmit={onSubmit}
+          onSubmit={(r) => scoreOnServer(r.answers, Date.now(), "answers")}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
           initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
         />
@@ -2528,12 +2525,11 @@ function shuffle<T>(arr: T[]): T[] {
 
 // -------------------- DRAG-AND-DROP FILL BLANKS --------------------
 function FillBlanksDrag({
-  passage, blanks, extraOptions = [], submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, modelAnswers = [], initialAnswers, onRegisterSubmit,
+  passage, blanks, extraOptions = [], submitted, showAnswer = false, showFeedback = true, onSubmit, modelAnswers = [], initialAnswers, onRegisterSubmit,
 }: {
   passage: string;
   blanks: any[];
   extraOptions?: string[];
-  totalMarks: number;
   submitted: boolean;
   showAnswer?: boolean;
   showFeedback?: boolean;
@@ -2703,42 +2699,8 @@ function FillBlanksDrag({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filled, allFilled, submitted]);
 
-  const submitDragBlanks = () => {
-    if (useFlatMode) {
-      const hasModelAnswers = modelAnswers.length >= blankCount;
-      if (hasModelAnswers) {
-        const mistakes: ScoreResult["mistakes"] = [];
-        let correctCount = 0;
-        normalizedBlanks.forEach((b, i) => {
-          const given = (filled[i] || "").trim().toLowerCase();
-          const expected = (b.correctAnswer || "").trim().toLowerCase();
-          if (expected && given === expected) {
-            correctCount++;
-          } else {
-            mistakes.push({ position: i + 1, yourAnswer: (filled[i] || "").trim() || "(empty)", correctAnswer: (b.correctAnswer || "").trim() || "—" });
-          }
-        });
-        const ratio = blankCount > 0 ? correctCount / blankCount : 0;
-        onSubmit({ answers: filled, scoreResult: { marksEarned: Math.round(totalMarks * ratio * 10) / 10, marksTotal: totalMarks, correct: correctCount, total: blankCount, mistakes } as ScoreResult });
-      } else {
-        onSubmit({ answers: filled, scoreResult: { marksEarned: 0, marksTotal: totalMarks, correct: 0, total: blankCount, mistakes: [], pending: true, message: "Submitted for teacher review. Add a model answer to enable auto-scoring." } as ScoreResult });
-      }
-      return;
-    }
-    const mistakes: ScoreResult["mistakes"] = [];
-    let correctCount = 0;
-    normalizedBlanks.forEach((b, i) => {
-      const given = (filled[i] || "").trim();
-      const correct = (b.correctAnswer || "").trim();
-      if (given.toLowerCase() === correct.toLowerCase()) {
-        correctCount++;
-      } else {
-        mistakes.push({ position: i + 1, yourAnswer: given || "(empty)", correctAnswer: correct });
-      }
-    });
-    const total = normalizedBlanks.length || 1;
-    onSubmit({ answers: filled, scoreResult: { marksEarned: Math.round(totalMarks * (correctCount / total) * 10) / 10, marksTotal: totalMarks, correct: correctCount, total, mistakes } as ScoreResult });
-  };
+  // Scoring happens on the server; the component only reports the chosen words.
+  const submitDragBlanks = () => onSubmit({ answers: filled });
 
   return (
     <div className="space-y-5">
@@ -2860,12 +2822,11 @@ function FillBlanksDrag({
 
 // -------------------- DROPDOWN FILL BLANKS --------------------
 function FillBlanksDropdown({
-  passage, blanks, options, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, initialAnswers, onRegisterSubmit,
+  passage, blanks, options, submitted, showAnswer = false, showFeedback = true, onSubmit, initialAnswers, onRegisterSubmit,
 }: {
   passage: string;
   blanks: any[];
   options: string[];
-  totalMarks: number;
   submitted: boolean;
   showAnswer?: boolean;
   showFeedback?: boolean;
@@ -2888,19 +2849,7 @@ function FillBlanksDropdown({
   useEffect(() => {
     onRegisterSubmit?.(() => {
       if (!allFilled) return;
-      const mistakes: ScoreResult["mistakes"] = [];
-      let correctCount = 0;
-      normalizedBlanks.forEach((b, i) => {
-        const given = (answers[i] || "").trim();
-        const correct = (b.correctAnswer || "").trim();
-        if (normAns(given) === normAns(correct)) {
-          correctCount++;
-        } else {
-          mistakes.push({ position: i + 1, yourAnswer: given || "(empty)", correctAnswer: correct });
-        }
-      });
-      const total = normalizedBlanks.length || 1;
-      onSubmit({ answers, scoreResult: { marksEarned: Math.round(totalMarks * (correctCount / total) * 10) / 10, marksTotal: totalMarks, correct: correctCount, total, mistakes } as ScoreResult });
+      onSubmit({ answers });
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers, allFilled, submitted]);
@@ -2984,11 +2933,10 @@ function FillBlanksDropdown({
 
 // -------------------- TEXT INPUT FILL BLANKS (for Listening) --------------------
 function FillBlanksText({
-  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, totalMarks, initialAnswers, onRegisterSubmit,
+  passage, blanks, submitted, showAnswer = false, showFeedback = true, onSubmit, initialAnswers, onRegisterSubmit,
 }: {
   passage: string;
   blanks: any[];
-  totalMarks: number;
   submitted: boolean;
   showAnswer?: boolean;
   showFeedback?: boolean;
@@ -3010,19 +2958,7 @@ function FillBlanksText({
 
   useEffect(() => {
     onRegisterSubmit?.(() => {
-      const mistakes: ScoreResult["mistakes"] = [];
-      let correctCount = 0;
-      normalizedBlanks.forEach((b, i) => {
-        const given = (answers[i] || "").trim();
-        const correct = (b.correctAnswer || "").trim();
-        if (normAns(given) === normAns(correct)) {
-          correctCount++;
-        } else {
-          mistakes.push({ position: i + 1, yourAnswer: given || "(empty)", correctAnswer: correct });
-        }
-      });
-      const total = normalizedBlanks.length || 1;
-      onSubmit({ answers, scoreResult: { marksEarned: Math.round(totalMarks * (correctCount / total) * 10) / 10, marksTotal: totalMarks, correct: correctCount, total, mistakes } as ScoreResult });
+      onSubmit({ answers });
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [answers, allFilled, submitted]);

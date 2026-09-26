@@ -1,15 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
-
-// Normalize a fill-in-the-blank answer for fair matching
-function normAns(s: string | null | undefined): string {
-  return (s || "")
-    .toLowerCase()
-    .trim()
-    .replace(/\s+/g, " ")
-    .replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "");
-}
+import { canAccessQuestion } from "@/lib/access";
+import { normAns, scoreReadingFillBlanks } from "@/lib/fill-blanks-scoring";
 
 // POST /api/questions/:questionId/score
 // Server-side scoring for all objective question types.
@@ -29,6 +22,10 @@ export async function POST(
     return NextResponse.json({ success: false, error: "Question not found" }, { status: 404 });
   }
 
+  if (!(await canAccessQuestion(user!, question))) {
+    return NextResponse.json({ success: false, error: "Question not found" }, { status: 404 });
+  }
+
   const content = (question.content as any) || {};
   const totalMarks = question.marks || 1;
   const type = question.type;
@@ -41,6 +38,7 @@ export async function POST(
     total: number;
     mistakes: Mistake[];
     message?: string;
+    pending?: boolean;
   }
 
   let scoreResult: ScoreResult | null = null;
@@ -219,7 +217,9 @@ export async function POST(
 
   // ---- LISTENING FILL BLANKS ----
   else if (type === "LISTENING_FILL_BLANKS") {
-    const blanks: Array<{ answer: string; options?: string[] }> = content.blanks || [];
+    const blanks: Array<{ answer: string; options?: string[] }> = (content.blanks || []).map((b: any) =>
+      typeof b === "string" ? { answer: b } : { ...b, answer: b?.answer || b?.correctAnswer || "" }
+    );
     const userAnswers: Array<string | null> = Array.isArray(answer) ? answer : [];
     let correctCount = 0;
     const mistakes: Mistake[] = [];
@@ -243,6 +243,13 @@ export async function POST(
     };
     // Reveal the correct answer per blank for display
     revealedContent = { blanks };
+  }
+
+  // ---- READING FILL BLANKS (DRAG / DROPDOWN) ----
+  else if (type === "READING_FILL_BLANKS_DRAG" || type === "READING_FILL_BLANKS_DROPDOWN") {
+    const { expected, ...result } = scoreReadingFillBlanks(type, content, question.modelAnswer, answer, totalMarks);
+    scoreResult = result;
+    revealedContent = { correctAnswers: expected };
   }
 
   if (!scoreResult) {
