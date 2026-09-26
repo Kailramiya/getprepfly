@@ -190,7 +190,7 @@ export const authOptions: NextAuthOptions = {
       return true;
     },
 
-    async jwt({ token, user, trigger, session }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
         // Initial sign-in — capture everything including sessionId
         token.id = user.id;
@@ -215,10 +215,29 @@ export const authOptions: NextAuthOptions = {
         }
       }
 
-      // Handle session update (e.g., after plan upgrade)
-      if (trigger === "update" && session) {
-        token.planType = session.planType || token.planType;
-        token.centreId = session.centreId || token.centreId;
+      // Re-read identity fields from the DB on session update() and while the profile is
+      // incomplete. Never trust client-supplied values here. Without this the token keeps
+      // profileComplete=false after /complete-profile succeeds and the middleware loops
+      // the user back to that page (and a new centre admin keeps the STUDENT role).
+      if (token.id && (trigger === "update" || token.profileComplete === false)) {
+        const fresh = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: {
+            phone: true,
+            role: true,
+            centreId: true,
+            centre: { select: { name: true, slug: true } },
+            studentPlan: { select: { planType: true } },
+          },
+        });
+        if (fresh) {
+          token.profileComplete = !!fresh.phone;
+          token.role = fresh.role;
+          token.centreId = fresh.centreId || undefined;
+          token.centreName = fresh.centre?.name;
+          token.centreSlug = fresh.centre?.slug;
+          token.planType = fresh.studentPlan?.planType || "FREE";
+        }
       }
 
       // Single active session enforcement.
