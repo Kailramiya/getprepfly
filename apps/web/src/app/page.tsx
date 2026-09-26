@@ -712,7 +712,8 @@ export default async function HomePage() {
 
             <div className="mx-auto mt-16 mb-20 max-w-5xl rounded-[2rem] border border-white/5 bg-card/60 p-2 shadow-2xl dark:shadow-glass-dark backdrop-blur-md">
               <div className="relative overflow-hidden rounded-[calc(2rem-0.5rem)] bg-card aspect-[16/9] ring-1 ring-white/10 flex items-center justify-center shadow-inner">
-                <img src="/images/centre-dashboard.png" alt="PrepFly Coaching Centre Dashboard showing batches, student progress and branding" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-500 bg-muted" />
+                <img src="/images/prepfly-centre-dashboard-light.png" alt="PrepFly Coaching Centre Dashboard showing batches, student progress and branding" className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-500 bg-muted dark:hidden" />
+                <img src="/images/prepfly-centre-dashboard-dark.png" alt="PrepFly Coaching Centre Dashboard showing batches, student progress and branding" className="hidden w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity duration-500 bg-muted dark:block" />
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none mix-blend-overlay opacity-30">
                   <BarChart3 className="h-32 w-32" />
                 </div>
