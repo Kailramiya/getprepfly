@@ -106,11 +106,7 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!existingUser) {
-          // Google login only — no auto-signup
-          // User must register first via /register, then can use Google to login
-          throw new Error("No account found with this email. Please register first.");
-
-          /* UNCOMMENT to enable Google auto-signup later:
+          // Create new user via Google
           const newUser = await db.user.create({
             data: {
               email: user.email!.toLowerCase().trim(),
@@ -131,10 +127,18 @@ export const authOptions: NextAuthOptions = {
               },
             },
           });
+          
+          const sessionId = crypto.randomUUID();
+          await db.user.update({
+            where: { id: newUser.id },
+            data: { activeSessionId: sessionId },
+          });
+
           (user as any).id = newUser.id;
           (user as any).role = newUser.role;
           (user as any).planType = "FREE";
-          */
+          (user as any).activeSessionId = sessionId;
+          (user as any).phone = null;
         } else {
           // Link Google account if not linked
           const existingOAuth = await db.oAuthAccount.findUnique({
@@ -180,6 +184,7 @@ export const authOptions: NextAuthOptions = {
           (user as any).centreSlug = fullUser!.centre?.slug;
           (user as any).planType = fullUser!.studentPlan?.planType || "FREE";
           (user as any).activeSessionId = sessionId;
+          (user as any).phone = fullUser!.phone;
         }
       }
       return true;
@@ -195,6 +200,7 @@ export const authOptions: NextAuthOptions = {
         token.centreSlug = (user as any).centreSlug;
         token.planType = (user as any).planType || "FREE";
         token.activeSessionId = (user as any).activeSessionId;
+        token.profileComplete = !!(user as any).phone;
       }
 
       // Backfill missing centre info for existing sessions
@@ -249,6 +255,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).centreName = token.centreName;
         (session.user as any).centreSlug = token.centreSlug;
         (session.user as any).planType = token.planType;
+        (session.user as any).profileComplete = token.profileComplete;
       }
       return session;
     },

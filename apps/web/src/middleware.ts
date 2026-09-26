@@ -16,6 +16,11 @@ export default withAuth(
       return NextResponse.redirect(new URL("/dashboard", req.url));
     }
 
+    // Profile Completion Gate
+    if (token && token.profileComplete === false && !path.startsWith("/complete-profile")) {
+      return NextResponse.redirect(new URL("/complete-profile", req.url));
+    }
+
     return NextResponse.next();
   },
   {
@@ -36,5 +41,6 @@ export const config = {
     "/super-admin/:path*",
     "/study-guides/:path*",
     "/vocabulary/:path*",
+    "/complete-profile",
   ],
 };
