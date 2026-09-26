@@ -98,7 +98,7 @@ export default function PricingPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch("/api/access/me").then(r => r.json()),
+      import("@/hooks/use-access").then(m => m.getSharedAccess()),
       fetch("/api/pricing").then(r => r.json()),
     ]).then(([accessData, priceData]) => {
       if (accessData.success) {

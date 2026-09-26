@@ -78,23 +78,32 @@ export function calculateSkillScores(
   const earned:    Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
   const possible:  Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
 
+  const unmappedCounts: Record<SkillKey, number> = { speaking: 0, listening: 0, reading: 0, writing: 0 };
+  for (const attempt of attempts) {
+    if (!SKILL_CONTRIBUTIONS[attempt.questionType]) {
+      const skill = sectionToSkill(attempt.questionSection);
+      if (skill) unmappedCounts[skill]++;
+    }
+  }
+
   for (const attempt of attempts) {
     const isLegacy = attempt.rawPointsEarned == null || attempt.maxPointsPossible == null;
     if (isLegacy && attempt.overallScore === null) continue;
 
     const contrib = SKILL_CONTRIBUTIONS[attempt.questionType];
     if (!contrib) {
-      // Unknown type — contribute to its own section fallback
+      // Unknown type — distribute the full section weight (90) equally among unmapped questions
       const fallbackSkill = sectionToSkill(attempt.questionSection);
       if (fallbackSkill) {
+        const fullMarkWeight = 90 / (unmappedCounts[fallbackSkill] || 1);
         if (!isLegacy) {
-          earned[fallbackSkill] += attempt.rawPointsEarned!;
-          possible[fallbackSkill] += attempt.maxPointsPossible!;
+          const fraction = attempt.maxPointsPossible! > 0 ? (attempt.rawPointsEarned! / attempt.maxPointsPossible!) : 0;
+          earned[fallbackSkill] += fraction * fullMarkWeight;
+          possible[fallbackSkill] += fullMarkWeight;
         } else {
-          const FALLBACK_WEIGHT = 10;
           const normalized = attempt.overallScore! / 90;
-          earned[fallbackSkill] += normalized * FALLBACK_WEIGHT;
-          possible[fallbackSkill] += FALLBACK_WEIGHT;
+          earned[fallbackSkill] += normalized * fullMarkWeight;
+          possible[fallbackSkill] += fullMarkWeight;
         }
       }
       continue;
@@ -124,11 +133,16 @@ export function calculateSkillScores(
         earned.listening += s.rawContent || 0; possible.listening += 2;
         earned.writing += (s.rawForm || 0) + (s.rawGrammar || 0) + (s.rawVocabulary || 0) + (s.rawSpelling || 0); possible.writing += 8;
       } else {
-        // Standard non-integrated clean raw accumulation
+        // Full mark-weighting for question types without explicit trait routing
         for (const skill of SKILL_KEYS) {
-          if (contrib[skill] > 0) {
-            earned[skill] += attempt.rawPointsEarned!;
-            possible[skill] += attempt.maxPointsPossible!;
+          const weight = contrib[skill];
+          if (weight > 0) {
+            // Scale the raw score fraction to the official PTE weight
+            const fraction = attempt.maxPointsPossible! > 0 
+              ? (attempt.rawPointsEarned! / attempt.maxPointsPossible!) 
+              : 0;
+            earned[skill] += fraction * weight;
+            possible[skill] += weight;
           }
         }
       }

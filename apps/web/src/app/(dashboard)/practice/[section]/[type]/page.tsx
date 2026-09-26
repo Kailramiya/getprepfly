@@ -61,10 +61,9 @@ export default function PracticeQuestionPage() {
 
   // Fetch user's access info to know if they actually have access to this section
   useEffect(() => {
-    fetch("/api/access/me")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success) {
+    import("@/hooks/use-access").then(({ getSharedAccess }) => {
+      getSharedAccess().then((data) => {
+        if (data && data.success) {
           setAccessInfo({
             hasAllAccess: data.data.hasAllAccess,
             modules: data.data.modules || [],
@@ -72,8 +71,8 @@ export default function PracticeQuestionPage() {
             centreId: data.data.centreId || null,
           });
         }
-      })
-      .catch(() => { /* ignore */ });
+      });
+    });
   }, []);
 
   // Types scored server-side via POST /api/questions/:id/score — attempt already saved there

@@ -19,12 +19,11 @@ export function TrialBanner() {
   const [dismissed] = useState(false);
 
   useEffect(() => {
-    fetch("/api/access/me")
-      .then((r) => r.json())
-      .then((data) => {
-        if (data.success) setAccess(data.data);
-      })
-      .catch(() => {});
+    import("@/hooks/use-access").then(({ getSharedAccess }) => {
+      getSharedAccess().then((data) => {
+        if (data && data.success) setAccess(data.data);
+      });
+    });
   }, []);
 
   if (!access || dismissed) return null;
