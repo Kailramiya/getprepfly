@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
-import { grantModuleAccess, MODULE_PRICING, CENTRE_PLANS, activateCentrePlan, PTESection } from "@/lib/access";
+import { grantModuleAccess, MODULE_PRICING, CENTRE_PLANS, activateCentrePlan, isCentrePlanKey, PTESection } from "@/lib/access";
 
 // POST /api/payments/verify — verify Razorpay signature and grant module access
 export async function POST(req: NextRequest) {
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
   }
 
   const planType = payment.planType;
-  const isCentrePlan = planType?.startsWith("CENTRE_");
+  const isCentrePlan = isCentrePlanKey(planType);
 
   if (!planType || (!MODULE_PRICING[planType] && !CENTRE_PLANS[planType])) {
     return NextResponse.json({ success: false, error: "Invalid plan type on payment record" }, { status: 400 });

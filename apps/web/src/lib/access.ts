@@ -1,4 +1,5 @@
 import { db } from "./db";
+import { DEFAULT_PRICES } from "./pricing-defaults";
 
 export type PTESection = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
@@ -289,161 +290,39 @@ export async function grantModuleAccess(
 }
 
 /**
- * Student module pricing (in paise — Razorpay uses smallest unit).
- * Each entry now carries a `days` field so verify/webhook pass the right duration.
+ * Plan tables. Prices/labels/seat limits come from DEFAULT_PRICES (the same source the
+ * pricing pages read via /api/pricing); only duration and module are derived here, so
+ * what a user sees is what Razorpay charges. DB overrides (PricingSetting) are applied
+ * by the callers on top of these.
  */
-export const MODULE_PRICING: Record<string, { amount: number; label: string; section: PTESection | null; days: number }> = {
-  // 1 month (30 days)
-  MODULE_SPEAKING:    { amount: 19900,  label: "Speaking Module (1 Month)",   section: "SPEAKING",  days: 30 },
-  MODULE_WRITING:     { amount: 19900,  label: "Writing Module (1 Month)",    section: "WRITING",   days: 30 },
-  MODULE_READING:     { amount: 19900,  label: "Reading Module (1 Month)",    section: "READING",   days: 30 },
-  MODULE_LISTENING:   { amount: 19900,  label: "Listening Module (1 Month)",  section: "LISTENING", days: 30 },
-  ALL_MODULES:        { amount: 59900,  label: "All Modules (1 Month)",       section: null,        days: 30 },
-  // 6 months (180 days)
-  MODULE_SPEAKING_6M: { amount: 99900,  label: "Speaking Module (6 Months)",  section: "SPEAKING",  days: 180 },
-  MODULE_WRITING_6M:  { amount: 99900,  label: "Writing Module (6 Months)",   section: "WRITING",   days: 180 },
-  MODULE_READING_6M:  { amount: 99900,  label: "Reading Module (6 Months)",   section: "READING",   days: 180 },
-  MODULE_LISTENING_6M:{ amount: 99900,  label: "Listening Module (6 Months)", section: "LISTENING", days: 180 },
-  ALL_MODULES_6M:     { amount: 299900, label: "All Modules (6 Months)",      section: null,        days: 180 },
-  // 1 year (365 days)
-  MODULE_SPEAKING_1Y: { amount: 179900, label: "Speaking Module (1 Year)",    section: "SPEAKING",  days: 365 },
-  MODULE_WRITING_1Y:  { amount: 179900, label: "Writing Module (1 Year)",     section: "WRITING",   days: 365 },
-  MODULE_READING_1Y:  { amount: 179900, label: "Reading Module (1 Year)",     section: "READING",   days: 365 },
-  MODULE_LISTENING_1Y:{ amount: 179900, label: "Listening Module (1 Year)",   section: "LISTENING", days: 365 },
-  ALL_MODULES_1Y:     { amount: 499900, label: "All Modules (1 Year)",        section: null,        days: 365 },
-};
+const MODULE_KEY = /^(?:MODULE_(SPEAKING|WRITING|READING|LISTENING)|ALL_MODULES)(?:_(3M|6M|1Y))?$/;
+const MODULE_SUFFIX_DAYS: Record<string, number> = { "3M": 90, "6M": 180, "1Y": 365 };
 
-/**
- * Coaching centre subscription plans (in paise).
- * Purchasing any plan sets isPremiumCentre=true and premiumUntil=+30 days,
- * giving all students in the centre full access automatically.
- */
-export const CENTRE_PLANS: Record<string, {
-  amount: number;        // paise
-  label: string;
-  maxStudents: number;
-  days: number;          // subscription duration
-  features: string[];
-}> = {
-  // Monthly plans (30 days)
-  CENTRE_MINI: {
-    amount: 119900,       // ₹1,199 / month
-    label: "Mini Plan",
-    maxStudents: 5,
-    days: 30,
-    features: [
-      "Up to 5 students",
-      "All 4 modules unlocked for all students",
-      "AI scoring for all question types",
-      "Student progress tracking",
-      "Batch management",
-      "30 days access",
-    ],
-  },
-  CENTRE_SMALL: {
-    amount: 299900,       // ₹2,999 / month
-    label: "Small Plan",
-    maxStudents: 20,
-    days: 30,
-    features: [
-      "Up to 20 students",
-      "All 4 modules unlocked for all students",
-      "AI scoring for all question types",
-      "Student progress tracking",
-      "Batch management",
-      "30 days access",
-    ],
-  },
-  CENTRE_STARTER: {
-    amount: 299900,       // ₹2,999 / 6 months
-    label: "Starter Plan",
-    maxStudents: 50,
-    days: 180,
-    features: [
-      "Up to 50 students",
-      "All 4 modules unlocked for all students",
-      "AI scoring for all question types",
-      "Student progress tracking",
-      "Batch management",
-      "6 months access",
-    ],
-  },
-  CENTRE_GROWTH: {
-    amount: 699900,       // ₹6,999 / 6 months
-    label: "Growth Plan",
-    maxStudents: 150,
-    days: 180,
-    features: [
-      "Up to 150 students",
-      "All 4 modules unlocked for all students",
-      "AI scoring for all question types",
-      "Advanced analytics dashboard",
-      "Batch management + leaderboard",
-      "Priority support",
-      "6 months access",
-    ],
-  },
-  CENTRE_PRO: {
-    amount: 1499900,      // ₹14,999 / 6 months
-    label: "Pro Plan",
-    maxStudents: 500,
-    days: 180,
-    features: [
-      "Up to 500 students",
-      "All 4 modules unlocked for all students",
-      "AI scoring for all question types",
-      "Full analytics + centre branding",
-      "Unlimited batches",
-      "Dedicated support",
-      "6 months access",
-    ],
-  },
-  // Annual institute plans
-  ANNUAL_STARTER: {
-    amount: 1199900,      // ₹11,999/year
-    label: "Annual Starter Plan",
-    maxStudents: 65,      // 50 base + 15 bonus
-    days: 365,
-    features: [
-      "50 Students + 15 Bonus (65 total)",
-      "All 4 modules unlocked for all students",
-      "AI scoring for all question types",
-      "Student progress tracking",
-      "Batch management",
-      "1 year access",
-    ],
-  },
-  ANNUAL_GROWTH: {
-    amount: 2999900,      // ₹29,999/year
-    label: "Annual Growth Plan",
-    maxStudents: 180,     // 150 base + 30 bonus
-    days: 365,
-    features: [
-      "150 Students + 30 Bonus (180 total)",
-      "All 4 modules unlocked for all students",
-      "AI scoring for all question types",
-      "Advanced analytics dashboard",
-      "Batch management + leaderboard",
-      "Priority support",
-      "1 year access",
-    ],
-  },
-  ANNUAL_UNLIMITED: {
-    amount: 7999900,      // ₹79,999/year
-    label: "Annual Unlimited Plan",
-    maxStudents: -1,      // -1 = unlimited
-    days: 365,
-    features: [
-      "Unlimited students",
-      "All 4 modules unlocked for all students",
-      "AI scoring for all question types",
-      "Full analytics + centre branding",
-      "Unlimited batches",
-      "Dedicated support",
-      "1 year access",
-    ],
-  },
-};
+export const MODULE_PRICING: Record<string, { amount: number; label: string; section: PTESection | null; days: number }> = {};
+export const CENTRE_PLANS: Record<string, { amount: number; label: string; maxStudents: number; days: number }> = {};
+
+for (const [key, def] of Object.entries(DEFAULT_PRICES)) {
+  const m = MODULE_KEY.exec(key);
+  if (m) {
+    MODULE_PRICING[key] = {
+      amount: def.amount,
+      label: def.label,
+      section: (m[1] as PTESection | undefined) ?? null,
+      days: m[2] ? MODULE_SUFFIX_DAYS[m[2]] : 30,
+    };
+  } else if (def.maxStudents !== undefined) {
+    CENTRE_PLANS[key] = {
+      amount: def.amount,
+      label: def.label,
+      maxStudents: def.maxStudents,
+      days: key.startsWith("ANNUAL_") ? 365 : key === "CENTRE_MINI" || key === "CENTRE_SMALL" ? 30 : 180,
+    };
+  }
+}
+
+export function isCentrePlanKey(planType: string | null | undefined): boolean {
+  return !!planType && (planType.startsWith("CENTRE_") || planType.startsWith("ANNUAL_"));
+}
 
 /**
  * Activate or extend centre premium access after successful payment.

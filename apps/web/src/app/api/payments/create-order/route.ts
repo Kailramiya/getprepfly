@@ -2,17 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
-import { MODULE_PRICING, CENTRE_PLANS, activateCentrePlan, grantModuleAccess } from "@/lib/access";
+import { MODULE_PRICING, CENTRE_PLANS, activateCentrePlan, grantModuleAccess, isCentrePlanKey } from "@/lib/access";
 import { parseBody } from "@/lib/validation";
 
 const CreateOrderSchema = z.object({
   planType: z.string().min(1, "planType is required").max(60),
   couponCode: z.string().trim().max(60).optional(),
 });
-
-function isCentrePlanKey(planType: string): boolean {
-  return planType?.startsWith("CENTRE_") || planType?.startsWith("ANNUAL_");
-}
 
 // Merge hardcoded plan metadata with DB-overridden amounts
 async function resolvePlanAmount(planType: string): Promise<{ amount: number; label: string } | null> {
