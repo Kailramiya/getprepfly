@@ -200,7 +200,7 @@ export const authOptions: NextAuthOptions = {
         token.centreSlug = (user as any).centreSlug;
         token.planType = (user as any).planType || "FREE";
         token.activeSessionId = (user as any).activeSessionId;
-        token.profileComplete = !!(user as any).phone;
+        token.profileComplete = !!(user as any).phone || (user as any).role !== "STUDENT";
       }
 
       // Backfill missing centre info for existing sessions
@@ -231,7 +231,7 @@ export const authOptions: NextAuthOptions = {
           },
         });
         if (fresh) {
-          token.profileComplete = !!fresh.phone;
+          token.profileComplete = !!fresh.phone || fresh.role !== "STUDENT";
           token.role = fresh.role;
           token.centreId = fresh.centreId || undefined;
           token.centreName = fresh.centre?.name;

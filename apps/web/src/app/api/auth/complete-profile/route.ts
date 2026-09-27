@@ -30,6 +30,23 @@ export async function POST(req: NextRequest) {
     }
 
     const { phone, role, centreName, centreReferralCode, inviteToken } = parsed.data;
+
+    // Only plain student accounts may be converted or attached to a centre here.
+    // Staff (SUPER_ADMIN / CENTRE_ADMIN / TEACHER) just record a phone number; their
+    // role must never be overwritten by this form.
+    const account = await db.user.findUnique({ where: { id: user.id }, select: { role: true } });
+    if (!account) {
+      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+    }
+    if (account.role !== "STUDENT") {
+      const taken = await db.user.findUnique({ where: { phone } });
+      if (taken && taken.id !== user.id) {
+        return NextResponse.json({ success: false, error: "This phone number is already registered" }, { status: 409 });
+      }
+      await db.user.update({ where: { id: user.id }, data: { phone } });
+      return NextResponse.json({ success: true, message: "Profile updated successfully" });
+    }
+
     const isCentre = role === "centre" && !inviteToken;
 
     // Check phone uniqueness
