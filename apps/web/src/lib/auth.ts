@@ -7,6 +7,9 @@ import { db } from "./db";
 import { isRateLimited } from "./rate-limit";
 
 
+const SESSION_CHECK_TTL_MS = 30_000;
+const sessionCheckCache = new Map<string, { sid: string; at: number }>();
+
 export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
@@ -247,12 +250,22 @@ export const authOptions: NextAuthOptions = {
       // (Tokens minted before this feature have no activeSessionId — skip them
       // so existing users aren't mass-logged-out on deploy.)
       if (!user && token.id && token.activeSessionId) {
-        const current = await db.user.findUnique({
-          where: { id: token.id as string },
-          select: { activeSessionId: true },
-        });
-        if (current && current.activeSessionId && current.activeSessionId !== token.activeSessionId) {
-          token.sessionInvalid = true;
+        // Only a positive result is cached (per server instance, SESSION_CHECK_TTL_MS): saves a
+        // DB round trip on every request. A mismatch always re-reads the DB, so a fresh login
+        // is never wrongly rejected; an older device can stay valid for up to the TTL.
+        const cached = sessionCheckCache.get(token.id as string);
+        if (!(cached && cached.sid === token.activeSessionId && Date.now() - cached.at < SESSION_CHECK_TTL_MS)) {
+          const current = await db.user.findUnique({
+            where: { id: token.id as string },
+            select: { activeSessionId: true },
+          });
+          if (current && current.activeSessionId && current.activeSessionId !== token.activeSessionId) {
+            token.sessionInvalid = true;
+            sessionCheckCache.delete(token.id as string);
+          } else {
+            if (sessionCheckCache.size > 5000) sessionCheckCache.clear();
+            sessionCheckCache.set(token.id as string, { sid: token.activeSessionId as string, at: Date.now() });
+          }
         }
       }
 

@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
+import { randomUUID as createId } from "node:crypto";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
 import { getUserAccess } from "@/lib/access";
@@ -11,6 +13,20 @@ const MOCK_TEST_STRUCTURE: Record<string, Record<string, number>> = {
 };
 
 // GET /api/mock-tests — list user's mock tests
+// One bulk INSERT for the questions instead of a nested create: Prisma runs nested creates as one
+// statement per row, and every statement is a full network round trip to the database.
+async function createMockTestWithQuestions(
+  data: Omit<Prisma.MockTestUncheckedCreateInput, "id" | "questions">,
+  questions: { questionId: string; order: number }[]
+) {
+  const id = createId();
+  const [mockTest] = await db.$transaction([
+    db.mockTest.create({ data: { ...data, id } }),
+    db.mockTestQuestion.createMany({ data: questions.map((q) => ({ ...q, mockTestId: id })) }),
+  ]);
+  return { ...mockTest, _count: { questions: questions.length } };
+}
+
 export async function GET(req: NextRequest) {
   const { user, error } = await requireAuth();
   if (error) return error;
@@ -72,8 +88,8 @@ export async function POST(req: NextRequest) {
         }
       }
 
-      const mockTest = await db.mockTest.create({
-        data: {
+      const mockTest = await createMockTestWithQuestions(
+        {
           userId: user!.id,
           title: template.title,
           mockType: template.mockType,
@@ -81,12 +97,9 @@ export async function POST(req: NextRequest) {
           status: "IN_PROGRESS",
           currentSection: (template.section ?? "SPEAKING") as any,
           currentIndex: 0,
-          questions: {
-            create: template.questions.map(q => ({ questionId: q.questionId, order: q.order })),
-          },
         },
-        include: { _count: { select: { questions: true } } },
-      });
+        template.questions.map((q) => ({ questionId: q.questionId, order: q.order }))
+      );
 
       return NextResponse.json({ success: true, data: mockTest }, { status: 201 });
     }
@@ -130,8 +143,10 @@ export async function POST(req: NextRequest) {
         const pool = byType.get(type) ?? [];
         if (pool.length === 0) continue; // Skip if absolutely no questions available for this type
         const shuffled = pool.sort(() => Math.random() - 0.5);
-        for (let i = 0; i < count; i++) {
-          questionSelections.push({ questionId: shuffled[i % shuffled.length], order: order++ });
+        // Never repeat a question: (mockTestId, questionId) is unique, so wrapping around a
+        // small pool made the whole creation fail. A short section is better than a 500.
+        for (let i = 0; i < Math.min(count, shuffled.length); i++) {
+          questionSelections.push({ questionId: shuffled[i], order: order++ });
         }
       }
     }
@@ -143,17 +158,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const mockTest = await db.mockTest.create({
-      data: {
+    const mockTest = await createMockTestWithQuestions(
+      {
         userId: user!.id,
         title: `Mock Test ${new Date().toLocaleDateString("en-IN")}`,
         status: "IN_PROGRESS",
         currentSection: "SPEAKING",
         currentIndex: 0,
-        questions: { create: questionSelections },
       },
-      include: { _count: { select: { questions: true } } },
-    });
+      questionSelections
+    );
 
     return NextResponse.json({ success: true, data: mockTest }, { status: 201 });
   } catch (err) {

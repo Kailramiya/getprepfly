@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { requireAuth } from "@/lib/auth-utils";
+import { requireAuth, requireRole } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 
 // GET — fetch announcements for current user (global + their centre's)
@@ -59,14 +59,18 @@ export async function POST(req: NextRequest) {
 
 // DELETE
 export async function DELETE(req: NextRequest) {
-  const { user, error } = await requireAuth();
+  const { user, error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN"]);
   if (error) return error;
 
   const { id } = await req.json();
+  if (!id || typeof id !== "string") {
+    return NextResponse.json({ success: false, error: "id is required" }, { status: 400 });
+  }
   const ann = await db.announcement.findUnique({ where: { id } });
   if (!ann) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
 
-  if (user!.role !== "SUPER_ADMIN" && ann.centreId !== user!.centreId) {
+  // Centre admins may only delete their own centre's announcements (never global ones).
+  if (user!.role !== "SUPER_ADMIN" && (!ann.centreId || ann.centreId !== user!.centreId)) {
     return NextResponse.json({ success: false, error: "Not authorized" }, { status: 403 });
   }
 

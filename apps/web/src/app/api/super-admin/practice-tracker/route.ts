@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth-utils";
 
@@ -131,7 +132,7 @@ export async function GET(req: NextRequest) {
   const attemptsSince =
     range === "all" ? null : since && since < streakWindowStart ? since : streakWindowStart;
 
-  const [centres, students, attemptRows, lastActiveRows, mockRows] = await Promise.all([
+  const [centres, students, totalRows, dayRows, lastActiveRows, mockRows] = await Promise.all([
     db.centre.findMany({
       select: {
         id: true,
@@ -155,15 +156,21 @@ export async function GET(req: NextRequest) {
         centreId: true,
       },
     }),
-    db.attempt.findMany({
-      where: attemptsSince ? { createdAt: { gte: attemptsSince } } : {},
-      select: {
-        userId: true,
-        createdAt: true,
-        timeTaken: true,
-        overallScore: true,
-      },
+    // Range totals per user, aggregated in the database (no per-attempt rows over the wire).
+    db.attempt.groupBy({
+      by: ["userId"],
+      where: since ? { createdAt: { gte: since } } : {},
+      _count: { _all: true, overallScore: true },
+      _sum: { timeTaken: true, overallScore: true },
     }),
+    // One row per user per active IST day (streak window), flagged if it has an in-range attempt.
+    db.$queryRaw<Array<{ userId: string; day: string; in_range: boolean }>>`
+      SELECT "userId",
+             ("createdAt" + interval '5 hours 30 minutes')::date::text AS day,
+             bool_or("createdAt" >= ${since ?? new Date(0)}) AS in_range
+      FROM "Attempt"
+      WHERE ${attemptsSince ? Prisma.sql`"createdAt" >= ${attemptsSince}` : Prisma.sql`TRUE`}
+      GROUP BY 1, 2`,
     // All-time last activity per user (cheap — one row per user).
     db.attempt.groupBy({
       by: ["userId"],
@@ -193,33 +200,27 @@ export async function GET(req: NextRequest) {
 
   // Aggregate attempts per student.
   const aggById = new Map<string, UserAgg>();
-  for (const row of attemptRows) {
-    if (!studentById.has(row.userId)) continue; // students only
-    let a = aggById.get(row.userId);
+  const aggFor = (userId: string): UserAgg => {
+    let a = aggById.get(userId);
     if (!a) {
-      a = {
-        attempts: 0,
-        timeSeconds: 0,
-        sumScore: 0,
-        scoredCount: 0,
-        rangeDayKeys: new Set<string>(),
-        streakDayKeys: new Set<string>(),
-      };
-      aggById.set(row.userId, a);
+      a = { attempts: 0, timeSeconds: 0, sumScore: 0, scoredCount: 0, rangeDayKeys: new Set<string>(), streakDayKeys: new Set<string>() };
+      aggById.set(userId, a);
     }
-    const dayKey = istDayKey(row.createdAt);
-    a.streakDayKeys.add(dayKey);
-
-    const inRange = !since || row.createdAt >= since;
-    if (inRange) {
-      a.attempts++;
-      if (typeof row.timeTaken === "number") a.timeSeconds += row.timeTaken;
-      if (typeof row.overallScore === "number") {
-        a.sumScore += row.overallScore;
-        a.scoredCount++;
-      }
-      a.rangeDayKeys.add(dayKey);
-    }
+    return a;
+  };
+  for (const r of totalRows) {
+    if (!studentById.has(r.userId)) continue; // students only
+    const a = aggFor(r.userId);
+    a.attempts = r._count._all;
+    a.timeSeconds = r._sum.timeTaken ?? 0;
+    a.sumScore = r._sum.overallScore ?? 0;
+    a.scoredCount = r._count.overallScore;
+  }
+  for (const r of dayRows) {
+    if (!studentById.has(r.userId)) continue;
+    const a = aggFor(r.userId);
+    a.streakDayKeys.add(r.day);
+    if (r.in_range) a.rangeDayKeys.add(r.day);
   }
 
   // Build centre buckets (include every centre, even dormant ones).

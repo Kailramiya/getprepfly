@@ -51,8 +51,8 @@ async function getTodaySpeakingScoringCount(userId: string): Promise<number> {
 export async function getUserAccess(userId: string): Promise<UserAccess> {
   const now = new Date();
 
-  // Run both queries in parallel — saves ~50-100ms per request
-  const [user, scoringsUsed] = await Promise.all([
+  // Independent lookups run together: each sequential DB round trip costs a full network RTT.
+  const [user, scoringsUsed, seats, accesses] = await Promise.all([
     db.user.findUnique({
       where: { id: userId },
       select: {
@@ -70,6 +70,9 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
       },
     }),
     getTodaySpeakingScoringCount(userId),
+    // Table may not be migrated yet — treat as no seats.
+    db.centreStudentSeat.findMany({ where: { userId } }).catch(() => []),
+    db.moduleAccess.findMany({ where: { userId, isActive: true, expiresAt: { gt: now } } }),
   ]);
 
   const baseResult: UserAccess = {
@@ -105,9 +108,7 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
   // ---- Priority 1: Active Centre Seat (per-student 30-day/monthly access) ----
   if (user.centreId) {
     try {
-      const seat = await db.centreStudentSeat.findUnique({
-        where: { centreId_userId: { centreId: user.centreId, userId } },
-      });
+      const seat = seats.find((x) => x.centreId === user.centreId);
       if (seat && seat.status === "ACTIVE" && new Date(seat.endDate) > now) {
         const seatEnd = new Date(seat.endDate);
         baseResult.hasAllAccess = true;
@@ -149,14 +150,6 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
   }
 
   // ---- Priority 2: Active Module Purchases ----
-  const accesses = await db.moduleAccess.findMany({
-    where: {
-      userId,
-      isActive: true,
-      expiresAt: { gt: now },
-    },
-  });
-
   for (const a of accesses) {
     if (a.section === null) {
       baseResult.hasAllAccess = true;

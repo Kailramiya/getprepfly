@@ -37,7 +37,7 @@ export async function GET(
     }),
   };
 
-  const [students, total] = await Promise.all([
+  const [students, total, seats] = await Promise.all([
     db.user.findMany({
       where,
       select: {
@@ -59,13 +59,15 @@ export async function GET(
       orderBy: { createdAt: "desc" },
     }),
     db.user.count({ where }),
+    // Fetched alongside the page query (not after it) to save a network round trip;
+    // bounded by the centre's size and matched to the page below.
+    db.centreStudentSeat.findMany({
+      where: { centreId: params.centreId, user: where },
+      select: { userId: true, status: true, startDate: true, endDate: true },
+    }),
   ]);
 
   const seatMap: Record<string, { status: string; startDate: Date; endDate: Date } | null> = {};
-  const seats = await db.centreStudentSeat.findMany({
-    where: { centreId: params.centreId, userId: { in: students.map((s: any) => s.id) } },
-    select: { userId: true, status: true, startDate: true, endDate: true },
-  });
   seats.forEach(s => { seatMap[s.userId] = s; });
 
   return NextResponse.json({
