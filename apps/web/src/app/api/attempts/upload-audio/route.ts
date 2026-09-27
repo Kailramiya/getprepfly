@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 
-const MAX_AUDIO_SIZE = 10 * 1024 * 1024; // 10 MB — 3-min recording at 48kbps webm
+const MAX_AUDIO_SIZE = 2 * 1024 * 1024; // 2 MB — a 3-min speech recording at 32kbps opus is ~0.7 MB
 
 // POST /api/attempts/upload-audio — upload student speaking recording to Vercel Blob.
 // Returns a persistent public URL to be stored in Attempt.responseAudio.
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
 
     if (audioFile.size > MAX_AUDIO_SIZE) {
       return NextResponse.json(
-        { success: false, error: "Audio file too large (max 10 MB)" },
+        { success: false, error: "Audio file too large (max 2 MB)" },
         { status: 400 }
       );
     }

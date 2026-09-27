@@ -65,6 +65,7 @@ export function useAudioRecorder(maxDuration?: number): UseAudioRecorderReturn {
       streamRef.current = stream;
 
       const mediaRecorder = new MediaRecorder(stream, {
+        audioBitsPerSecond: 32000, // speech-quality Opus; keeps uploads small
         mimeType: MediaRecorder.isTypeSupported("audio/webm;codecs=opus")
           ? "audio/webm;codecs=opus"
           : "audio/webm",
