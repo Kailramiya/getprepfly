@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
+import { isR2Configured, putToR2 } from "@/lib/r2";
 
 const MAX_AUDIO_SIZE = 2 * 1024 * 1024; // 2 MB — a 3-min speech recording at 32kbps opus is ~0.7 MB
 
-// POST /api/attempts/upload-audio — upload student speaking recording to Vercel Blob.
+// POST /api/attempts/upload-audio — upload student speaking recording to Cloudflare R2.
 // Returns a persistent public URL to be stored in Attempt.responseAudio.
 export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
@@ -28,39 +29,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
-    if (!blobConfigured) {
-      // Blob storage not configured — return gracefully so the attempt still saves
+    if (!isR2Configured()) {
+      // Storage not configured — return gracefully so the attempt still saves
       return NextResponse.json(
         { success: false, error: "Audio storage not configured. Scores still saved.", notConfigured: true },
         { status: 503 }
       );
     }
 
-    const { put } = await import("@vercel/blob");
     const ext = audioFile.name.split(".").pop() || "webm";
     // Namespace by userId so recordings are easily identifiable
-    const fileName = `student-audio/${user!.id}/${questionId}-${Date.now()}.${ext}`;
-
-    let audioUrl: string;
-    try {
-      const blob = await put(fileName, await audioFile.arrayBuffer(), {
-        access: "public",
-        contentType: audioFile.type || "audio/webm",
-      });
-      audioUrl = blob.url;
-    } catch (pubErr: any) {
-      // Private blob store fallback — proxy through media-proxy route
-      if (pubErr?.message?.includes("private")) {
-        const blob = await put(fileName, await audioFile.arrayBuffer(), {
-          access: "private",
-          contentType: audioFile.type || "audio/webm",
-        });
-        audioUrl = `/api/media-proxy?url=${encodeURIComponent(blob.url)}`;
-      } else {
-        throw pubErr;
-      }
-    }
+    const key = `student-audio/${user!.id}/${questionId}-${Date.now()}.${ext}`;
+    const audioUrl = await putToR2(key, Buffer.from(await audioFile.arrayBuffer()), audioFile.type || "audio/webm");
 
     return NextResponse.json({ success: true, data: { audioUrl } });
   } catch (err: any) {

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth-utils";
+import { isR2Configured, putToR2 } from "@/lib/r2";
 
 // Max file sizes (bytes)
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
 const MAX_AUDIO_SIZE = 4 * 1024 * 1024; // 4 MB serverless-safe upload limit
 
 // POST /api/upload-file — upload file (image or audio) for questions.
-// Requires Vercel Blob (BLOB_READ_WRITE_TOKEN). Returns 503 if not configured.
+// Requires Cloudflare R2 (R2_* env vars). Returns 503 if not configured.
 export async function POST(req: NextRequest) {
   // Only admins/teachers can upload files
   const { error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"]);
@@ -97,70 +98,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const blobConfigured = !!process.env.BLOB_READ_WRITE_TOKEN;
-
-    if (!blobConfigured) {
+    if (!isR2Configured()) {
       return NextResponse.json(
         {
           success: false,
-          error: "File storage is not configured. Go to Vercel dashboard → Storage → Blob, create a store, then add BLOB_READ_WRITE_TOKEN to your environment variables and redeploy.",
+          error: "File storage is not configured. Set R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET and R2_PUBLIC_URL in your environment variables and redeploy.",
           needsCloudStorage: true,
         },
         { status: 503 }
       );
     }
 
-    // ---- Vercel Blob Storage ----
+    // ---- Cloudflare R2 ----
     try {
-      const { put } = await import("@vercel/blob");
       const ext = file.name.split(".").pop() || "bin";
-      const fileName = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-      const arrayBuffer = await file.arrayBuffer();
-
-      // Try public access first; if the store is private, fall back to private access.
-      let blob: Awaited<ReturnType<typeof put>> | null = null;
-      let isPrivate = false;
-
-      try {
-        blob = await put(fileName, arrayBuffer, {
-          access: "public",
-          contentType: normalizedType,
-        });
-      } catch (pubErr: any) {
-        if (pubErr?.message?.includes("private")) {
-          blob = await put(fileName, arrayBuffer, {
-            access: "private",
-            contentType: normalizedType,
-          });
-          isPrivate = true;
-        } else {
-          throw pubErr;
-        }
-      }
-
-      // For private blobs the raw URL requires the token to access.
-      // Wrap it in our proxy route so audio/images load in the browser.
-      const serveUrl = isPrivate
-        ? `/api/media-proxy?url=${encodeURIComponent(blob!.url)}`
-        : blob!.url;
+      const key = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const url = await putToR2(key, Buffer.from(await file.arrayBuffer()), normalizedType);
 
       return NextResponse.json({
         success: true,
-        data: {
-          url: serveUrl,
-          method: "vercel-blob",
-          size: file.size,
-          type: normalizedType,
-        },
+        data: { url, method: "r2", size: file.size, type: normalizedType },
       });
     } catch (err: any) {
       const reason = err?.message || String(err) || "unknown error";
-      console.error("Vercel Blob upload failed:", reason);
+      console.error("R2 upload failed:", reason);
       return NextResponse.json(
         {
           success: false,
-          error: `Upload failed: ${reason}. Check that BLOB_READ_WRITE_TOKEN is valid in Vercel → Settings → Environment Variables.`,
+          error: `Upload failed: ${reason}. Check that the R2_* environment variables are valid.`,
         },
         { status: 502 }
       );

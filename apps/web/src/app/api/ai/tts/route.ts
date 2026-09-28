@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
+import { putToR2 } from "@/lib/r2";
 
 export const maxDuration = 30;
 
 // POST /api/ai/tts — generate audio for a question using OpenAI TTS
-// Admin-only. Calls OpenAI TTS, uploads to Vercel Blob, saves URL to question.
+// Admin-only. Calls OpenAI TTS, uploads to Cloudflare R2, saves URL to question.
 export async function POST(req: NextRequest) {
   const { error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"]);
   if (error) return error;
@@ -30,20 +31,15 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: `TTS failed: ${err}` }, { status: 500 });
   }
 
-  // Upload audio to Vercel Blob
-  const { put } = await import("@vercel/blob");
-  const audioBuffer = await ttsRes.arrayBuffer();
-  const blob = await put(`tts/${questionId}.mp3`, audioBuffer, {
-    access: "public",
-    contentType: "audio/mpeg",
-    addRandomSuffix: false,
-  });
+  // Upload audio to Cloudflare R2 (fixed key — overwrites any previous TTS for this question)
+  const audioBuffer = Buffer.from(await ttsRes.arrayBuffer());
+  const audioUrl = await putToR2(`tts/${questionId}.mp3`, audioBuffer, "audio/mpeg");
 
   // Save URL to question
   await db.question.update({
     where: { id: questionId },
-    data: { audioUrl: blob.url },
+    data: { audioUrl },
   });
 
-  return NextResponse.json({ success: true, data: { audioUrl: blob.url } });
+  return NextResponse.json({ success: true, data: { audioUrl } });
 }
