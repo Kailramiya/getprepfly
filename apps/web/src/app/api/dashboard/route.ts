@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
+import { istDayStart, istDateKey } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -12,8 +13,7 @@ export async function GET() {
   const userId = user!.id;
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
   const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const todayStart = istDayStart();
 
   // All queries in parallel — no sequential round-trips
   const [
@@ -74,7 +74,7 @@ export async function GET() {
 
     // Distinct practice days for streak — DB does the distinct, not JS
     db.$queryRaw<Array<{ practice_date: Date }>>`
-      SELECT DISTINCT DATE("createdAt" AT TIME ZONE 'UTC') AS practice_date
+      SELECT DISTINCT DATE("createdAt" AT TIME ZONE 'Asia/Kolkata') AS practice_date
       FROM "Attempt"
       WHERE "userId" = ${userId}
         AND "createdAt" >= ${sixtyDaysAgo}
@@ -120,7 +120,7 @@ export async function GET() {
   );
   let streak = 0;
   for (let i = 0; i < 60; i++) {
-    const day = new Date(Date.now() - i * 86400000).toISOString().split("T")[0];
+    const day = istDateKey(Date.now() - i * 86400000);
     if (daySet.has(day)) {
       streak++;
     } else if (i > 0) {
@@ -172,7 +172,7 @@ export async function GET() {
   // ── Score trend ───────────────────────────────────────────────────────────
   const dayMap = new Map<string, number[]>();
   for (const a of weeklyScores) {
-    const day = a.createdAt.toISOString().split("T")[0];
+    const day = istDateKey(a.createdAt);
     if (!dayMap.has(day)) dayMap.set(day, []);
     dayMap.get(day)!.push(a.overallScore!);
   }
@@ -229,7 +229,9 @@ export async function GET() {
       })),
     },
   });
-  res.headers.set("Cache-Control", "private, max-age=300");
+  // Revalidate on every load but paint the cached copy instantly: keeps the latency win
+  // without showing stale goal progress for 5 minutes after practising.
+  res.headers.set("Cache-Control", "private, max-age=0, stale-while-revalidate=300");
   res.headers.set("Vary", "Cookie");
   return res;
 }

@@ -1,13 +1,6 @@
-const ANSWER_KEY_FIELDS = ["correctAnswer", "correctAnswers", "correctOrder", "correctText", "incorrectIndices"];
+import { shuffle as shuffled } from "./utils";
 
-function shuffled<T>(arr: T[]): T[] {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
+const ANSWER_KEY_FIELDS = ["correctAnswer", "correctAnswers", "correctOrder", "correctText", "incorrectIndices"];
 
 const blankAnswer = (b: any): string =>
   typeof b === "string" ? b : b && typeof b === "object" ? String(b.correctAnswer || b.answer || "") : "";

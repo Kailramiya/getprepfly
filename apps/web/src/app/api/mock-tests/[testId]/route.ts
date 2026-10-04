@@ -71,7 +71,7 @@ export async function PATCH(
 
   const test = await db.mockTest.findUnique({
     where: { id: params.testId },
-    select: { userId: true },
+    select: { userId: true, status: true },
   });
 
   if (!test || test.userId !== user!.id) {
@@ -79,6 +79,12 @@ export async function PATCH(
       { success: false, error: "Mock test not found" },
       { status: 404 }
     );
+  }
+
+  // A finished test is immutable: a repeat PATCH (timer + button, retries) must not re-score it.
+  if (test.status === "COMPLETED") {
+    const done = await db.mockTest.findUnique({ where: { id: params.testId } });
+    return NextResponse.json({ success: true, data: done });
   }
 
   const updateData: any = {};
@@ -102,7 +108,7 @@ export async function PATCH(
       },
     });
     const attempts = await db.attempt.findMany({
-      where: { mockTestId: params.testId },
+      where: { mockTestId: params.testId, userId: user!.id },
       select: { questionId: true, overallScore: true, rawPointsEarned: true, maxPointsPossible: true, scores: true },
       orderBy: { createdAt: "desc" }
     });

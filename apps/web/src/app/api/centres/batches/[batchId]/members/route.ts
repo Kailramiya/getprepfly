@@ -44,3 +44,26 @@ export async function POST(req: NextRequest, { params }: { params: { batchId: st
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }
 }
+
+// DELETE /api/centres/batches/[batchId]/members — remove students from a batch
+// (they stay in the centre; only the batch membership goes)
+export async function DELETE(req: NextRequest, { params }: { params: { batchId: string } }) {
+  const { user, error } = await requireRole(["CENTRE_ADMIN", "TEACHER"]);
+  if (error) return error;
+
+  const { studentIds } = await req.json().catch(() => ({}));
+  if (!Array.isArray(studentIds) || studentIds.length === 0) {
+    return NextResponse.json({ success: false, error: "studentIds array is required" }, { status: 400 });
+  }
+  const batch = await db.batch.findFirst({
+    where: { id: params.batchId, centreId: user!.centreId! },
+    select: { id: true },
+  });
+  if (!batch) {
+    return NextResponse.json({ success: false, error: "Batch not found" }, { status: 404 });
+  }
+  const result = await db.batchMember.deleteMany({
+    where: { batchId: params.batchId, userId: { in: studentIds.filter((id): id is string => typeof id === "string") } },
+  });
+  return NextResponse.json({ success: true, data: { removed: result.count } });
+}

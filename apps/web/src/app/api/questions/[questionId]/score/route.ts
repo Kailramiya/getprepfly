@@ -14,8 +14,22 @@ export async function POST(
   const { user, error } = await requireAuth();
   if (error) return error;
 
-  const body = await req.json();
+  const body = await req.json().catch(() => null);
+  if (!body || typeof body !== "object") {
+    return NextResponse.json({ success: false, error: "Invalid JSON body" }, { status: 400 });
+  }
   const { answer, mockTestId, timeTaken } = body;
+
+  // Never attach an attempt to someone else's mock test (it would skew that test's score).
+  if (mockTestId) {
+    const ownsTest = await db.mockTest.findFirst({
+      where: { id: String(mockTestId), userId: user!.id },
+      select: { id: true },
+    });
+    if (!ownsTest) {
+      return NextResponse.json({ success: false, error: "Mock test not found" }, { status: 404 });
+    }
+  }
 
   const question = await db.question.findUnique({ where: { id: params.questionId } });
   if (!question || !question.isActive) {
@@ -261,8 +275,10 @@ export async function POST(
     ? Math.max(10, Math.round((scoreResult.marksEarned / scoreResult.marksTotal) * 90))
     : 10;
 
-  // Save attempt + compute percentile in parallel (non-blocking save)
-  const [, percentileResult] = await Promise.all([
+  // Save attempt + compute percentile in parallel. Percentile uses two COUNTs on the indexed
+  // questionId instead of pulling every user's score rows into memory.
+  const scored = { questionId: params.questionId, overallScore: { not: null } };
+  const [, total, below] = await Promise.all([
     db.attempt.create({
       data: {
         userId: user!.id,
@@ -281,22 +297,15 @@ export async function POST(
         timeTaken: typeof timeTaken === "number" ? timeTaken : null,
         mockTestId: mockTestId || null,
       },
-    }).catch(() => null),
-    // Count other users who scored below this attempt on the same question
-    db.attempt.findMany({
-      where: { questionId: params.questionId, overallScore: { not: null } },
-      select: { overallScore: true },
-    }).catch(() => [] as Array<{ overallScore: number | null }>),
+    }).catch((err) => {
+      console.error("Failed to save attempt", err);
+      return null;
+    }),
+    db.attempt.count({ where: scored }).catch(() => 0),
+    db.attempt.count({ where: { ...scored, overallScore: { lt: overallScore } } }).catch(() => 0),
   ]);
 
-  let percentile: number | null = null;
-  const allScores = (percentileResult as Array<{ overallScore: number | null }>)
-    .map((a) => a.overallScore)
-    .filter((s): s is number => s !== null);
-  if (allScores.length >= 5) {
-    const below = allScores.filter((s) => s < overallScore).length;
-    percentile = Math.round((below / allScores.length) * 100);
-  }
+  const percentile = total >= 5 ? Math.round((below / total) * 100) : null;
 
   return NextResponse.json({
     success: true,

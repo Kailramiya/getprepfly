@@ -6,6 +6,10 @@ import { canAccessQuestion } from "@/lib/access";
 
 export const maxDuration = 60;
 
+// Longest legitimate answer is an essay (~380 words); anything past this is abuse of the paid LLM call.
+const MAX_RESPONSE_CHARS = 6000;
+const WRITING_TYPES = new Set(["SUMMARIZE_WRITTEN_TEXT", "WRITE_ESSAY", "SUMMARIZE_SPOKEN_TEXT"]);
+
 // POST /api/ai/score-writing — AI scoring for writing responses
 export async function POST(req: NextRequest) {
   const { user, error } = await requireAuth();
@@ -15,10 +19,10 @@ export async function POST(req: NextRequest) {
   const limited = await enforceRateLimit("ai", user!.id);
   if (limited) return limited;
 
-  const body = await req.json();
-  const { questionId, responseText, questionType, prompt: questionPrompt, modelAnswer } = body;
+  const body = await req.json().catch(() => null);
+  const { questionId, responseText } = body ?? {};
 
-  if (!questionId || !responseText) {
+  if (!questionId || typeof responseText !== "string" || !responseText.trim()) {
     return NextResponse.json(
       { success: false, error: "questionId and responseText are required" },
       { status: 400 }
@@ -29,6 +33,9 @@ export async function POST(req: NextRequest) {
   if (!question || !question.isActive) {
     return NextResponse.json({ success: false, error: "Question not found" }, { status: 404 });
   }
+  if (!WRITING_TYPES.has(question.type)) {
+    return NextResponse.json({ success: false, error: "Question type not supported" }, { status: 400 });
+  }
   if (!(await canAccessQuestion(user!, question))) {
     return NextResponse.json(
       { success: false, error: "You don't have access to the Writing module" },
@@ -37,7 +44,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const scores = await scoreWriting(responseText, questionType, questionPrompt, modelAnswer);
+    // Type and prompt come from the DB question, not the client, so a caller can't
+    // pick an easier rubric or feed the scorer a prompt that matches their own text.
+    const c = (question.content as any) || {};
+    const questionPrompt =
+      question.type === "SUMMARIZE_SPOKEN_TEXT" ? c.topic || c.text || question.title || ""
+      : question.type === "WRITE_ESSAY" ? c.prompt || ""
+      : c.passage || "";
+    const scores = await scoreWriting(responseText.slice(0, MAX_RESPONSE_CHARS), question.type, questionPrompt);
 
     // Save attempt
     const attempt = await db.attempt.create({
@@ -69,8 +83,7 @@ export async function POST(req: NextRequest) {
 async function scoreWriting(
   responseText: string,
   questionType: string,
-  questionPrompt: string,
-  _modelAnswer?: string
+  questionPrompt: string
 ): Promise<any> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OpenAI API key not configured");

@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
-import { grantModuleAccess, MODULE_PRICING, CENTRE_PLANS, activateCentrePlan, isCentrePlanKey, PTESection } from "@/lib/access";
+import { MODULE_PRICING, CENTRE_PLANS, fulfillPayment, isCentrePlanKey } from "@/lib/access";
+
+function safeEqual(a: string, b: unknown): boolean {
+  if (typeof b !== "string") return false;
+  const x = Buffer.from(a);
+  const y = Buffer.from(b);
+  return x.length === y.length && crypto.timingSafeEqual(x, y);
+}
 
 // POST /api/payments/verify — verify Razorpay signature and grant module access
 export async function POST(req: NextRequest) {
@@ -33,9 +40,10 @@ export async function POST(req: NextRequest) {
     .update(`${razorpay_order_id}|${razorpay_payment_id}`)
     .digest("hex");
 
-  if (expectedSignature !== razorpay_signature) {
+  if (!safeEqual(expectedSignature, razorpay_signature)) {
     await db.payment.updateMany({
-      where: { razorpayOrderId: razorpay_order_id },
+      // PENDING only: a forged call must not be able to downgrade a completed payment.
+      where: { razorpayOrderId: razorpay_order_id, status: "PENDING" },
       data: { status: "FAILED" },
     });
     return NextResponse.json(
@@ -64,39 +72,27 @@ export async function POST(req: NextRequest) {
   }
 
   const planType = payment.planType;
-  const isCentrePlan = isCentrePlanKey(planType);
-
   if (!planType || (!MODULE_PRICING[planType] && !CENTRE_PLANS[planType])) {
     return NextResponse.json({ success: false, error: "Invalid plan type on payment record" }, { status: 400 });
   }
 
-  const updatedPayment = await db.payment.update({
-    where: { id: payment.id },
-    data: {
-      status: "SUCCESS",
-      razorpayPaymentId: razorpay_payment_id,
-      razorpaySignature: razorpay_signature,
-      method: "razorpay",
-    },
-  });
-
-  // Redeem coupon — runs once, on the PENDING -> SUCCESS transition (the
-  // payment.status === "SUCCESS" guard above makes this idempotent).
-  if (payment.couponCode) {
-    await db.coupon.updateMany({
-      where: { code: payment.couponCode },
-      data: { usedCount: { increment: 1 } },
-    });
+  try {
+    const { claimed } = await fulfillPayment(
+      payment.id,
+      { userId: user!.id, centreId: user!.centreId },
+      { razorpayPaymentId: razorpay_payment_id, razorpaySignature: razorpay_signature }
+    );
+    if (!claimed) {
+      // Webhook (or a double click) already granted access.
+      return NextResponse.json({ success: true, message: "Payment already verified", data: { planType } });
+    }
+  } catch (err) {
+    console.error("Payment fulfilment failed", err);
+    return NextResponse.json({ success: false, error: "Could not activate your plan. Contact support." }, { status: 500 });
   }
 
-  // Centre plan — activate premium for the entire centre
-  if (isCentrePlan) {
-    const centreId = user!.centreId;
-    if (!centreId) {
-      return NextResponse.json({ success: false, error: "No centre found for this admin" }, { status: 400 });
-    }
-    const centrePlan = CENTRE_PLANS[planType!];
-    await activateCentrePlan(centreId, planType!, updatedPayment.id);
+  if (isCentrePlanKey(planType)) {
+    const centrePlan = CENTRE_PLANS[planType];
     return NextResponse.json({
       success: true,
       message: `${centrePlan.label} activated for your centre`,
@@ -104,10 +100,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Student module plan
-  const plan = MODULE_PRICING[planType!];
-  await grantModuleAccess(user!.id, plan.section as PTESection | null, updatedPayment.id, plan.days);
-
+  const plan = MODULE_PRICING[planType];
   return NextResponse.json({
     success: true,
     message: `Access granted for ${plan.label}`,

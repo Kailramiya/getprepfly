@@ -39,9 +39,6 @@ export async function GET() {
       packageInstalled: packageOk,
       blobApiReachable: listOk.ok,
       details: listOk,
-      tokenPreview: tokenSet
-        ? `${process.env.BLOB_READ_WRITE_TOKEN!.slice(0, 12)}...${process.env.BLOB_READ_WRITE_TOKEN!.slice(-4)}`
-        : null,
     },
   });
 }
