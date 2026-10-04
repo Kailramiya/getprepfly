@@ -105,8 +105,9 @@ export const authOptions: NextAuthOptions = {
       // Handle Google OAuth — create user if not exists
       if (account?.provider === "google") {
         const existingUser = await db.user.findUnique({
-          where: { email: user.email! },
+          where: { email: user.email!.toLowerCase().trim() },
         });
+        if (existingUser && !existingUser.isActive) return false;
 
         if (!existingUser) {
           // Create new user via Google
@@ -257,9 +258,11 @@ export const authOptions: NextAuthOptions = {
         if (!(cached && cached.sid === token.activeSessionId && Date.now() - cached.at < SESSION_CHECK_TTL_MS)) {
           const current = await db.user.findUnique({
             where: { id: token.id as string },
-            select: { activeSessionId: true },
+            select: { activeSessionId: true, isActive: true },
           });
-          if (current && current.activeSessionId && current.activeSessionId !== token.activeSessionId) {
+          // A deactivated account is cut off within SESSION_CHECK_TTL_MS instead of keeping a
+          // 30-day JWT alive; a newer login elsewhere rotates activeSessionId.
+          if (current && (!current.isActive || (current.activeSessionId && current.activeSessionId !== token.activeSessionId))) {
             token.sessionInvalid = true;
             sessionCheckCache.delete(token.id as string);
           } else {

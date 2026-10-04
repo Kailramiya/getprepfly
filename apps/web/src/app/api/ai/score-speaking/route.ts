@@ -1,10 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
-import { getUserAccess, FREE_DAILY_SPEAKING_SCORINGS } from "@/lib/access";
+import { getUserAccess, canAccessQuestion, FREE_DAILY_SPEAKING_SCORINGS } from "@/lib/access";
 import { enforceRateLimit } from "@/lib/rate-limit";
 
 export const maxDuration = 60; // seconds — required for Whisper + GPT pipeline
+
+// Speaking answers are at most ~2 min; Whisper itself caps uploads at 25 MB.
+const MAX_AUDIO_BYTES = 10 * 1024 * 1024;
 
 // POST /api/ai/score-speaking — AI scoring for speaking responses
 // Accepts: audio blob (as base64 or URL) + expected text
@@ -19,16 +22,28 @@ export async function POST(req: NextRequest) {
 
   const formData = await req.formData();
   const questionId = formData.get("questionId") as string;
-  const expectedText = formData.get("expectedText") as string;
-  const questionType = formData.get("questionType") as string;
-  const audioFile = formData.get("audio") as File;
+  const audioFile = formData.get("audio");
 
-  if (!questionId || !audioFile) {
+  if (!questionId || !(audioFile instanceof File)) {
     return NextResponse.json(
       { success: false, error: "questionId and audio file are required" },
       { status: 400 }
     );
   }
+  if (audioFile.size > MAX_AUDIO_BYTES) {
+    return NextResponse.json({ success: false, error: "Recording is too large" }, { status: 413 });
+  }
+
+  // The reference text and type come from the DB, never the client: a caller who controls
+  // them could submit the expected text as the "reference" and earn full content marks.
+  const question = await db.question.findUnique({ where: { id: questionId } });
+  if (!question || !question.isActive || question.section !== "SPEAKING" || !(await canAccessQuestion(user!, question))) {
+    return NextResponse.json({ success: false, error: "Question not found" }, { status: 404 });
+  }
+  const questionType = question.type;
+  const qContent = (question.content as any) || {};
+  const expectedText: string =
+    (questionType === "ANSWER_SHORT_QUESTION" ? qContent.correctText : undefined) || qContent.text || "";
 
   // Enforce daily AI scoring limit for non-premium, post-trial users
   const access = await getUserAccess(user!.id);

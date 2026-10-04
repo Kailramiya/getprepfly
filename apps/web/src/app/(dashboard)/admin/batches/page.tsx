@@ -6,7 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Layers, BarChart2 } from "lucide-react";
+import { Plus, Layers, BarChart2, Pencil, Trash2, X, UserPlus } from "lucide-react";
+import { useConfirm } from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/toast";
 import Link from "next/link";
 
 interface Batch {
@@ -24,6 +26,10 @@ export default function BatchesPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [newBatchName, setNewBatchName] = useState("");
   const [creating, setCreating] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const confirm = useConfirm();
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!user?.centreId) return;
@@ -58,6 +64,43 @@ export default function BatchesPage() {
       fetchBatches();
     }
     setCreating(false);
+  };
+
+  const call = async (url: string, init: RequestInit, okMsg: string) => {
+    try {
+      const res = await fetch(url, { ...init, headers: { "Content-Type": "application/json" } });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Request failed");
+      toast("success", okMsg);
+      await fetchBatches();
+    } catch (e: any) {
+      toast("error", e?.message || "Something went wrong");
+    }
+  };
+
+  const renameBatch = async (id: string) => {
+    const name = editName.trim();
+    setEditingId(null);
+    if (name) await call(`/api/centres/batches/${id}`, { method: "PATCH", body: JSON.stringify({ name }) }, "Batch renamed");
+  };
+
+  const deleteBatch = async (b: Batch) => {
+    const ok = await confirm({
+      title: `Delete ${b.name}?`,
+      description: "The batch and the tests assigned to it are removed. Students stay in your centre and keep their own results.",
+      confirmLabel: "Delete batch",
+      variant: "danger",
+    });
+    if (ok) await call(`/api/centres/batches/${b.id}`, { method: "DELETE" }, "Batch deleted");
+  };
+
+  const removeMember = async (b: Batch, userId: string, name: string) => {
+    const ok = await confirm({
+      description: `Remove ${name} from ${b.name}? They stay in your centre.`,
+      confirmLabel: "Remove",
+      variant: "warning",
+    });
+    if (ok) await call(`/api/centres/batches/${b.id}/members`, { method: "DELETE", body: JSON.stringify({ studentIds: [userId] }) }, `${name} removed`);
   };
 
   return (
@@ -110,29 +153,58 @@ export default function BatchesPage() {
             <Card key={batch.id} className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid flex flex-col">
               <CardHeader className="pb-2">
                 <CardTitle className="flex items-center justify-between text-lg font-bold">
-                  <span>{batch.name}</span>
-                  <Badge variant="secondary">{batch._count.members} students</Badge>
+                  {editingId === batch.id ? (
+                    <Input
+                      autoFocus
+                      value={editName}
+                      maxLength={80}
+                      aria-label="Batch name"
+                      onChange={(e) => setEditName(e.target.value)}
+                      onBlur={() => renameBatch(batch.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") renameBatch(batch.id);
+                        if (e.key === "Escape") setEditingId(null);
+                      }}
+                      className="h-8 rounded-xl"
+                    />
+                  ) : (
+                    <span className="truncate">{batch.name}</span>
+                  )}
+                  <span className="flex items-center gap-1 shrink-0">
+                    <Badge variant="secondary">{batch._count.members} students</Badge>
+                    <button type="button" aria-label={`Rename ${batch.name}`} onClick={() => { setEditingId(batch.id); setEditName(batch.name); }} className="rounded-full p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary transition-colors">
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button type="button" aria-label={`Delete ${batch.name}`} onClick={() => deleteBatch(batch)} className="rounded-full p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {batch.members.length === 0 ? (
-                  <p className="text-sm font-medium text-muted-foreground">No students in this batch yet</p>
+                  <p className="text-sm font-medium text-muted-foreground">
+                    No students in this batch yet.{" "}
+                    <Link href="/admin/students" className="inline-flex items-center gap-1 font-bold text-primary hover:underline">
+                      <UserPlus className="h-4 w-4" /> Add from Students
+                    </Link>
+                  </p>
                 ) : (
-                  <div className="space-y-3">
-                    {batch.members.slice(0, 5).map((m) => (
+                  <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+                    {batch.members.map((m) => (
                       <div key={m.user.id} className="flex items-center gap-3">
                         <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-extrabold text-primary shadow-inner">
                           {m.user.name.charAt(0).toUpperCase()}
                         </div>
-                        <div>
-                          <p className="text-sm font-bold text-foreground">{m.user.name}</p>
-                          <p className="text-xs font-medium text-muted-foreground">{m.user.email}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-bold text-foreground truncate">{m.user.name}</p>
+                          <p className="text-xs font-medium text-muted-foreground truncate">{m.user.email}</p>
                         </div>
+                        <button type="button" aria-label={`Remove ${m.user.name} from ${batch.name}`} onClick={() => removeMember(batch, m.user.id, m.user.name)} className="rounded-full p-1.5 text-muted-foreground hover:bg-red-500/10 hover:text-red-500 transition-colors">
+                          <X className="h-4 w-4" />
+                        </button>
                       </div>
                     ))}
-                    {batch.members.length > 5 && (
-                      <p className="text-xs font-bold tracking-widest text-muted-foreground/60 uppercase mt-2">+{batch.members.length - 5} more</p>
-                    )}
                   </div>
                 )}
                 <div className="mt-6 flex items-center justify-between">
@@ -144,7 +216,7 @@ export default function BatchesPage() {
                     className="flex items-center gap-1 text-xs font-bold tracking-wide text-primary hover:text-primary/80 transition-colors uppercase"
                   >
                     <BarChart2 className="h-4 w-4" />
-                    Progress
+                    Tests &amp; Progress
                   </Link>
                 </div>
               </CardContent>

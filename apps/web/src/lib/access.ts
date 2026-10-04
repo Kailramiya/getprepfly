@@ -1,5 +1,6 @@
 import { db } from "./db";
 import { DEFAULT_PRICES } from "./pricing-defaults";
+import { istDayStart } from "./utils";
 
 export type PTESection = "SPEAKING" | "WRITING" | "READING" | "LISTENING";
 
@@ -31,8 +32,7 @@ export interface UserAccess {
  * unrelated practice. question.section is indexed, so the join is cheap.
  */
 async function getTodaySpeakingScoringCount(userId: string): Promise<number> {
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const todayStart = istDayStart();
 
   return db.attempt.count({
     where: {
@@ -42,6 +42,20 @@ async function getTodaySpeakingScoringCount(userId: string): Promise<number> {
       question: { section: "SPEAKING" },
     },
   });
+}
+
+const ALL_SECTIONS: PTESection[] = ["SPEAKING", "WRITING", "READING", "LISTENING"];
+
+/** Mark every module as unlocked until `until` (seat / premium centre / super admin / trial). */
+function grantAll(res: UserAccess, until: Date, reason: string, unlimitedScoring = true) {
+  res.hasAllAccess = true;
+  res.expiresAt["ALL"] = until;
+  for (const s of ALL_SECTIONS) {
+    res.modules.add(s);
+    res.expiresAt[s] = until;
+  }
+  if (unlimitedScoring) res.freeSpeakingScoringsRemaining = Infinity;
+  res.reason = reason;
 }
 
 /**
@@ -70,8 +84,7 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
       },
     }),
     getTodaySpeakingScoringCount(userId),
-    // Table may not be migrated yet — treat as no seats.
-    db.centreStudentSeat.findMany({ where: { userId } }).catch(() => []),
+    db.centreStudentSeat.findMany({ where: { userId } }),
     db.moduleAccess.findMany({ where: { userId, isActive: true, expiresAt: { gt: now } } }),
   ]);
 
@@ -93,36 +106,17 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
   // Super admins manage the entire platform — unlimited access, no banners.
   // Centre admins and teachers still need to pay (or be in a Premium Centre).
   if (user.role === "SUPER_ADMIN") {
-    baseResult.hasAllAccess = true;
-    const farFuture = new Date("2099-12-31");
-    baseResult.expiresAt["ALL"] = farFuture;
-    ["SPEAKING", "WRITING", "READING", "LISTENING"].forEach((s) => {
-      baseResult.modules.add(s as PTESection);
-      baseResult.expiresAt[s] = farFuture;
-    });
-    baseResult.freeSpeakingScoringsRemaining = Infinity;
-    baseResult.reason = "Super admin — unlimited access";
+    grantAll(baseResult, new Date("2099-12-31"), "Super admin — unlimited access");
     return baseResult;
   }
 
   // ---- Priority 1: Active Centre Seat (per-student 30-day/monthly access) ----
   if (user.centreId) {
-    try {
-      const seat = seats.find((x) => x.centreId === user.centreId);
-      if (seat && seat.status === "ACTIVE" && new Date(seat.endDate) > now) {
-        const seatEnd = new Date(seat.endDate);
-        baseResult.hasAllAccess = true;
-        baseResult.expiresAt["ALL"] = seatEnd;
-        ["SPEAKING", "WRITING", "READING", "LISTENING"].forEach((s) => {
-          baseResult.modules.add(s as PTESection);
-          baseResult.expiresAt[s] = seatEnd;
-        });
-        baseResult.freeSpeakingScoringsRemaining = Infinity;
-        baseResult.reason = "Centre seat — full access until " + seatEnd.toLocaleDateString();
-        return baseResult;
-      }
-    } catch {
-      // Table not yet migrated — fall through to other access checks
+    const seat = seats.find((x) => x.centreId === user.centreId);
+    if (seat && seat.status === "ACTIVE" && new Date(seat.endDate) > now) {
+      const seatEnd = new Date(seat.endDate);
+      grantAll(baseResult, seatEnd, "Centre seat — full access until " + seatEnd.toLocaleDateString());
+      return baseResult;
     }
   }
 
@@ -136,15 +130,7 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
     const premiumUntil = user.centre.premiumUntil;
     const stillPremium = !premiumUntil || premiumUntil > now;
     if (stillPremium) {
-      baseResult.hasAllAccess = true;
-      const expiryDate = premiumUntil || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
-      baseResult.expiresAt["ALL"] = expiryDate;
-      ["SPEAKING", "WRITING", "READING", "LISTENING"].forEach((s) => {
-        baseResult.modules.add(s as PTESection);
-        baseResult.expiresAt[s] = expiryDate;
-      });
-      baseResult.freeSpeakingScoringsRemaining = Infinity;
-      baseResult.reason = "Premium Centre — unlimited access";
+      grantAll(baseResult, premiumUntil || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), "Premium Centre — unlimited access");
       return baseResult;
     }
   }
@@ -183,14 +169,7 @@ export async function getUserAccess(userId: string): Promise<UserAccess> {
     // Still in trial — grant full access
     baseResult.isTrial = true;
     baseResult.trialEndsAt = trialEnd;
-    baseResult.hasAllAccess = true;
-    baseResult.expiresAt["ALL"] = trialEnd;
-    ["SPEAKING", "WRITING", "READING", "LISTENING"].forEach((s) => {
-      baseResult.modules.add(s as PTESection);
-      baseResult.expiresAt[s] = trialEnd;
-    });
-    baseResult.freeSpeakingScoringsRemaining = Infinity;
-    baseResult.reason = `Free trial: ${trialDays} days`;
+    grantAll(baseResult, trialEnd, `Free trial: ${trialDays} days`);
     return baseResult;
   }
 
@@ -363,4 +342,43 @@ export async function activateCentrePlan(
       },
     }),
   ]);
+}
+
+/**
+ * Fulfil a verified payment exactly once. /verify (browser) and the Razorpay webhook race to
+ * do this; the conditional updateMany is the claim, so only the winner grants access and bumps
+ * the coupon. If the grant throws, the claim is released so a webhook retry can finish the job
+ * instead of leaving a customer who paid with no access.
+ */
+export async function fulfillPayment(
+  paymentId: string,
+  who: { userId: string; centreId?: string | null },
+  gateway: { razorpayPaymentId?: string | null; razorpaySignature?: string }
+): Promise<{ claimed: boolean; planType: string | null }> {
+  const claim = await db.payment.updateMany({
+    where: { id: paymentId, status: { not: "SUCCESS" } },
+    data: { status: "SUCCESS", method: "razorpay", ...gateway },
+  });
+  const payment = await db.payment.findUniqueOrThrow({ where: { id: paymentId } });
+  if (claim.count === 0) return { claimed: false, planType: payment.planType };
+
+  try {
+    const key = payment.planType;
+    if (isCentrePlanKey(key) && CENTRE_PLANS[key!]) {
+      if (!who.centreId) throw new Error("No centre found for this payment");
+      await activateCentrePlan(who.centreId, key!, paymentId);
+    } else if (key && MODULE_PRICING[key]) {
+      const plan = MODULE_PRICING[key];
+      await grantModuleAccess(who.userId, plan.section, paymentId, plan.days);
+    } else {
+      throw new Error("Invalid plan type on payment record");
+    }
+    if (payment.couponCode) {
+      await db.coupon.updateMany({ where: { code: payment.couponCode }, data: { usedCount: { increment: 1 } } });
+    }
+  } catch (err) {
+    await db.payment.update({ where: { id: paymentId }, data: { status: "PENDING" } });
+    throw err;
+  }
+  return { claimed: true, planType: payment.planType };
 }

@@ -4,6 +4,7 @@ import { randomUUID as createId } from "node:crypto";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
 import { getUserAccess } from "@/lib/access";
+import { shuffle } from "@/lib/utils";
 
 const MOCK_TEST_STRUCTURE: Record<string, Record<string, number>> = {
   SPEAKING: { READ_ALOUD: 6, REPEAT_SENTENCE: 10, DESCRIBE_IMAGE: 3, RETELL_LECTURE: 2, ANSWER_SHORT_QUESTION: 5, RESPOND_TO_SITUATION: 2 },
@@ -69,8 +70,20 @@ export async function POST(req: NextRequest) {
       });
       if (!template) return NextResponse.json({ success: false, error: "Template not found" }, { status: 404 });
 
+      // A test assigned to a batch is for that batch's students only, and the centre has
+      // already paid for it — so membership replaces the subscription check below.
+      let batchAssigned = false;
+      if (template.assignedBatchId) {
+        const member = await db.batchMember.findFirst({
+          where: { batchId: template.assignedBatchId, userId: user!.id },
+          select: { id: true },
+        });
+        if (!member) return NextResponse.json({ success: false, error: "Template not found" }, { status: 404 });
+        batchAssigned = true;
+      }
+
       // Access check — free templates are open to everyone
-      if (!(template as any).isFree) {
+      if (!batchAssigned && !template.isFree) {
         if (template.mockType === "FULL" && !access.hasAllAccess) {
           return NextResponse.json(
             { success: false, error: "Full mock tests require all 4 sections. Please purchase the All Modules plan.", locked: true },
@@ -94,6 +107,8 @@ export async function POST(req: NextRequest) {
           title: template.title,
           mockType: template.mockType,
           section: template.section,
+          // Links the student's copy to the batch so the centre's progress page can count it.
+          assignedBatchId: template.assignedBatchId,
           status: "IN_PROGRESS",
           currentSection: (template.section ?? "SPEAKING") as any,
           currentIndex: 0,
@@ -113,9 +128,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Single query for all sections/types — partition in JS instead of N round-trips
-    const neededTypes = Object.entries(MOCK_TEST_STRUCTURE).flatMap(([, types]) =>
-      Object.keys(types)
-    );
+    const neededTypes = Object.values(MOCK_TEST_STRUCTURE).flatMap((types) => Object.keys(types));
     const allQuestions = await db.question.findMany({
       where: {
         type: { in: neededTypes as any[] },
@@ -142,7 +155,7 @@ export async function POST(req: NextRequest) {
       for (const [type, count] of Object.entries(types)) {
         const pool = byType.get(type) ?? [];
         if (pool.length === 0) continue; // Skip if absolutely no questions available for this type
-        const shuffled = pool.sort(() => Math.random() - 0.5);
+        const shuffled = shuffle(pool);
         // Never repeat a question: (mockTestId, questionId) is unique, so wrapping around a
         // small pool made the whole creation fail. A short section is better than a 500.
         for (let i = 0; i < Math.min(count, shuffled.length); i++) {
