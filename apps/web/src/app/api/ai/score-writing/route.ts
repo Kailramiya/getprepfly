@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
-import { enforceRateLimit } from "@/lib/rate-limit";
+import { enforceRateLimit, reserveAiCall } from "@/lib/rate-limit";
 import { canAccessQuestion } from "@/lib/access";
 
 export const maxDuration = 60;
@@ -43,6 +43,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const spend = user!.role === "SUPER_ADMIN" ? null : await reserveAiCall(user!.id);
+  if (spend && !spend.ok) return spend.response;
+
   try {
     // Type and prompt come from the DB question, not the client, so a caller can't
     // pick an easier rubric or feed the scorer a prompt that matches their own text.
@@ -72,6 +75,7 @@ export async function POST(req: NextRequest) {
       data: { scores, attemptId: attempt.id },
     });
   } catch (err) {
+    await spend?.release();
     console.error("Writing scoring error:", err);
     return NextResponse.json(
       { success: false, error: "Failed to score your response" },

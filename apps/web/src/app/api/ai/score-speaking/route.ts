@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { getUserAccess, canAccessQuestion, FREE_DAILY_SPEAKING_SCORINGS } from "@/lib/access";
-import { enforceRateLimit } from "@/lib/rate-limit";
+import { enforceRateLimit, reserveAiCall } from "@/lib/rate-limit";
 
 export const maxDuration = 60; // seconds — required for Whisper + GPT pipeline
 
@@ -60,6 +60,9 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const spend = user!.role === "SUPER_ADMIN" ? null : await reserveAiCall(user!.id);
+  if (spend && !spend.ok) return spend.response;
+
   try {
     // Step 1: Transcribe audio using OpenAI Whisper (verbose_json)
     const transcriptionObj = await transcribeAudio(audioFile);
@@ -91,6 +94,7 @@ export async function POST(req: NextRequest) {
       },
     });
   } catch (err) {
+    await spend?.release();
     console.error("Speaking scoring error:", err);
     return NextResponse.json(
       { success: false, error: "Failed to score your response. Please try again." },
