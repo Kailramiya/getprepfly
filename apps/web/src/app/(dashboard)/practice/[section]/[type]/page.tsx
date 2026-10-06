@@ -548,7 +548,7 @@ export default function PracticeQuestionPage() {
                   if (result) {
                     setScore(result);
                     // For AI-scored types, percentile isn't in result yet — fetch it after save
-                    if (result.percentile === undefined && currentQuestion && !result.pending) {
+                    if (result.percentile === undefined && currentQuestion && !result.pending && !result.unclear) {
                       const overallScore = result.marksTotal > 0
                         ? Math.round((result.marksEarned / result.marksTotal) * 90)
                         : (result.aiScores?.overall != null ? Math.round(result.aiScores.overall) : 0);

@@ -44,6 +44,8 @@ export const limiters = {
   auth: make(10, "1 m", "auth"),
   lookup: make(30, "1 m", "lookup"),
   questions: make(120, "1 m", "questions"),
+  // unclear recordings that are refunded against the AI daily cap (see score-speaking)
+  unclear: make(10, "1 h", "unclear"),
 };
 
 export type LimiterName = keyof typeof limiters;
