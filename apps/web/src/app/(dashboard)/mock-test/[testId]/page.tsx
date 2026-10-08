@@ -110,6 +110,16 @@ export default function MockTestSessionPage() {
   const autoSubmitRef = useRef<(() => void | Promise<void>) | null>(null);
   // Cache student recording blob URLs so they survive navigation between questions
   const recordingUrlsRef = useRef<Map<string, string>>(new Map());
+  // Every in-flight answer save (the score + POST /api/attempts chain). Finishing the test waits
+  // for these: the renderer's submit function resolves before the attempt is written, so
+  // completing straight away scored the test without the answer the student just gave.
+  const pendingSavesRef = useRef<Set<Promise<unknown>>>(new Set());
+  const track = <T,>(p: Promise<T>): Promise<T> => {
+    const done = () => { pendingSavesRef.current.delete(p); };
+    pendingSavesRef.current.add(p);
+    p.then(done, done);
+    return p;
+  };
   // Always holds the live current question ID — used in async handlers to avoid stale closures
   const currentQIdRef = useRef<string | null>(null);
 
@@ -148,7 +158,7 @@ export default function MockTestSessionPage() {
     if (!submitted) {
       if (autoSubmitRef.current) {
         try {
-          await autoSubmitRef.current();
+          await track(Promise.resolve(autoSubmitRef.current()));
         } catch (e) {
           console.error("Auto-submit failed", e);
           alert("Network error: Could not save your answer. Please check your connection and try again.");
@@ -158,6 +168,9 @@ export default function MockTestSessionPage() {
       }
     }
     setFinishing(true);
+    // Let this answer's save (and any still running from earlier Next clicks) land before the
+    // test is scored. allSettled: a failed save must not leave the test stuck open.
+    await Promise.allSettled(Array.from(pendingSavesRef.current));
     await fetch(`/api/mock-tests/${testId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -230,7 +243,7 @@ export default function MockTestSessionPage() {
       setNavigating(true);
       if (!submitted) {
         if (autoSubmitRef.current) {
-          const submitPromise = autoSubmitRef.current();
+          const submitPromise = track(Promise.resolve(autoSubmitRef.current()));
           
           if (submitPromise && typeof (submitPromise as any).then === 'function') {
             (submitPromise as Promise<any>).then((_res) => {
@@ -523,7 +536,7 @@ export default function MockTestSessionPage() {
                 submitted={submitted}
                 showAnswer={false}
                 showFeedback={false}
-                onSubmit={(res) => handleQuestionSubmit(res, currentQuestion.question.id)}
+                onSubmit={(res) => track(handleQuestionSubmit(res, currentQuestion.question.id))}
                 onResponseChange={(r) => { pendingResponseRef.current = r; }}
                 submitRef={autoSubmitRef}
                 playOnce={true}
