@@ -7,7 +7,7 @@ import { AudioRecorder } from "@/components/practice/audio-recorder";
 import { AudioPlayerCustom } from "@/components/practice/audio-player-custom";
 import {
   CheckCircle2, XCircle, Loader2, Volume2,
-  BookOpen as TemplateIcon, GripVertical, X, TrendingUp,
+  BookOpen as TemplateIcon, GripVertical, X, TrendingUp, AlertCircle,
 } from "lucide-react";
 import { WRITING_TEMPLATES, SPEAKING_TEMPLATES } from "@/lib/templates";
 import { SKILL_CONTRIBUTIONS, SKILL_KEYS, type SkillKey } from "@/lib/pte-scoring";
@@ -39,13 +39,20 @@ export interface QuestionData {
   marks?: number;
 }
 
+import { diffWords, diffStats, diffMistakes, toWords, type DiffOp, type DiffStats } from "@/lib/word-diff";
+
 export interface ScoreResult {
   marksEarned: number;
   marksTotal: number;
   correct: number;
   total: number;
-  mistakes: Array<{ position: number; yourAnswer: string; correctAnswer: string }>;
+  mistakes: Array<{ position: number; endPosition?: number; yourAnswer: string; correctAnswer: string }>;
   pending?: boolean;
+  /** Speaking: the recording didn't resemble the text, so it was not graded or saved. */
+  unclear?: boolean;
+  /** Read Aloud / Repeat Sentence: aligned word-by-word comparison with the passage. */
+  wordDiff?: DiffOp[];
+  wordStats?: DiffStats;
   message?: string;
   aiScores?: Record<string, number>; // detailed breakdown from AI: pronunciation/fluency/content etc.
   transcription?: string;
@@ -1306,7 +1313,30 @@ const SKILL_META: Record<SkillKey, { label: string; color: string; bg: string; b
   writing:   { label: "Writing",   color: "text-blue-700 dark:text-blue-400",    bg: "bg-blue-50 dark:bg-blue-950/50",    bar: "bg-blue-500",   border: "border-blue-200 dark:border-blue-800"   },
 };
 
+const MISTAKES_PREVIEW = 8;
+
 export function ScoreSummary({ result, lastAttemptScore, questionType }: { result: ScoreResult; lastAttemptScore: number | null; questionType?: string }) {
+  const [showAllMistakes, setShowAllMistakes] = useState(false);
+
+  if (result.unclear) {
+    return (
+      <div role="alert" className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950/40">
+        <p className="flex items-center gap-2 text-base font-bold text-amber-800 dark:text-amber-300">
+          <AlertCircle className="h-5 w-5" /> We couldn&apos;t hear a clear reading
+        </p>
+        <p className="mt-1 text-sm text-amber-800 dark:text-amber-200">
+          Your recording didn&apos;t match the text, so it wasn&apos;t scored and didn&apos;t count as an attempt.
+        </p>
+        <ul className="mt-2 list-disc space-y-0.5 pl-5 text-sm text-amber-800 dark:text-amber-200">
+          <li>Check that the right microphone is selected and not muted</li>
+          <li>Move to a quieter place and speak close to the mic</li>
+          <li>Start reading right after the recording begins</li>
+        </ul>
+        <p className="mt-2 text-xs text-amber-700 dark:text-amber-400">Press Try Again to record once more.</p>
+      </div>
+    );
+  }
+
   const percent = result.marksTotal > 0 ? (result.marksEarned / result.marksTotal) * 100 : 0;
   const isPerfect = result.marksEarned === result.marksTotal && result.marksTotal > 0;
   const isFailed = result.marksEarned === 0 && !result.pending;
@@ -1463,14 +1493,14 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
             Mistakes to review ({result.mistakes.length})
           </p>
           <div className="space-y-2">
-            {result.mistakes.map((m, i) => (
+            {(showAllMistakes ? result.mistakes : result.mistakes.slice(0, MISTAKES_PREVIEW)).map((m, i) => (
               <div
                 key={i}
                 className="rounded-lg border border-red-200 bg-white p-3 text-sm dark:border-red-900 dark:bg-slate-700"
               >
                 {m.position > 0 && (
                   <p className="mb-1 text-xs font-medium text-gray-500 dark:text-slate-400">
-                    Position #{m.position}
+                    {m.endPosition ? `Words #${m.position}–#${m.endPosition}` : `Position #${m.position}`}
                   </p>
                 )}
                 <div className="flex items-start gap-2">
@@ -1488,6 +1518,15 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
               </div>
             ))}
           </div>
+          {result.mistakes.length > MISTAKES_PREVIEW && (
+            <button
+              type="button"
+              onClick={() => setShowAllMistakes((v) => !v)}
+              className="mt-2 text-xs font-semibold text-primary hover:underline"
+            >
+              {showAllMistakes ? "Show fewer" : `Show all ${result.mistakes.length}`}
+            </button>
+          )}
         </div>
       )}
 
@@ -1517,32 +1556,39 @@ export function ScoreSummary({ result, lastAttemptScore, questionType }: { resul
         </div>
       )}
 
-      {/* Word-level pronunciation feedback for Read Aloud / Repeat Sentence */}
-      {result.transcription && result.mistakes.length > 0 && (
+      {/* Word-level feedback for Read Aloud / Repeat Sentence: the passage, colour-coded */}
+      {result.wordDiff && result.wordStats && (
         <div className="mt-4">
           <p className="mb-2 text-xs font-semibold uppercase text-gray-500 dark:text-slate-400">Word-by-Word Feedback</p>
-          <div className="rounded-lg bg-white/70 p-3 leading-loose">
-            {(() => {
-              const spokenWords = result.transcription.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
-              const mistakePositions = new Set(result.mistakes.map(m => m.position - 1));
-              return spokenWords.map((word, i) => (
-                <span key={i} className={`mr-1 inline-block rounded px-1 py-0.5 text-sm ${
-                  mistakePositions.has(i)
-                    ? "bg-red-100 text-red-700 line-through"
-                    : "bg-green-100 text-green-700"
-                }`}>{word}</span>
-              ));
-            })()}
+          <p className="mb-2 text-sm font-medium text-gray-800 dark:text-slate-200">
+            You read {result.wordStats.matched} of {result.wordStats.expectedCount} words correctly (
+            {Math.round(result.wordStats.ratio * 100)}%)
+            {result.wordStats.missed > 0 && ` · ${result.wordStats.missed} missed`}
+            {result.wordStats.wrong > 0 && ` · ${result.wordStats.wrong} wrong`}
+            {result.wordStats.extra > 0 && ` · ${result.wordStats.extra} extra`}
+          </p>
+          <div className="rounded-lg bg-white/70 p-3 leading-loose dark:bg-slate-800/60">
+            {result.wordDiff.map((op, i) => {
+              if (op.type === "match")
+                return <span key={i} className="mr-1 inline-block rounded bg-green-100 px-1 py-0.5 text-sm text-green-700">{op.word}</span>;
+              if (op.type === "wrong")
+                return <span key={i} title={`You said "${op.actual}"`} className="mr-1 inline-block rounded bg-red-100 px-1 py-0.5 text-sm text-red-700">{op.expected}</span>;
+              if (op.type === "missed")
+                return <span key={i} title="Missed" className="mr-1 inline-block rounded bg-gray-100 px-1 py-0.5 text-sm text-gray-500 line-through dark:bg-slate-700 dark:text-slate-400">{op.expected}</span>;
+              return <span key={i} title="Extra word" className="mr-1 inline-block rounded border border-dashed border-amber-400 px-1 py-0.5 text-xs italic text-amber-700 dark:text-amber-400">{op.actual}</span>;
+            })}
           </div>
           <p className="mt-1 text-xs text-gray-400">
-            <span className="inline-block rounded bg-green-100 px-1 text-green-700">green</span> = correct &nbsp;
-            <span className="inline-block rounded bg-red-100 px-1 text-red-700 line-through">red</span> = wrong/missed
+            <span className="inline-block rounded bg-green-100 px-1 text-green-700">green</span> correct &nbsp;
+            <span className="inline-block rounded bg-red-100 px-1 text-red-700">red</span> said differently (hover to see) &nbsp;
+            <span className="inline-block rounded bg-gray-100 px-1 text-gray-500 line-through">grey</span> missed &nbsp;
+            <span className="inline-block rounded border border-dashed border-amber-400 px-1 text-amber-700">dashed</span> extra word
           </p>
         </div>
       )}
 
       {/* Plain transcription for other speaking types */}
-      {result.transcription && result.mistakes.length === 0 && (
+      {result.transcription && !result.wordDiff && result.mistakes.length === 0 && (
         <div className="mt-3 rounded-md bg-white/70 p-2 text-xs text-gray-600">
           <span className="font-medium text-gray-700">Transcribed: </span>{result.transcription}
         </div>
@@ -1758,23 +1804,26 @@ function SpeakingQuestion({
             pending: true,
             message: data.error || "Daily AI scoring limit reached. Upgrade to unlock unlimited scoring.",
           };
+        } else if (res.status === 422 && data.code === "UNCLEAR_AUDIO") {
+          scoreResult = {
+            marksEarned: 0,
+            marksTotal: totalMarks,
+            correct: 0,
+            total: 1,
+            mistakes: [],
+            unclear: true,
+            message: data.error,
+          };
         } else if (data.success) {
           const { transcription, scores } = data.data;
 
           // Build mistakes by comparing word-by-word (for READ_ALOUD + REPEAT_SENTENCE)
           const mistakes: ScoreResult["mistakes"] = [];
+          let wordResult: Pick<ScoreResult, "wordDiff" | "wordStats"> = {};
           if (questionType === "READ_ALOUD" || questionType === "REPEAT_SENTENCE") {
-            const studentWords = transcription.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
-            const expectedWords = expectedText.toLowerCase().replace(/[^\w\s]/g, "").split(/\s+/).filter(Boolean);
-            expectedWords.forEach((w: string, i: number) => {
-              if (!studentWords[i] || studentWords[i] !== w) {
-                mistakes.push({
-                  position: i + 1,
-                  yourAnswer: studentWords[i] || "(missed)",
-                  correctAnswer: w,
-                });
-              }
-            });
+            const wordDiff = diffWords(toWords(expectedText), toWords(transcription));
+            wordResult = { wordDiff, wordStats: diffStats(wordDiff) };
+            mistakes.push(...diffMistakes(wordDiff));
           }
 
           const overall = scores.overall || 0;
@@ -1784,6 +1833,7 @@ function SpeakingQuestion({
             correct: mistakes.length === 0 ? 1 : 0,
             total: 1,
             mistakes,
+            ...wordResult,
             message: scores.feedback || "",
             transcription,
             aiScores: {

@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { getUserAccess, canAccessQuestion, FREE_DAILY_SPEAKING_SCORINGS } from "@/lib/access";
-import { enforceRateLimit, reserveAiCall } from "@/lib/rate-limit";
+import { enforceRateLimit, isRateLimited, reserveAiCall } from "@/lib/rate-limit";
+import { diffWords, diffStats, toWords, UNCLEAR_MATCH_RATIO } from "@/lib/word-diff";
 
 export const maxDuration = 60; // seconds — required for Whisper + GPT pipeline
 
@@ -67,6 +68,26 @@ export async function POST(req: NextRequest) {
     // Step 1: Transcribe audio using OpenAI Whisper (verbose_json)
     const transcriptionObj = await transcribeAudio(audioFile);
     const transcriptionText = transcriptionObj.text || "";
+
+    // Silence or noise comes back from Whisper as made-up words. If a Read Aloud / Repeat
+    // Sentence recording barely resembles the text, it wasn't an attempt: don't grade it, don't
+    // save a 0-mark attempt, and give the call back (a few per hour; past that it counts, so
+    // this can't be used for free Whisper calls).
+    const expectedWords = toWords(expectedText);
+    if ((questionType === "READ_ALOUD" || questionType === "REPEAT_SENTENCE") && expectedWords.length > 0) {
+      const stats = diffStats(diffWords(expectedWords, toWords(transcriptionText)));
+      if (stats.ratio < UNCLEAR_MATCH_RATIO) {
+        if (spend && !(await isRateLimited("unclear", user!.id))) await spend.release();
+        return NextResponse.json(
+          {
+            success: false,
+            code: "UNCLEAR_AUDIO",
+            error: "We couldn't hear a clear reading of the passage. Check your microphone and try again.",
+          },
+          { status: 422 }
+        );
+      }
+    }
 
     // Step 2: Score using programmatic methods + GPT for content
     const scores = await scoreSpeaking(transcriptionObj, expectedText, questionType);
