@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import {
-  Crown, LogOut, User, Save, Lock, Building2,
+  LogOut, User, Save, Lock, Building2,
   Palette, Globe, Phone, Mail, MapPin, Check,
 } from "lucide-react";
 
@@ -128,18 +128,6 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Settings</h1>
-
-      {/* Free Beta */}
-      <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-r from-teal-500/10 to-indigo-500/10 backdrop-blur-xl ring-1 ring-teal-500/20 overflow-hidden relative">
-        <CardContent className="flex items-center gap-4 p-5">
-          <Crown className="h-6 w-6 shrink-0 text-teal-600" />
-          <div>
-            <p className="text-sm font-medium text-gray-900 dark:text-slate-100">Free Beta Access</p>
-            <p className="text-xs text-gray-600 dark:text-slate-400">All features unlocked during beta</p>
-          </div>
-          <Badge className="ml-auto shrink-0 bg-teal-600 text-white">FREE</Badge>
-        </CardContent>
-      </Card>
 
       {/* Profile */}
       <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden relative">
