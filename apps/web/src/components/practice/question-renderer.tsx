@@ -111,10 +111,10 @@ function ClickableWords({ text, className }: { text: string; className?: string 
   );
 }
 
-// Popover showing a word's English + Hindi meaning and an example sentence,
+// Popover showing a word's English + Hindi + Punjabi meaning and an example sentence,
 // fetched from /api/vocabulary/lookup. Positioned near the clicked word.
 function WordMeaningPopover({ word, x, y, onClose }: { word: string; x: number; y: number; onClose: () => void }) {
-  const [data, setData] = useState<{ meaning: string; meaningHi: string | null; example: string } | null>(null);
+  const [data, setData] = useState<{ meaning: string; meaningHi: string | null; meaningPa: string | null; example: string } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -159,6 +159,7 @@ function WordMeaningPopover({ word, x, y, onClose }: { word: string; x: number; 
           <div className="space-y-1.5 text-gray-700 dark:text-slate-200">
             <p><span className="font-medium text-gray-500 dark:text-slate-400">English: </span>{data.meaning}</p>
             {data.meaningHi && <p><span className="font-medium text-gray-500 dark:text-slate-400">Hindi: </span>{data.meaningHi}</p>}
+            {data.meaningPa && <p><span className="font-medium text-gray-500 dark:text-slate-400">Punjabi: </span>{data.meaningPa}</p>}
             <p className="italic text-gray-500 dark:text-slate-400">e.g., &ldquo;{data.example}&rdquo;</p>
           </div>
         )}
@@ -168,7 +169,7 @@ function WordMeaningPopover({ word, x, y, onClose }: { word: string; x: number; 
 }
 
 // Renders text with each word individually clickable to show its meaning
-// (English + Hindi + example) in a popover. Used for Reading passages in
+// (English + Hindi + Punjabi + example) in a popover. Used for Reading passages in
 // practice mode (not mock tests).
 function ClickableMeaningText({ text, className }: { text: string; className?: string }) {
   const [popover, setPopover] = useState<{ word: string; x: number; y: number } | null>(null);

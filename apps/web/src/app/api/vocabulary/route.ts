@@ -8,8 +8,8 @@ export async function GET(req: NextRequest) {
   if (error) return error;
 
   const url = new URL(req.url);
-  const page = parseInt(url.searchParams.get("page") || "1");
-  const pageSize = parseInt(url.searchParams.get("pageSize") || "50");
+  const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
+  const pageSize = Math.min(200, Math.max(1, parseInt(url.searchParams.get("pageSize") || "50")));
   const search = url.searchParams.get("search") || "";
   const category = url.searchParams.get("category");
   const difficulty = url.searchParams.get("difficulty");
@@ -54,6 +54,15 @@ export async function POST(req: NextRequest) {
       { success: false, error: "Word, meaning, and example are required" },
       { status: 400 }
     );
+  }
+
+  // Case-insensitive pre-check: the DB's unique constraint on `word` is
+  // case-sensitive, so "Ubiquitous" and "ubiquitous" (e.g. one added here,
+  // one auto-cached by /api/vocabulary/lookup) wouldn't collide at the DB
+  // level and this duplicate check would silently miss them.
+  const dupe = await db.vocabulary.findFirst({ where: { word: { equals: word.trim(), mode: "insensitive" } } });
+  if (dupe) {
+    return NextResponse.json({ success: false, error: "This word already exists in the vocabulary list" }, { status: 409 });
   }
 
   try {

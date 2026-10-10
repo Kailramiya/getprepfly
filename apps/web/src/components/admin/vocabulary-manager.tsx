@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
+import { useAuth } from "@/hooks/use-auth";
 import { BookMarked, Plus, Search, Trash2, Edit2, X } from "lucide-react";
 
 interface VocabWord {
@@ -29,6 +30,11 @@ const EMPTY_FORM = {
 export function VocabularyManager() {
   const confirm = useConfirm();
   const { toast } = useToast();
+  const { user } = useAuth();
+  // Vocabulary has no per-centre scoping — deletion affects every centre's
+  // students, so it's restricted to SUPER_ADMIN server-side too (see
+  // DELETE /api/vocabulary/[id]). Hidden here rather than left to 403.
+  const canDelete = user?.role === "SUPER_ADMIN";
   const [items, setItems] = useState<VocabWord[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
@@ -245,9 +251,11 @@ export function VocabularyManager() {
                     <button onClick={() => openEdit(v)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-blue-500/20 hover:text-blue-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100">
                       <Edit2 className="h-4 w-4" />
                     </button>
-                    <button onClick={() => handleDelete(v)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100">
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+                    {canDelete && (
+                      <button onClick={() => handleDelete(v)} className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100">
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
