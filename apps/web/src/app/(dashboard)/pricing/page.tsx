@@ -7,9 +7,11 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
-  Mic, PenTool, BookOpen, Headphones, Check, Sparkles, Lock, Star,
+  Mic, PenTool, BookOpen, Headphones, Check, Sparkles, Lock, Star, Tag, X,
 } from "lucide-react";
+import { DEFAULT_PRICES } from "@/lib/pricing-defaults";
 
 declare global {
   interface Window { Razorpay: any }
@@ -31,11 +33,14 @@ const DURATION_SUFFIX: Record<Duration, string> = { "1M": "", "3M": "_3M", "6M":
 const DURATION_LABEL: Record<Duration, string>  = { "1M": "1 Month", "3M": "3 Months", "6M": "6 Months", "1Y": "1 Year" };
 const DURATION_DAYS: Record<Duration, number>   = { "1M": 30, "3M": 90, "6M": 180, "1Y": 365 };
 
+// Prices come from DEFAULT_PRICES (/api/pricing overrides on top) — never a
+// second hardcoded table here. A page-local copy of the same numbers is
+// exactly what caused the admin pricing page and the billing page to drift
+// out of sync with reality elsewhere in this app.
 const BASE_PLANS = [
   {
     baseId: "MODULE_SPEAKING",
     title: "Speaking Module",
-    defaultPrice: { "1M": 249, "3M": 649, "6M": 1099, "1Y": 1799 },
     icon: Mic,
     color: "from-teal-500 to-teal-600",
     features: [
@@ -49,7 +54,6 @@ const BASE_PLANS = [
   {
     baseId: "MODULE_WRITING",
     title: "Writing Module",
-    defaultPrice: { "1M": 249, "3M": 649, "6M": 1099, "1Y": 1799 },
     icon: PenTool,
     color: "from-blue-500 to-blue-600",
     features: [
@@ -62,7 +66,6 @@ const BASE_PLANS = [
   {
     baseId: "MODULE_READING",
     title: "Reading Module",
-    defaultPrice: { "1M": 249, "3M": 649, "6M": 1099, "1Y": 1799 },
     icon: BookOpen,
     color: "from-purple-500 to-purple-600",
     features: [
@@ -75,7 +78,6 @@ const BASE_PLANS = [
   {
     baseId: "MODULE_LISTENING",
     title: "Listening Module",
-    defaultPrice: { "1M": 249, "3M": 649, "6M": 1099, "1Y": 1799 },
     icon: Headphones,
     color: "from-orange-500 to-orange-600",
     features: [
@@ -96,6 +98,12 @@ export default function PricingPage() {
   const [duration, setDuration] = useState<Duration>("1M");
   const [livePrices, setLivePrices] = useState<Record<string, number> | null>(null);
 
+  // Coupon: input the student types, and the last-checked result for it.
+  const [couponInput, setCouponInput] = useState("");
+  const [checkingCoupon, setCheckingCoupon] = useState(false);
+  const [coupon, setCoupon] = useState<{ code: string; discountPercent: number } | null>(null);
+  const [couponMsg, setCouponMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
   useEffect(() => {
     Promise.all([
       import("@/hooks/use-access").then(m => m.getSharedAccess()),
@@ -106,7 +114,7 @@ export default function PricingPage() {
       } else if (accessData.error && accessData.error !== "Unauthorized") {
         setError(accessData.error);
       }
-      
+
       if (priceData.success) {
         setLivePrices(priceData.data);
       } else if (priceData.error) {
@@ -121,10 +129,46 @@ export default function PricingPage() {
 
   const planId = (baseId: string) => baseId + suffix;
 
-  const planPrice = (baseId: string, defaultRupees: number): number => {
+  // Rupees for a plan: live DB-overridden price if loaded, else the real
+  // default from pricing-defaults.ts — the same source /api/pricing itself
+  // falls back to, so this can never show a different number than checkout
+  // will actually charge.
+  const planPrice = (baseId: string): number => {
     const key = planId(baseId);
-    if (!livePrices) return defaultRupees;
-    return Math.round((livePrices[key] ?? defaultRupees * 100) / 100);
+    const paise = livePrices?.[key] ?? DEFAULT_PRICES[key]?.amount ?? 0;
+    return Math.round(paise / 100);
+  };
+
+  const discounted = (rupees: number): number =>
+    coupon ? Math.round(rupees * (1 - coupon.discountPercent / 100)) : rupees;
+
+  const checkCoupon = async () => {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCheckingCoupon(true);
+    setCouponMsg(null);
+    try {
+      const res = await fetch(`/api/coupons/validate?code=${encodeURIComponent(code)}`);
+      const data = await res.json();
+      if (data.success && data.data.valid) {
+        setCoupon({ code: code.toUpperCase(), discountPercent: data.data.discountPercent });
+        setCouponMsg({ ok: true, text: `${data.data.discountPercent}% off applied` });
+      } else {
+        setCoupon(null);
+        setCouponMsg({ ok: false, text: data.data?.reason || "Invalid coupon code" });
+      }
+    } catch {
+      setCoupon(null);
+      setCouponMsg({ ok: false, text: "Could not check that code. Please try again." });
+    } finally {
+      setCheckingCoupon(false);
+    }
+  };
+
+  const clearCoupon = () => {
+    setCoupon(null);
+    setCouponInput("");
+    setCouponMsg(null);
   };
 
   const handlePurchase = async (id: string) => {
@@ -134,7 +178,7 @@ export default function PricingPage() {
       const res = await fetch("/api/payments/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planType: id }),
+        body: JSON.stringify({ planType: id, couponCode: coupon?.code }),
       });
       const data = await res.json();
 
@@ -148,7 +192,22 @@ export default function PricingPage() {
         return;
       }
 
-      const { orderId, amount, currency, keyId, planLabel, userName, userEmail } = data.data;
+      // The coupon could have become invalid between checking it and buying
+      // (e.g. someone else used the last redemption) — create-order already
+      // ignored it and charged full price; tell the student why.
+      if (coupon && data.data.couponError) {
+        setCoupon(null);
+        setCouponMsg({ ok: false, text: data.data.couponError });
+      }
+
+      const { orderId, amount, currency, keyId, planLabel, userName, userEmail, isFreeBypass } = data.data;
+
+      if (isFreeBypass) {
+        alert("✓ Payment successful! Access unlocked.");
+        router.refresh();
+        window.location.reload();
+        return;
+      }
 
       if (!window.Razorpay) {
         setError("Payment library not loaded. Please refresh and try again.");
@@ -272,6 +331,36 @@ export default function PricingPage() {
         </div>
       </div>
 
+      {/* Coupon */}
+      <div className="mx-auto max-w-sm">
+        {coupon ? (
+          <div className="flex items-center justify-between gap-3 rounded-full bg-green-500/10 px-4 py-2.5 ring-1 ring-green-500/20">
+            <span className="flex items-center gap-2 text-sm font-bold text-green-700 dark:text-green-400">
+              <Tag className="h-4 w-4" /> {coupon.code} — {coupon.discountPercent}% off
+            </span>
+            <button onClick={clearCoupon} className="rounded-full p-1 text-green-700/70 hover:bg-green-500/20 dark:text-green-400/70">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Input
+              placeholder="Have a coupon code?"
+              value={couponInput}
+              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === "Enter" && checkCoupon()}
+              className="rounded-full text-center text-sm"
+            />
+            <Button variant="outline" size="sm" onClick={checkCoupon} loading={checkingCoupon} disabled={!couponInput.trim()} className="rounded-full shrink-0">
+              Apply
+            </Button>
+          </div>
+        )}
+        {couponMsg && !coupon && (
+          <p className={`mt-2 text-center text-xs font-medium ${couponMsg.ok ? "text-green-600" : "text-red-500"}`}>{couponMsg.text}</p>
+        )}
+      </div>
+
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
           ⚠ {error}
@@ -282,10 +371,11 @@ export default function PricingPage() {
       {(() => {
         const bundleBaseId = "ALL_MODULES";
         const bundlePlanId = planId(bundleBaseId);
-        const modulePrice  = planPrice("MODULE_SPEAKING", BASE_PLANS[0].defaultPrice[duration]);
-        const bundlePrice  = planPrice(bundleBaseId, { "1M": 599, "3M": 1499, "6M": 2699, "1Y": 4499 }[duration]);
+        const modulePrice  = planPrice("MODULE_SPEAKING");
+        const bundlePrice  = planPrice(bundleBaseId);
+        const finalPrice   = discounted(bundlePrice);
         const separately   = modulePrice * 4;
-        const save         = separately - bundlePrice;
+        const save         = separately - finalPrice;
         const owned        = access?.hasAllAccess ?? false;
 
         return (
@@ -330,8 +420,9 @@ export default function PricingPage() {
                   <div className="mb-1 text-xs font-medium text-gray-500 line-through dark:text-slate-400">
                     ₹{separately} separately
                   </div>
-                  <div className="flex items-baseline justify-center gap-1 lg:justify-end">
-                    <span className="text-4xl font-bold text-gray-900 dark:text-slate-100">₹{bundlePrice}</span>
+                  <div className="flex items-baseline justify-center gap-2 lg:justify-end">
+                    {coupon && <span className="text-lg font-medium text-gray-400 line-through dark:text-slate-500">₹{bundlePrice}</span>}
+                    <span className="text-4xl font-bold text-gray-900 dark:text-slate-100">₹{finalPrice}</span>
                     <span className="text-sm text-gray-500 dark:text-slate-400">/ {DURATION_LABEL[duration].toLowerCase()}</span>
                   </div>
                   {save > 0 && <p className="mt-1 text-xs font-medium text-green-600">Save ₹{save}</p>}
@@ -346,7 +437,7 @@ export default function PricingPage() {
                       className="mt-4 w-full gap-2 rounded-full shadow-md hover:shadow-lg hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-gradient-to-r from-indigo-600 to-purple-600 lg:w-auto"
                       size="lg"
                     >
-                      Unlock Everything — ₹{bundlePrice}
+                      Unlock Everything — ₹{finalPrice}
                     </Button>
                   )}
                 </div>
@@ -368,8 +459,8 @@ export default function PricingPage() {
             const Icon  = plan.icon;
             const id    = planId(plan.baseId);
             const owned = hasModuleAccess(plan.baseId);
-            const expiry = formatExpiry(plan.baseId);
-            const price = planPrice(plan.baseId, plan.defaultPrice[duration]);
+            const price = planPrice(plan.baseId);
+            const finalPrice = discounted(price);
 
             return (
               <Card key={plan.baseId} className={`relative rounded-[2rem] border-none shadow-glass backdrop-blur-xl ring-1 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float overflow-hidden ${owned ? "bg-green-500/10 ring-green-500/30" : "bg-background/50 ring-white/10"}`}>
@@ -383,8 +474,9 @@ export default function PricingPage() {
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-slate-100">{plan.title}</h3>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">₹{price}</span>
+                  <div className="mt-2 flex items-baseline gap-1.5">
+                    {coupon && <span className="text-sm font-medium text-gray-400 line-through dark:text-slate-500">₹{price}</span>}
+                    <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">₹{finalPrice}</span>
                     <span className="text-xs text-gray-500 dark:text-slate-400">/ {DURATION_LABEL[duration].toLowerCase()}</span>
                   </div>
 
@@ -404,7 +496,7 @@ export default function PricingPage() {
                       className="mt-4 w-full rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10"
                       variant="outline"
                     >
-                      Buy for ₹{price}
+                      Buy for ₹{finalPrice}
                     </Button>
                   )}
                 </CardContent>

@@ -9,6 +9,19 @@ import {
   CheckCircle2, Crown, AlertTriangle,
   Zap, Shield, Loader2, CreditCard, Star,
 } from "lucide-react";
+import { DEFAULT_PRICES } from "@/lib/pricing-defaults";
+
+// CentreSubscription.planName is stored as DEFAULT_PRICES[key].label verbatim
+// (activateCentrePlan always uses the hardcoded label, never a DB override —
+// /api/super-admin/pricing's PUT never lets a label be customized either).
+// Deriving the reverse lookup from the same source means it can never go
+// stale the way a hand-written label->key table did — that table's short
+// labels ("Mini Plan") never matched the real stored names ("Centre Mini
+// Plan (5 students, 1 month)"), so "Current Plan"/"Renew" never triggered
+// for any centre, on any plan.
+const LABEL_TO_KEY: Record<string, string> = Object.fromEntries(
+  Object.entries(DEFAULT_PRICES).map(([key, def]) => [def.label, key])
+);
 
 declare global { interface Window { Razorpay: any } }
 
@@ -314,16 +327,6 @@ export default function AdminBillingPage() {
 
   const { centre, plan, history } = data || { centre: null, plan: null, history: [] };
   const PLANS = billingCycle === "annual" ? ANNUAL_PLANS : billingCycle === "monthly" ? MONTHLY_PLANS : TRUE_MONTHLY_PLANS;
-  const LABEL_TO_KEY: Record<string, string> = {
-    "Mini Plan": "CENTRE_MINI",
-    "Small Plan": "CENTRE_SMALL",
-    "Starter Plan": "CENTRE_STARTER",
-    "Growth Plan": "CENTRE_GROWTH",
-    "Pro Plan": "CENTRE_PRO",
-    "Annual Starter Plan": "ANNUAL_STARTER",
-    "Annual Growth Plan": "ANNUAL_GROWTH",
-    "Annual Unlimited Plan": "ANNUAL_UNLIMITED",
-  };
   const currentPlanKey = plan ? (LABEL_TO_KEY[plan.planName] ?? null) : null;
 
   return (

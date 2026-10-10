@@ -19,8 +19,17 @@ export async function POST(req: NextRequest) {
   if (!code || !discountPercent || !validUntil) {
     return NextResponse.json({ success: false, error: "code, discountPercent and validUntil are required" }, { status: 400 });
   }
-  if (discountPercent < 1 || discountPercent > 100) {
-    return NextResponse.json({ success: false, error: "discountPercent must be between 1 and 100" }, { status: 400 });
+  // Number(...) < 1 is false for non-numeric input (NaN comparisons are
+  // always false), so a bad discountPercent used to sail through validation
+  // and land in the DB as NaN — which create-order would then multiply into
+  // every price for that coupon, breaking checkout for anyone who used it.
+  const discount = Number(discountPercent);
+  if (!Number.isFinite(discount) || discount < 1 || discount > 100) {
+    return NextResponse.json({ success: false, error: "discountPercent must be a number between 1 and 100" }, { status: 400 });
+  }
+  const validUntilDate = new Date(validUntil);
+  if (isNaN(validUntilDate.getTime())) {
+    return NextResponse.json({ success: false, error: "validUntil must be a valid date" }, { status: 400 });
   }
 
   const existing = await db.coupon.findUnique({ where: { code: code.toUpperCase() } });
@@ -29,9 +38,9 @@ export async function POST(req: NextRequest) {
   const coupon = await db.coupon.create({
     data: {
       code: code.toUpperCase().trim(),
-      discountPercent: Number(discountPercent),
+      discountPercent: discount,
       maxUses: Number(maxUses) || 100,
-      validUntil: new Date(validUntil),
+      validUntil: validUntilDate,
     },
   });
 
