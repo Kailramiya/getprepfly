@@ -12,20 +12,20 @@ function displayName(name: string): string {
   return `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`;
 }
 
-// GET /api/leaderboard — average-score ranking of the student's centre.
+// GET /api/leaderboard — average-score ranking. Centre students are ranked
+// within their centre; everyone else (no centre) gets a platform-wide board.
 export async function GET() {
   const { user, error } = await requireAuth();
   if (error) return error;
 
   const centreId = user!.centreId;
-  if (!centreId) {
-    return NextResponse.json({ success: true, data: { available: false } });
-  }
+  const scope: "centre" | "global" = centreId ? "centre" : "global";
 
-  // Average scored-attempt score per student in this centre.
+  // Average scored-attempt score per student, scoped to the centre when the
+  // caller has one, otherwise across all students.
   const grouped = await db.attempt.groupBy({
     by: ["userId"],
-    where: { overallScore: { not: null }, user: { centreId, role: "STUDENT" } },
+    where: { overallScore: { not: null }, user: { role: "STUDENT", ...(centreId ? { centreId } : {}) } },
     _avg: { overallScore: true },
     _count: { _all: true },
   });
@@ -60,6 +60,6 @@ export async function GET() {
 
   return NextResponse.json({
     success: true,
-    data: { available: true, totalRanked: ranked.length, minAttempts: MIN_ATTEMPTS, top, you },
+    data: { available: true, scope, totalRanked: ranked.length, minAttempts: MIN_ATTEMPTS, top, you },
   });
 }
