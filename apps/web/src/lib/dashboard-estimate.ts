@@ -23,6 +23,26 @@ export function weightedSectionAverage(secAvg: Record<Section, number>): number 
 }
 
 /**
+ * True attempt-weighted average score across every (type, avgScore, count)
+ * group — e.g. from a `GROUP BY type` query that already has both the mean
+ * and the row count per group. Reconstructs the exact overall mean
+ * (sum(avg_i * count_i) / sum(count_i) === sum of every individual score /
+ * total count) without re-querying individual attempts.
+ *
+ * Deliberately NOT a mean of the per-group averages: that nested mean would
+ * weight every group equally regardless of how many attempts it has, so a
+ * student who has tried more sub-types in one section (e.g. Listening's 8
+ * vs Writing's 2) would get skewed toward that section for no principled
+ * reason. A true attempt-weighted average has no such skew by construction.
+ */
+export function attemptWeightedAverage(groups: Array<{ avgScore: number; count: number }>): number {
+  const totalCount = groups.reduce((sum, g) => sum + g.count, 0);
+  if (totalCount === 0) return 0;
+  const totalScore = groups.reduce((sum, g) => sum + g.avgScore * g.count, 0);
+  return totalScore / totalCount;
+}
+
+/**
  * Splits items already sorted ascending by score into weak/strong lists,
  * capped at 3 each and at half the available items, so the same item can
  * never appear in both lists (which the naive slice(0,3)/slice(-3) did
