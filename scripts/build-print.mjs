@@ -48,7 +48,7 @@ function qrCard(x, y, w, h, qr, fs) {
 }
 
 const BENEFITS = [
-  "All 20+ PTE question types",
+  "All 22 PTE question types",
   "AI Speaking &amp; Writing scoring",
   "Full mock tests &amp; predictions",
   "Vocabulary, templates &amp; analytics",

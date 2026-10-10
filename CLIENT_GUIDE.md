@@ -8,7 +8,7 @@
 
 PTE Master is an AI-powered PTE Academic practice platform built specifically for coaching centres. Your students can:
 
-- Practice all 20+ PTE question types (Speaking, Writing, Reading, Listening)
+- Practice all 22 PTE question types (Speaking, Writing, Reading, Listening)
 - Take full mock tests with timer and scoring
 - Get AI-powered feedback on Speaking and Writing
 - Track their progress with detailed analytics
@@ -112,10 +112,10 @@ This pre-fills the centre code — students just enter name, email, password.
 ### Practicing
 
 1. Student logs in → sees **Dashboard** with 4 sections:
-   - Speaking (6 question types)
+   - Speaking (7 question types)
    - Writing (2 question types)
    - Reading (5 question types)
-   - Listening (7 question types)
+   - Listening (8 question types)
 
 2. Click any section → see all question types with descriptions
 

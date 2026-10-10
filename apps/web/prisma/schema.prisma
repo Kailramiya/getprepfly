@@ -428,7 +428,7 @@ model Question {
   centreId      String?
   centre        Centre?         @relation(fields: [centreId], references: [id])
 
-  // Content stored as JSON — flexible for all 20+ question types
+  // Content stored as JSON — flexible for all 22 question types
   // Examples:
   //   READ_ALOUD: { text: "..." }
   //   DESCRIBE_IMAGE: { imageUrl: "..." }

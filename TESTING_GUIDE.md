@@ -23,7 +23,7 @@
 |---|------|-------|-----------------|
 | 1 | Page loads | Open `https://getprepfly.com` | Home page with hero section, features, stats |
 | 2 | Features section | Scroll down | 6 feature cards visible (AI Scoring, Mock Tests, etc.) |
-| 3 | Stats section | Scroll down | Shows 20+ question types, 4 sections, AI scoring, Free beta |
+| 3 | Stats section | Scroll down | Shows 22 question types, 4 sections, AI scoring, Free beta |
 | 4 | CTA buttons | Click "Start Practicing Free" | Redirects to `/register` |
 | 5 | Login link | Click "Login" in header | Redirects to `/login` |
 | 6 | Centre registration CTA | Click coaching centre CTA | Goes to centre registration |
@@ -121,10 +121,10 @@
 
 | # | Test | Steps | Expected Result |
 |---|------|-------|-----------------|
-| 1 | Speaking section | Click Speaking | Shows 6 question types: Read Aloud, Repeat Sentence, Describe Image, Retell Lecture, Answer Short Question, Respond to Situation |
+| 1 | Speaking section | Click Speaking | Shows 7 question types: Read Aloud, Repeat Sentence, Describe Image, Retell Lecture, Answer Short Question, Respond to Situation, Summarize Group Discussion |
 | 2 | Writing section | Click Writing | Shows 2 types: Write Essay, Summarize Written Text |
 | 3 | Reading section | Click Reading | Shows 5 types: MCQ Single, MCQ Multiple, Reorder Paragraphs, Fill Blanks Drag, Fill Blanks Dropdown |
-| 4 | Listening section | Click Listening | Shows 7 types: MCQ Single, MCQ Multiple, Summarize Spoken Text, Write from Dictation, Fill Blanks, Highlight Correct Summary, Select Missing Word |
+| 4 | Listening section | Click Listening | Shows 8 types: MCQ Single, MCQ Multiple, Summarize Spoken Text, Write from Dictation, Fill Blanks, Highlight Correct Summary, Highlight Incorrect Words, Select Missing Word |
 
 ### 4.2 Speaking Practice (`/practice/speaking/[type]`)
 

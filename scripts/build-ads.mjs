@@ -55,7 +55,7 @@ ${logoMark(84, 78, 0.74)}
 <text x="90" y="690" font-family="${FONT}" font-size="58" font-weight="700" fill="#fff">in PTE Academic</text>
 
 ${check(92, 790, "AI scoring for Speaking &amp; Writing", 38)}
-${check(92, 858, "All 20+ PTE question types", 38)}
+${check(92, 858, "All 22 PTE question types", 38)}
 ${check(92, 926, "Mock tests, predictions &amp; analytics", 38)}
 
 ${pill(540, 985, 720, 78, "Start free  →  getprepfly.com", 32)}
@@ -77,7 +77,7 @@ ${logoMark(380, 150, 1.0)}
 <text x="540" y="1080" text-anchor="middle" font-family="${FONT}" font-size="70" font-weight="700" fill="#fff">in PTE Academic</text>
 
 ${check(230, 1280, "AI Speaking &amp; Writing scoring", 44)}
-${check(230, 1370, "All 20+ question types", 44)}
+${check(230, 1370, "All 22 question types", 44)}
 ${check(230, 1460, "Full timed mock tests", 44)}
 ${check(230, 1550, "Predictions, vocab &amp; analytics", 44)}
 
@@ -97,7 +97,7 @@ ${logoMark(70, 60, 0.62)}
 <text x="72" y="290" font-family="${FONT}" font-size="68" font-weight="700" fill="#fff">Score <tspan font-size="120" font-weight="900" fill="${AMBER}">79+</tspan></text>
 <text x="72" y="360" font-family="${FONT}" font-size="46" font-weight="700" fill="#fff">in PTE Academic — powered by AI</text>
 
-${check(74, 450, "20+ question types", 32)}
+${check(74, 450, "22 question types", 32)}
 ${check(74, 508, "AI Speaking &amp; Writing scoring", 32)}
 ${check(620, 450, "Full mock tests", 32)}
 ${check(620, 508, "Free during beta", 32)}
