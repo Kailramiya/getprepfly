@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   ChevronLeft, ChevronRight, RotateCcw,
-  CheckCircle2, Loader2, List, X, Star,
+  CheckCircle2, Loader2, List, X,
   Flag, ThumbsUp, ThumbsDown, RefreshCw, Eye, EyeOff, BarChart2, AlertTriangle,
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
@@ -23,10 +23,8 @@ type PracticeQuestionData = QuestionData & {
 
 export default function PracticeQuestionPage() {
   const params = useParams();
-  const searchParams = useSearchParams();
   const section = (params.section as string)?.toUpperCase();
   const type = (params.type as string)?.toUpperCase().replace(/-/g, "_");
-  const isPrediction = searchParams?.get("prediction") === "true";
 
   const [questions, setQuestions] = useState<PracticeQuestionData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -81,8 +79,7 @@ export default function PracticeQuestionPage() {
 
     try {
       const sourceParam = selectedSource !== "all" ? `&source=${selectedSource}` : "";
-      const predictionParam = isPrediction ? "&prediction=true" : "";
-      const res = await fetch(`/api/questions?section=${section}&type=${type}&page=${page}&pageSize=${pageSize}${sourceParam}${predictionParam}`);
+      const res = await fetch(`/api/questions?section=${section}&type=${type}&page=${page}&pageSize=${pageSize}${sourceParam}`);
       const data = await res.json();
       if (data.success) {
         const items = data.data.items as PracticeQuestionData[];
@@ -107,7 +104,7 @@ export default function PracticeQuestionPage() {
       else setLoadingMore(false);
     }
     return false;
-  }, [section, type, selectedSource, isPrediction]);
+  }, [section, type, selectedSource]);
 
   useEffect(() => {
     if (!section || !type) return;
@@ -430,7 +427,6 @@ export default function PracticeQuestionPage() {
                           <span className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${q.difficulty === "EASY" ? "bg-green-500/10 text-green-500" : q.difficulty === "HARD" ? "bg-red-500/10 text-red-500" : "bg-muted-foreground/10 text-muted-foreground"}`}>
                             {q.difficulty}
                           </span>
-                          {q.isPrediction && <Star className="h-3.5 w-3.5 text-amber-500 drop-shadow-sm" />}
                           {flags[q.id] === "WEAK" && <ThumbsDown className="h-3.5 w-3.5 text-red-500 drop-shadow-sm" />}
                           {flags[q.id] === "REVIEW_AGAIN" && <RefreshCw className="h-3.5 w-3.5 text-amber-500 drop-shadow-sm" />}
                           {flags[q.id] === "STRONG" && <ThumbsUp className="h-3.5 w-3.5 text-green-500 drop-shadow-sm" />}
@@ -469,11 +465,6 @@ export default function PracticeQuestionPage() {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          {currentQuestion?.isPrediction && (
-            <Badge className="bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 border-none rounded-full shadow-sm font-bold transition-colors">
-              Prediction
-            </Badge>
-          )}
           <Badge className={`border-none rounded-full shadow-sm font-bold transition-colors ${
             currentQuestion?.difficulty === "EASY" ? "bg-green-500/10 text-green-500 hover:bg-green-500/20" :
             currentQuestion?.difficulty === "HARD" ? "bg-red-500/10 text-red-500 hover:bg-red-500/20" :

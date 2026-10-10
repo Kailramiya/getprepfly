@@ -17,12 +17,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export const metadata: Metadata = {
   title: "PrepFly — AI-Powered PTE Academic Practice Platform",
   description:
-    "Score 79+ in PTE Academic with PrepFly. Practice all 20+ question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback, full mock tests, predictions, vocabulary and progress analytics.",
+    "Score 79+ in PTE Academic with PrepFly. Practice all 20+ question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback, full mock tests, vocabulary and progress analytics.",
   alternates: { canonical: "https://getprepfly.com" },
   openGraph: {
     title: "PrepFly — AI-Powered PTE Academic Practice Platform",
     description:
-      "Score 79+ in PTE Academic with PrepFly. All 20+ question types, AI scoring, mock tests, predictions, vocabulary & analytics.",
+      "Score 79+ in PTE Academic with PrepFly. All 20+ question types, AI scoring, mock tests, vocabulary & analytics.",
     url: "https://getprepfly.com",
     type: "website",
     images: [
@@ -114,13 +114,12 @@ const jsonLd = {
       },
       publisher: { "@id": "https://getprepfly.com/#organization" },
       description:
-        "Practice PTE Academic with AI-powered scoring across Speaking, Writing, Reading and Listening. Full mock tests, predictions, vocabulary and analytics included.",
+        "Practice PTE Academic with AI-powered scoring across Speaking, Writing, Reading and Listening. Full mock tests, vocabulary and analytics included.",
       featureList: [
         "AI-powered speaking scoring with word-level pronunciation feedback",
         "Writing feedback with grammar, spelling and structure analysis",
         "All 20+ PTE question types",
         "Full and sectional timed mock tests with band scores",
-        "Weekly prediction questions",
         "Vocabulary builder in English, Hindi and Punjabi",
         "Progress analytics and skill-wise score estimates",
         "Coaching centre management and white-labelling",
@@ -194,7 +193,6 @@ const features = [
   { icon: ClipboardList, title: "Full & Sectional Mock Tests", desc: "Timed, real-exam simulation with section-wise and overall band score estimates." },
   { icon: Target, title: "Skill Score Estimate", desc: "A 10-90 estimate for each skill using the official PTE weighted scoring model." },
   { icon: TrendingUp, title: "Progress Analytics", desc: "Track your practice streak, spot weak vs strong areas, and watch your score trend over time." },
-  { icon: Zap, title: "Weekly Predictions", desc: "Practice the high-frequency questions most likely to appear in the real exam." },
   { icon: FileText, title: "Templates & Study Guides", desc: "Proven essay and speaking templates, plus strategy guides for every question type." },
   { icon: BookMarked, title: "Vocabulary Builder", desc: "Word of the day, flashcards, and tap-any-word meanings in English, Hindi and Punjabi." },
   { icon: Flag, title: "Flag & Review", desc: "Mark questions as weak, strong or review and revisit them anytime from My Flags." },
@@ -217,7 +215,6 @@ const centreFeatures = [
 
 const whyPrepflyFeatures = [
   { icon: Languages, title: "Your language", desc: "Interface and instant word meanings in English, Hindi and Punjabi." },
-  { icon: TrendingUp, title: "Weekly predictions", desc: "Practise the high-frequency questions most likely to appear, updated every week." },
   { icon: Building2, title: "Built for coaching centres", desc: "Batches, assigned mock tests, teacher accounts and your own branding." },
   { icon: CheckCircle2, title: "Clear pricing", desc: "Full access from ₹599/month. Single sections from ₹249/month. See every price before you sign up." },
 ];
@@ -227,7 +224,6 @@ const buyerChecklist = [
   { q: "Is your language supported?", a: "English, Hindi and Punjabi interface, with word meanings in all three." },
   { q: "Does it cover every question type?", a: "20+ types across Speaking, Writing, Reading and Listening." },
   { q: "Are mock tests timed like the real exam?", a: "Full and sectional mocks with a 10-90 estimate per skill." },
-  { q: "Are predictions included?", a: "Weekly predictions of high-frequency questions." },
   { q: "Can a coaching centre run batches on it?", a: "Batches, assigned tests, teacher accounts and student analytics. Branding options depend on the plan." },
   { q: "Do you see the price before you commit?", a: "Prices are on this page. Full access from ₹599/month." },
   { q: "Can you try it before paying?", a: "Free plan: 3-day full access, then 3 AI-scored attempts a day." },
@@ -328,7 +324,7 @@ export default async function HomePage() {
                 Practice PTE with <span className="bg-gradient-to-r from-teal-500 to-indigo-500 bg-clip-text text-transparent">AI scoring</span> that shows exactly where you lose marks
               </h1>
               <p className="mt-8 text-xl text-muted-foreground sm:text-2xl font-medium max-w-2xl mx-auto leading-relaxed">
-                Scored Speaking and Writing, full mock tests and weekly predictions, in English, Hindi and Punjabi. Start free, no card needed.
+                Scored Speaking and Writing, full mock tests, in English, Hindi and Punjabi. Start free, no card needed.
               </p>
               <div className="mt-14 flex flex-col items-center gap-6 sm:flex-row sm:justify-center">
                 <Button size="xl" className="group rounded-full bg-foreground text-background hover:bg-foreground/90 shadow-float hover:scale-105 transition-all duration-700 ease-fluid" asChild>

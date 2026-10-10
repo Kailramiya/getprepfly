@@ -11,7 +11,7 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import {
   Database, Plus, Search, Upload, Trash2, Edit2,
-  Mic, PenTool, BookOpen, Headphones, Star,
+  Mic, PenTool, BookOpen, Headphones,
 } from "lucide-react";
 
 const SECTION_ICONS: Record<string, any> = {
@@ -73,7 +73,6 @@ interface Question {
   type: string;
   difficulty: string;
   title: string;
-  isPrediction: boolean;
   tags: string[];
   createdAt: string;
   imageUrl: string | null;
@@ -307,11 +306,6 @@ export default function QuestionsPage() {
                         <div>
                           <div className="flex items-center gap-2">
                             <p className="text-lg font-bold text-foreground group-hover:text-primary transition-colors">{q.title}</p>
-                            {q.isPrediction && (
-                              <Badge variant="warning" className="gap-1 shadow-[0_0_10px_rgba(245,158,11,0.5)]">
-                                <Star className="h-3 w-3" /> Prediction
-                              </Badge>
-                            )}
                           </div>
                           <div className="mt-1 flex items-center gap-2">
                             <Badge variant="secondary" className="text-xs">

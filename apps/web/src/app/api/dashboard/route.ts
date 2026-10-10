@@ -26,7 +26,6 @@ export async function GET() {
     totalPracticeTime,
     practiceDays,
     sectionTypeAggs,
-    predictionsAgg,
     memberships,
   ] = await Promise.all([
     // Total attempts count
@@ -92,23 +91,6 @@ export async function GET() {
         AND a."overallScore" IS NOT NULL
       GROUP BY q.section, q.type
     `,
-
-    // Prediction question counts by type — surfaces high-frequency expected questions
-    db.question.groupBy({
-      by: ["section", "type"],
-      where: {
-        isPrediction: true,
-        isActive: true,
-        OR: [
-          { centreId: null },
-          { isPublic: true },
-          ...(user!.centreId ? [{ centreId: user!.centreId }] : []),
-        ],
-      },
-      _count: { id: true },
-      orderBy: { _count: { id: "desc" } },
-      take: 6,
-    }),
 
     // Get user's batches to fetch assigned tests
     db.batchMember.findMany({ where: { userId }, select: { batchId: true } }),
@@ -217,11 +199,6 @@ export async function GET() {
       scoreTrend,
       weakAreas,
       strongAreas,
-      predictions: predictionsAgg.map(p => ({
-        type: p.type,
-        section: p.section,
-        count: p._count.id,
-      })),
       assignedTests: assignedTests.map(t => ({
         id: t.id,
         title: t.title,

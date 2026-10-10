@@ -17,7 +17,6 @@ export async function GET(req: NextRequest) {
   const section = url.searchParams.get("section");
   const type = url.searchParams.get("type");
   const difficulty = url.searchParams.get("difficulty");
-  const prediction = url.searchParams.get("prediction");
   const page = Math.max(1, parseInt(url.searchParams.get("page") || "1"));
   const requestedPageSize = Math.max(1, parseInt(url.searchParams.get("pageSize") || "20"));
   const requestedFetchAll = url.searchParams.get("all") === "1";
@@ -97,7 +96,6 @@ export async function GET(req: NextRequest) {
     ...(section && { section }),
     ...(type && { type }),
     ...(difficulty && { difficulty }),
-    ...(prediction === "true" && { isPrediction: true }),
     // Super admin can filter by specific centre (or "global" = centreId null)
     ...(centreFilter === "global" && isAdmin
       ? { centreId: null }
@@ -117,7 +115,6 @@ export async function GET(req: NextRequest) {
         type: true,
         difficulty: true,
         title: true,
-        isPrediction: true,
         isPublic: true,
         tags: true,
         imageUrl: true,
@@ -140,10 +137,7 @@ export async function GET(req: NextRequest) {
         }),
       },
       ...(fetchAll ? {} : { skip: (page - 1) * pageSize, take: pageSize }),
-      orderBy:
-        sortBy === "title"
-          ? [{ title: sortOrder }]
-          : [{ isPrediction: "desc" }, { createdAt: sortOrder }],
+      orderBy: sortBy === "title" ? [{ title: sortOrder }] : [{ createdAt: sortOrder }],
     }),
     db.question.count({ where }),
   ]);
@@ -188,7 +182,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     section, type, difficulty, title, content, explanation,
-    modelAnswer, audioUrl, imageUrl, tags, isPrediction, marks, isPublic,
+    modelAnswer, audioUrl, imageUrl, tags, marks, isPublic,
   } = body;
 
   if (!section || !type || !title || !content) {
@@ -225,7 +219,6 @@ export async function POST(req: NextRequest) {
       audioUrl: audioUrl || null,
       imageUrl: imageUrl || null,
       tags: tags || [],
-      isPrediction: isPrediction || false,
       marks: typeof marks === "number" && marks > 0 ? marks : 1,
       isPublic: autoPublic,
       // Centre-specific if centre admin, global if super admin

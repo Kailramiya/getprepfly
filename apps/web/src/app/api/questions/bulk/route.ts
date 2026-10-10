@@ -39,7 +39,6 @@ export async function POST(req: NextRequest) {
         audioUrl: q.audioUrl || null,
         imageUrl: q.imageUrl || null,
         tags: q.tags || [],
-        isPrediction: q.isPrediction || false,
         centreId,
       })),
       skipDuplicates: true,
