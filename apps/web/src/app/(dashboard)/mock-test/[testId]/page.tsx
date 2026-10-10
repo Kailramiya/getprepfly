@@ -423,7 +423,7 @@ export default function MockTestSessionPage() {
                   )}
                   <QuestionRenderer
                     key={tq.question.id}
-                    question={{ ...tq.question, isPrediction: false, marks: 1 }}
+                    question={{ ...tq.question, marks: 1 }}
                     submitted={true}
                     showAnswer={true}
                     showFeedback={true}
@@ -530,7 +530,6 @@ export default function MockTestSessionPage() {
                 key={`${currentQuestion.question.id}-${currentIdx}`}
                 question={{
                   ...currentQuestion.question,
-                  isPrediction: false,
                   marks: 1,
                 }}
                 submitted={submitted}

@@ -7,7 +7,7 @@ import { MediaUploader } from "@/components/admin/media-uploader";
 import {
   X, Mic, PenTool, BookOpen, Headphones,
   FileText, List, Shuffle, Edit3, CheckCircle2,
-  Image as ImageIcon, Volume2, Star, Info, Plus, Trash2,
+  Image as ImageIcon, Volume2, Info, Plus, Trash2,
 } from "lucide-react";
 
 // ============================================================================
@@ -287,7 +287,6 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
   const [typeValue, setTypeValue] = useState<string>(editingQuestion?.type || "READ_ALOUD");
   const [title, setTitle] = useState(editingQuestion?.title || "");
   const [difficulty, setDifficulty] = useState(editingQuestion?.difficulty || "MEDIUM");
-  const [isPrediction, setIsPrediction] = useState(!!editingQuestion?.isPrediction);
   const [marks, setMarks] = useState<number>(editingQuestion?.marks ?? 1);
   const [tags, setTags] = useState<string>(
     Array.isArray(editingQuestion?.tags) ? editingQuestion.tags.join(", ") : ""
@@ -538,7 +537,6 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
           explanation: explanation.trim() || undefined,
           audioUrl: audioUrl.trim() || undefined,
           imageUrl: imageUrl.trim() || undefined,
-          isPrediction,
           marks: marks > 0 ? marks : 1,
           isPublic: isSuperAdmin ? isPublic : undefined,
           tags: tags.split(",").map((t: string) => t.trim()).filter(Boolean),
@@ -703,19 +701,6 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={isPrediction}
-                      onChange={(e) => setIsPrediction(e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300 text-amber-600"
-                    />
-                    <span className="flex items-center gap-1 text-sm text-gray-700 dark:text-slate-300">
-                      <Star className="h-3.5 w-3.5 text-amber-500" />
-                      Mark as Prediction (high priority)
-                    </span>
-                  </label>
-
                   {isSuperAdmin && (
                     <label className="flex items-center gap-2 cursor-pointer rounded-md border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/50 px-3 py-1.5">
                       <input

@@ -77,7 +77,7 @@ export async function PATCH(
   const body = await req.json();
   const {
     title, content, difficulty, explanation, modelAnswer,
-    audioUrl, imageUrl, tags, isPrediction, isActive, marks,
+    audioUrl, imageUrl, tags, isActive, marks,
     section, type, isPublic,
   } = body;
 
@@ -106,7 +106,6 @@ export async function PATCH(
       ...(audioUrl !== undefined && { audioUrl }),
       ...(imageUrl !== undefined && { imageUrl }),
       ...(tags !== undefined && { tags }),
-      ...(isPrediction !== undefined && { isPrediction }),
       ...(isActive !== undefined && { isActive }),
       ...(section !== undefined && { section }),
       ...(type !== undefined && { type }),

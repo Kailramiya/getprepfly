@@ -5,10 +5,9 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Mic, PenTool, BookOpen, Headphones,
-  ArrowRight, Star, PlayCircle,
+  ArrowRight, PlayCircle,
 } from "lucide-react";
 
 const SECTION_CONFIG: Record<string, {
@@ -153,24 +152,6 @@ export default function PracticeSectionPage() {
           </Link>
         ))}
       </div>
-
-      {/* Weekly Predictions */}
-      <Card className="border-amber-200 bg-amber-50 dark:border-amber-900 dark:bg-amber-950/30">
-        <CardContent className="flex items-center justify-between p-5">
-          <div className="flex items-center gap-3">
-            <Star className="h-6 w-6 text-amber-500" />
-            <div>
-              <h3 className="font-semibold text-amber-900 dark:text-amber-200">Weekly Predictions</h3>
-              <p className="text-sm text-amber-700 dark:text-amber-300">High-probability questions for this week</p>
-            </div>
-          </div>
-          <Link href={`/practice/${sectionKey}?prediction=true`}>
-            <Button variant="outline" size="sm" className="border-amber-300 text-amber-700 hover:bg-amber-100">
-              View Predictions
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
     </div>
   );
 }

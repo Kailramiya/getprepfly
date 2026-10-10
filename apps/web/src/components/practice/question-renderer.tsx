@@ -35,7 +35,6 @@ export interface QuestionData {
   modelAnswer: string | null;
   audioUrl: string | null;
   imageUrl: string | null;
-  isPrediction: boolean;
   marks?: number;
 }
 

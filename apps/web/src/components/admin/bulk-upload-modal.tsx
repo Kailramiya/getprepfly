@@ -21,7 +21,6 @@ interface ParsedQuestion {
   audioUrl: string | null;
   imageUrl: string | null;
   tags: string[];
-  isPrediction: boolean;
 }
 
 interface RowResult {
@@ -34,7 +33,6 @@ interface RowResult {
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 const norm = (v: string | undefined) => (v ?? "").trim();
-const parseBool = (v: string) => ["true", "1", "yes", "y"].includes((v ?? "").toLowerCase().trim());
 const parseTags = (v: string) => (v ? v.split(",").map((t) => t.trim()).filter(Boolean) : []);
 const parseDiff = (v: string): string => {
   const d = (v ?? "").trim().toUpperCase();
@@ -57,7 +55,6 @@ function baseQ(
     audioUrl: norm(row.audio_url) || null,
     imageUrl: norm(row.image_url) || null,
     tags: parseTags(row.tags ?? ""),
-    isPrediction: parseBool(row.is_prediction ?? "false"),
     content: {},
     ...extra,
   };
@@ -80,8 +77,8 @@ function parseSingleCorrect(row: Record<string, string>, options: string[], erro
   return ci;
 }
 
-const TAIL = ["tags", "is_prediction", "explanation", "model_answer"];
-const TAIL_EX = ["vocabulary,reading", "false", "Optional explanation", ""];
+const TAIL = ["tags", "explanation", "model_answer"];
+const TAIL_EX = ["vocabulary,reading", "Optional explanation", ""];
 
 // ─── Type Configs ─────────────────────────────────────────────────────────────
 
@@ -109,7 +106,6 @@ const T: Record<string, TypeConfig> = {
       "text — The full passage the student must read aloud (required)",
       "difficulty — EASY / MEDIUM / HARD (default: MEDIUM)",
       "tags — Comma-separated (e.g. science,climate)",
-      "is_prediction — true or false",
       "model_answer — Leave blank (auto-scored by AI)",
     ],
     parse(row) {

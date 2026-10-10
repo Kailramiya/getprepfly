@@ -21,7 +21,6 @@ import {
   Star,
   Loader2,
   Sparkles,
-  Zap,
 } from "lucide-react";
 
 function Sk({ className }: { className?: string }) {
@@ -45,7 +44,6 @@ interface DashboardData {
   }>;
   weakAreas: Array<{ type: string; section: string; averageScore: number; count: number }>;
   strongAreas: Array<{ type: string; section: string; averageScore: number; count: number }>;
-  predictions: Array<{ type: string; section: string; count: number }>;
   examDate: string | null;
   dailyGoal: number;
   todayCount: number;
@@ -373,40 +371,6 @@ export default function DashboardPage() {
                     <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground/30 transition-all duration-700 ease-fluid group-hover:translate-x-1 group-hover:text-primary" />
                   </CardContent>
                 </Card>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Prediction questions available */}
-      {!loading && data && data.predictions.length > 0 && (
-        <div className="rounded-[2rem] border-none shadow-glass bg-amber-500/5 ring-1 ring-amber-500/10 p-6 sm:p-8 backdrop-blur-xl">
-          <div className="mb-4 flex items-center gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-amber-500">
-              <Zap className="h-5 w-5" />
-            </div>
-            <div>
-              <h2 className="text-xl font-extrabold tracking-tight text-foreground">High-frequency predictions</h2>
-              <span className="text-sm font-medium text-muted-foreground/80">Expected in upcoming exams</span>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {data.predictions.map((p) => (
-              <Link
-                key={p.type}
-                href={`/practice/${p.section.toLowerCase()}/${p.type.toLowerCase().replace(/_/g, "-")}?prediction=true`}
-                className="flex items-center justify-between rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 hover:bg-amber-500/20 hover:-translate-y-0.5 transition-all duration-300 ease-fluid cursor-pointer"
-              >
-                <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4 text-amber-500 shrink-0" />
-                  <span className="text-sm font-bold text-amber-700 dark:text-amber-300 truncate">
-                    {formatType(p.type)}
-                  </span>
-                </div>
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-500/20 text-[11px] font-extrabold text-amber-700 dark:text-amber-300">
-                  {p.count}
-                </span>
               </Link>
             ))}
           </div>

@@ -10,7 +10,7 @@ import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import {
   Database, Plus, Search, Trash2, Edit2,
-  Mic, PenTool, BookOpen, Headphones, Star,
+  Mic, PenTool, BookOpen, Headphones,
   Building2, Calendar, ArrowUpDown, LayoutGrid, List as ListIcon, ClipboardList,
 } from "lucide-react";
 
@@ -68,7 +68,6 @@ interface Question {
   type: string;
   difficulty: string;
   title: string;
-  isPrediction: boolean;
   isPublic?: boolean;
   tags: string[];
   createdAt: string;
@@ -235,11 +234,6 @@ export default function SuperAdminQuestionsPage() {
             <div>
               <div className="flex items-center gap-2">
                 <p className="font-medium text-gray-900 dark:text-slate-100">{q.title}</p>
-                {q.isPrediction && (
-                  <Badge variant="warning" className="gap-1">
-                    <Star className="h-3 w-3" /> Prediction
-                  </Badge>
-                )}
                 {q.isPublic && (
                   <Badge className="gap-1 bg-green-100 text-green-700">🌍 Public</Badge>
                 )}
