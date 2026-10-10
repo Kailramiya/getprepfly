@@ -127,6 +127,95 @@ POWER PHRASES:
 • "It was also mentioned that..."
 • "Another important point is..."`,
       },
+      {
+        title: "Answer Short Question Tips",
+        description: "One or two words is enough — speed and confidence win this question",
+        slug: "answer-short-question-tips",
+        content: `Answer Short Question — Speed Wins:
+
+WHAT IT TESTS:
+• A very short question is played once — you have 10 seconds to answer in 1–3 words.
+• No sentence needed. "Which decade had that policy?" → "The 1990s."
+
+THE TECHNIQUE:
+1. LISTEN for the question word: who / what / when / where / why / how many
+2. ANSWER in the shortest correct form — a word or short phrase, never a full sentence
+3. RESPOND immediately — within 1–2 seconds of the beep
+
+COMMON QUESTION PATTERNS:
+• "What do you call a person who...?" → a job/role noun
+• "What is the opposite of...?" → one word
+• "Which season/month/colour...?" → the specific answer
+• "What do we use to...?" → the object/tool
+
+COMMON MISTAKES:
+• Repeating the whole question back (wastes time, no extra marks)
+• Overthinking — if you're unsure, say your best single-word guess
+• Staying silent — content score is 0 if you say nothing
+
+SCORING TIP:
+Only content is scored here — one correct word is a perfect score. Don't aim for eloquence, aim for accuracy and speed.`,
+      },
+      {
+        title: "Respond to a Situation Strategy",
+        description: "A natural, spoken-English template for everyday social situations",
+        slug: "respond-to-situation-tips",
+        content: `Respond to a Situation — Natural Response Template:
+
+WHAT IT TESTS:
+A short scenario is described (e.g., a friend is upset, you're late for a meeting). You have 20 seconds to respond appropriately, like a native speaker would in conversation.
+
+RECORDING STRUCTURE (20 seconds):
+1. ACKNOWLEDGE (2–3 sec): "Oh no, that's tough." / "I totally understand."
+2. RESPOND (10–12 sec): Give a natural, relevant reply — suggestion, apology, explanation, or question, depending on the situation
+3. OFFER FOLLOW-UP (3–5 sec): "Let me know if you need anything." / "I'll make it up to you."
+
+USEFUL PHRASE BANK:
+• Apologising: "I'm really sorry about that, I should have..."
+• Suggesting: "Why don't we...", "Maybe you could..."
+• Reassuring: "Don't worry, it happens to everyone."
+• Declining politely: "I'd love to, but unfortunately..."
+
+COMMON MISTAKES:
+• Giving a robotic, scripted-sounding answer
+• Misreading the situation's tone (formal vs casual)
+• Running out of things to say — always have a follow-up line ready
+
+SCORING TIP:
+This is scored on appropriateness and fluency, not grammar perfection. Sound natural and relevant — that matters more than big vocabulary.`,
+      },
+      {
+        title: "Summarize Group Discussion Strategy",
+        description: "Track who said what, then summarize the discussion in your own words",
+        slug: "summarize-group-discussion-tips",
+        content: `Summarize Group Discussion — Tracking Method:
+
+WHAT IT TESTS:
+You listen to 3–4 people discussing a topic (60–90 seconds), then speak for up to 2 minutes summarizing the discussion.
+
+WHILE LISTENING, TRACK EACH SPEAKER:
+| SPEAKER | STANCE/POINT |
+|---------|--------------|
+| Speaker 1 | Opens the topic |
+| Speaker 2 | Agrees/disagrees + reason |
+| Speaker 3 | Different angle |
+| Speaker 4 (if any) | Moderator / closing view |
+
+RECORDING STRUCTURE:
+1. TOPIC (10 sec): "The group discussed [topic]."
+2. EACH SPEAKER'S VIEW (30–40 sec): "[Speaker/person] felt that... while another pointed out that..."
+3. AREAS OF AGREEMENT/DISAGREEMENT (15–20 sec): "Overall, most agreed that... although one speaker disagreed, arguing..."
+4. CONCLUSION (10 sec): "In conclusion, the discussion highlighted..."
+
+POWER PHRASES:
+• "One participant argued that..."
+• "This was countered by another speaker, who felt..."
+• "There was general agreement that..."
+• "The discussion concluded without full consensus on..."
+
+SCORING TIP:
+You don't need every detail — capture the range of opinions and the overall direction of the discussion. Content and fluency both count, so keep talking smoothly for the full time.`,
+      },
     ],
   },
   {
@@ -450,6 +539,128 @@ WORD COUNT CHECKLIST:
 • 2–4 complete sentences
 • No bullet points — flowing prose only
 • Proper grammar and punctuation`,
+      },
+      {
+        title: "Listening MCQ Strategy",
+        description: "How to catch the right answer the first time — no replays allowed",
+        slug: "listening-mcq-strategy",
+        content: `Listening MCQ — Single & Multiple Answer:
+
+BEFORE THE AUDIO STARTS:
+• Skim the question AND all options — know what you're listening for
+• Underline keywords in each option mentally
+
+WHILE LISTENING (plays ONCE):
+• Listen for options being confirmed OR directly contradicted
+• Cross out (mentally) any option the audio clearly rules out
+• Watch for distractors — the audio often mentions wrong options to test you
+
+SINGLE vs MULTIPLE:
+• SINGLE: pick the ONE best-supported answer
+• MULTIPLE: usually 2–3 correct — check every option against what was actually said, not what seems plausible
+
+COMMON TRAPS:
+• An option that sounds right but was never actually stated
+• An option mentioned early then corrected/contradicted later in the audio
+• Absolute language ("always", "never") when the audio was more nuanced
+
+TIMING TIP:
+You can review options again after the audio ends — don't rush the final decision, but don't second-guess an option you clearly heard confirmed.`,
+      },
+      {
+        title: "Listening Fill in the Blanks Strategy",
+        description: "Type exactly what you hear, including spelling and tense",
+        slug: "listening-fill-blanks-strategy",
+        content: `Listening Fill in the Blanks — Precision Method:
+
+WHAT IT TESTS:
+A transcript with missing words plays as audio. Type the missing word(s) exactly as spoken into each blank.
+
+THE TECHNIQUE:
+1. READ the visible transcript first — predict what KIND of word fits each blank (noun, verb, number, etc.)
+2. LISTEN and type the word the moment you hear it — don't wait for the whole sentence to finish
+3. CHECK spelling, especially plurals (-s), verb tense (-ed, -ing), and commonly confused words
+
+COMMON TRAPS:
+• Homophones: "their/there", "to/too/two", "wear/where"
+• Silent/tricky spelling: "receive", "necessary", "environment"
+• Numbers vs number words: write exactly what's said
+
+SCORING TIP:
+Every blank is scored individually — a correct word with a spelling mistake is marked wrong. Don't guess from logic alone; type exactly what you hear.`,
+      },
+      {
+        title: "Highlight Correct Summary Strategy",
+        description: "Eliminate summaries that twist or add to what was actually said",
+        slug: "highlight-correct-summary-strategy",
+        content: `Highlight Correct Summary — Elimination Approach:
+
+WHAT IT TESTS:
+After listening to a short talk, you choose the paragraph that correctly summarizes it, from several similar-looking options.
+
+ELIMINATE SUMMARIES THAT:
+• Focus on a minor detail instead of the main idea
+• Add information not mentioned in the audio
+• Reverse or exaggerate the speaker's actual point
+• Use extreme words ("always", "completely") when the audio was more balanced
+
+FIND THE RIGHT ONE BY:
+• Identifying the audio's MAIN topic and stance first, before reading options
+• Matching the overall gist, not exact wording — PTE paraphrases heavily
+• Checking the summary doesn't contradict anything specific you remember hearing
+
+TIMING TIP:
+Take brief notes on the topic and 1–2 key points while listening — you'll recognize the correct summary much faster than re-reading all options from scratch.`,
+      },
+      {
+        title: "Highlight Incorrect Words Strategy",
+        description: "Follow the transcript live and click words that don't match the audio",
+        slug: "highlight-incorrect-words-strategy",
+        content: `Highlight Incorrect Words — Active Tracking:
+
+WHAT IT TESTS:
+A transcript is shown on screen while the audio plays. Some words in the transcript differ from what's actually said — click every word that doesn't match.
+
+THE TECHNIQUE:
+1. Follow the transcript with your eyes in real time as the audio plays — don't fall behind
+2. The moment a word sounds "off" or doesn't match, click it immediately
+3. Differences are usually single-word swaps — same part of speech, similar sound or spelling
+
+WHAT TO LISTEN FOR:
+• Synonyms substituted for the original word (e.g., "big" read as "large")
+• Tense or number changes (e.g., "runs" read as "ran", "cat" read as "cats")
+• Similar-sounding words swapped in (e.g., "effect" vs "affect")
+
+COMMON MISTAKES:
+• Clicking too early, before confirming the mismatch
+• Losing your place in the transcript after one miss — re-anchor on the next clearly-heard phrase
+• Overthinking correctly-matching words — trust your first instinct
+
+TIP:
+Practice reading along with podcasts/news transcripts to build the habit of tracking text and audio simultaneously.`,
+      },
+      {
+        title: "Select Missing Word Strategy",
+        description: "The recording cuts off — predict the most logical ending",
+        slug: "select-missing-word-strategy",
+        content: `Select Missing Word — Prediction Method:
+
+WHAT IT TESTS:
+Audio plays and stops abruptly, usually at the end of a sentence. The final word (or short phrase) is replaced by a beep. Choose the option that logically completes it.
+
+THE TECHNIQUE:
+1. Focus on the SENTENCE STRUCTURE right before the beep — what part of speech is missing?
+2. Think about the TOPIC and TONE of the whole passage, not just the last few words
+3. Eliminate options that are grammatically wrong or topically unrelated
+4. Pick the option that would sound most natural if the sentence continued normally
+
+COMMON TRAPS:
+• An option that fits grammatically but doesn't match the topic
+• An option that's a plausible word but changes the sentence's intended meaning
+• Overly literal options when the audio was using an idiom or common expression
+
+TIP:
+Listen to the full context, not just the final clause — the correct answer usually ties back to something mentioned earlier in the audio.`,
       },
       {
         title: "Note-taking for Listening",
