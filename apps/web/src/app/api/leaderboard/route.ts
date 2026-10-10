@@ -12,54 +12,62 @@ function displayName(name: string): string {
   return `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`;
 }
 
-// GET /api/leaderboard — average-score ranking. Centre students are ranked
-// within their centre; everyone else (no centre) gets a platform-wide board.
+// GET /api/leaderboard — average-score ranking.
+// Individual (no-centre) students see only the global board. Centre students
+// see both: their centre's board and the global board.
 export async function GET() {
   const { user, error } = await requireAuth();
   if (error) return error;
 
   const centreId = user!.centreId;
-  const scope: "centre" | "global" = centreId ? "centre" : "global";
 
-  // Average scored-attempt score per student, scoped to the centre when the
-  // caller has one, otherwise across all students.
-  const grouped = await db.attempt.groupBy({
-    by: ["userId"],
-    where: { overallScore: { not: null }, user: { role: "STUDENT", ...(centreId ? { centreId } : {}) } },
-    _avg: { overallScore: true },
-    _count: { _all: true },
-  });
+  // Ranks the caller among all scored STUDENT attempts matching extraWhere.
+  async function buildBoard(extraWhere: Record<string, unknown>) {
+    const grouped = await db.attempt.groupBy({
+      by: ["userId"],
+      where: { overallScore: { not: null }, user: { role: "STUDENT", ...extraWhere } },
+      _avg: { overallScore: true },
+      _count: { _all: true },
+    });
 
-  const ranked = grouped
-    .filter((g) => (g._count._all || 0) >= MIN_ATTEMPTS)
-    .map((g) => ({ userId: g.userId, avgScore: Math.round(g._avg.overallScore || 0), attempts: g._count._all }))
-    .sort((a, b) => b.avgScore - a.avgScore || b.attempts - a.attempts);
+    const ranked = grouped
+      .filter((g) => (g._count._all || 0) >= MIN_ATTEMPTS)
+      .map((g) => ({ userId: g.userId, avgScore: Math.round(g._avg.overallScore || 0), attempts: g._count._all }))
+      .sort((a, b) => b.avgScore - a.avgScore || b.attempts - a.attempts);
 
-  // Names for the top N plus the caller (so we can show "your rank" if outside top).
-  const neededIds = new Set(ranked.slice(0, TOP_N).map((r) => r.userId));
-  neededIds.add(user!.id);
-  const users = await db.user.findMany({
-    where: { id: { in: Array.from(neededIds) } },
-    select: { id: true, name: true },
-  });
-  const nameById = new Map(users.map((u) => [u.id, u.name]));
+    // Names for the top N plus the caller (so we can show "your rank" if outside top).
+    const neededIds = new Set(ranked.slice(0, TOP_N).map((r) => r.userId));
+    neededIds.add(user!.id);
+    const users = await db.user.findMany({
+      where: { id: { in: Array.from(neededIds) } },
+      select: { id: true, name: true },
+    });
+    const nameById = new Map(users.map((u) => [u.id, u.name]));
 
-  const top = ranked.slice(0, TOP_N).map((r, i) => ({
-    rank: i + 1,
-    name: displayName(nameById.get(r.userId) || "Student"),
-    avgScore: r.avgScore,
-    attempts: r.attempts,
-    isYou: r.userId === user!.id,
-  }));
+    const top = ranked.slice(0, TOP_N).map((r, i) => ({
+      rank: i + 1,
+      name: displayName(nameById.get(r.userId) || "Student"),
+      avgScore: r.avgScore,
+      attempts: r.attempts,
+      isYou: r.userId === user!.id,
+    }));
 
-  const myIndex = ranked.findIndex((r) => r.userId === user!.id);
-  const you =
-    myIndex >= 0
-      ? { rank: myIndex + 1, avgScore: ranked[myIndex].avgScore, attempts: ranked[myIndex].attempts, ranked: true }
-      : { rank: null, avgScore: 0, attempts: 0, ranked: false };
+    const myIndex = ranked.findIndex((r) => r.userId === user!.id);
+    const you =
+      myIndex >= 0
+        ? { rank: myIndex + 1, avgScore: ranked[myIndex].avgScore, attempts: ranked[myIndex].attempts, ranked: true }
+        : { rank: null, avgScore: 0, attempts: 0, ranked: false };
+
+    return { totalRanked: ranked.length, minAttempts: MIN_ATTEMPTS, top, you };
+  }
+
+  const [global, centre] = await Promise.all([
+    buildBoard({}),
+    centreId ? buildBoard({ centreId }) : Promise.resolve(null),
+  ]);
 
   return NextResponse.json({
     success: true,
-    data: { available: true, scope, totalRanked: ranked.length, minAttempts: MIN_ATTEMPTS, top, you },
+    data: { available: true, hasCentre: !!centreId, global, centre },
   });
 }
