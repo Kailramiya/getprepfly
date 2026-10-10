@@ -254,7 +254,7 @@ export default function SettingsPage() {
             onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })} placeholder="Min 6 characters" />
           <Input label="Confirm New Password" type="password" value={passwords.confirmPassword}
             onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })} placeholder="Re-enter new password" />
-          <Button onClick={changePassword} loading={savingPassword} variant="outline" className="gap-2 rounded-full shadow-sm hover:-translate-y-1 hover:shadow-md active:scale-[0.98] transition-all duration-700 ease-fluid"
+          <Button onClick={changePassword} loading={savingPassword} variant="outline" className="gap-2 rounded-full border-2 border-foreground/30 shadow-sm hover:-translate-y-1 hover:shadow-md active:scale-[0.98] transition-all duration-700 ease-fluid"
             disabled={!passwords.currentPassword || !passwords.newPassword}>
             {passwordSaved ? <Check className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
             {passwordSaved ? "Changed!" : "Change Password"}
