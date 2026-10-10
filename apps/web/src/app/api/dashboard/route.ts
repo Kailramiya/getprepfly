@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
 import { istDayStart, istDateKey } from "@/lib/utils";
+import { weightedSectionAverage, pickWeakStrong } from "@/lib/dashboard-estimate";
 
 export const dynamic = "force-dynamic";
 
@@ -129,8 +130,7 @@ export async function GET() {
     };
   }).filter(t => t.count >= 2).sort((a, b) => a.averageScore - b.averageScore);
 
-  const weakAreas = typeAverages.slice(0, 3);
-  const strongAreas = typeAverages.slice(-3).reverse();
+  const { weak: weakAreas, strong: strongAreas } = pickWeakStrong(typeAverages);
 
   const secAvg = {
     SPEAKING: avg(sectionScores.SPEAKING),
@@ -146,9 +146,7 @@ export async function GET() {
     : 0;
 
   const hasData = Object.values(secAvg).some(v => v > 0);
-  const weightedPractice = hasData
-    ? secAvg.SPEAKING * 0.3 + secAvg.WRITING * 0.3 + secAvg.READING * 0.2 + secAvg.LISTENING * 0.2
-    : 0;
+  const weightedPractice = weightedSectionAverage(secAvg);
   const estimatedPTEScore = hasData ? Math.round(10 + (weightedPractice / 90) * 80) : null;
 
   // ── Score trend ───────────────────────────────────────────────────────────
