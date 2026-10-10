@@ -58,6 +58,11 @@ export async function PATCH(req: NextRequest) {
       if (isNaN(d.getTime())) {
         return NextResponse.json({ success: false, error: "Invalid exam date" }, { status: 400 });
       }
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+      if (d < startOfToday) {
+        return NextResponse.json({ success: false, error: "Exam date can't be in the past" }, { status: 400 });
+      }
       updateData.examDate = d;
     }
   }

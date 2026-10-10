@@ -186,6 +186,7 @@ export default function SettingsPage() {
                 <input
                   id="examDate"
                   type="date"
+                  min={new Date().toISOString().slice(0, 10)}
                   value={profile.examDate}
                   onChange={(e) => setProfile({ ...profile, examDate: e.target.value })}
                   className="flex h-10 w-full rounded-xl border border-muted-foreground/20 bg-background/50 px-3 py-2 text-sm text-foreground focus:ring-2 focus:ring-primary/20 outline-none transition-all"
