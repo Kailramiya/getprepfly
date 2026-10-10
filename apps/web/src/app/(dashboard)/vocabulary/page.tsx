@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -49,6 +49,13 @@ export default function VocabularyPage() {
   const [mastered, setMastered] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<"list" | "flashcard">("list");
   const [loadingMore, setLoadingMore] = useState(false);
+  // A double-tap/double-click on the same word within one request's
+  // round trip used to flip mastered -> unmastered -> mastered back to
+  // unmastered (reviewCount went up by 2 but the net result was a no-op),
+  // so a single intended "mastered" tap could silently revert. Tracked in
+  // a ref, not state, since it only needs to gate re-entrant calls — it
+  // never drives a render.
+  const togglingIds = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -102,6 +109,9 @@ export default function VocabularyPage() {
   const current = sortedVocab[currentPos];
 
   const toggleMastered = (id: string) => {
+    if (togglingIds.current.has(id)) return; // a second tap before the first settles — ignore it
+    togglingIds.current.add(id);
+
     const next = !mastered.has(id);
     setMastered((prev) => {
       const s = new Set(prev);
@@ -112,7 +122,9 @@ export default function VocabularyPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ vocabId: id, mastered: next }),
-    }).catch(() => {}); // local state already updated — a failed save just means it won't survive a reload
+    })
+      .catch(() => {}) // local state already updated — a failed save just means it won't survive a reload
+      .finally(() => { togglingIds.current.delete(id); });
   };
 
   const handleNext = () => {
