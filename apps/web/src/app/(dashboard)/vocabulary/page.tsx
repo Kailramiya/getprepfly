@@ -1,26 +1,27 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, X } from "lucide-react";
+import { Check, X, Sparkles } from "lucide-react";
+import { pickWordOfDay } from "@/lib/vocabulary";
 
 // Fallback vocabulary — used until words are added via the admin Vocabulary page.
 // Synthetic "sample-" ids: this list only ever shows before the real fetch
 // resolves (or if it comes back empty), so there's nothing real to persist
 // progress against — a failed progress POST for one of these is harmless.
 const SAMPLE_VOCAB = [
-  { id: "sample-1", word: "Ubiquitous", meaning: "Present, appearing, or found everywhere", example: "Mobile phones have become ubiquitous in modern society.", category: "academic", difficulty: "MEDIUM" },
-  { id: "sample-2", word: "Pragmatic", meaning: "Dealing with things sensibly and realistically", example: "A pragmatic approach to solving environmental issues.", category: "academic", difficulty: "MEDIUM" },
-  { id: "sample-3", word: "Mitigate", meaning: "Make less severe, serious, or painful", example: "Measures to mitigate the effects of climate change.", category: "academic", difficulty: "MEDIUM" },
-  { id: "sample-4", word: "Facilitate", meaning: "Make an action or process easier", example: "Technology facilitates communication across borders.", category: "academic", difficulty: "EASY" },
-  { id: "sample-5", word: "Unprecedented", meaning: "Never done or known before", example: "The pandemic caused unprecedented disruption globally.", category: "academic", difficulty: "HARD" },
-  { id: "sample-6", word: "Albeit", meaning: "Although", example: "It was a significant, albeit small, improvement.", category: "academic", difficulty: "HARD" },
-  { id: "sample-7", word: "Constitute", meaning: "Be a part of a whole", example: "Women constitute 50% of the workforce.", category: "academic", difficulty: "EASY" },
-  { id: "sample-8", word: "Inevitable", meaning: "Certain to happen; unavoidable", example: "Change is inevitable in a growing economy.", category: "academic", difficulty: "EASY" },
-  { id: "sample-9", word: "Discrepancy", meaning: "An illogical or surprising difference", example: "There was a discrepancy between the two reports.", category: "academic", difficulty: "MEDIUM" },
-  { id: "sample-10", word: "Implications", meaning: "The effect or consequence of an action", example: "The implications of the new policy are far-reaching.", category: "academic", difficulty: "EASY" },
+  { id: "sample-1", word: "Ubiquitous", meaning: "Present, appearing, or found everywhere", example: "Mobile phones have become ubiquitous in modern society.", category: "academic", difficulty: "MEDIUM", dayNumber: null },
+  { id: "sample-2", word: "Pragmatic", meaning: "Dealing with things sensibly and realistically", example: "A pragmatic approach to solving environmental issues.", category: "academic", difficulty: "MEDIUM", dayNumber: null },
+  { id: "sample-3", word: "Mitigate", meaning: "Make less severe, serious, or painful", example: "Measures to mitigate the effects of climate change.", category: "academic", difficulty: "MEDIUM", dayNumber: null },
+  { id: "sample-4", word: "Facilitate", meaning: "Make an action or process easier", example: "Technology facilitates communication across borders.", category: "academic", difficulty: "EASY", dayNumber: null },
+  { id: "sample-5", word: "Unprecedented", meaning: "Never done or known before", example: "The pandemic caused unprecedented disruption globally.", category: "academic", difficulty: "HARD", dayNumber: null },
+  { id: "sample-6", word: "Albeit", meaning: "Although", example: "It was a significant, albeit small, improvement.", category: "academic", difficulty: "HARD", dayNumber: null },
+  { id: "sample-7", word: "Constitute", meaning: "Be a part of a whole", example: "Women constitute 50% of the workforce.", category: "academic", difficulty: "EASY", dayNumber: null },
+  { id: "sample-8", word: "Inevitable", meaning: "Certain to happen; unavoidable", example: "Change is inevitable in a growing economy.", category: "academic", difficulty: "EASY", dayNumber: null },
+  { id: "sample-9", word: "Discrepancy", meaning: "An illogical or surprising difference", example: "There was a discrepancy between the two reports.", category: "academic", difficulty: "MEDIUM", dayNumber: null },
+  { id: "sample-10", word: "Implications", meaning: "The effect or consequence of an action", example: "The implications of the new policy are far-reaching.", category: "academic", difficulty: "EASY", dayNumber: null },
 ];
 
 interface VocabWord {
@@ -32,7 +33,11 @@ interface VocabWord {
   example: string;
   category: string | null;
   difficulty: string;
+  dayNumber?: number | null;
 }
+
+const PAGE_SIZE = 100;
+const MAX_PAGES = 10; // safety cap — 1000 words is already a very large list for this feature
 
 export default function VocabularyPage() {
   const [vocab, setVocab] = useState<VocabWord[]>(SAMPLE_VOCAB);
@@ -40,26 +45,52 @@ export default function VocabularyPage() {
   const [showMeaning, setShowMeaning] = useState(false);
   const [mastered, setMastered] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<"list" | "flashcard">("list");
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
-    fetch("/api/vocabulary?pageSize=100")
-      .then((r) => r.json())
-      .then((d) => {
-        if (d.success && d.data.items.length > 0) setVocab(d.data.items);
-      })
-      .catch(() => {});
+    let cancelled = false;
+
+    // Loads every page up to MAX_PAGES, replacing SAMPLE_VOCAB with page 1 as
+    // soon as it arrives rather than waiting for the whole list.
+    const loadAll = async () => {
+      let p = 1;
+      let totalPages = 1;
+      setLoadingMore(true);
+      do {
+        const res = await fetch(`/api/vocabulary?page=${p}&pageSize=${PAGE_SIZE}`).then((r) => r.json()).catch(() => null);
+        if (cancelled || !res?.success) break;
+        totalPages = Math.min(res.data.totalPages || 1, MAX_PAGES);
+        setVocab((prev) => (p === 1 ? res.data.items : [...prev, ...res.data.items]));
+        p++;
+      } while (p <= totalPages && !cancelled);
+      if (!cancelled) setLoadingMore(false);
+    };
+    loadAll();
+
     // Restore previously-mastered words — this used to be purely in-memory
     // and reset on every reload despite VocabProgress existing for exactly
     // this purpose.
     fetch("/api/vocabulary/progress")
       .then((r) => r.json())
       .then((d) => {
-        if (d.success) setMastered(new Set<string>(d.data.masteredIds));
+        if (!cancelled && d.success) setMastered(new Set<string>(d.data.masteredIds));
       })
       .catch(() => {});
+
+    return () => { cancelled = true; };
   }, []);
 
   const current = vocab[currentIndex];
+  const wordOfDay = useMemo(() => pickWordOfDay(vocab), [vocab]);
+
+  const markMastered = (id: string) => {
+    setMastered((prev) => new Set(prev).add(id));
+    fetch("/api/vocabulary/progress", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ vocabId: id, mastered: true }),
+    }).catch(() => {}); // local state already updated — a failed save just means it won't survive a reload
+  };
 
   const handleNext = () => {
     setShowMeaning(false);
@@ -67,12 +98,7 @@ export default function VocabularyPage() {
   };
 
   const handleMastered = () => {
-    setMastered((prev) => new Set(prev).add(current.id));
-    fetch("/api/vocabulary/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vocabId: current.id, mastered: true }),
-    }).catch(() => {}); // local state already updated — a failed save just means it won't survive a reload
+    markMastered(current.id);
     handleNext();
   };
 
@@ -81,14 +107,17 @@ export default function VocabularyPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Vocabulary Builder</h1>
-          <p className="text-gray-500 dark:text-slate-400">Learn PTE-essential words — {mastered.size}/{vocab.length} mastered</p>
+          <p className="text-gray-500 dark:text-slate-400">
+            Learn PTE-essential words — {mastered.size}/{vocab.length} mastered
+            {loadingMore && <span className="ml-1 text-gray-400 dark:text-slate-500">(loading more…)</span>}
+          </p>
         </div>
         <div className="flex gap-2">
           <Button
             variant={mode === "list" ? "default" : "outline"}
             size="sm"
             onClick={() => setMode("list")}
-            className={`rounded-full transition-all duration-500 ease-fluid ${mode === "list" ? "shadow-sm shadow-primary/25" : "bg-transparent border-white/10"}`}
+            className={`rounded-full transition-all duration-500 ease-fluid ${mode === "list" ? "shadow-sm shadow-primary/25" : "shadow-sm"}`}
           >
             Word List
           </Button>
@@ -96,12 +125,45 @@ export default function VocabularyPage() {
             variant={mode === "flashcard" ? "default" : "outline"}
             size="sm"
             onClick={() => setMode("flashcard")}
-            className={`rounded-full transition-all duration-500 ease-fluid ${mode === "flashcard" ? "shadow-sm shadow-primary/25" : "bg-transparent border-white/10"}`}
+            className={`rounded-full transition-all duration-500 ease-fluid ${mode === "flashcard" ? "shadow-sm shadow-primary/25" : "shadow-sm"}`}
           >
             Flashcards
           </Button>
         </div>
       </div>
+
+      {/* Word of the Day */}
+      {wordOfDay && (
+        <Card className="rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-amber-500/10 via-background/50 to-background/50 backdrop-blur-xl ring-1 ring-amber-500/20 overflow-hidden">
+          <CardContent className="p-6">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                  <Sparkles className="h-4 w-4" /> Word of the Day
+                </div>
+                <h2 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground">{wordOfDay.word}</h2>
+                <p className="mt-1 text-sm font-medium text-muted-foreground">{wordOfDay.meaning}</p>
+                {(wordOfDay.meaningHi || wordOfDay.meaningPa) && (
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {wordOfDay.meaningHi && <Badge variant="outline" className="text-xs bg-orange-500/10 text-orange-700 border-orange-500/20">{wordOfDay.meaningHi}</Badge>}
+                    {wordOfDay.meaningPa && <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-700 border-blue-500/20">{wordOfDay.meaningPa}</Badge>}
+                  </div>
+                )}
+                <p className="mt-3 text-sm italic text-muted-foreground/80">&ldquo;{wordOfDay.example}&rdquo;</p>
+              </div>
+              <Button
+                size="sm"
+                variant={mastered.has(wordOfDay.id) ? "default" : "outline"}
+                onClick={() => markMastered(wordOfDay.id)}
+                disabled={mastered.has(wordOfDay.id)}
+                className="shrink-0 gap-1.5 rounded-full shadow-sm"
+              >
+                <Check className="h-3.5 w-3.5" /> {mastered.has(wordOfDay.id) ? "Mastered" : "Mark mastered"}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Progress */}
       <div className="h-2 rounded-full bg-background/50 ring-1 ring-white/10 shadow-inner overflow-hidden">

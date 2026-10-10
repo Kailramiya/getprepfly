@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import { useAuth } from "@/hooks/use-auth";
-import { BookMarked, Plus, Search, Trash2, Edit2, X } from "lucide-react";
+import { VocabularyBulkUploadModal } from "./vocabulary-bulk-upload-modal";
+import { BookMarked, Plus, Search, Trash2, Edit2, X, Upload } from "lucide-react";
 
 interface VocabWord {
   id: string;
@@ -46,6 +47,7 @@ export function VocabularyManager() {
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
 
   const fetchList = (p = page, q = search) => {
     setLoading(true);
@@ -127,8 +129,18 @@ export function VocabularyManager() {
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Vocabulary</h1>
           <p className="text-base font-medium text-muted-foreground mt-2">Manage words shown in the Vocabulary Builder ({total})</p>
         </div>
-        <Button size="lg" onClick={openAdd} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide"><Plus className="h-5 w-5" /> Add Word</Button>
+        <div className="flex gap-2">
+          <Button size="lg" variant="outline" onClick={() => setShowBulkUpload(true)} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-md active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide"><Upload className="h-5 w-5" /> Bulk Import</Button>
+          <Button size="lg" onClick={openAdd} className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide"><Plus className="h-5 w-5" /> Add Word</Button>
+        </div>
       </div>
+
+      {showBulkUpload && (
+        <VocabularyBulkUploadModal
+          onClose={() => setShowBulkUpload(false)}
+          onUploaded={() => fetchList(1, search)}
+        />
+      )}
 
       {/* Search */}
       <div className="relative max-w-md">
