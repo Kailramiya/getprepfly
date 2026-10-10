@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
+import { rankByScore } from "@/lib/leaderboard-rank";
+
+export const dynamic = "force-dynamic";
 
 const MIN_ATTEMPTS = 5; // must practice a bit to appear on the board
 const TOP_N = 20;
@@ -26,14 +29,17 @@ export async function GET() {
     const grouped = await db.attempt.groupBy({
       by: ["userId"],
       where: { overallScore: { not: null }, user: { role: "STUDENT", ...extraWhere } },
+      // Filters the >=MIN_ATTEMPTS threshold in SQL rather than fetching every
+      // one-time dabbler across the whole platform just to drop them in JS —
+      // matters most for the global board, which otherwise scans every student.
+      having: { overallScore: { _count: { gte: MIN_ATTEMPTS } } },
       _avg: { overallScore: true },
       _count: { _all: true },
     });
 
-    const ranked = grouped
-      .filter((g) => (g._count._all || 0) >= MIN_ATTEMPTS)
-      .map((g) => ({ userId: g.userId, avgScore: Math.round(g._avg.overallScore || 0), attempts: g._count._all }))
-      .sort((a, b) => b.avgScore - a.avgScore || b.attempts - a.attempts);
+    const ranked = rankByScore(
+      grouped.map((g) => ({ userId: g.userId, rawAvg: g._avg.overallScore || 0, attempts: g._count._all }))
+    );
 
     // Names for the top N plus the caller (so we can show "your rank" if outside top).
     const neededIds = new Set(ranked.slice(0, TOP_N).map((r) => r.userId));
@@ -66,8 +72,15 @@ export async function GET() {
     centreId ? buildBoard({ centreId }) : Promise.resolve(null),
   ]);
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     success: true,
     data: { available: true, hasCentre: !!centreId, global, centre },
   });
+  // Same strategy as /api/dashboard: paint instantly from a short-lived
+  // per-user cache, revalidate in the background. "private" matters here —
+  // the response embeds this caller's own "you"/"isYou" view, not just the
+  // shared ranking, so it must never be served to a different user.
+  res.headers.set("Cache-Control", "private, max-age=0, stale-while-revalidate=300");
+  res.headers.set("Vary", "Cookie");
+  return res;
 }
