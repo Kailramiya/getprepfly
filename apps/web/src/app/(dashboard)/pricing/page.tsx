@@ -312,7 +312,7 @@ export default function PricingPage() {
                   </div>
                   <div className="mt-4 grid gap-2 text-sm text-gray-700 sm:grid-cols-2 dark:text-slate-300">
                     {[
-                      "All 20+ PTE question types",
+                      "All 22 PTE question types",
                       "Unlimited practice in all 4 sections",
                       "AI-powered scoring & feedback",
                       "Model answers + templates",

@@ -59,7 +59,7 @@ const practiceCards = [
     color: "from-teal-500 to-teal-600",
     bgLight: "bg-teal-50",
     textColor: "text-teal-700",
-    questions: 6,
+    questions: 7,
   },
   {
     title: "Writing",
@@ -89,7 +89,7 @@ const practiceCards = [
     color: "from-orange-500 to-orange-600",
     bgLight: "bg-orange-50",
     textColor: "text-orange-700",
-    questions: 7,
+    questions: 8,
   },
 ];
 
