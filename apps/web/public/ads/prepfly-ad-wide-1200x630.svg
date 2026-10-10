@@ -18,7 +18,7 @@
 
 <circle cx="88.72" cy="439.696" r="14.72" fill="#FBBF24"/>
     <path d="M81.36 438.96 l5.152 5.888000000000001 l10.304 -13.248000000000001" stroke="#1f2937" stroke-width="4.121600000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-    <text x="112.272" y="450" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" fill="#fff">20+ question types</text>
+    <text x="112.272" y="450" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" fill="#fff">22 question types</text>
 <circle cx="88.72" cy="497.696" r="14.72" fill="#FBBF24"/>
     <path d="M81.36 496.96 l5.152 5.888000000000001 l10.304 -13.248000000000001" stroke="#1f2937" stroke-width="4.121600000000001" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
     <text x="112.272" y="508" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="32" font-weight="600" fill="#fff">AI Speaking &amp; Writing scoring</text>

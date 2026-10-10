@@ -16,7 +16,7 @@
 
 <circle cx="252" cy="2030.6" r="42" fill="#FBBF24"/>
   <path d="M233.1 2029.76 l13.44 16.8 l29.4 -39.9" stroke="#1f2937" stroke-width="10.92" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="323.4" y="2060" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="84" font-weight="600" fill="#fff">All 20+ PTE question types</text>
+  <text x="323.4" y="2060" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="84" font-weight="600" fill="#fff">All 22 PTE question types</text>
 <circle cx="252" cy="2205.6" r="42" fill="#FBBF24"/>
   <path d="M233.1 2204.76 l13.44 16.8 l29.4 -39.9" stroke="#1f2937" stroke-width="10.92" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   <text x="323.4" y="2235" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="84" font-weight="600" fill="#fff">AI Speaking &amp; Writing scoring</text>

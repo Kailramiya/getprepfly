@@ -12,7 +12,7 @@
 
 <circle cx="250" cy="1152" r="40" fill="#FBBF24"/>
   <path d="M232 1151.2 l12.8 16 l28 -38" stroke="#1f2937" stroke-width="10.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="318" y="1180" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="80" font-weight="600" fill="#fff">All 20+ PTE question types</text>
+  <text x="318" y="1180" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="80" font-weight="600" fill="#fff">All 22 PTE question types</text>
 <circle cx="250" cy="1292" r="40" fill="#FBBF24"/>
   <path d="M232 1291.2 l12.8 16 l28 -38" stroke="#1f2937" stroke-width="10.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
   <text x="318" y="1320" font-family="'Segoe UI', 'Helvetica Neue', Arial, sans-serif" font-size="80" font-weight="600" fill="#fff">AI Speaking &amp; Writing scoring</text>
