@@ -7,12 +7,24 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   if (error) return error;
 
   const body = await req.json();
+
+  if (body.maxUses !== undefined && !Number.isFinite(Number(body.maxUses))) {
+    return NextResponse.json({ success: false, error: "maxUses must be a number" }, { status: 400 });
+  }
+  let validUntilDate: Date | undefined;
+  if (body.validUntil !== undefined) {
+    validUntilDate = new Date(body.validUntil);
+    if (isNaN(validUntilDate.getTime())) {
+      return NextResponse.json({ success: false, error: "validUntil must be a valid date" }, { status: 400 });
+    }
+  }
+
   const coupon = await db.coupon.update({
     where: { id: params.id },
     data: {
       ...(body.isActive !== undefined && { isActive: body.isActive }),
       ...(body.maxUses !== undefined && { maxUses: Number(body.maxUses) }),
-      ...(body.validUntil !== undefined && { validUntil: new Date(body.validUntil) }),
+      ...(validUntilDate !== undefined && { validUntil: validUntilDate }),
     },
   });
   return NextResponse.json({ success: true, data: coupon });

@@ -23,8 +23,12 @@ export async function GET() {
 
   for (const [key, def] of Object.entries(DEFAULT_PRICES)) {
     result[key] = byKey[key]?.amount ?? def.amount;
-    if (byKey[key]?.maxStudents != null) {
-      maxStudents[key] = byKey[key].maxStudents!;
+    // Fall back to the hardcoded default maxStudents, same as
+    // /api/super-admin/pricing — a plan that's never been customized in the
+    // DB should still report its real student cap, not be silently absent.
+    const resolvedMax = byKey[key]?.maxStudents ?? def.maxStudents;
+    if (resolvedMax != null) {
+      maxStudents[key] = resolvedMax;
     }
   }
 

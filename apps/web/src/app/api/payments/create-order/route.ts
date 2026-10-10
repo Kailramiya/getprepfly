@@ -54,14 +54,23 @@ export async function POST(req: NextRequest) {
 
   let finalPrice = plan.amount;
   let appliedCoupon: string | null = null;
+  let couponError: string | null = null;
 
-  // Apply coupon (student plans only)
+  // Apply coupon (student plans only). An invalid/expired/exhausted coupon
+  // used to fail silently — the student would just see full price with no
+  // explanation. Now the reason comes back in the response.
   if (couponCode && !isCentrePlan) {
     const coupon = await db.coupon.findUnique({ where: { code: couponCode.toUpperCase() } });
-    if (coupon && coupon.isActive && coupon.usedCount < coupon.maxUses && new Date() < coupon.validUntil) {
+    if (!coupon) couponError = "Invalid coupon code";
+    else if (!coupon.isActive) couponError = "This coupon is no longer active";
+    else if (coupon.usedCount >= coupon.maxUses) couponError = "This coupon has reached its usage limit";
+    else if (new Date() >= coupon.validUntil) couponError = "This coupon has expired";
+    else {
       finalPrice = Math.round(plan.amount * (1 - coupon.discountPercent / 100));
       appliedCoupon = coupon.code; // persisted so usedCount is bumped on success
     }
+  } else if (couponCode && isCentrePlan) {
+    couponError = "Coupons apply to individual student plans only";
   }
 
   // If the price is exactly 0, completely bypass Razorpay and instantly grant access
@@ -96,6 +105,8 @@ export async function POST(req: NextRequest) {
         userName: user!.name,
         userEmail: user!.email,
         isCentrePlan,
+        couponApplied: !!appliedCoupon,
+        couponError,
       },
     });
   }
@@ -143,6 +154,8 @@ export async function POST(req: NextRequest) {
         userName: user!.name,
         userEmail: user!.email,
         isCentrePlan,
+        couponApplied: !!appliedCoupon,
+        couponError,
       },
     });
   } catch {

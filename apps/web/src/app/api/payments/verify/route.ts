@@ -76,10 +76,37 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Invalid plan type on payment record" }, { status: 400 });
   }
 
+  // Grant access to whoever actually created this order (the notes Razorpay
+  // stored and returns back, unforgeable by the client), not to whoever
+  // happens to be logged in right now. Payment has no userId column of its
+  // own — notes are the only authoritative record of who this order
+  // belongs to. The webhook already does this correctly; this path (the
+  // one the browser calls immediately on checkout success, and the one
+  // that normally wins the race against the webhook) was trusting the
+  // session instead, which would misassign paid access whenever the
+  // logged-in session differs from who the order was created for.
+  const keyId = process.env.RAZORPAY_KEY_ID;
+  let orderOwner: { userId: string; centreId: string | null } = { userId: user!.id, centreId: user!.centreId ?? null };
+  if (keyId) {
+    try {
+      const orderRes = await fetch(`https://api.razorpay.com/v1/orders/${razorpay_order_id}`, {
+        headers: { Authorization: "Basic " + Buffer.from(`${keyId}:${keySecret}`).toString("base64") },
+      });
+      if (orderRes.ok) {
+        const order = await orderRes.json();
+        if (order.notes?.userId) {
+          orderOwner = { userId: order.notes.userId, centreId: order.notes.centreId || null };
+        }
+      }
+    } catch (err) {
+      console.error("Could not fetch Razorpay order notes, falling back to session user", err);
+    }
+  }
+
   try {
     const { claimed } = await fulfillPayment(
       payment.id,
-      { userId: user!.id, centreId: user!.centreId },
+      orderOwner,
       { razorpayPaymentId: razorpay_payment_id, razorpaySignature: razorpay_signature }
     );
     if (!claimed) {

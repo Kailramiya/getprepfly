@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { IndianRupee, RotateCcw, Save, Mic, PenTool, BookOpen, Headphones, Layers, Building2, CalendarDays, Users } from "lucide-react";
+import { PLAN_GROUPS } from "@/lib/plan-groups";
 
 interface PricingRow {
   key: string;
@@ -16,51 +17,38 @@ interface PricingRow {
   isCustom: boolean;
 }
 
-const PLAN_META: Record<string, { icon: any; color: string; bg: string; group: string }> = {
-  // Student — 1 month
-  MODULE_SPEAKING:    { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Student Plans (1 Month)" },
-  MODULE_WRITING:     { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",      group: "Student Plans (1 Month)" },
-  MODULE_READING:     { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans (1 Month)" },
-  MODULE_LISTENING:   { icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans (1 Month)" },
-  ALL_MODULES:        { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans (1 Month)" },
-  // Student — 6 months
-  MODULE_SPEAKING_6M: { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Student Plans (6 Months)" },
-  MODULE_WRITING_6M:  { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",      group: "Student Plans (6 Months)" },
-  MODULE_READING_6M:  { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans (6 Months)" },
-  MODULE_LISTENING_6M:{ icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans (6 Months)" },
-  ALL_MODULES_6M:     { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans (6 Months)" },
-  // Student — 1 year
-  MODULE_SPEAKING_1Y: { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Student Plans (1 Year)" },
-  MODULE_WRITING_1Y:  { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30",      group: "Student Plans (1 Year)" },
-  MODULE_READING_1Y:  { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30",  group: "Student Plans (1 Year)" },
-  MODULE_LISTENING_1Y:{ icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30",  group: "Student Plans (1 Year)" },
-  ALL_MODULES_1Y:     { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Student Plans (1 Year)" },
-  // Centre — monthly
-  CENTRE_MINI:        { icon: Building2,    color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30",      group: "Centre Plans (Monthly)" },
-  CENTRE_SMALL:       { icon: Building2,    color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  group: "Centre Plans (Monthly)" },
-  // Centre — 6 months
-  CENTRE_STARTER:     { icon: Building2,    color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Centre Plans (6 Months)" },
-  CENTRE_GROWTH:      { icon: Building2,    color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Centre Plans (6 Months)" },
-  CENTRE_PRO:         { icon: Building2,    color: "text-cyan-600",    bg: "bg-cyan-50 dark:bg-cyan-950/30",      group: "Centre Plans (6 Months)" },
-  // Annual institute plans
-  ANNUAL_STARTER:     { icon: CalendarDays, color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30",    group: "Annual Institute Plans" },
-  ANNUAL_GROWTH:      { icon: CalendarDays, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30",group: "Annual Institute Plans" },
-  ANNUAL_UNLIMITED:   { icon: CalendarDays, color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/30",    group: "Annual Institute Plans" },
-};
-
-const DEFAULT_RUPEES: Record<string, string> = {
-  MODULE_SPEAKING: "199",    MODULE_WRITING: "199",    MODULE_READING: "199",    MODULE_LISTENING: "199",    ALL_MODULES: "599",
-  MODULE_SPEAKING_6M: "999", MODULE_WRITING_6M: "999", MODULE_READING_6M: "999", MODULE_LISTENING_6M: "999", ALL_MODULES_6M: "2999",
-  MODULE_SPEAKING_1Y: "1799",MODULE_WRITING_1Y: "1799",MODULE_READING_1Y: "1799",MODULE_LISTENING_1Y: "1799",ALL_MODULES_1Y: "4999",
-  CENTRE_MINI: "1199", CENTRE_SMALL: "2999",
-  CENTRE_STARTER: "2999", CENTRE_GROWTH: "6999", CENTRE_PRO: "14999",
-  ANNUAL_STARTER: "11999", ANNUAL_GROWTH: "29999", ANNUAL_UNLIMITED: "79999",
-};
-
-const DEFAULT_MAX_STUDENTS: Record<string, number> = {
-  CENTRE_MINI: 5, CENTRE_SMALL: 20,
-  CENTRE_STARTER: 50, CENTRE_GROWTH: 150, CENTRE_PRO: 500,
-  ANNUAL_STARTER: 65, ANNUAL_GROWTH: 180, ANNUAL_UNLIMITED: -1,
+// Icon/color are purely cosmetic, so they stay here; which GROUP each plan
+// renders under comes from PLAN_GROUPS (lib/plan-groups.ts), which
+// plan-tables.check.ts verifies covers every real plan.
+const PLAN_STYLE: Record<string, { icon: any; color: string; bg: string }> = {
+  MODULE_SPEAKING:     { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30" },
+  MODULE_WRITING:      { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30" },
+  MODULE_READING:      { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30" },
+  MODULE_LISTENING:    { icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30" },
+  ALL_MODULES:         { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30" },
+  MODULE_SPEAKING_3M:  { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30" },
+  MODULE_WRITING_3M:   { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30" },
+  MODULE_READING_3M:   { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30" },
+  MODULE_LISTENING_3M: { icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30" },
+  ALL_MODULES_3M:      { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30" },
+  MODULE_SPEAKING_6M:  { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30" },
+  MODULE_WRITING_6M:   { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30" },
+  MODULE_READING_6M:   { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30" },
+  MODULE_LISTENING_6M: { icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30" },
+  ALL_MODULES_6M:      { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30" },
+  MODULE_SPEAKING_1Y:  { icon: Mic,          color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30" },
+  MODULE_WRITING_1Y:   { icon: PenTool,      color: "text-blue-600",    bg: "bg-blue-50 dark:bg-blue-950/30" },
+  MODULE_READING_1Y:   { icon: BookOpen,     color: "text-purple-600",  bg: "bg-purple-50 dark:bg-purple-950/30" },
+  MODULE_LISTENING_1Y: { icon: Headphones,   color: "text-orange-600",  bg: "bg-orange-50 dark:bg-orange-950/30" },
+  ALL_MODULES_1Y:      { icon: Layers,       color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30" },
+  CENTRE_MINI:         { icon: Building2,    color: "text-teal-600",    bg: "bg-teal-50 dark:bg-teal-950/30" },
+  CENTRE_SMALL:        { icon: Building2,    color: "text-indigo-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30" },
+  CENTRE_STARTER:      { icon: Building2,    color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30" },
+  CENTRE_GROWTH:       { icon: Building2,    color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+  CENTRE_PRO:          { icon: Building2,    color: "text-cyan-600",    bg: "bg-cyan-50 dark:bg-cyan-950/30" },
+  ANNUAL_STARTER:      { icon: CalendarDays, color: "text-green-600",   bg: "bg-green-50 dark:bg-green-950/30" },
+  ANNUAL_GROWTH:       { icon: CalendarDays, color: "text-emerald-600", bg: "bg-emerald-50 dark:bg-emerald-950/30" },
+  ANNUAL_SCALE:        { icon: CalendarDays, color: "text-amber-600",   bg: "bg-amber-50 dark:bg-amber-950/30" },
 };
 
 export default function SuperAdminPricingPage() {
@@ -77,8 +65,8 @@ export default function SuperAdminPricingPage() {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const fetchPrices = async () => {
-    setLoading(true);
+  const fetchPrices = async (silent = false) => {
+    if (!silent) setLoading(true);
     const res = await fetch("/api/super-admin/pricing");
     const data = await res.json();
     if (data.success) {
@@ -94,7 +82,7 @@ export default function SuperAdminPricingPage() {
       setPriceEdits(initialPrices);
       setStudentsEdits(initialStudents);
     }
-    setLoading(false);
+    if (!silent) setLoading(false);
   };
 
   useEffect(() => { fetchPrices(); }, []);
@@ -131,22 +119,21 @@ export default function SuperAdminPricingPage() {
   const handleReset = async (key: string) => {
     setResetting(key);
     await fetch(`/api/super-admin/pricing?key=${key}`, { method: "DELETE" });
-    const defaultRupees = DEFAULT_RUPEES[key] ?? "";
-    const defaultMax = DEFAULT_MAX_STUDENTS[key];
-    setRows(prev => prev.map(r => r.key === key
-      ? { ...r, isCustom: false, amountRupees: defaultRupees, maxStudents: defaultMax ?? r.maxStudents }
-      : r
-    ));
-    setPriceEdits(prev => ({ ...prev, [key]: defaultRupees }));
-    if (defaultMax !== undefined) {
-      setStudentsEdits(prev => ({ ...prev, [key]: String(defaultMax) }));
-    }
+    // Re-fetch rather than filling the UI from a locally-hardcoded "default"
+    // table: that table (removed) had drifted badly out of sync with the
+    // real defaults — e.g. it showed Centre Starter resetting to ₹2,999
+    // when the true default is ₹24,999. Saving on top of that stale display
+    // without noticing would have silently slashed the real price by ~88%.
+    // /api/super-admin/pricing already resolves the true default correctly
+    // once the DB override is gone, so that's the only source worth trusting.
+    await fetchPrices(true);
     showToast("Reset to default values");
     setResetting(null);
   };
 
   const groups = [
     "Student Plans (1 Month)",
+    "Student Plans (3 Months)",
     "Student Plans (6 Months)",
     "Student Plans (1 Year)",
     "Centre Plans (Monthly)",
@@ -177,7 +164,7 @@ export default function SuperAdminPricingPage() {
         </div>
       ) : (
         groups.map(group => {
-          const groupRows = rows.filter(r => PLAN_META[r.key]?.group === group);
+          const groupRows = rows.filter(r => PLAN_GROUPS[r.key] === group);
           return (
             <div key={group}>
               <h2 className="mb-4 text-lg font-bold text-foreground">{group}</h2>
@@ -185,7 +172,7 @@ export default function SuperAdminPricingPage() {
                 <CardContent className="p-0">
                   <div className="divide-y divide-white/5">
                     {groupRows.map(row => {
-                      const meta = PLAN_META[row.key];
+                      const meta = PLAN_STYLE[row.key];
                       const Icon = meta?.icon ?? IndianRupee;
                       const hasMaxStudents = row.maxStudents !== null;
                       const currentMax = row.maxStudents === -1 ? "∞" : String(row.maxStudents ?? "");
