@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireAuth } from "@/lib/auth-utils";
 import { istDayStart, istDateKey } from "@/lib/utils";
-import { weightedSectionAverage, pickWeakStrong } from "@/lib/dashboard-estimate";
+import { weightedSectionAverage, pickWeakStrong, attemptWeightedAverage } from "@/lib/dashboard-estimate";
 
 export const dynamic = "force-dynamic";
 
@@ -140,10 +140,12 @@ export async function GET() {
   };
 
   // ── Overall / PTE estimate ────────────────────────────────────────────────
-  const allScores = sectionTypeAggs.map(r => Number(r.avg_score));
-  const overallAvg = allScores.length > 0
-    ? Math.round(allScores.reduce((a, b) => a + b, 0) / allScores.length)
-    : 0;
+  // True attempt-weighted average (not a mean of per-type averages), so it
+  // isn't skewed by how many distinct types the student happens to have
+  // tried in one section vs another.
+  const overallAvg = Math.round(
+    attemptWeightedAverage(sectionTypeAggs.map(r => ({ avgScore: Number(r.avg_score), count: Number(r.cnt) })))
+  );
 
   const hasData = Object.values(secAvg).some(v => v > 0);
   const weightedPractice = weightedSectionAverage(secAvg);

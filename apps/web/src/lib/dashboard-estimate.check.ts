@@ -1,6 +1,6 @@
 // Run: node_modules/.bin/tsx apps/web/src/lib/dashboard-estimate.check.ts
 import assert from "node:assert/strict";
-import { weightedSectionAverage, pickWeakStrong } from "./dashboard-estimate";
+import { weightedSectionAverage, pickWeakStrong, attemptWeightedAverage } from "./dashboard-estimate";
 
 // A student who has only practiced Speaking (avg 80) must not be dragged
 // down by untouched sections being treated as a score of 0.
@@ -41,4 +41,25 @@ for (let n = 0; n <= 8; n++) {
   assert.deepEqual(strong, []);
 }
 
-console.log("dashboard estimate: weighted average and weak/strong dedup both correct");
+// A section explored across more distinct sub-types must not skew the
+// overall average just because it has more groups — attempt count is what
+// should matter, not how many types happen to exist in that section.
+// 8 Listening attempts avg 90, 2 Writing attempts avg 50:
+// true mean = (90*8 + 50*2) / 10 = 82, NOT the per-type mean of (90+50)/2 = 70.
+assert.equal(
+  attemptWeightedAverage([{ avgScore: 90, count: 8 }, { avgScore: 50, count: 2 }]),
+  82
+);
+
+// Many small groups vs one big group with the same per-group average still
+// reduces to that average (sanity check: uniform scores -> uniform result
+// regardless of how the attempts are split into groups).
+assert.equal(
+  attemptWeightedAverage([{ avgScore: 70, count: 1 }, { avgScore: 70, count: 1 }, { avgScore: 70, count: 5 }]),
+  70
+);
+
+// No groups -> 0 (caller's "no data yet" case).
+assert.equal(attemptWeightedAverage([]), 0);
+
+console.log("dashboard estimate: weighted average, attempt-weighted average and weak/strong dedup all correct");
