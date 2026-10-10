@@ -66,49 +66,49 @@ export default function ProgressPage() {
   };
 
   const pteScore = data.estimatedPTEScore || 0;
-  const scoreColor = pteScore >= 79 ? "text-green-400 drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]" 
-                   : pteScore >= 65 ? "text-blue-400 drop-shadow-[0_0_15px_rgba(96,165,250,0.5)]" 
-                   : pteScore >= 50 ? "text-amber-400 drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]" 
-                   : "text-red-400 drop-shadow-[0_0_15px_rgba(248,113,113,0.5)]";
+  const scoreColor = pteScore >= 79 ? "text-green-600 dark:text-green-400 dark:drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]"
+                   : pteScore >= 65 ? "text-blue-600 dark:text-blue-400 dark:drop-shadow-[0_0_15px_rgba(96,165,250,0.5)]"
+                   : pteScore >= 50 ? "text-amber-600 dark:text-amber-400 dark:drop-shadow-[0_0_15px_rgba(251,191,36,0.5)]"
+                   : "text-red-600 dark:text-red-400 dark:drop-shadow-[0_0_15px_rgba(248,113,113,0.5)]";
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       
       {/* 1. Hero Section: Estimated Score */}
-      <div className="relative overflow-hidden rounded-3xl bg-slate-950 p-8 shadow-2xl ring-1 ring-white/10 isolate">
+      <div className="relative overflow-hidden rounded-3xl bg-background p-8 shadow-glass dark:shadow-glass-dark ring-1 ring-foreground/10 isolate">
         {/* Abstract background mesh */}
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-950 to-slate-950"></div>
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/10 dark:from-indigo-900/40 via-background to-background"></div>
         <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-indigo-500/20 blur-3xl"></div>
         <div className="absolute -bottom-24 -left-24 h-96 w-96 rounded-full bg-purple-500/20 blur-3xl"></div>
 
         <div className="grid gap-8 lg:grid-cols-2 items-center">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-white mb-2">Progress Overview</h1>
-            <p className="text-slate-400 text-lg mb-8">
+            <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Progress Overview</h1>
+            <p className="text-muted-foreground text-lg mb-8">
               Keep pushing forward! Here is a snapshot of your estimated performance.
             </p>
-            
+
             <div className="grid grid-cols-2 gap-4">
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10 backdrop-blur-md">
-                <div className="flex items-center gap-2 text-slate-400 mb-1">
+              <div className="rounded-2xl bg-foreground/5 p-4 ring-1 ring-foreground/10 backdrop-blur-md">
+                <div className="flex items-center gap-2 text-muted-foreground mb-1">
                   <Flame className="h-4 w-4 text-orange-500" />
                   <span className="text-sm font-medium">Streak</span>
                 </div>
-                <p className="text-2xl font-semibold text-white">{data.streak} <span className="text-sm text-slate-500 font-normal">days</span></p>
+                <p className="text-2xl font-semibold text-foreground">{data.streak} <span className="text-sm text-muted-foreground/70 font-normal">days</span></p>
               </div>
-              <div className="rounded-2xl bg-white/5 p-4 ring-1 ring-white/10 backdrop-blur-md">
-                <div className="flex items-center gap-2 text-slate-400 mb-1">
+              <div className="rounded-2xl bg-foreground/5 p-4 ring-1 ring-foreground/10 backdrop-blur-md">
+                <div className="flex items-center gap-2 text-muted-foreground mb-1">
                   <Clock className="h-4 w-4 text-purple-500" />
                   <span className="text-sm font-medium">Time</span>
                 </div>
-                <p className="text-2xl font-semibold text-white">{formatTime(data.totalPracticeTime)}</p>
+                <p className="text-2xl font-semibold text-foreground">{formatTime(data.totalPracticeTime)}</p>
               </div>
             </div>
           </div>
 
           <div className="flex justify-center">
-            <div className="relative flex h-56 w-56 items-center justify-center rounded-full bg-slate-900/50 p-2 shadow-inner ring-1 ring-white/10">
-              <div className="absolute inset-0 rounded-full border-4 border-slate-800"></div>
+            <div className="relative flex h-56 w-56 items-center justify-center rounded-full bg-foreground/5 p-2 shadow-inner ring-1 ring-foreground/10">
+              <div className="absolute inset-0 rounded-full border-4 border-muted-foreground/20"></div>
               {/* Fake SVG Circle Progress */}
               <svg className="absolute inset-0 h-full w-full -rotate-90 transform" viewBox="0 0 100 100">
                 <circle
@@ -125,7 +125,7 @@ export default function ProgressPage() {
                 <p className={`text-6xl font-black tabular-nums tracking-tighter ${scoreColor}`}>
                   {pteScore > 0 ? pteScore : "--"}
                 </p>
-                <p className="text-sm font-medium text-slate-400 uppercase tracking-widest mt-1">Est. Score</p>
+                <p className="text-sm font-medium text-muted-foreground uppercase tracking-widest mt-1">Est. Score</p>
               </div>
             </div>
           </div>
