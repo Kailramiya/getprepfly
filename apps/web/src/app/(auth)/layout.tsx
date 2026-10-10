@@ -24,7 +24,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="mt-8 lg:mt-12 hidden lg:flex flex-col gap-4">
             {[
               "3 AI-scored attempts every day",
-              "All 20+ question types covered",
+              "All 22 question types covered",
               "Detailed progress tracking"
             ].map((text) => (
               <div

@@ -17,12 +17,12 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export const metadata: Metadata = {
   title: "PrepFly — AI-Powered PTE Academic Practice Platform",
   description:
-    "Score 79+ in PTE Academic with PrepFly. Practice all 20+ question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback, full mock tests, vocabulary and progress analytics.",
+    "Score 79+ in PTE Academic with PrepFly. Practice all 22 question types — Speaking, Writing, Reading & Listening — with AI-powered instant feedback, full mock tests, vocabulary and progress analytics.",
   alternates: { canonical: "https://getprepfly.com" },
   openGraph: {
     title: "PrepFly — AI-Powered PTE Academic Practice Platform",
     description:
-      "Score 79+ in PTE Academic with PrepFly. All 20+ question types, AI scoring, mock tests, vocabulary & analytics.",
+      "Score 79+ in PTE Academic with PrepFly. All 22 question types, AI scoring, mock tests, vocabulary & analytics.",
     url: "https://getprepfly.com",
     type: "website",
     images: [
@@ -118,7 +118,7 @@ const jsonLd = {
       featureList: [
         "AI-powered speaking scoring with word-level pronunciation feedback",
         "Writing feedback with grammar, spelling and structure analysis",
-        "All 20+ PTE question types",
+        "All 22 PTE question types",
         "Full and sectional timed mock tests with band scores",
         "Vocabulary builder in English, Hindi and Punjabi",
         "Progress analytics and skill-wise score estimates",
@@ -158,7 +158,7 @@ const jsonLd = {
   ],
 };
 
-// ── All 20+ question types, grouped by skill ───────────────────────────────
+// ── All 22 question types, grouped by skill ───────────────────────────────
 const skills = [
   {
     icon: Mic,
@@ -182,7 +182,7 @@ const skills = [
     icon: Headphones,
     title: "Listening",
     note: "Audio with speed control and exam-mode play-once",
-    types: ["Summarize Spoken Text", "Multiple Choice", "Fill in the Blanks", "Highlight Correct Summary", "Highlight Incorrect Words", "Select Missing Word", "Write from Dictation"],
+    types: ["Summarize Spoken Text", "Multiple Choice — Single", "Multiple Choice — Multiple", "Fill in the Blanks", "Highlight Correct Summary", "Highlight Incorrect Words", "Select Missing Word", "Write from Dictation"],
   },
 ];
 
@@ -222,7 +222,7 @@ const whyPrepflyFeatures = [
 const buyerChecklist = [
   { q: "Does the feedback explain your mistakes, or just give a score?", a: "Word-level pronunciation and fluency feedback on Speaking. Inline corrections on Writing." },
   { q: "Is your language supported?", a: "English, Hindi and Punjabi interface, with word meanings in all three." },
-  { q: "Does it cover every question type?", a: "20+ types across Speaking, Writing, Reading and Listening." },
+  { q: "Does it cover every question type?", a: "22 types across Speaking, Writing, Reading and Listening." },
   { q: "Are mock tests timed like the real exam?", a: "Full and sectional mocks with a 10-90 estimate per skill." },
   { q: "Can a coaching centre run batches on it?", a: "Batches, assigned tests, teacher accounts and student analytics. Branding options depend on the plan." },
   { q: "Do you see the price before you commit?", a: "Prices are on this page. Full access from ₹599/month." },
@@ -231,12 +231,12 @@ const buyerChecklist = [
 
 const steps = [
   { n: "1", title: "Create your free account", desc: "Sign up in under a minute — start your 3-day free trial instantly." },
-  { n: "2", title: "Practice with instant AI feedback", desc: "Attempt any of 20+ question types and get scored immediately." },
+  { n: "2", title: "Practice with instant AI feedback", desc: "Attempt any of 22 question types and get scored immediately." },
   { n: "3", title: "Mock test & track your band", desc: "Take full mock tests and watch your skill scores climb." },
 ];
 
 const stats = [
-  { value: "20+", label: "Question Types" },
+  { value: "22", label: "Question Types" },
   { value: "4", label: "Skills Scored" },
   { value: "AI", label: "Instant Feedback" },
   { value: "3", label: "Languages" },
@@ -494,7 +494,7 @@ export default async function HomePage() {
             <div className="text-center">
               <div className="mx-auto mb-6 inline-flex rounded-full bg-white/5 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground ring-1 ring-white/10">The Curriculum</div>
               <h2 className="text-4xl font-extrabold tracking-tighter text-foreground sm:text-5xl">Every PTE question type, covered</h2>
-              <p className="mt-6 text-xl text-muted-foreground font-medium">All four skills, all 20+ task types — with the right scoring for each.</p>
+              <p className="mt-6 text-xl text-muted-foreground font-medium">All four skills, all 22 task types — with the right scoring for each.</p>
             </div>
             <div className="mt-24 grid gap-6 md:grid-cols-2">
               {skills.map((s) => (
