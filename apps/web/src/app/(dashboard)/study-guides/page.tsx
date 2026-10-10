@@ -742,18 +742,28 @@ export default function StudyGuidesPage() {
 
   const formatType = (t: string) => t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
-  // Free users get one preview guide per section (the freeSlug); full section
-  // access (purchased module, trial, hasAllAccess, or staff) unlocks the rest.
-  // Premium templates follow the same hasAllAccess/staff gate.
+  // Free users get one preview guide per section (the freeSlug); a genuinely
+  // paid section (purchased module, centre seat, premium centre, hasAllAccess)
+  // or staff unlocks the rest. The free trial does NOT unlock Study Guides —
+  // trial users see the same 1-free-per-section preview as a free user.
+  // isTrial is only ever true when hasAllAccess/modules came purely from the
+  // trial grant (see access.ts: any real purchase/seat/premium-centre
+  // short-circuits before the trial branch runs), so excluding it here can't
+  // affect anyone who's actually paying.
   const isSectionUnlocked = (section: string) =>
-    !!(access?.hasAllAccess || access?.isStaff || access?.modules?.includes(section.toUpperCase()));
-  const isTemplateUnlocked = (t: Template) => !t.isPremium || !!(access?.hasAllAccess || access?.isStaff);
+    !!(access?.isStaff || (!access?.isTrial && (access?.hasAllAccess || access?.modules?.includes(section.toUpperCase()))));
+  const isTemplateUnlocked = (t: Template) => !t.isPremium || !!(access?.isStaff || (access?.hasAllAccess && !access?.isTrial));
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Study Guides</h1>
         <p className="mt-1 text-gray-500 dark:text-slate-400">Tips, strategies, and templates for every PTE question type</p>
+        {access?.isTrial && (
+          <p className="mt-1 text-xs text-amber-600 dark:text-amber-400">
+            One guide per section is free during your trial — purchase a module for full access to Study Guides.
+          </p>
+        )}
       </div>
 
       {/* Quick Tips Banner */}
