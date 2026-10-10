@@ -13,6 +13,7 @@ interface Row {
 }
 interface LeaderboardData {
   available: boolean;
+  scope?: "centre" | "global";
   totalRanked?: number;
   minAttempts?: number;
   top?: Row[];
@@ -47,19 +48,14 @@ export default function LeaderboardPage() {
         <h1 className="flex items-center gap-2 text-2xl font-bold text-gray-900 dark:text-slate-100">
           <Trophy className="h-6 w-6 text-amber-500" /> Leaderboard
         </h1>
-        <p className="text-gray-500 dark:text-slate-400">Top students in your centre by average score.</p>
+        <p className="text-gray-500 dark:text-slate-400">
+          {data?.scope === "centre"
+            ? "Top students in your centre by average score."
+            : "Top students across PrepFly by average score. Join a coaching centre to see a centre-only leaderboard."}
+        </p>
       </div>
 
-      {!data?.available ? (
-        <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
-          <CardContent className="py-16 text-center">
-            <Trophy className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
-            <p className="mt-4 text-gray-500 dark:text-slate-400">
-              The leaderboard is available once you join a coaching centre.
-            </p>
-          </CardContent>
-        </Card>
-      ) : (data.top && data.top.length > 0) ? (
+      {(data?.top && data.top.length > 0) ? (
         <>
           {/* Your rank (if outside the visible top) */}
           {data.you && data.you.ranked && data.you.rank && data.you.rank > (data.top.length) && (
@@ -110,7 +106,7 @@ export default function LeaderboardPage() {
           <CardContent className="py-16 text-center">
             <Trophy className="mx-auto h-12 w-12 text-gray-300 dark:text-slate-600" />
             <p className="mt-4 text-gray-500 dark:text-slate-400">
-              No ranked students yet. Practice at least {data.minAttempts ?? 5} questions to be the first!
+              No ranked students yet. Practice at least {data?.minAttempts ?? 5} questions to be the first!
             </p>
           </CardContent>
         </Card>
