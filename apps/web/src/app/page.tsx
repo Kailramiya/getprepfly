@@ -193,7 +193,7 @@ const features = [
   { icon: ClipboardList, title: "Full & Sectional Mock Tests", desc: "Timed, real-exam simulation with section-wise and overall band score estimates." },
   { icon: Target, title: "Skill Score Estimate", desc: "A 10-90 estimate for each skill using the official PTE weighted scoring model." },
   { icon: TrendingUp, title: "Progress Analytics", desc: "Track your practice streak, spot weak vs strong areas, and watch your score trend over time." },
-  { icon: FileText, title: "Templates & Study Guides", desc: "Proven essay and speaking templates, plus strategy guides for every question type." },
+  { icon: FileText, title: "Templates & Study Guides", desc: "Proven essay and speaking templates, plus strategy guides for every question type — one free per section, unlock the rest with a module." },
   { icon: BookMarked, title: "Vocabulary Builder", desc: "Word of the day, flashcards, and tap-any-word meanings in English, Hindi and Punjabi." },
   { icon: Flag, title: "Flag & Review", desc: "Mark questions as weak, strong or review and revisit them anytime from My Flags." },
   { icon: Languages, title: "Multilingual", desc: "Use the platform in English, Hindi or Punjabi." },

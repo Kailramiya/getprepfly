@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { useAccess } from "@/hooks/use-access";
 import {
   Mic, PenTool, BookOpen, Headphones,
-  ArrowRight, Lightbulb, FileText, Star, ChevronDown, ChevronUp,
+  ArrowRight, Lightbulb, FileText, Star, ChevronDown, ChevronUp, Lock,
 } from "lucide-react";
 
 interface Template {
@@ -20,6 +22,7 @@ interface Template {
 const guides = [
   {
     section: "Speaking",
+    freeSlug: "read-aloud-strategy", // free preview — the app already calls this + Dictation "highest impact"
     icon: Mic,
     gradient: "from-teal-500 to-teal-600",
     tips: [
@@ -220,6 +223,7 @@ You don't need every detail — capture the range of opinions and the overall di
   },
   {
     section: "Writing",
+    freeSlug: "essay-templates", // free preview
     icon: PenTool,
     gradient: "from-blue-500 to-blue-600",
     tips: [
@@ -357,6 +361,7 @@ TIP: Use ONE linking word per paragraph start, avoid repeating the same one.`,
   },
   {
     section: "Reading",
+    freeSlug: "mcq-elimination", // free preview
     icon: BookOpen,
     gradient: "from-purple-500 to-purple-600",
     tips: [
@@ -470,6 +475,7 @@ Don't spend more than 90 seconds per MCQ. If stuck, mark your best guess and mov
   },
   {
     section: "Listening",
+    freeSlug: "dictation-strategy", // free preview — "highest impact" per the banner above
     icon: Headphones,
     gradient: "from-orange-500 to-orange-600",
     tips: [
@@ -723,6 +729,7 @@ export default function StudyGuidesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
   const [expandedTipSlug, setExpandedTipSlug] = useState<string | null>(null);
+  const { access } = useAccess();
 
   useEffect(() => {
     fetch("/api/templates")
@@ -734,6 +741,13 @@ export default function StudyGuidesPage() {
   }, []);
 
   const formatType = (t: string) => t.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+  // Free users get one preview guide per section (the freeSlug); full section
+  // access (purchased module, trial, hasAllAccess, or staff) unlocks the rest.
+  // Premium templates follow the same hasAllAccess/staff gate.
+  const isSectionUnlocked = (section: string) =>
+    !!(access?.hasAllAccess || access?.isStaff || access?.modules?.includes(section.toUpperCase()));
+  const isTemplateUnlocked = (t: Template) => !t.isPremium || !!(access?.hasAllAccess || access?.isStaff);
 
   return (
     <div className="space-y-8">
@@ -771,38 +785,64 @@ export default function StudyGuidesPage() {
           <div className="space-y-3">
             {templates.map((t) => {
               const isExpanded = expandedTemplateId === t.id;
+              const unlocked = isTemplateUnlocked(t);
               return (
                 <Card key={t.id} className="rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden transition-all duration-700 ease-fluid hover:shadow-float hover:-translate-y-1">
                   <CardContent className="p-0">
-                    <button
-                      onClick={() => setExpandedTemplateId(isExpanded ? null : t.id)}
-                      className="flex w-full items-center justify-between p-5 text-left hover:bg-muted-foreground/5 transition-colors"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/10 shadow-inner">
-                          <FileText className="h-6 w-6 text-indigo-500" />
+                    {unlocked ? (
+                      <button
+                        onClick={() => setExpandedTemplateId(isExpanded ? null : t.id)}
+                        className="flex w-full items-center justify-between p-5 text-left hover:bg-muted-foreground/5 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-500/10 shadow-inner">
+                            <FileText className="h-6 w-6 text-indigo-500" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-medium text-gray-900 dark:text-slate-100">{t.title}</h3>
+                              {t.isPremium && (
+                                <Badge variant="warning" className="gap-1">
+                                  <Star className="h-3 w-3" /> Premium
+                                </Badge>
+                              )}
+                            </div>
+                            <Badge variant="secondary" className="mt-1.5 text-xs rounded-full shadow-sm font-bold">
+                              {formatType(t.questionType)}
+                            </Badge>
+                          </div>
                         </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <h3 className="font-medium text-gray-900 dark:text-slate-100">{t.title}</h3>
-                            {t.isPremium && (
+                        {isExpanded ? (
+                          <ChevronUp className="h-5 w-5 text-gray-400" />
+                        ) : (
+                          <ChevronDown className="h-5 w-5 text-gray-400" />
+                        )}
+                      </button>
+                    ) : (
+                      <Link
+                        href="/pricing"
+                        className="group flex w-full items-center justify-between p-5 text-left hover:bg-muted-foreground/5 transition-colors"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/10 shadow-inner">
+                            <Lock className="h-5 w-5 text-amber-500" />
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className="font-medium text-gray-900 dark:text-slate-100">{t.title}</h3>
                               <Badge variant="warning" className="gap-1">
                                 <Star className="h-3 w-3" /> Premium
                               </Badge>
-                            )}
+                            </div>
+                            <Badge variant="secondary" className="mt-1.5 text-xs rounded-full shadow-sm font-bold">
+                              {formatType(t.questionType)}
+                            </Badge>
                           </div>
-                          <Badge variant="secondary" className="mt-1.5 text-xs rounded-full shadow-sm font-bold">
-                            {formatType(t.questionType)}
-                          </Badge>
                         </div>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronUp className="h-5 w-5 text-gray-400" />
-                      ) : (
-                        <ChevronDown className="h-5 w-5 text-gray-400" />
-                      )}
-                    </button>
-                    {isExpanded && (
+                        <span className="shrink-0 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:underline">Unlock →</span>
+                      </Link>
+                    )}
+                    {isExpanded && unlocked && (
                       <div className="border-t border-gray-100 bg-gray-50 p-4 dark:border-slate-700 dark:bg-slate-800/50">
                         <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-700 dark:text-slate-300">
                           {t.content}
@@ -829,25 +869,47 @@ export default function StudyGuidesPage() {
           <div className="space-y-3">
             {section.tips.map((tip) => {
               const isExpanded = expandedTipSlug === tip.slug;
+              const unlocked = tip.slug === section.freeSlug || isSectionUnlocked(section.section);
               return (
                 <Card key={tip.slug} className="rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden transition-all duration-700 ease-fluid hover:shadow-float hover:-translate-y-1">
                   <CardContent className="p-0">
-                    <button
-                      onClick={() => setExpandedTipSlug(isExpanded ? null : tip.slug)}
-                      className="group flex w-full items-center justify-between p-5 text-left hover:bg-muted-foreground/5 transition-colors"
-                    >
-                      <div>
-                        <h3 className="font-medium text-gray-900 dark:text-slate-100">{tip.title}</h3>
-                        <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{tip.description}</p>
-                      </div>
-                      {isExpanded ? (
-                        <ChevronUp className="h-4 w-4 shrink-0 text-gray-400 transition group-hover:text-gray-600" />
-                      ) : (
-                        <ArrowRight className="h-4 w-4 shrink-0 text-gray-300 transition group-hover:text-gray-600 group-hover:translate-x-0.5" />
-                      )}
-                    </button>
+                    {unlocked ? (
+                      <button
+                        onClick={() => setExpandedTipSlug(isExpanded ? null : tip.slug)}
+                        className="group flex w-full items-center justify-between p-5 text-left hover:bg-muted-foreground/5 transition-colors"
+                      >
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-gray-900 dark:text-slate-100">{tip.title}</h3>
+                            {tip.slug === section.freeSlug && (
+                              <Badge variant="secondary" className="text-[10px] rounded-full font-bold">Free</Badge>
+                            )}
+                          </div>
+                          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{tip.description}</p>
+                        </div>
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4 shrink-0 text-gray-400 transition group-hover:text-gray-600" />
+                        ) : (
+                          <ArrowRight className="h-4 w-4 shrink-0 text-gray-300 transition group-hover:text-gray-600 group-hover:translate-x-0.5" />
+                        )}
+                      </button>
+                    ) : (
+                      <Link
+                        href="/pricing"
+                        className="group flex w-full items-center justify-between p-5 text-left hover:bg-muted-foreground/5 transition-colors"
+                      >
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-medium text-gray-900 dark:text-slate-100">{tip.title}</h3>
+                            <Badge variant="warning" className="gap-1 text-[10px]"><Lock className="h-3 w-3" /> Locked</Badge>
+                          </div>
+                          <p className="mt-1 text-sm text-gray-500 dark:text-slate-400">{tip.description}</p>
+                        </div>
+                        <span className="shrink-0 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:underline">Unlock →</span>
+                      </Link>
+                    )}
 
-                    {isExpanded && (
+                    {isExpanded && unlocked && (
                       <div className="border-t border-white/5 bg-background/30 p-6 backdrop-blur-md">
                         <div className="whitespace-pre-wrap rounded-2xl bg-background/50 p-6 text-sm font-medium leading-relaxed text-muted-foreground/90 shadow-inner ring-1 ring-white/5">
                           {(tip as any).content || "Content coming soon..."}
