@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "next-auth/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -232,7 +233,20 @@ export default function SettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          {passwordError && <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">{passwordError}</div>}
+          {passwordError && (
+            <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700 dark:bg-red-950/50 dark:text-red-400">
+              {passwordError}
+              {passwordError.includes("Google") && (
+                <>
+                  {" "}Use{" "}
+                  <Link href={`/forgot-password?email=${encodeURIComponent(user?.email || "")}`} className="font-bold underline underline-offset-2 hover:text-red-800 dark:hover:text-red-300">
+                    Forgot password
+                  </Link>{" "}
+                  to set one — we&apos;ll email you a reset link (check your spam folder too).
+                </>
+              )}
+            </div>
+          )}
           {passwordSaved && <div className="rounded-lg bg-green-50 p-3 text-sm text-green-700 dark:bg-green-950/50 dark:text-green-300">Password changed!</div>}
           <Input label="Current Password" type="password" value={passwords.currentPassword}
             onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })} placeholder="Enter current password" />
