@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Check, X, Sparkles } from "lucide-react";
-import { pickWordOfDay } from "@/lib/vocabulary";
+import { pickWordOfDay, sortByMastery } from "@/lib/vocabulary";
 
 // Fallback vocabulary — used until words are added via the admin Vocabulary page.
 // Synthetic "sample-" ids: this list only ever shows before the real fetch
@@ -41,7 +41,10 @@ const MAX_PAGES = 10; // safety cap — 1000 words is already a very large list 
 
 export default function VocabularyPage() {
   const [vocab, setVocab] = useState<VocabWord[]>(SAMPLE_VOCAB);
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // The flashcard shown is tracked by word id, not array position — mastering
+  // a card reorders the list (unmastered first), and an id stays correct
+  // under reordering where a numeric index would skip or repeat a card.
+  const [currentId, setCurrentId] = useState<string | null>(null);
   const [showMeaning, setShowMeaning] = useState(false);
   const [mastered, setMastered] = useState<Set<string>>(new Set());
   const [mode, setMode] = useState<"list" | "flashcard">("list");
@@ -80,25 +83,48 @@ export default function VocabularyPage() {
     return () => { cancelled = true; };
   }, []);
 
-  const current = vocab[currentIndex];
+  // Unmastered first, then mastered — a mastered word moves to the back but
+  // is never removed, so it's still reachable in both List and Flashcards.
+  const sortedVocab = useMemo(() => sortByMastery(vocab, mastered), [vocab, mastered]);
   const wordOfDay = useMemo(() => pickWordOfDay(vocab), [vocab]);
 
-  const markMastered = (id: string) => {
-    setMastered((prev) => new Set(prev).add(id));
+  // Keep the flashcard on a valid word once the real list replaces the
+  // sample fallback (or on first load).
+  useEffect(() => {
+    if (sortedVocab.length === 0) return;
+    if (!currentId || !sortedVocab.some((v) => v.id === currentId)) {
+      setCurrentId(sortedVocab[0].id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sortedVocab]);
+
+  const currentPos = Math.max(0, sortedVocab.findIndex((v) => v.id === currentId));
+  const current = sortedVocab[currentPos];
+
+  const toggleMastered = (id: string) => {
+    const next = !mastered.has(id);
+    setMastered((prev) => {
+      const s = new Set(prev);
+      if (next) s.add(id); else s.delete(id);
+      return s;
+    });
     fetch("/api/vocabulary/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ vocabId: id, mastered: true }),
+      body: JSON.stringify({ vocabId: id, mastered: next }),
     }).catch(() => {}); // local state already updated — a failed save just means it won't survive a reload
   };
 
   const handleNext = () => {
     setShowMeaning(false);
-    setCurrentIndex((prev) => (prev + 1) % vocab.length);
+    // Computed against today's (pre-toggle) order, then we lock onto that
+    // word's id — correct even though toggling mastery reorders the list.
+    const nextPos = (currentPos + 1) % sortedVocab.length;
+    setCurrentId(sortedVocab[nextPos]?.id ?? null);
   };
 
-  const handleMastered = () => {
-    markMastered(current.id);
+  const handleToggleAndNext = () => {
+    toggleMastered(current.id);
     handleNext();
   };
 
@@ -154,11 +180,10 @@ export default function VocabularyPage() {
               <Button
                 size="sm"
                 variant={mastered.has(wordOfDay.id) ? "default" : "outline"}
-                onClick={() => markMastered(wordOfDay.id)}
-                disabled={mastered.has(wordOfDay.id)}
+                onClick={() => toggleMastered(wordOfDay.id)}
                 className="shrink-0 gap-1.5 rounded-full shadow-sm"
               >
-                <Check className="h-3.5 w-3.5" /> {mastered.has(wordOfDay.id) ? "Mastered" : "Mark mastered"}
+                {mastered.has(wordOfDay.id) ? <><X className="h-3.5 w-3.5" /> Unmark</> : <><Check className="h-3.5 w-3.5" /> Mark mastered</>}
               </Button>
             </div>
           </CardContent>
@@ -175,6 +200,7 @@ export default function VocabularyPage() {
 
       {mode === "flashcard" ? (
         /* Flashcard Mode */
+        current && (
         <div className="mx-auto max-w-lg">
           <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden relative">
             <CardContent className="p-0">
@@ -184,7 +210,10 @@ export default function VocabularyPage() {
               >
                 {!showMeaning ? (
                   <>
-                    <Badge variant="secondary" className="mb-4">{current.category}</Badge>
+                    <div className="mb-4 flex items-center gap-2">
+                      <Badge variant="secondary">{current.category}</Badge>
+                      {mastered.has(current.id) && <Badge variant="success" className="gap-1"><Check className="h-3 w-3" /> Mastered</Badge>}
+                    </div>
                     <h2 className="text-3xl font-bold text-gray-900 dark:text-slate-100">{current.word}</h2>
                     <p className="mt-4 text-sm text-gray-400 dark:text-slate-500">Tap to reveal meaning</p>
                   </>
@@ -216,11 +245,12 @@ export default function VocabularyPage() {
                   </button>
                   <div className="w-px bg-white/10" />
                   <button
-                    onClick={handleMastered}
-                    className="flex flex-1 items-center justify-center gap-2 p-5 text-sm font-bold text-green-500 hover:bg-green-500/10 transition-colors"
+                    onClick={handleToggleAndNext}
+                    className={`flex flex-1 items-center justify-center gap-2 p-5 text-sm font-bold transition-colors ${
+                      mastered.has(current.id) ? "text-amber-500 hover:bg-amber-500/10" : "text-green-500 hover:bg-green-500/10"
+                    }`}
                   >
-                    <Check className="h-4 w-4" />
-                    Mastered
+                    {mastered.has(current.id) ? <><X className="h-4 w-4" /> Unmark</> : <><Check className="h-4 w-4" /> Mastered</>}
                   </button>
                 </div>
               )}
@@ -228,16 +258,17 @@ export default function VocabularyPage() {
           </Card>
 
           <p className="mt-4 text-center text-sm text-gray-500 dark:text-slate-400">
-            Card {currentIndex + 1} of {vocab.length}
+            Card {currentPos + 1} of {sortedVocab.length}
           </p>
         </div>
+        )
       ) : (
         /* List Mode */
         <div className="space-y-3">
-          {vocab.map((v) => (
+          {sortedVocab.map((v) => (
             <Card key={v.id} className={`rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 transition-all duration-700 ease-fluid hover:shadow-float hover:-translate-y-1 ${mastered.has(v.id) ? "opacity-50" : ""}`}>
-              <CardContent className="flex items-center justify-between p-5">
-                <div className="flex-1">
+              <CardContent className="flex items-center justify-between gap-4 p-5">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-3">
                     <h3 className="text-xl font-extrabold tracking-tight text-foreground">{v.word}</h3>
                     <Badge variant={
@@ -246,7 +277,6 @@ export default function VocabularyPage() {
                     } className="text-xs">
                       {v.difficulty}
                     </Badge>
-                    {mastered.has(v.id) && <Check className="h-4 w-4 text-green-500" />}
                   </div>
                   <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
                     {v.meaning}
@@ -259,6 +289,15 @@ export default function VocabularyPage() {
                   </p>
                   <p className="mt-1 text-xs italic text-gray-400 dark:text-slate-500">&ldquo;{v.example}&rdquo;</p>
                 </div>
+                <button
+                  onClick={() => toggleMastered(v.id)}
+                  title={mastered.has(v.id) ? "Unmark as mastered" : "Mark as mastered"}
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full shadow-inner transition-all duration-500 ease-fluid hover:scale-110 ${
+                    mastered.has(v.id) ? "bg-green-500/15 text-green-500 hover:bg-amber-500/15 hover:text-amber-500" : "bg-foreground/5 text-muted-foreground hover:bg-green-500/15 hover:text-green-500"
+                  }`}
+                >
+                  <Check className="h-4 w-4" />
+                </button>
               </CardContent>
             </Card>
           ))}

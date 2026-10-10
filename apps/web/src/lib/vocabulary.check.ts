@@ -1,6 +1,6 @@
 // Run: node_modules/.bin/tsx apps/web/src/lib/vocabulary.check.ts
 import assert from "node:assert/strict";
-import { pickWordOfDay } from "./vocabulary";
+import { pickWordOfDay, sortByMastery } from "./vocabulary";
 
 // Empty list -> null, not a crash (modulo by zero).
 assert.equal(pickWordOfDay([]), null);
@@ -49,6 +49,18 @@ assert.equal(pickWordOfDay([{ id: "only" }], Date.UTC(2027, 5, 15))!.id, "only")
   const d0 = pickWordOfDay(vocab, 0)!.id;
   const d1 = pickWordOfDay(vocab, 86400000)!.id;
   assert.notEqual(d0, d1);
+}
+
+// sortByMastery: nothing is ever dropped, unmastered come first, order
+// within each group is preserved, and no-mastered-words is a no-op.
+{
+  const vocab = [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }];
+  const sorted = sortByMastery(vocab, new Set(["b", "d"]));
+  assert.deepEqual(sorted.map((v) => v.id), ["a", "c", "b", "d"]);
+  assert.equal(sorted.length, vocab.length, "sortByMastery must never remove an item");
+
+  assert.deepEqual(sortByMastery(vocab, new Set()).map((v) => v.id), ["a", "b", "c", "d"]);
+  assert.deepEqual(sortByMastery(vocab, new Set(["a", "b", "c", "d"])).map((v) => v.id), ["a", "b", "c", "d"]);
 }
 
 console.log("vocabulary: Word of the Day rotation is deterministic, never crashes, and respects dayNumber");
