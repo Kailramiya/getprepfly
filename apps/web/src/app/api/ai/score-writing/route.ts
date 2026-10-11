@@ -59,23 +59,31 @@ export async function POST(req: NextRequest) {
       : c.passage || "";
     const scores = await scoreWriting(responseText.slice(0, MAX_RESPONSE_CHARS), question.type, questionPrompt);
 
-    // Save attempt
-    const attempt = await db.attempt.create({
-      data: {
-        userId: user!.id,
-        questionId,
-        responseText,
-        scores,
-        rawPointsEarned: scores.rawPointsEarned,
-        maxPointsPossible: scores.maxPointsPossible,
-        overallScore: scores.overall,
-        feedback: scores.feedback,
-      },
-    });
+    // Save attempt + compute percentile in parallel (same two-COUNT approach as
+    // the objective score route) — the client used to make a second round trip
+    // to GET /api/questions/:id/percentile just to get this number.
+    const scored = { questionId, overallScore: { not: null } };
+    const [attempt, total, below] = await Promise.all([
+      db.attempt.create({
+        data: {
+          userId: user!.id,
+          questionId,
+          responseText,
+          scores,
+          rawPointsEarned: scores.rawPointsEarned,
+          maxPointsPossible: scores.maxPointsPossible,
+          overallScore: scores.overall,
+          feedback: scores.feedback,
+        },
+      }),
+      db.attempt.count({ where: scored }),
+      db.attempt.count({ where: { ...scored, overallScore: { lt: scores.overall } } }),
+    ]);
+    const percentile = total >= 5 ? Math.round((below / total) * 100) : null;
 
     return NextResponse.json({
       success: true,
-      data: { scores, attemptId: attempt.id },
+      data: { scores, attemptId: attempt.id, percentile },
     });
   } catch (err) {
     await spend?.release();
