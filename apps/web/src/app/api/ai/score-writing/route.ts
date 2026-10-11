@@ -37,8 +37,11 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: false, error: "Question type not supported" }, { status: 400 });
   }
   if (!(await canAccessQuestion(user!, question))) {
+    // SUMMARIZE_SPOKEN_TEXT is a LISTENING-section question scored through this
+    // same writing-style endpoint — the module to buy is Listening, not Writing.
+    const moduleName = question.section.charAt(0) + question.section.slice(1).toLowerCase();
     return NextResponse.json(
-      { success: false, error: "You don't have access to the Writing module" },
+      { success: false, error: `You don't have access to the ${moduleName} module` },
       { status: 403 }
     );
   }

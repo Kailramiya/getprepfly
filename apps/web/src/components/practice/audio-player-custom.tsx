@@ -5,7 +5,6 @@ import { Play, Pause, Volume2, VolumeX, Gauge } from "lucide-react";
 
 interface AudioPlayerProps {
   src: string;
-  defaultVoice?: string; // e.g. "Indian", "US"
   onLoadedMetadata?: (durationSec: number) => void;
   onError?: () => void;
   onEnded?: () => void;
@@ -13,7 +12,6 @@ interface AudioPlayerProps {
 }
 
 const PLAYBACK_RATES = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
-const VOICES = ["Indian", "Steven (US)", "Emma (UK)", "Olivia (AU)"];
 
 function formatTime(sec: number): string {
   if (!isFinite(sec)) return "0:00";
@@ -24,7 +22,6 @@ function formatTime(sec: number): string {
 
 export function AudioPlayerCustom({
   src,
-  defaultVoice = "Indian",
   onLoadedMetadata,
   onError,
   onEnded,
@@ -37,9 +34,7 @@ export function AudioPlayerCustom({
   const [volume, setVolume] = useState(1);
   const [muted, setMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1);
-  const [voice, setVoice] = useState(defaultVoice);
   const [showRateMenu, setShowRateMenu] = useState(false);
-  const [showVoiceMenu, setShowVoiceMenu] = useState(false);
   const [hasPlayed, setHasPlayed] = useState(false); // used when playOnce=true
 
   // In mock test (playOnce), auto-play when audio is ready — no play button is shown
@@ -198,7 +193,7 @@ export function AudioPlayerCustom({
         {!playOnce && (
           <div className="relative">
             <button
-              onClick={() => { setShowRateMenu(!showRateMenu); setShowVoiceMenu(false); }}
+              onClick={() => setShowRateMenu(!showRateMenu)}
               className="flex items-center gap-1 rounded-full border border-teal-200 px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50"
             >
               <Gauge className="h-3.5 w-3.5" />
@@ -215,33 +210,6 @@ export function AudioPlayerCustom({
                     }`}
                   >
                     {r}x {playbackRate === r && "✓"}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Voice / accent — hidden in mock test */}
-        {!playOnce && (
-          <div className="relative">
-            <button
-              onClick={() => { setShowVoiceMenu(!showVoiceMenu); setShowRateMenu(false); }}
-              className="flex items-center gap-1 rounded-full border border-teal-200 px-3 py-1.5 text-xs font-medium text-teal-700 hover:bg-teal-50"
-            >
-              {voice} ▾
-            </button>
-            {showVoiceMenu && (
-              <div className="absolute right-0 top-full z-20 mt-1 w-36 rounded-lg border border-gray-200 bg-white py-1 shadow-lg dark:border-slate-700 dark:bg-slate-800">
-                {VOICES.map((v) => (
-                  <button
-                    key={v}
-                    onClick={() => { setVoice(v); setShowVoiceMenu(false); }}
-                    className={`flex w-full items-center justify-between px-3 py-1.5 text-xs hover:bg-gray-50 dark:hover:bg-slate-700 ${
-                      voice === v ? "font-semibold text-teal-600" : "text-gray-700 dark:text-slate-300"
-                    }`}
-                  >
-                    {v} {voice === v && "✓"}
                   </button>
                 ))}
               </div>

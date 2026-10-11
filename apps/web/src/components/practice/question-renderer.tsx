@@ -442,6 +442,18 @@ export function QuestionRenderer({
   // The parent can trigger it via submitRef (e.g. on Next click).
   const internalSubmitFn = useRef<(() => void | Promise<void>) | null>(null);
 
+  // When the student started looking at this question — captured once per
+  // question id, not recomputed on every render. Several type branches below
+  // used to do `const startTime = Date.now()` directly in the render body,
+  // which re-ran on every re-render (every option click, every keystroke),
+  // so by submit time it measured "time since the last interaction" instead
+  // of time on the question; a few passed Date.now() straight into
+  // scoreOnServer as the start time, which made timeTaken report ~0 always.
+  const questionStartRef = useRef<{ id: string | undefined; time: number }>({ id: question?.id, time: Date.now() });
+  if (questionStartRef.current.id !== question?.id) {
+    questionStartRef.current = { id: question?.id, time: Date.now() };
+  }
+
   // Server-side scoring helper for objective question types.
   // Calls POST /api/questions/:id/score, stores revealed answer keys, calls onSubmit.
   const scoreOnServer = async (answer: unknown, startTime: number, key: "answer" | "answers" = "answer") => {
@@ -729,7 +741,7 @@ export function QuestionRenderer({
   // ---- MCQ SINGLE ----
   if (type === "READING_MCQ_SINGLE" || type === "LISTENING_MCQ_SINGLE") {
     const isListening = type === "LISTENING_MCQ_SINGLE";
-    const startTime = Date.now();
+    const startTime = questionStartRef.current.time;
     internalSubmitFn.current = () => {
       if (response === null) return;
       return scoreOnServer(response, startTime);
@@ -792,7 +804,7 @@ export function QuestionRenderer({
   if (type === "READING_MCQ_MULTIPLE" || type === "LISTENING_MCQ_MULTIPLE") {
     const selected: number[] = response || [];
     const isListening = type === "LISTENING_MCQ_MULTIPLE";
-    const startTime = Date.now();
+    const startTime = questionStartRef.current.time;
     internalSubmitFn.current = () => {
       if (selected.length === 0) return;
       return scoreOnServer(selected, startTime);
@@ -860,7 +872,7 @@ export function QuestionRenderer({
     const order: number[] = response || paragraphs.map((_: string, i: number) => i);
     // After server scoring, use revealed correctOrder for display
     const correctOrder: number[] = effectiveContent.correctOrder || paragraphs.map((_: string, i: number) => i);
-    const startTime = Date.now();
+    const startTime = questionStartRef.current.time;
 
     internalSubmitFn.current = () => {
       return scoreOnServer(order, startTime);
@@ -910,7 +922,7 @@ export function QuestionRenderer({
           submitted={submitted}
           showAnswer={showAnswer}
           showFeedback={showFeedback}
-          onSubmit={(r) => scoreOnServer(r.answers, Date.now(), "answers")}
+          onSubmit={(r) => scoreOnServer(r.answers, questionStartRef.current.time, "answers")}
           modelAnswers={modelAnswers}
           initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
@@ -931,7 +943,7 @@ export function QuestionRenderer({
           submitted={submitted}
           showAnswer={showAnswer}
           showFeedback={showFeedback}
-          onSubmit={(r) => scoreOnServer(r.answers, Date.now(), "answers")}
+          onSubmit={(r) => scoreOnServer(r.answers, questionStartRef.current.time, "answers")}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
           initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
         />
@@ -961,7 +973,7 @@ export function QuestionRenderer({
 
   // ---- HIGHLIGHT CORRECT SUMMARY ----
   if (type === "HIGHLIGHT_CORRECT_SUMMARY") {
-    const startTime = Date.now();
+    const startTime = questionStartRef.current.time;
     internalSubmitFn.current = () => {
       if (response === null) return;
       return scoreOnServer(response, startTime);
@@ -1029,7 +1041,7 @@ export function QuestionRenderer({
       setResponse(selected.includes(i) ? selected.filter((x) => x !== i) : [...selected, i]);
     };
 
-    const startTime = Date.now();
+    const startTime = questionStartRef.current.time;
     internalSubmitFn.current = () => {
       if (response === null) return; // Don't auto-submit if user never interacted
       return scoreOnServer(selected, startTime);
@@ -1094,7 +1106,7 @@ export function QuestionRenderer({
 
   // ---- SELECT MISSING WORD ----
   if (type === "SELECT_MISSING_WORD") {
-    const startTime = Date.now();
+    const startTime = questionStartRef.current.time;
     internalSubmitFn.current = () => {
       if (response === null) return;
       return scoreOnServer(response, startTime);
@@ -1141,7 +1153,7 @@ export function QuestionRenderer({
           submitted={submitted}
           showAnswer={showAnswer}
           showFeedback={showFeedback}
-          onSubmit={(r) => scoreOnServer(r.answers, Date.now(), "answers")}
+          onSubmit={(r) => scoreOnServer(r.answers, questionStartRef.current.time, "answers")}
           onRegisterSubmit={(fn) => { internalSubmitFn.current = fn; }}
           initialAnswers={Array.isArray(initialResponse) ? initialResponse : undefined}
         />
@@ -1151,7 +1163,7 @@ export function QuestionRenderer({
 
   // ---- WRITE FROM DICTATION ----
   if (type === "WRITE_FROM_DICTATION") {
-    const startTime = Date.now();
+    const startTime = questionStartRef.current.time;
     internalSubmitFn.current = () => {
       if (!response?.trim()) return;
       return scoreOnServer(response, startTime);
@@ -1259,7 +1271,6 @@ export function AudioBlock({
         <>
           <AudioPlayerCustom
             src={audioSrc}
-            defaultVoice="Indian"
             onLoadedMetadata={(dur) => {
               setLoaded(true);
               setLoadError(false);
@@ -2053,11 +2064,15 @@ function SummarizeSpokenTextQuestion({
 }) {
   const [text, setText] = useState("");
   const [scoring, setScoring] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(10 * 60); // 10 minutes — same exam limit as Summarize Written Text
 
   useEffect(() => { onScoringChange?.(scoring); }, [scoring]); // eslint-disable-line react-hooks/exhaustive-deps
+  const hasAutoSubmitted = useRef(false);
 
   const currentWords = text.trim().split(/\s+/).filter(Boolean).length;
   const withinRange = currentWords >= 50 && currentWords <= 70;
+
+  const fmtTime = (secs: number) => `${Math.floor(secs / 60)}:${String(secs % 60).padStart(2, "0")}`;
 
   const handleSubmit = async () => {
     setScoring(true);
@@ -2128,6 +2143,21 @@ function SummarizeSpokenTextQuestion({
     }
   };
 
+  // Countdown — stops when submitted
+  useEffect(() => {
+    if (submitted) return;
+    const interval = setInterval(() => setTimeLeft((t) => Math.max(0, t - 1)), 1000);
+    return () => clearInterval(interval);
+  }, [submitted]);
+
+  // Auto-submit when timer hits 0
+  useEffect(() => {
+    if (submitted || hasAutoSubmitted.current || timeLeft > 0) return;
+    hasAutoSubmitted.current = true;
+    handleSubmit();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeLeft, submitted]);
+
   useEffect(() => {
     onRegisterSubmit?.(() => { if (text.trim() && !scoring) return handleSubmit(); });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -2147,10 +2177,19 @@ function SummarizeSpokenTextQuestion({
         onCopy={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
         onCut={!allowCopyPaste ? (e) => e.preventDefault() : undefined}
       />
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3 flex-wrap">
         <span className={`text-sm font-medium ${withinRange ? "text-green-600" : currentWords === 0 ? "text-gray-400" : "text-amber-600"}`}>
           Words: {currentWords} / 50–70
         </span>
+        {!submitted && (
+          <span className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-mono font-bold tabular-nums ${
+            timeLeft <= 60 ? "bg-red-100 text-red-700 dark:bg-red-950/60 dark:text-red-400" :
+            timeLeft <= 3 * 60 ? "bg-amber-100 text-amber-700 dark:bg-amber-950/60 dark:text-amber-400" :
+            "bg-gray-100 text-gray-700 dark:bg-slate-700 dark:text-slate-300"
+          }`}>
+            ⏱ {fmtTime(timeLeft)}
+          </span>
+        )}
       </div>
     </div>
   );
