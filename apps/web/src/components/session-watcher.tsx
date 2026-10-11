@@ -1,13 +1,18 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession, signOut } from "next-auth/react";
 import { AlertCircle } from "lucide-react";
 
-const POLL_INTERVAL_MS = 30_000; // check every 30 seconds
+const POLL_INTERVAL_MS = 60_000; // check every 60 seconds while the tab is visible
 
 /**
- * Actively polls the session endpoint every 30 s.
+ * Polls the session endpoint while the tab is visible (paused in background
+ * tabs — most users keep several open and only look at one at a time, so
+ * polling a hidden one is pure waste) and checks immediately the moment the
+ * tab comes back into view, instead of waiting for the next tick — which
+ * actually catches a kick *faster* in the common case of switching back to
+ * a tab that was invalidated while it sat in the background.
  * If the server marks the session invalid (another device logged in),
  * shows a modal and forces sign-out within 3 seconds.
  */
@@ -24,20 +29,41 @@ export function SessionWatcher() {
     }
   }, [status, session]);
 
-  // Actively poll — call update() which re-fetches the JWT from the server.
-  // The server's jwt callback will set sessionInvalid=true if another device
-  // has since logged in, causing the session callback to return an empty user.
+  // Re-fetches the JWT from the server. The server's jwt callback will set
+  // sessionInvalid=true if another device has since logged in, causing the
+  // session callback to return an empty user.
+  const checkNow = useCallback(() => { update(); }, [update]);
+
   useEffect(() => {
     if (status !== "authenticated") return;
 
-    intervalRef.current = setInterval(async () => {
-      await update();
-    }, POLL_INTERVAL_MS);
+    const startPolling = () => {
+      if (intervalRef.current) return;
+      intervalRef.current = setInterval(checkNow, POLL_INTERVAL_MS);
+    };
+    const stopPolling = () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        checkNow();
+        startPolling();
+      } else {
+        stopPolling();
+      }
+    };
+
+    if (document.visibilityState === "visible") startPolling();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      stopPolling();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [status, update]);
+  }, [status, checkNow]);
 
   if (!showKicked) return null;
 
