@@ -291,7 +291,7 @@ export default function MockTestSessionPage() {
       ? Math.round((result.marksEarned / result.marksTotal) * 90)
       : null;
 
-    await fetch("/api/attempts", {
+    const attemptRes = await fetch("/api/attempts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -305,14 +305,20 @@ export default function MockTestSessionPage() {
         scores: result?.aiScores || result || null,
       }),
     });
+    const attemptData = await attemptRes.json().catch(() => null);
 
-    const res = await fetch(`/api/mock-tests/${testId}`);
-    const data = await res.json();
-    if (data.success) {
-      // Functional update to avoid stale closures
-      setTest((_prev) => {
-         // Only update if we haven't navigated away or if we just want to merge attempts
-         return data.data;
+    // The POST response already carries the full saved attempt — no need to
+    // re-fetch the whole test (every question's content/audio/image URLs,
+    // all 56 of them) just to pick up this one answer. Merge it in locally.
+    if (attemptData?.success && attemptData.data) {
+      const saved = attemptData.data;
+      setTest((prev) => {
+        if (!prev) return prev;
+        const idx = prev.attempts.findIndex((a) => a.questionId === saved.questionId);
+        const attempts = idx === -1
+          ? [...prev.attempts, saved]
+          : prev.attempts.map((a, i) => (i === idx ? saved : a));
+        return { ...prev, attempts };
       });
     }
   };

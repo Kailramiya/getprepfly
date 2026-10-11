@@ -92,19 +92,27 @@ export async function POST(req: NextRequest) {
     // Step 2: Score using programmatic methods + GPT for content
     const scores = await scoreSpeaking(transcriptionObj, expectedText, questionType);
 
-    // Step 3: Save attempt
-    const attempt = await db.attempt.create({
-      data: {
-        userId: user!.id,
-        questionId,
-        responseText: transcriptionText,
-        scores,
-        rawPointsEarned: scores.rawPointsEarned,
-        maxPointsPossible: scores.maxPointsPossible,
-        overallScore: scores.overall,
-        feedback: scores.feedback,
-      },
-    });
+    // Step 3: Save attempt + compute percentile in parallel (same two-COUNT
+    // approach as the objective score route) — the client used to make a
+    // second round trip to GET /api/questions/:id/percentile for this.
+    const scored = { questionId, overallScore: { not: null } };
+    const [attempt, total, below] = await Promise.all([
+      db.attempt.create({
+        data: {
+          userId: user!.id,
+          questionId,
+          responseText: transcriptionText,
+          scores,
+          rawPointsEarned: scores.rawPointsEarned,
+          maxPointsPossible: scores.maxPointsPossible,
+          overallScore: scores.overall,
+          feedback: scores.feedback,
+        },
+      }),
+      db.attempt.count({ where: scored }),
+      db.attempt.count({ where: { ...scored, overallScore: { lt: scores.overall } } }),
+    ]);
+    const percentile = total >= 5 ? Math.round((below / total) * 100) : null;
 
     return NextResponse.json({
       success: true,
@@ -112,6 +120,7 @@ export async function POST(req: NextRequest) {
         transcription: transcriptionText,
         scores,
         attemptId: attempt.id,
+        percentile,
       },
     });
   } catch (err) {

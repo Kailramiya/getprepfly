@@ -1864,7 +1864,7 @@ function SpeakingQuestion({
             message: data.error,
           };
         } else if (data.success) {
-          const { transcription, scores } = data.data;
+          const { transcription, scores, percentile } = data.data;
 
           // Build mistakes by comparing word-by-word (for READ_ALOUD + REPEAT_SENTENCE)
           const mistakes: ScoreResult["mistakes"] = [];
@@ -1885,6 +1885,7 @@ function SpeakingQuestion({
             ...wordResult,
             message: scores.feedback || "",
             transcription,
+            percentile: percentile ?? null,
             aiScores: {
               pronunciation: scores.pronunciation || 0,
               fluency: scores.fluency || 0,
@@ -2132,7 +2133,7 @@ function SummarizeSpokenTextQuestion({
       });
       const data = await res.json();
       if (data.success) {
-        const { scores } = data.data;
+        const { scores, percentile } = data.data;
         await onSubmit({
           text,
           scoreResult: {
@@ -2142,6 +2143,7 @@ function SummarizeSpokenTextQuestion({
             total: 1,
             mistakes,
             message: scores.feedback || "",
+            percentile: percentile ?? null,
             rawPointsEarned: scores.rawPointsEarned,
             maxPointsPossible: scores.maxPointsPossible,
             aiScores: {
@@ -2284,7 +2286,7 @@ function SummarizeWrittenTextQuestion({
       const data = await res.json();
 
       if (data.success) {
-        const { scores } = data.data;
+        const { scores, percentile } = data.data;
         await onSubmit({
           text,
           scoreResult: {
@@ -2294,6 +2296,7 @@ function SummarizeWrittenTextQuestion({
             total: 1,
             mistakes,
             message: scores.feedback || "",
+            percentile: percentile ?? null,
             rawPointsEarned: scores.rawPointsEarned,
             maxPointsPossible: scores.maxPointsPossible,
             aiScores: {
@@ -2463,7 +2466,7 @@ function WriteEssayQuestion({
       const data = await res.json();
 
       if (data.success) {
-        const { scores } = data.data;
+        const { scores, percentile } = data.data;
         clearDraft();
         onSubmit({
           text,
@@ -2474,6 +2477,7 @@ function WriteEssayQuestion({
             total: 1,
             mistakes,
             message: scores.feedback || "",
+            percentile: percentile ?? null,
             rawPointsEarned: scores.rawPointsEarned,
             maxPointsPossible: scores.maxPointsPossible,
             aiScores: {
