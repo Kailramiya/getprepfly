@@ -265,7 +265,7 @@ export default function MockTestSessionPage() {
         body: JSON.stringify({ currentIndex: nextIdx, currentSection: test?.questions[nextIdx]?.question?.section }),
       });
     }
-  }, [currentIdx, totalQuestions, testId, test, submitted, currentQuestion?.question?.id]);
+  }, [currentIdx, totalQuestions, testId, test, submitted]);
 
   // Called by QuestionRenderer when student explicitly submits (or via background auto-submit)
   const handleQuestionSubmit = async (response: any, questionIdOverride?: string) => {
@@ -339,6 +339,18 @@ export default function MockTestSessionPage() {
 
   // Completed — show results + question review
   if (test.status === "COMPLETED") {
+    // Same legacy-floor correction as the dedicated /report page — without
+    // it, a test completed before the floor existed showed a different
+    // (lower, un-floored) score here than on /report for the exact same
+    // test, depending only on which page the student happened to land on.
+    const PTE_MIN = 22;
+    const applyMin = (s: number | null) => (s === null ? null : Math.max(s, PTE_MIN));
+    const overallScore   = applyMin(test.overallScore);
+    const speakingScore  = applyMin(test.speakingScore);
+    const writingScore   = applyMin(test.writingScore);
+    const readingScore   = applyMin(test.readingScore);
+    const listeningScore = applyMin(test.listeningScore);
+
     return (
       <div className="mx-auto max-w-4xl space-y-8 pb-12">
         <div className="text-center animate-in fade-in slide-in-from-bottom-4 duration-700 ease-fluid">
@@ -354,14 +366,14 @@ export default function MockTestSessionPage() {
           <div className="bg-gradient-to-br from-primary to-indigo-600 px-6 py-12 text-center text-white relative overflow-hidden">
             <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay"></div>
             <p className="text-sm font-bold tracking-widest uppercase text-white/80 relative z-10">Overall Score</p>
-            <p className="text-7xl font-extrabold tracking-tighter mt-2 relative z-10 drop-shadow-md">{test.overallScore || "--"}<span className="text-3xl text-white/60 font-bold ml-1">/90</span></p>
+            <p className="text-7xl font-extrabold tracking-tighter mt-2 relative z-10 drop-shadow-md">{overallScore || "--"}<span className="text-3xl text-white/60 font-bold ml-1">/90</span></p>
           </div>
           <CardContent className="grid grid-cols-2 sm:grid-cols-4 gap-6 p-6 sm:p-8 relative z-10 bg-background/50">
             {[
-              { label: "Speaking", score: test.speakingScore, icon: Mic, color: "text-teal-500" },
-              { label: "Writing", score: test.writingScore, icon: PenTool, color: "text-blue-500" },
-              { label: "Reading", score: test.readingScore, icon: BookOpen, color: "text-purple-500" },
-              { label: "Listening", score: test.listeningScore, icon: Headphones, color: "text-orange-500" },
+              { label: "Speaking", score: speakingScore, icon: Mic, color: "text-teal-500" },
+              { label: "Writing", score: writingScore, icon: PenTool, color: "text-blue-500" },
+              { label: "Reading", score: readingScore, icon: BookOpen, color: "text-purple-500" },
+              { label: "Listening", score: listeningScore, icon: Headphones, color: "text-orange-500" },
             ].map((s) => (
               <div key={s.label} className="text-center flex flex-col items-center">
                 <div className={`flex h-12 w-12 items-center justify-center rounded-[1rem] shadow-inner mb-3 bg-background/80 ${s.color}`}>
@@ -404,7 +416,7 @@ export default function MockTestSessionPage() {
                     )}
                     {attempt?.overallScore != null && (
                       <span className="text-lg font-extrabold text-primary drop-shadow-sm ml-2">
-                        {attempt.overallScore}<span className="text-sm text-muted-foreground/50">/90</span>
+                        {Math.max(10, attempt.overallScore)}<span className="text-sm text-muted-foreground/50">/90</span>
                       </span>
                     )}
                   </div>

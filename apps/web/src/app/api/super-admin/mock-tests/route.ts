@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth-utils";
+import { shuffle } from "@/lib/utils";
 
 const FULL_STRUCTURE: Record<string, Record<string, number>> = {
   SPEAKING: { READ_ALOUD: 6, REPEAT_SENTENCE: 10, DESCRIBE_IMAGE: 3, RETELL_LECTURE: 2, ANSWER_SHORT_QUESTION: 5, RESPOND_TO_SITUATION: 2 },
@@ -60,7 +61,10 @@ export async function POST(req: NextRequest) {
           select: { id: true },
           take: count * 3,
         });
-        const shuffled = questions.sort(() => Math.random() - 0.5).slice(0, Math.min(count, questions.length));
+        // Math.random() - 0.5 as a sort comparator is a well-known biased
+        // shuffle (its output distribution depends on the sort algorithm,
+        // not on randomness) — reuse the real Fisher-Yates already in utils.
+        const shuffled = shuffle(questions).slice(0, Math.min(count, questions.length));
         for (const q of shuffled) {
           questionSelections.push({ questionId: q.id, order: order++ });
         }
