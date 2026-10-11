@@ -369,8 +369,19 @@ export default function PracticeQuestionPage() {
     }
   };
 
-  // Collect unique tags across all questions for topic filter
-  const allTopics = Array.from(new Set(questions.flatMap((q: any) => q.tags || []))).slice(0, 15);
+  // Collect tags shared by at least 2 questions for the topic filter — a tag
+  // only one question has is usually bad data (e.g. someone pasted the
+  // question's own title into its tags field), not a real topic worth
+  // filtering by, so it shouldn't get its own permanent filter pill.
+  const MIN_QUESTIONS_PER_TOPIC = 2;
+  const topicCounts = new Map<string, number>();
+  for (const q of questions as any[]) {
+    for (const t of q.tags || []) topicCounts.set(t, (topicCounts.get(t) || 0) + 1);
+  }
+  const allTopics = Array.from(topicCounts.entries())
+    .filter(([, count]) => count >= MIN_QUESTIONS_PER_TOPIC)
+    .map(([tag]) => tag)
+    .slice(0, 15);
   const filteredQuestions = selectedTopic === "all" ? questions : questions.filter((q: any) => (q.tags || []).includes(selectedTopic));
 
   const FLAG_OPTIONS = [
