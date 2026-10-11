@@ -238,7 +238,12 @@ export default function TemplateDetailPage() {
     if (data.success) {
       setShowBank(false);
       setSelected(new Set());
-      fetchTemplate();
+      // The POST response already carries the newly-added rows in the same
+      // shape as the template fetch — append locally instead of refetching
+      // the whole template (every question's content/audio/image URLs).
+      if (data.questions?.length > 0) {
+        setTemplate((prev) => prev ? { ...prev, questions: [...prev.questions, ...data.questions] } : prev);
+      }
     }
     setAdding(false);
   };
@@ -569,12 +574,15 @@ export default function TemplateDetailPage() {
               onClose={() => setShowCreate(false)}
               onSave={async (createdQuestion) => {
                 if (createdQuestion?.id) {
-                  await fetch(`/api/super-admin/mock-tests/${id}/questions`, {
+                  const res = await fetch(`/api/super-admin/mock-tests/${id}/questions`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ questionIds: [createdQuestion.id] }),
                   });
-                  fetchTemplate();
+                  const data = await res.json();
+                  if (data.success && data.questions?.length > 0) {
+                    setTemplate((prev) => prev ? { ...prev, questions: [...prev.questions, ...data.questions] } : prev);
+                  }
                 }
                 setShowCreate(false);
               }}
