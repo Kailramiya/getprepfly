@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnnouncementsBanner } from "@/components/dashboard/announcements-banner";
 import { useAuth } from "@/hooks/use-auth";
+import { istDateKey } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -262,7 +263,16 @@ export default function DashboardPage() {
                 </Card>
               );
             }
-            const days = Math.ceil((new Date(data.examDate).getTime() - Date.now()) / 86400000);
+            // Calendar-day difference in IST, not a raw ms/86400000 ceiling — examDate
+            // is stored as a UTC-midnight timestamp (5:30am IST), so comparing raw
+            // instants instead of calendar dates showed "1 day to go" for up to 5.5
+            // hours after the exam date had already started in IST (midnight-5:30am
+            // IST). The rest of the app (streaks, daily goal) is already IST-aware;
+            // this is the one place that wasn't.
+            const days = Math.round(
+              (new Date(istDateKey(new Date(data.examDate).getTime()) + "T00:00:00Z").getTime() -
+                new Date(istDateKey(Date.now()) + "T00:00:00Z").getTime()) / 86400000
+            );
             return (
               <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
@@ -361,7 +371,7 @@ export default function DashboardPage() {
           <h2 className="mb-6 text-2xl font-extrabold tracking-tight text-foreground">Focus areas — practice these next</h2>
           <div className="grid gap-4 sm:grid-cols-3">
             {data.weakAreas.map((area) => (
-              <Link key={area.type} href={`/practice/${area.section.toLowerCase()}`}>
+              <Link key={area.type} href={`/practice/${area.section.toLowerCase()}/${area.type.toLowerCase()}`}>
                 <Card className="group cursor-pointer rounded-[1.5rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/5 transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float">
                   <CardContent className="flex items-center justify-between p-5">
                     <div>
