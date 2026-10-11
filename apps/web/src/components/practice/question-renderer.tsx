@@ -2059,6 +2059,16 @@ function SpeakingQuestion({
           prepTime={prepTime}
           onRecordingComplete={handleRecordingComplete}
           onRecordingStarted={() => setPreRecordCountdown(0)}
+          onReset={() => {
+            // "Re-record" resets AudioRecorder's own state, but blobRef is
+            // this component's separate cache used at submit time — without
+            // this, submitting right after Re-record (before finishing a new
+            // take) would silently resubmit the discarded recording instead
+            // of treating it as no answer yet.
+            blobRef.current = null;
+            setAudioBlob(null);
+            setAudioUrl(null);
+          }}
           autoStart={readyToRecord}
           autoStartDelay={0}
           hideReRecord={isMockTest}

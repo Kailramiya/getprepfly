@@ -174,7 +174,11 @@ async function scoreSpeaking(
 
   const transcriptionText = transcriptionObj.text || "";
   const words = transcriptionObj.words || [];
-  const duration = transcriptionObj.duration || 1; // seconds
+  // Fall back to the last word's end timestamp (a real estimate) rather than
+  // a flat 1 second — a 1s duration on a normal 10-40s answer inflates WPM
+  // into the thousands, which the "too fast" branch below then reads as
+  // rapid-fire speech and crushes fluency to 0 regardless of actual pacing.
+  const duration = transcriptionObj.duration || words[words.length - 1]?.end || 1; // seconds
 
   // --- Programmatic Fluency Calculation ---
   const durationMinutes = duration / 60;
@@ -198,8 +202,11 @@ async function scoreSpeaking(
   let totalConfidence = 0;
   for (const w of words) {
     // 'probability' is not always perfectly available depending on the exact OpenAI version/model
-    // but we use it if present, otherwise default to a high baseline.
-    totalConfidence += (w.probability || w.confidence || 0.85);
+    // but we use it if present, otherwise default to a high baseline. `??`, not `||` — a word
+    // Whisper was genuinely unsure about can legitimately score 0, and `||` would have silently
+    // replaced that real low-confidence signal with the 0.85 default, inflating pronunciation
+    // for exactly the words most likely mispronounced.
+    totalConfidence += (w.probability ?? w.confidence ?? 0.85);
   }
   const avgConfidence = words.length > 0 ? totalConfidence / words.length : 0;
   const pronScore = Math.max(0, Math.round(avgConfidence * 5));
