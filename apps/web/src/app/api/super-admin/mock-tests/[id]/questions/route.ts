@@ -28,6 +28,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const alreadyIn = new Set(existing.map((q) => q.questionId));
   const toAdd = questionIds.filter((id: string) => !alreadyIn.has(id));
 
+  let created: Awaited<ReturnType<typeof db.mockTestQuestion.findMany>> = [];
   if (toAdd.length > 0) {
     await db.mockTestQuestion.createMany({
       data: toAdd.map((questionId: string) => ({
@@ -36,9 +37,22 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         order: nextOrder++,
       })),
     });
+    // Same shape GET /api/super-admin/mock-tests/[id] already returns per
+    // question — lets the caller append these into local state directly
+    // instead of refetching the whole template (every question's content,
+    // audioUrl, imageUrl) just to pick up the handful just added.
+    created = await db.mockTestQuestion.findMany({
+      where: { mockTestId: params.id, questionId: { in: toAdd } },
+      include: {
+        question: {
+          select: { id: true, section: true, type: true, title: true, difficulty: true, audioUrl: true, imageUrl: true },
+        },
+      },
+      orderBy: { order: "asc" },
+    });
   }
 
-  return NextResponse.json({ success: true, added: toAdd.length, skipped: questionIds.length - toAdd.length });
+  return NextResponse.json({ success: true, added: toAdd.length, skipped: questionIds.length - toAdd.length, questions: created });
 }
 
 // DELETE /api/super-admin/mock-tests/[id]/questions — remove a question from template
