@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "next-auth/react";
-import { LogOut, Menu, Sparkles, MessageSquare, User, Settings, ChevronDown, Share } from "lucide-react";
+import { LogOut, Menu, MessageSquare, User, Settings, ChevronDown, Share } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
@@ -130,12 +130,12 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                     {user?.name?.charAt(0)?.toUpperCase() || "U"}
                   </div>
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-semibold text-foreground" title="">{user?.name}</p>
-                    <p className="truncate text-xs text-muted-foreground" title="">{user?.email}</p>
+                    <p className="truncate text-sm font-semibold text-foreground" title={user?.name}>{user?.name}</p>
+                    <p className="truncate text-xs text-muted-foreground" title={user?.email}>{user?.email}</p>
                   </div>
                 </div>
                 {user?.centreName && (
-                  <p className="mt-2 truncate text-xs text-teal-600 dark:text-teal-400" title="">{user.centreName}</p>
+                  <p className="mt-2 truncate text-xs text-teal-600 dark:text-teal-400" title={user.centreName}>{user.centreName}</p>
                 )}
               </div>
 
