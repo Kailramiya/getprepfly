@@ -263,7 +263,22 @@ export async function POST(
   else if (type === "READING_FILL_BLANKS_DRAG" || type === "READING_FILL_BLANKS_DROPDOWN") {
     const { expected, ...result } = scoreReadingFillBlanks(type, content, question.modelAnswer, answer, totalMarks);
     scoreResult = result;
-    revealedContent = { correctAnswers: expected };
+    // FillBlanksDrag/FillBlanksDropdown read their "Correct Answers" reveal from
+    // the `blanks` prop (via normalizeBlank), not a `correctAnswers` field — this
+    // used to return `correctAnswers`, which nothing on the frontend ever
+    // consumed, so the reveal box rendered stale/empty data after every submit.
+    // Each blank keeps its own original `options` (DROPDOWN's per-blank choice
+    // list) alongside the revealed correctAnswer — dropping them would replace
+    // a blank's specific option set with the generic top-level fallback the
+    // moment it's revealed, while the select is still interactive pre-submit.
+    const origBlanks: unknown[] = Array.isArray(content.blanks) ? content.blanks : [];
+    revealedContent = {
+      blanks: expected.map((correctAnswer, i) => {
+        const orig = origBlanks[i];
+        const options = orig && typeof orig === "object" && Array.isArray((orig as any).options) ? (orig as any).options : undefined;
+        return options ? { correctAnswer, options } : { correctAnswer };
+      }),
+    };
   }
 
   if (!scoreResult) {

@@ -609,10 +609,19 @@ export default function PracticeQuestionPage() {
         </CardContent>
       </Card>
 
-      {/* Model Answer — shown after submission OR when Show Answer is toggled */}
-      {/* Hidden for fill-blanks types because the per-blank Correct Answers section already shows this */}
+      {/* Model Answer — shown after submission OR when Show Answer is toggled.
+          Only for free-response types (essay, summaries, speaking) where a
+          prose "model answer" genuinely is the expected format. Objective
+          types (MCQ, reorder, fill-blanks, highlight variants, select missing
+          word, dictation) show their own structured reveal — highlighted
+          option/order/blank — directly in the question UI instead; dumping
+          this generic paragraph on top of that would be redundant at best
+          and the wrong shape (a paragraph instead of "option B") at worst. */}
       {(submitted || showAnswer) && currentQuestion?.modelAnswer &&
-        !["READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS", "REORDER_PARAGRAPHS"].includes(type) && (
+        !["READING_MCQ_SINGLE", "READING_MCQ_MULTIPLE", "LISTENING_MCQ_SINGLE", "LISTENING_MCQ_MULTIPLE",
+          "REORDER_PARAGRAPHS", "READING_FILL_BLANKS_DRAG", "READING_FILL_BLANKS_DROPDOWN", "LISTENING_FILL_BLANKS",
+          "HIGHLIGHT_CORRECT_SUMMARY", "SELECT_MISSING_WORD", "HIGHLIGHT_INCORRECT_WORDS", "WRITE_FROM_DICTATION",
+        ].includes(type) && (
           <div className="rounded-[2rem] border-none ring-1 ring-green-500/20 bg-green-500/5 shadow-glass backdrop-blur-xl p-6 mt-6">
             <h3 className="flex items-center gap-2 text-base font-extrabold tracking-tight text-green-600 dark:text-green-400 mb-2">
               <CheckCircle2 className="h-5 w-5" />

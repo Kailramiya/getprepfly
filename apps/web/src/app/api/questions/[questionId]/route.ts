@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { requireAuth, requireRole } from "@/lib/auth-utils";
 import { canAccessQuestion } from "@/lib/access";
 import { enforceRateLimit } from "@/lib/rate-limit";
+import { stripAnswerKeys } from "@/lib/answer-keys";
 
 // GET /api/questions/:id — get full question with content
 export async function GET(
@@ -45,15 +46,14 @@ export async function GET(
   const { centreId, ...safeQuestion } = question;
 
   // Strip answer keys from content so students cannot see them before submitting.
-  // Scoring is done server-side via POST /api/questions/:id/score.
-  const ANSWER_KEY_FIELDS = [
-    "correctAnswer", "correctAnswers", "correctOrder",
-    "correctText", "incorrectIndices",
-  ] as const;
-  const safeContent = safeQuestion.content ? { ...(safeQuestion.content as Record<string, unknown>) } : null;
-  if (safeContent) {
-    for (const field of ANSWER_KEY_FIELDS) delete safeContent[field];
-  }
+  // Scoring is done server-side via POST /api/questions/:id/score. Must use the
+  // shared stripAnswerKeys (not a one-off top-level delete loop): for fill-blanks
+  // types the real answer lives nested inside content.blanks[].correctAnswer,
+  // which a shallow top-level strip never touches — this endpoint was shipping
+  // every fill-blanks question's answer key in the response before the student
+  // ever attempted it. stripAnswerKeys already handles this correctly and is
+  // what /api/mock-tests/:testId uses for the same purpose.
+  const safeContent = safeQuestion.content ? stripAnswerKeys(safeQuestion.type, safeQuestion.content) : null;
 
   return NextResponse.json({
     success: true,

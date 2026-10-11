@@ -218,6 +218,10 @@ function ReorderDnD({
   showFeedback?: boolean;
   isMockTest?: boolean;
 }) {
+  // Reorder's own drag list only colors the student's current arrangement
+  // after a real submit (coloring an unsubmitted, possibly-default order as
+  // "wrong" would be confusing) — the separate "Correct Order" reference
+  // card below already handles the showAnswer-before-submit peek.
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null);
   const dragIdxRef = useRef<number | null>(null);
 
@@ -407,12 +411,43 @@ export function QuestionRenderer({
     }
     return null;
   });
-  // revealedContent: answer keys returned by the server AFTER submission (for display only)
+  // revealedContent: answer keys returned by the server, either after submission
+  // or from an explicit "Show Answer" peek (for display only — never trusted
+  // for scoring, which always happens server-side).
   const [revealedContent, setRevealedContent] = useState<Record<string, any> | null>(null);
   const content = question?.content as any;
 
   // Merge revealed answer keys into the effective content visible to this render tree
   const effectiveContent = revealedContent ? { ...content, ...revealedContent } : content;
+
+  // "Show Answer" clicked before ever submitting — content's answer-key fields
+  // are stripped pre-submit (anti-cheat), so there's nothing in `content` to
+  // reveal yet. Fetch the real answer once; the submit flow's own
+  // revealedContent (set in scoreOnServer) takes precedence if it arrives
+  // first, so this never overwrites a real post-submit result. Skipped once
+  // `submitted` — a completed mock test's own GET already returns unstripped
+  // content, and a live submit already populates revealedContent itself, so
+  // this would otherwise fire one redundant fetch per question when
+  // reviewing a finished test (which renders every question with
+  // showAnswer={true} at once).
+  useEffect(() => {
+    if (!showAnswer || submitted || revealedContent || !question?.id) return;
+    let cancelled = false;
+    fetch(`/api/questions/${question.id}/reveal`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (!cancelled && d.success) {
+          setRevealedContent((prev) => prev ?? { ...d.data.content, modelAnswer: d.data.modelAnswer, explanation: d.data.explanation });
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showAnswer, submitted, question?.id]);
+
+  // Single switch used everywhere a correct-answer reveal should render:
+  // either a real submit (with feedback enabled) or an explicit peek.
+  const revealed = (submitted && showFeedback) || showAnswer;
 
   // Fire onResponseChange whenever the response state changes (used by mock test auto-save)
   useEffect(() => {
@@ -584,8 +619,8 @@ export function QuestionRenderer({
             <p className="text-sm text-gray-400">No image uploaded for this question. Ask your admin to add one.</p>
           </div>
         )}
-        {/* Reference points shown only after submission so student isn't coached during practice */}
-        {submitted && showFeedback && content.text && (
+        {/* Reference points shown only after submission or an explicit peek, so student isn't coached during practice */}
+        {revealed && content.text && (
           <div className="rounded-lg bg-gray-50 p-3 text-xs text-gray-600">
             <span className="font-medium">Reference points: </span>{content.text}
           </div>
@@ -642,10 +677,10 @@ export function QuestionRenderer({
             {content.text}
           </div>
         )}
-        {submitted && showFeedback && content.correctText && (
+        {revealed && effectiveContent.correctText && (
           <div className="rounded-lg border border-green-200 bg-green-50 p-3">
             <p className="text-xs font-medium text-green-700">Correct answer:</p>
-            <p className="text-sm text-green-900">{content.correctText}</p>
+            <p className="text-sm text-green-900">{effectiveContent.correctText}</p>
           </div>
         )}
       </SpeakingQuestion>
@@ -766,8 +801,8 @@ export function QuestionRenderer({
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
             const correctIdx = effectiveContent.correctAnswer ?? effectiveContent.correctAnswers?.[0];
-            const isCorrect = submitted && showFeedback && (i === correctIdx || effectiveContent.correctAnswers?.includes(i));
-            const isWrong = submitted && showFeedback && isSelected && !isCorrect;
+            const isCorrect = revealed && (i === correctIdx || effectiveContent.correctAnswers?.includes(i));
+            const isWrong = revealed && isSelected && !isCorrect;
 
             return (
               <button
@@ -790,8 +825,8 @@ export function QuestionRenderer({
                   {String.fromCharCode(65 + i)}
                 </span>
                 <span className="flex-1">{opt}</span>
-                {submitted && showFeedback && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />}
-                {submitted && showFeedback && isWrong && <XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />}
+                {revealed && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500 dark:text-green-400" />}
+                {revealed && isWrong && <XCircle className="h-5 w-5 text-red-500 dark:text-red-400" />}
               </button>
             );
           })}
@@ -829,8 +864,8 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = selected.includes(i);
-            const isCorrect = submitted && showFeedback && (effectiveContent.correctAnswers?.includes(i) ?? false);
-            const isWrong = submitted && showFeedback && isSelected && !isCorrect;
+            const isCorrect = revealed && (effectiveContent.correctAnswers?.includes(i) ?? false);
+            const isWrong = revealed && isSelected && !isCorrect;
 
             return (
               <button
@@ -889,7 +924,7 @@ export function QuestionRenderer({
           showFeedback={showFeedback}
           isMockTest={isMockTest}
         />
-        {((submitted && showFeedback) || showAnswer) && effectiveContent.correctOrder && (
+        {revealed && effectiveContent.correctOrder && (
           <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-900 dark:bg-green-950/40">
             <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Order</p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -908,7 +943,10 @@ export function QuestionRenderer({
 
   // ---- READING FILL BLANKS (DRAG) ----
   if (type === "READING_FILL_BLANKS_DRAG") {
-    const modelAnswers = (question.modelAnswer || "")
+    // question.modelAnswer is null pre-submit (stripped, same as the other
+    // answer-key fields) — once revealed (submit or Show Answer), the real
+    // value arrives via revealedContent instead.
+    const modelAnswers = (effectiveContent.modelAnswer ?? question.modelAnswer ?? "")
       .split(/[\n,]+/)
       .map((s: string) => s.trim())
       .filter((s: string) => s && !/correct answers?/i.test(s) && !/model answer/i.test(s));
@@ -917,7 +955,7 @@ export function QuestionRenderer({
         <QuestionInstruction type={type} />
         <FillBlanksDrag
           passage={content.passage || ""}
-          blanks={content.blanks || []}
+          blanks={effectiveContent.blanks || []}
           extraOptions={content.extraOptions || []}
           submitted={submitted}
           showAnswer={showAnswer}
@@ -938,7 +976,7 @@ export function QuestionRenderer({
         <QuestionInstruction type={type} />
         <FillBlanksDropdown
           passage={content.passage || ""}
-          blanks={content.blanks || []}
+          blanks={effectiveContent.blanks || []}
           options={content.options || content.blanks || []}
           submitted={submitted}
           showAnswer={showAnswer}
@@ -986,8 +1024,8 @@ export function QuestionRenderer({
         <div className="space-y-2">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const isCorrect = submitted && showFeedback && (effectiveContent.correctAnswer === i || effectiveContent.correctAnswers?.includes(i));
-            const isWrong = submitted && showFeedback && isSelected && !isCorrect;
+            const isCorrect = revealed && (effectiveContent.correctAnswer === i || effectiveContent.correctAnswers?.includes(i));
+            const isWrong = revealed && isSelected && !isCorrect;
             return (
               <button
                 key={i}
@@ -1011,8 +1049,8 @@ export function QuestionRenderer({
                   {String.fromCharCode(65 + i)}
                 </span>
                 <span className="flex-1">{opt}</span>
-                {submitted && showFeedback && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
-                {submitted && showFeedback && isWrong && <XCircle className="h-5 w-5 text-red-500" />}
+                {revealed && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-500" />}
+                {revealed && isWrong && <XCircle className="h-5 w-5 text-red-500" />}
               </button>
             );
           })}
@@ -1058,7 +1096,7 @@ export function QuestionRenderer({
             const isActuallyWrong = correctSet.has(i);
             // After submit: show right/wrong/missed
             let cls = "mx-0.5 inline-block cursor-pointer rounded px-1.5 py-0.5 transition";
-            if (submitted && showFeedback) {
+            if (revealed) {
               if (isSelected && isActuallyWrong)      cls += " bg-green-500 font-semibold text-white"; // ✓ correct catch
               else if (isSelected && !isActuallyWrong) cls += " bg-red-500 font-semibold text-white line-through"; // ✗ wrong selection
               else if (!isSelected && isActuallyWrong) cls += " bg-amber-200 dark:bg-amber-700/60 font-semibold text-amber-900 dark:text-amber-100 underline decoration-wavy"; // missed
@@ -1084,7 +1122,7 @@ export function QuestionRenderer({
           })}
         </div>
 
-        {submitted && showFeedback && (
+        {revealed && (
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-xs">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
               <span className="flex items-center gap-1">
@@ -1118,8 +1156,8 @@ export function QuestionRenderer({
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
           {content.options?.map((opt: string, i: number) => {
             const isSelected = response === i;
-            const isCorrect = submitted && showFeedback && (effectiveContent.correctAnswer === i || effectiveContent.correctAnswers?.includes(i));
-            const isWrong = submitted && showFeedback && isSelected && !isCorrect;
+            const isCorrect = revealed && (effectiveContent.correctAnswer === i || effectiveContent.correctAnswers?.includes(i));
+            const isWrong = revealed && isSelected && !isCorrect;
             return (
               <button
                 key={i}
@@ -1149,7 +1187,7 @@ export function QuestionRenderer({
         <AudioBlock src={content.audioUrl || question.audioUrl || ""} label="Listen to the audio" playOnce={playOnce} />
         <FillBlanksText
           passage={content.passage || ""}
-          blanks={content.blanks || []}
+          blanks={effectiveContent.blanks || []}
           submitted={submitted}
           showAnswer={showAnswer}
           showFeedback={showFeedback}
@@ -1182,7 +1220,7 @@ export function QuestionRenderer({
           onCopy={blockCP}
           onCut={blockCP}
         />
-        {submitted && showFeedback && effectiveContent.correctText && (
+        {revealed && effectiveContent.correctText && (
           <div className="rounded-lg bg-green-50 p-3 dark:bg-green-950/40">
             <p className="text-xs font-medium text-green-800 dark:text-green-300">Correct answer:</p>
             <p className="text-sm text-green-900 dark:text-green-200">{effectiveContent.correctText}</p>
@@ -2627,6 +2665,7 @@ function FillBlanksDrag({
   initialAnswers?: (string | null)[];
   onRegisterSubmit?: (fn: () => void) => void;
 }) {
+  const revealed = (submitted && showFeedback) || showAnswer;
   const segments = splitPassage(passage);
   const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
 
@@ -2808,9 +2847,9 @@ function FillBlanksDrag({
             const word = filled[thisIndex];
             const correct = normalizedBlanks[thisIndex]?.correctAnswer;
             const isCorrect =
-              submitted && showFeedback && word && correct && normAns(word) === normAns(correct);
+              revealed && word && correct && normAns(word) === normAns(correct);
             const isWrong =
-              submitted && showFeedback && (!word || (correct && word.toLowerCase() !== correct.toLowerCase()));
+              revealed && (!word || (correct && word.toLowerCase() !== correct.toLowerCase()));
 
             return (
               <span
@@ -2821,7 +2860,7 @@ function FillBlanksDrag({
                 onDrop={(e) => handleDropOnBlank(e, thisIndex)}
                 onClick={() => handleBlankClick(thisIndex)}
                 className={`mx-1 inline-flex min-w-[100px] cursor-pointer flex-col items-center justify-center rounded-md border-2 border-dashed px-3 py-1 text-sm font-medium transition select-none ${
-                  submitted && showFeedback
+                  revealed
                     ? isCorrect
                       ? "border-green-500 bg-green-100 text-green-800 dark:border-green-600 dark:bg-green-950/60 dark:text-green-300"
                       : "border-red-400 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-950/50 dark:text-red-300"
@@ -2839,10 +2878,10 @@ function FillBlanksDrag({
               >
                 <span className="flex items-center gap-1">
                   {word || "drop here"}
-                  {submitted && showFeedback && isCorrect && <CheckCircle2 className="h-3.5 w-3.5" />}
-                  {submitted && showFeedback && isWrong && <XCircle className="h-3.5 w-3.5" />}
+                  {revealed && isCorrect && <CheckCircle2 className="h-3.5 w-3.5" />}
+                  {revealed && isWrong && <XCircle className="h-3.5 w-3.5" />}
                 </span>
-                {submitted && showFeedback && isWrong && correct && (
+                {revealed && isWrong && correct && (
                   <span className="text-xs font-semibold text-green-700 mt-0.5 dark:text-green-400">✓ {correct}</span>
                 )}
               </span>
@@ -2889,7 +2928,7 @@ function FillBlanksDrag({
       )}
 
       {/* Correct Answers (after submit OR when Show Answer is toggled) */}
-      {((submitted && showFeedback) || showAnswer) && normalizedBlanks.some(b => b.correctAnswer) && (
+      {revealed && normalizedBlanks.some(b => b.correctAnswer) && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
           <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -2923,6 +2962,7 @@ function FillBlanksDropdown({
   initialAnswers?: string[];
   onRegisterSubmit?: (fn: () => void) => void;
 }) {
+  const revealed = (submitted && showFeedback) || showAnswer;
   const segments = splitPassage(passage);
   const normalizedBlanks = blanks.map((b) => normalizeBlank(b, options));
   const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
@@ -2957,10 +2997,10 @@ function FillBlanksDropdown({
             const value = answers[thisIndex];
             const blank = normalizedBlanks[thisIndex] || { correctAnswer: "", options: [] };
             const isCorrect =
-              submitted && showFeedback && value && blank.correctAnswer &&
+              revealed && value && blank.correctAnswer &&
               normAns(value) === normAns(blank.correctAnswer);
 
-            const isWrongDropdown = submitted && showFeedback && !isCorrect;
+            const isWrongDropdown = revealed && !isCorrect;
             return (
               <span key={`blank-${i}`} className="mx-1 inline-flex flex-col items-center">
                 <select
@@ -2972,7 +3012,7 @@ function FillBlanksDropdown({
                   }}
                   disabled={submitted}
                   className={`rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
-                    submitted && showFeedback
+                    revealed
                       ? isCorrect
                         ? "border-green-500 bg-green-100 text-green-800 dark:border-green-600 dark:bg-green-950/60 dark:text-green-300"
                         : "border-red-400 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-950/50 dark:text-red-300"
@@ -3002,7 +3042,7 @@ function FillBlanksDropdown({
         })}
       </div>
 
-      {((submitted && showFeedback) || showAnswer) && (
+      {revealed && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
           <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
@@ -3033,6 +3073,7 @@ function FillBlanksText({
   initialAnswers?: string[];
   onRegisterSubmit?: (fn: () => void) => void;
 }) {
+  const revealed = (submitted && showFeedback) || showAnswer;
   const segments = splitPassage(passage);
   const normalizedBlanks = blanks.map((b) => normalizeBlank(b, []));
   const blankCount = segments.filter((s) => BLANK_MARKER_REGEX.test(s)).length;
@@ -3062,9 +3103,9 @@ function FillBlanksText({
             const value = answers[thisIndex];
             const correct = normalizedBlanks[thisIndex]?.correctAnswer?.trim();
             const isCorrect =
-              submitted && showFeedback && value && correct && normAns(value) === normAns(correct);
+              revealed && value && correct && normAns(value) === normAns(correct);
 
-            const isWrongText = submitted && showFeedback && !isCorrect;
+            const isWrongText = revealed && !isCorrect;
             return (
               <span key={`blank-${i}`} className="mx-1 inline-flex flex-col items-center">
                 <input
@@ -3078,7 +3119,7 @@ function FillBlanksText({
                   disabled={submitted}
                   placeholder="..."
                   className={`inline-block w-32 rounded-md border-2 px-2 py-1 text-sm font-medium transition ${
-                    submitted && showFeedback
+                    revealed
                       ? isCorrect
                         ? "border-green-500 bg-green-100 text-green-800 dark:border-green-600 dark:bg-green-950/60 dark:text-green-300"
                         : "border-red-400 bg-red-50 text-red-700 dark:border-red-600 dark:bg-red-950/50 dark:text-red-300"
@@ -3103,7 +3144,7 @@ function FillBlanksText({
         })}
       </div>
 
-      {((submitted && showFeedback) || showAnswer) && (
+      {revealed && (
         <div className="rounded-xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-950/30">
           <p className="text-xs font-semibold uppercase text-green-700 dark:text-green-400">Correct Answers</p>
           <div className="mt-2 flex flex-wrap gap-2">
