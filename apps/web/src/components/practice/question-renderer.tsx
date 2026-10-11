@@ -1828,6 +1828,7 @@ function SpeakingQuestion({
     };
 
     // Try AI scoring if we have the required info
+    let scoredAttemptId: string | null = null;
     if (questionId && questionType && expectedText) {
       setScoring(true);
       try {
@@ -1864,7 +1865,8 @@ function SpeakingQuestion({
             message: data.error,
           };
         } else if (data.success) {
-          const { transcription, scores, percentile } = data.data;
+          const { transcription, scores, percentile, attemptId } = data.data;
+          scoredAttemptId = attemptId ?? null;
 
           // Build mistakes by comparing word-by-word (for READ_ALOUD + REPEAT_SENTENCE)
           const mistakes: ScoreResult["mistakes"] = [];
@@ -1921,7 +1923,20 @@ function SpeakingQuestion({
           body: uploadForm,
         });
         const uploadData = await uploadRes.json();
-        if (uploadData.success) persistentAudioUrl = uploadData.data.audioUrl;
+        if (uploadData.success) {
+          persistentAudioUrl = uploadData.data.audioUrl;
+          // Mock test saves responseAudio itself via its own attempts upsert
+          // (it needs to anyway, to attach mockTestId) — only patch it here
+          // for regular practice, otherwise the recording never survives a
+          // reload even though it's already sitting in storage.
+          if (!isMockTest && scoredAttemptId) {
+            fetch(`/api/attempts/${scoredAttemptId}`, {
+              method: "PATCH",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ responseAudio: persistentAudioUrl }),
+            }).catch(() => {});
+          }
+        }
       } catch {
         // silent — audio upload is best-effort, scoring is already done
       }
@@ -1934,7 +1949,7 @@ function SpeakingQuestion({
       persistentAudioUrl,
       scoreResult,
     });
-  }, [audioBlob, totalMarks, questionId, questionType, expectedText, audioUrl, onSubmit]);
+  }, [audioBlob, totalMarks, questionId, questionType, expectedText, audioUrl, onSubmit, isMockTest]);
 
   useEffect(() => {
     if (onRegisterSubmit) {
