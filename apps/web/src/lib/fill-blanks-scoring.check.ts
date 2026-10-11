@@ -29,4 +29,17 @@ assert.equal(r.pending, true); assert.equal(r.marksEarned, 0);
 r = score("READING_FILL_BLANKS_DROPDOWN", { passage, blanks: ["a", "b", "c"] }, null, { evil: 1 }, 3);
 assert.equal(r.marksEarned, 0);
 
+// content.blanks has more entries than the passage has real blank markers (a
+// content-authoring mistake) — total must come from the passage's actual
+// markers, not blanks.length, or every answer after the extra entry
+// misaligns against the wrong expected value.
+r = score("READING_FILL_BLANKS_DROPDOWN", { passage, blanks: ["quick", "jumped", "tall", "extra-unused-entry"] }, null, ["quick", "jumped", "tall"], 3);
+assert.equal(r.total, 3); assert.equal(r.correct, 3); assert.equal(r.marksEarned, 3);
+
+// content.blanks has fewer entries than real markers — missing ones score as
+// wrong (shown as "—") rather than being silently dropped from the total.
+r = score("READING_FILL_BLANKS_DROPDOWN", { passage, blanks: ["quick", "jumped"] }, null, ["quick", "jumped", "tall"], 3);
+assert.equal(r.total, 3); assert.equal(r.correct, 2); assert.equal(r.mistakes.length, 1);
+assert.equal(r.mistakes[0].correctAnswer, "—");
+
 console.log("fill-blanks-scoring: all checks passed");

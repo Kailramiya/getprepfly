@@ -32,7 +32,14 @@ export function scoreReadingFillBlanks(
   const given: Array<string | null> = Array.isArray(answer) ? answer : [];
 
   let expected = rawBlanks;
-  let total = rawBlanks.length || 1;
+  // The passage's actual blank markers are the ground truth for how many
+  // blanks the student fills in (FillBlanksDrag/FillBlanksDropdown build
+  // their answer array from these, capped at blankCount) — not however many
+  // entries happen to be in content.blanks. If an admin's blanks array has
+  // more or fewer entries than there are real markers in the passage, using
+  // rawBlanks.length here silently misaligned every answer after the first
+  // mismatch (or dropped/over-counted blanks the UI never even rendered).
+  const total = blankCount > 0 ? blankCount : (rawBlanks.length || 1);
   let same = (a: string, b: string) => normAns(a) === normAns(b);
   let pending = false;
 
@@ -48,7 +55,7 @@ export function scoreReadingFillBlanks(
         .split(/[\n,]+/)
         .map((s) => s.trim())
         .filter((s) => s && !/correct answers?/i.test(s) && !/model answer/i.test(s));
-      total = blankCount;
+      // total is already blankCount here (set above whenever blankCount > 0).
       if (modelAnswers.length >= blankCount) expected = modelAnswers;
       else pending = true;
     }
