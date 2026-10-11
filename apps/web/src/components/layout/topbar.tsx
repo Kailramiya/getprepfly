@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { signOut } from "next-auth/react";
-import { LogOut, Menu, MessageSquare, User, Settings, ChevronDown, Share } from "lucide-react";
+import { LogOut, Menu, MessageSquare, User, ChevronDown, Share } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
@@ -145,11 +145,6 @@ export function Topbar({ onMenuClick }: TopbarProps) {
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition hover:bg-muted">
                   <User className="h-4 w-4 text-muted-foreground" />
                   Profile & Settings
-                </Link>
-                <Link href="/settings" onClick={() => setDropdownOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition hover:bg-muted">
-                  <Settings className="h-4 w-4 text-muted-foreground" />
-                  {user?.role === "CENTRE_ADMIN" ? "Centre Branding" : "Preferences"}
                 </Link>
                 <Link href="/feedback" onClick={() => setDropdownOpen(false)}
                   className="flex items-center gap-3 px-4 py-2.5 text-sm text-foreground transition hover:bg-muted">
