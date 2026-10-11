@@ -458,6 +458,14 @@ export function QuestionForm({ onClose, onSave, question: editingQuestion, isSup
       if (incorrectWordIndices.length === 0) return "Click at least one word to mark it as INCORRECT";
     }
 
+    if (fields.has("word-limits")) {
+      if (minWords < 1 || maxWords < 1) return "Word limits must be positive numbers";
+      // An inverted range (min > max) makes the AI scoring gate's "word
+      // count < low OR > high" check true for every possible essay length,
+      // so every submission would get marked as a structural failure.
+      if (minWords > maxWords) return "Minimum words can't be greater than maximum words";
+    }
+
     return null;
   };
 
