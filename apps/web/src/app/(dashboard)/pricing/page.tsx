@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
-  Mic, PenTool, BookOpen, Headphones, Check, Sparkles, Lock, Star, Tag, X,
+  Mic, PenTool, BookOpen, Headphones, Check, Sparkles, Lock, Star, Tag, X, CreditCard,
 } from "lucide-react";
 import { DEFAULT_PRICES } from "@/lib/pricing-defaults";
 
@@ -276,9 +276,16 @@ export default function PricingPage() {
       <Script src="https://checkout.razorpay.com/v1/checkout.js" />
 
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Choose Your Plan</h1>
-        <p className="mt-2 text-gray-600 dark:text-slate-400">
+      <div className="relative isolate overflow-hidden rounded-[2rem] bg-background p-8 text-center shadow-glass dark:shadow-glass-dark ring-1 ring-foreground/10 sm:p-10">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-500/10 dark:from-indigo-900/40 via-background to-background" />
+        <div className="absolute -top-20 -left-16 h-72 w-72 rounded-full bg-indigo-500/20 blur-3xl" />
+        <div className="absolute -bottom-20 -right-16 h-72 w-72 rounded-full bg-purple-500/20 blur-3xl" />
+
+        <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-md">
+          <CreditCard className="h-6 w-6" />
+        </div>
+        <h1 className="mt-4 text-3xl font-bold tracking-tight text-foreground">Choose Your Plan</h1>
+        <p className="mt-2 text-muted-foreground">
           Unlock premium practice questions with AI-powered scoring
         </p>
         {access?.isTrial && (
@@ -301,23 +308,24 @@ export default function PricingPage() {
         )}
       </div>
 
-      {/* Duration toggle */}
-      <div className="flex justify-center">
-        <div className="flex items-center gap-1 rounded-full bg-background/50 backdrop-blur-xl ring-1 ring-white/10 p-1.5 shadow-glass">
+      {/* Duration toggle — grid on mobile so badges never get squeezed
+          illegible on narrow screens, single pill row from sm: up. */}
+      <div className="mx-auto w-full max-w-xl">
+        <div className="grid grid-cols-2 gap-2 rounded-[1.75rem] bg-background/50 backdrop-blur-xl ring-1 ring-white/10 p-2 shadow-glass sm:flex sm:items-center sm:justify-center sm:gap-1.5 sm:rounded-full sm:p-1.5">
           {durationOptions.map((d) => (
             <button
               key={d}
               onClick={() => setDuration(d)}
-              className={`flex items-center gap-1.5 rounded-full px-5 py-2 text-sm font-bold transition-all duration-500 ease-fluid ${
+              className={`flex flex-col items-center justify-center gap-1 rounded-2xl px-3 py-2.5 text-sm font-bold transition-all duration-500 ease-fluid sm:flex-row sm:gap-1.5 sm:rounded-full sm:px-5 sm:py-2 ${
                 duration === d
                   ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
                   : "text-muted-foreground/70 hover:text-foreground hover:bg-background/40"
               }`}
             >
-              {DURATION_LABEL[d]}
+              <span>{DURATION_LABEL[d]}</span>
               {d !== "1M" && (
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider sm:text-[11px] ${
                     duration === d
                       ? "bg-primary-foreground/20 text-primary-foreground"
                       : "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-400"
@@ -344,13 +352,16 @@ export default function PricingPage() {
           </div>
         ) : (
           <div className="flex items-center gap-2">
-            <Input
-              placeholder="Have a coupon code?"
-              value={couponInput}
-              onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-              onKeyDown={(e) => e.key === "Enter" && checkCoupon()}
-              className="rounded-full text-center text-sm"
-            />
+            <div className="relative flex-1">
+              <Tag className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/50" />
+              <Input
+                placeholder="Have a coupon code?"
+                value={couponInput}
+                onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                onKeyDown={(e) => e.key === "Enter" && checkCoupon()}
+                className="rounded-full pl-10 text-sm"
+              />
+            </div>
             <Button variant="outline" size="sm" onClick={checkCoupon} loading={checkingCoupon} disabled={!couponInput.trim()} className="rounded-full shrink-0">
               Apply
             </Button>
@@ -379,7 +390,9 @@ export default function PricingPage() {
         const owned        = access?.hasAllAccess ?? false;
 
         return (
-          <Card className="relative overflow-hidden rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent backdrop-blur-xl ring-2 ring-indigo-500/30 group transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float">
+          <Card className="relative isolate overflow-hidden rounded-[2rem] border-none shadow-glass bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent backdrop-blur-xl ring-2 ring-indigo-500/30 group transition-all duration-700 ease-fluid hover:-translate-y-1 hover:shadow-float">
+            <div className="absolute -top-16 -left-16 -z-10 h-56 w-56 rounded-full bg-indigo-500/20 blur-3xl transition-transform duration-700 ease-fluid group-hover:scale-125" />
+            <div className="absolute -bottom-16 -right-16 -z-10 h-56 w-56 rounded-full bg-purple-500/20 blur-3xl transition-transform duration-700 ease-fluid group-hover:scale-125" />
             <div className="absolute inset-0 bg-black/5 mix-blend-overlay pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-700 ease-fluid" />
             <div className="absolute -right-6 -top-6 rotate-12 z-10">
               <Badge className="bg-amber-500 text-white shadow-md border-none">
@@ -470,15 +483,23 @@ export default function PricingPage() {
                       <Check className="mr-1 h-3 w-3" /> Active
                     </Badge>
                   )}
-                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${plan.color} text-white shadow-inner`}>
+                  <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br ${plan.color} text-white shadow-md`}>
                     <Icon className="h-5 w-5" />
                   </div>
                   <h3 className="mt-3 text-lg font-bold text-gray-900 dark:text-slate-100">{plan.title}</h3>
-                  <div className="mt-2 flex items-baseline gap-1.5">
-                    {coupon && <span className="text-sm font-medium text-gray-400 line-through dark:text-slate-500">₹{price}</span>}
-                    <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">₹{finalPrice}</span>
-                    <span className="text-xs text-gray-500 dark:text-slate-400">/ {DURATION_LABEL[duration].toLowerCase()}</span>
-                  </div>
+                  {owned ? (
+                    formatExpiry(plan.baseId) && (
+                      <p className="mt-1 text-xs font-medium text-green-700 dark:text-green-400">
+                        Active until {formatExpiry(plan.baseId)}
+                      </p>
+                    )
+                  ) : (
+                    <div className="mt-2 flex items-baseline gap-1.5">
+                      {coupon && <span className="text-sm font-medium text-gray-400 line-through dark:text-slate-500">₹{price}</span>}
+                      <span className="text-2xl font-bold text-gray-900 dark:text-slate-100">₹{finalPrice}</span>
+                      <span className="text-xs text-gray-500 dark:text-slate-400">/ {DURATION_LABEL[duration].toLowerCase()}</span>
+                    </div>
+                  )}
 
                   <ul className="mt-4 space-y-1.5 text-xs text-gray-600 dark:text-slate-400">
                     {plan.features.map((f) => (
@@ -508,8 +529,10 @@ export default function PricingPage() {
 
       {/* Free Tier Info */}
       <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10">
-        <CardContent className="flex items-start gap-3 p-5">
-          <Lock className="mt-0.5 h-5 w-5 text-gray-400" />
+        <CardContent className="flex items-start gap-4 p-5">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground/5 ring-1 ring-foreground/10">
+            <Lock className="h-5 w-5 text-gray-400" />
+          </div>
           <div>
             <h2 className="font-semibold text-gray-900 dark:text-slate-100">Free Tier</h2>
             <p className="mt-1 text-sm text-gray-600 dark:text-slate-400">
