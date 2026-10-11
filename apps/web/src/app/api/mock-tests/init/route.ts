@@ -5,8 +5,8 @@ import { db } from "@/lib/db";
 
 /**
  * GET /api/mock-tests/init
- * Batches 3 previously-separate calls into one round trip:
- *   - /api/mock-tests/assigned
+ * Batches what used to be 3 separate calls into one round trip:
+ *   - assigned-tests lookup (now dead as its own route — inlined below)
  *   - /api/mock-tests/global-templates
  *   - /api/access/me
  * The mock-test list page uses this to cut from 4 → 2 fetches on mount.
