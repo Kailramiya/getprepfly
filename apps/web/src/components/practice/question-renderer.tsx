@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef, useCallback } from "react";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AudioRecorder } from "@/components/practice/audio-recorder";
@@ -21,6 +22,17 @@ function normAns(s: string | null | undefined): string {
     .trim()
     .replace(/\s+/g, " ")
     .replace(/^[^a-z0-9]+|[^a-z0-9]+$/g, "");
+}
+
+// Drafts are saved to localStorage, which is shared by every account that
+// logs into the same browser — on a shared/centre computer, an unsubmitted
+// draft used to be keyed only by question id, so the next student to open
+// that question would see the previous student's unsaved answer prefilled.
+// Scoping by userId (falling back to a constant key before the session
+// loads, functionally identical to the old behavior only for that brief
+// window) keeps drafts private per account.
+function draftKey(prefix: string, userId: string | null | undefined, questionId: string): string {
+  return `${prefix}_${userId || "anon"}_${questionId}`;
 }
 
 // ─── Shared Types ─────────────────────────────────────────────────────────────
@@ -386,19 +398,15 @@ export function QuestionRenderer({
   isMockTest?: boolean;
   onScoringChange?: (scoring: boolean) => void;
 }) {
+  // Which account is signed in — not known synchronously (useSession fetches
+  // it), so the draft restore below waits for it rather than reading
+  // localStorage at the same instant this component mounts.
+  const { data: session, status: sessionStatus } = useSession();
+  const userId = session?.user?.id ?? null;
+
   const [response, setResponse] = useState<any>(() => {
     // Pre-fill with a previously saved answer (review mode)
     if (initialResponse !== undefined && initialResponse !== null) return initialResponse;
-    if (typeof window !== "undefined" && question?.id) {
-      const draft = localStorage.getItem(`pte_draft_${question.id}`);
-      if (draft !== null) {
-        try {
-          return JSON.parse(draft);
-        } catch {
-          return draft;
-        }
-      }
-    }
     if (question?.type === "REORDER_PARAGRAPHS") {
       const pars: string[] = (question?.content as any)?.paragraphs || [];
       if (pars.length <= 1) return null;
@@ -411,6 +419,29 @@ export function QuestionRenderer({
     }
     return null;
   });
+
+  // Restore a saved draft once the signed-in account is known. localStorage
+  // is shared by every account that uses this browser — reading a draft
+  // before the user id was known (i.e. keying it by question id alone) is
+  // exactly how one student's unsubmitted answer used to show up prefilled
+  // for the next student who opened the same question on a shared/centre
+  // computer. A brief delay here (until the session resolves) beats getting
+  // that wrong.
+  const draftRestoredRef = useRef(false);
+  useEffect(() => {
+    if (draftRestoredRef.current || sessionStatus === "loading") return;
+    draftRestoredRef.current = true;
+    if (initialResponse !== undefined && initialResponse !== null) return;
+    if (typeof window === "undefined" || !question?.id) return;
+    const draft = localStorage.getItem(draftKey("pte_draft", userId, question.id));
+    if (draft === null) return;
+    try {
+      setResponse(JSON.parse(draft));
+    } catch {
+      setResponse(draft);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionStatus, userId, question?.id]);
   // revealedContent: answer keys returned by the server, either after submission
   // or from an explicit "Show Answer" peek (for display only — never trusted
   // for scoring, which always happens server-side).
@@ -454,23 +485,24 @@ export function QuestionRenderer({
     if (response !== null && response !== undefined) {
       onResponseChange?.(response);
       if (!submitted && typeof window !== "undefined" && question?.id) {
+        const key = draftKey("pte_draft", userId, question.id);
         if (typeof response === "string") {
-          localStorage.setItem(`pte_draft_${question.id}`, response);
+          localStorage.setItem(key, response);
         } else if (Array.isArray(response) || (typeof response === "object" && !(response instanceof Blob))) {
           try {
-            localStorage.setItem(`pte_draft_${question.id}`, JSON.stringify(response));
+            localStorage.setItem(key, JSON.stringify(response));
           } catch {}
         }
       }
     }
-  }, [response, onResponseChange, submitted, question?.id]);
+  }, [response, onResponseChange, submitted, question?.id, userId]);
 
   // Clear draft on successful submission
   useEffect(() => {
     if (submitted && typeof window !== "undefined" && question?.id) {
-      localStorage.removeItem(`pte_draft_${question.id}`);
+      localStorage.removeItem(draftKey("pte_draft", userId, question.id));
     }
-  }, [submitted, question?.id]);
+  }, [submitted, question?.id, userId]);
 
 
   // Internal submit fn — each type branch sets this before returning.
@@ -2419,10 +2451,24 @@ function WriteEssayQuestion({
   allowCopyPaste?: boolean;
   onScoringChange?: (scoring: boolean) => void;
 }) {
-  const DRAFT_KEY = `essay_draft_${question.id}`;
-  const [text, setText] = useState(() => {
-    try { return localStorage.getItem(DRAFT_KEY) || ""; } catch { return ""; }
-  });
+  // Draft key must include which account is signed in — localStorage is
+  // shared by every account on this browser, and a draft keyed by question
+  // id alone used to show one student's unsubmitted essay to the next
+  // student who opened the same question on a shared/centre computer.
+  const { data: session, status: sessionStatus } = useSession();
+  const userId = session?.user?.id ?? null;
+  const DRAFT_KEY = draftKey("essay_draft", userId, question.id);
+  const [text, setText] = useState("");
+  const draftRestoredRef = useRef(false);
+  useEffect(() => {
+    if (draftRestoredRef.current || sessionStatus === "loading") return;
+    draftRestoredRef.current = true;
+    try {
+      const saved = localStorage.getItem(DRAFT_KEY);
+      if (saved) setText(saved);
+    } catch {}
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionStatus, DRAFT_KEY]);
   const [scoring, setScoring] = useState(false);
 
   useEffect(() => { onScoringChange?.(scoring); }, [scoring]); // eslint-disable-line react-hooks/exhaustive-deps
