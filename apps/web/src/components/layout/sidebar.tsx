@@ -88,12 +88,23 @@ const superAdminNav: NavItem[] = [
 
 interface SidebarProps {
   onNavClick?: () => void;
+  // Controlled by the parent layout, which also sizes the main content's
+  // left padding to match — the sidebar used to manage this itself, so
+  // collapsing it visually shrank the rail to 68px while the content area
+  // kept reserving the full 280px, leaving a dead gap between them.
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-export function Sidebar({ onNavClick }: SidebarProps) {
+export function Sidebar({ onNavClick, collapsed: collapsedProp, onCollapsedChange }: SidebarProps) {
   const pathname = usePathname();
   const { user, isCentreAdmin, isSuperAdmin } = useAuth();
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsedState, setCollapsedState] = useState(false);
+  const collapsed = collapsedProp ?? collapsedState;
+  const setCollapsed = (v: boolean) => {
+    if (onCollapsedChange) onCollapsedChange(v);
+    else setCollapsedState(v);
+  };
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
@@ -191,12 +202,23 @@ export function Sidebar({ onNavClick }: SidebarProps) {
           href="/settings"
           onClick={onNavClick}
           className={cn(
-            "group flex items-center rounded-full py-3 text-sm font-semibold tracking-wide text-muted-foreground transition-all duration-500 ease-fluid hover:pl-5 hover:pr-1 hover:shadow-glass hover:bg-muted/80 dark:hover:bg-white/5",
-            collapsed ? "justify-center px-2 hover:pl-2 hover:pr-2" : "gap-3 px-4"
+            "group flex items-center rounded-full py-3 text-sm font-semibold tracking-wide transition-all duration-500 ease-fluid",
+            collapsed ? "justify-center px-2" : "gap-3 px-4",
+            pathname === "/settings" || pathname.startsWith("/settings/")
+              ? "bg-primary text-primary-foreground shadow-glass dark:shadow-glass-dark"
+              : cn(
+                  "text-muted-foreground hover:bg-muted/80 hover:text-foreground dark:hover:bg-white/5 hover:shadow-glass",
+                  collapsed ? "hover:pl-2 hover:pr-2" : "hover:pl-5 hover:pr-1"
+                )
           )}
           title={collapsed ? "Settings" : undefined}
         >
-          <Settings className="h-[18px] w-[18px] shrink-0 text-muted-foreground transition-transform duration-500 ease-fluid group-hover:scale-110 group-hover:text-foreground" />
+          <Settings className={cn(
+            "h-[18px] w-[18px] shrink-0 transition-transform duration-500 ease-fluid group-hover:scale-110",
+            pathname === "/settings" || pathname.startsWith("/settings/")
+              ? "text-primary-foreground"
+              : "text-muted-foreground group-hover:text-foreground"
+          )} />
           {!collapsed && <span>Settings</span>}
         </Link>
 
@@ -224,8 +246,8 @@ export function Sidebar({ onNavClick }: SidebarProps) {
               {user.name.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-medium text-foreground" title="">{user.name}</p>
-              <p className="truncate text-xs text-muted-foreground" title="">{user.email}</p>
+              <p className="truncate text-sm font-medium text-foreground" title={user.name}>{user.name}</p>
+              <p className="truncate text-xs text-muted-foreground" title={user.email}>{user.email}</p>
             </div>
           </div>
         )}

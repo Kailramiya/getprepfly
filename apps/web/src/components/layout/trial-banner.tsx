@@ -16,7 +16,6 @@ interface AccessInfo {
 
 export function TrialBanner() {
   const [access, setAccess] = useState<AccessInfo | null>(null);
-  const [dismissed] = useState(false);
 
   useEffect(() => {
     import("@/hooks/use-access").then(({ getSharedAccess }) => {
@@ -26,7 +25,7 @@ export function TrialBanner() {
     });
   }, []);
 
-  if (!access || dismissed) return null;
+  if (!access) return null;
 
   // Staff (Super Admin / Centre Admin / Teacher) — no banner ever
   if (access.isStaff) return null;
