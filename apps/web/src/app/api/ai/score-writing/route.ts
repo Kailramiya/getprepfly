@@ -57,7 +57,11 @@ export async function POST(req: NextRequest) {
       question.type === "SUMMARIZE_SPOKEN_TEXT" ? c.topic || c.text || question.title || ""
       : question.type === "WRITE_ESSAY" ? c.prompt || ""
       : c.passage || "";
-    const scores = await scoreWriting(responseText.slice(0, MAX_RESPONSE_CHARS), question.type, questionPrompt);
+    // Essay word range is admin-configurable per question (the question form
+    // exposes it); everything else uses the fixed PTE-standard range.
+    const minWords = question.type === "WRITE_ESSAY" ? (c.minWords || 200) : undefined;
+    const maxWords = question.type === "WRITE_ESSAY" ? (c.maxWords || 300) : undefined;
+    const scores = await scoreWriting(responseText.slice(0, MAX_RESPONSE_CHARS), question.type, questionPrompt, minWords, maxWords);
 
     // Save attempt + compute percentile in parallel (same two-COUNT approach as
     // the objective score route) — the client used to make a second round trip
@@ -98,14 +102,29 @@ export async function POST(req: NextRequest) {
 async function scoreWriting(
   responseText: string,
   questionType: string,
-  questionPrompt: string
+  questionPrompt: string,
+  minWords?: number,
+  maxWords?: number
 ): Promise<any> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OpenAI API key not configured");
 
   const wordCount = responseText.trim().split(/\s+/).filter(Boolean).length;
 
-
+  // Essay's gate-check band is this question's own configured range (default
+  // 200-300, same default the question form uses), not a hardcoded one — the
+  // form's own "mistakes" warning already used the per-question range; the AI
+  // score used to judge "form" against a fixed 200-300 regardless, so a
+  // question configured with a different range could mark a student down
+  // for correctly following that question's own instructions. The partial-
+  // credit buffer (full marks band ± this many words) mirrors the original
+  // fixed 200/300 ± 80 = 120/380 spacing, just applied to whatever range is
+  // configured.
+  const essayMin = minWords ?? 200;
+  const essayMax = maxWords ?? 300;
+  const essayBuffer = 80;
+  const essayHardFailLow = Math.max(0, essayMin - essayBuffer);
+  const essayHardFailHigh = essayMax + essayBuffer;
 
   const systemPrompt = `You are a deterministic, zero-variance automated scoring engine for a high-fidelity PTE practice platform. Your sole function is to grade student responses using strict mathematical boundaries and trait-by-trait rubrics.
 
@@ -148,9 +167,9 @@ Max Raw Breakdown: Content (3), Form (2), Grammar (2), Structure (2), Vocabulary
 
 1. GATE CHECK (FORM):
    - Use the "computed_word_count" provided in the payload for all word count rules. Do NOT count the words yourself.
-   - CRITICAL PENALTY: If word count is less than 120 OR greater than 380, trigger an absolute structural failure override: Set form=0, content=0, grammar=0, structure=0, vocabulary=0, spelling=0, and instantly return the JSON.
-   - If word count is 120-199 OR 301-380, assign form=1 and continue.
-   - If word count is strictly between 200 and 300 (inclusive), assign form=2 and continue.
+   - CRITICAL PENALTY: If word count is less than ${essayHardFailLow} OR greater than ${essayHardFailHigh}, trigger an absolute structural failure override: Set form=0, content=0, grammar=0, structure=0, vocabulary=0, spelling=0, and instantly return the JSON.
+   - If word count is ${essayHardFailLow}-${essayMin - 1} OR ${essayMax + 1}-${essayHardFailHigh}, assign form=1 and continue.
+   - If word count is strictly between ${essayMin} and ${essayMax} (inclusive), assign form=2 and continue.
 
 2. TRAIT EVALUATION:
    - content: Award 3 if all aspects of the prompt are explicitly addressed with clear arguments. Award 2 if the main topic is dealt with but one prompt constraint is underdeveloped. Award 1 if vague or minimally on-topic.
