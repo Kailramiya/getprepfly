@@ -86,7 +86,7 @@ export default function MyFlagsPage() {
             <div className="py-16 text-center">
               <Flag className="mx-auto h-10 w-10 text-gray-300" />
               <p className="mt-3 text-gray-500">No {filter === "ALL" ? "" : filter.replace("_", " ").toLowerCase()} flagged questions yet.</p>
-              <Link href="/practice/speaking"><Button variant="outline" className="mt-4 rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Start Practicing</Button></Link>
+              <Link href="/practice/speaking"><Button className="mt-4 gap-2 rounded-full shadow-sm hover:shadow-md transition-all duration-700 ease-fluid active:scale-[0.98]">Start Practicing</Button></Link>
             </div>
           ) : (
             <div className="divide-y dark:divide-slate-700">
