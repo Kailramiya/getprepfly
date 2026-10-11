@@ -10,6 +10,10 @@ interface AudioRecorderProps {
   prepTime?: number; // preparation time before recording starts
   onRecordingComplete: (blob: Blob, url: string) => void;
   onRecordingStarted?: () => void;
+  // Fired when "Re-record" discards the completed recording — the parent
+  // caches the blob itself (for submit, since this component's own state
+  // resets on reset), so it needs telling when that cache goes stale too.
+  onReset?: () => void;
   disabled?: boolean;
   autoStart?: boolean; // when true, starts recording automatically after autoStartDelay
   autoStartDelay?: number; // seconds to count down before auto-starting
@@ -22,6 +26,7 @@ export function AudioRecorder({
   prepTime = 0,
   onRecordingComplete,
   onRecordingStarted,
+  onReset,
   disabled,
   autoStart = false,
   autoStartDelay = 0,
@@ -128,6 +133,7 @@ export function AudioRecorder({
   const handleReset = () => {
     resetRecording();
     setHasRecorded(false);
+    onReset?.();
   };
 
   const formatTime = (secs: number) => {

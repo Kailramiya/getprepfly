@@ -50,6 +50,7 @@ export default function PracticeQuestionPage() {
   const [selectedTopic, setSelectedTopic] = useState<string>("all");
   const [selectedSource, setSelectedSource] = useState<"all" | "my-centre" | "public">("all");
   const [lastAttemptScore, setLastAttemptScore] = useState<number | null>(null);
+  const [lastResponseAudio, setLastResponseAudio] = useState<string | null>(null);
   const [attemptHistory, setAttemptHistory] = useState<Array<{ date: string; score: number }>>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyLoaded, setHistoryLoaded] = useState(false);
@@ -143,6 +144,7 @@ export default function PracticeQuestionPage() {
     setShowAnswer(false);
     setAttemptHistory([]);
     setLastAttemptScore(null);
+    setLastResponseAudio(null);
     setHistoryLoaded(false);
     setHistoryLoading(true);
     autoSubmitRef.current = null;
@@ -160,6 +162,12 @@ export default function PracticeQuestionPage() {
           score: Math.round(a.overallScore),
         })).reverse());
         if (items.length > 0) setLastAttemptScore(Math.round(items[0].overallScore));
+        // Most recent attempt overall (not just scored ones) — a pending/
+        // unclear speaking attempt still has a recording worth hearing back,
+        // and this is also what finally makes the now-persisted responseAudio
+        // (see /api/attempts/:id PATCH) actually resurface anywhere.
+        const latest = d.data.items[0];
+        setLastResponseAudio(latest?.responseAudio || null);
         setHistoryLoaded(true);
       })
       .catch(() => { })
@@ -198,6 +206,7 @@ export default function PracticeQuestionPage() {
         })).reverse();
         setAttemptHistory(history);
         if (items.length > 0) setLastAttemptScore(Math.round(items[0].overallScore));
+        setLastResponseAudio(d.data.items[0]?.responseAudio || null);
       }
       setHistoryLoaded(true);
     } finally {
@@ -558,6 +567,7 @@ export default function PracticeQuestionPage() {
                 showAnswer={showAnswer}
                 submitRef={autoSubmitRef}
                 allowCopyPaste={isSuperAdmin}
+                initialAudioUrl={lastResponseAudio ?? undefined}
                 onSubmit={(response: any) => {
                   setSubmitted(true);
                   const result = response?.scoreResult as ScoreResult | undefined;
