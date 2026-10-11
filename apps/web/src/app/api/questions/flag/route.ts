@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
+import { canAccessQuestion } from "@/lib/access";
 import { db } from "@/lib/db";
 
 // POST /api/questions/flag — set or clear a flag on a question
@@ -16,6 +17,18 @@ export async function POST(req: NextRequest) {
   if (!flag || !validFlags.includes(flag)) {
     await db.questionFlag.deleteMany({ where: { userId: user!.id, questionId } });
     return NextResponse.json({ success: true, data: null });
+  }
+
+  // Same gate GET /api/questions/:id uses — without it, a student could flag
+  // any question id they obtained some other way (another centre's private
+  // bank, a module they haven't bought) and My Flagged Questions would then
+  // happily show its title/section/type, bypassing the access check entirely.
+  const question = await db.question.findUnique({
+    where: { id: questionId },
+    select: { isPublic: true, centreId: true, section: true, isActive: true },
+  });
+  if (!question || !question.isActive || !(await canAccessQuestion(user!, question))) {
+    return NextResponse.json({ success: false, error: "Question not found" }, { status: 404 });
   }
 
   const result = await db.questionFlag.upsert({

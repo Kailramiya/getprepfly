@@ -19,14 +19,19 @@ interface FlaggedQuestion {
   };
 }
 
+// bg/border at low opacity (not the flat *-50 light-mode-only shades) so the
+// icon badge keeps proper contrast against a dark card background too.
 const FLAG_CONFIG = {
-  WEAK: { label: "Weak", icon: ThumbsDown, color: "text-red-600 bg-red-50 border-red-200", badge: "destructive" as const },
-  REVIEW_AGAIN: { label: "Review Again", icon: RefreshCw, color: "text-amber-600 bg-amber-50 border-amber-200", badge: "warning" as const },
-  STRONG: { label: "Strong", icon: ThumbsUp, color: "text-green-600 bg-green-50 border-green-200", badge: "success" as const },
+  WEAK: { label: "Weak", icon: ThumbsDown, color: "text-red-600 dark:text-red-400 bg-red-500/10 border-red-500/20" },
+  REVIEW_AGAIN: { label: "Review Again", icon: RefreshCw, color: "text-amber-600 dark:text-amber-400 bg-amber-500/10 border-amber-500/20" },
+  STRONG: { label: "Strong", icon: ThumbsUp, color: "text-green-600 dark:text-green-400 bg-green-500/10 border-green-500/20" },
 };
 
-function sectionPath(section: string, type: string) {
-  return `/practice/${section.toLowerCase()}/${type.toLowerCase()}`;
+// ?q=<id> tells the practice page to paginate straight to this specific
+// question instead of always starting at page 1 of the type's whole list —
+// see the matching effect in practice/[section]/[type]/page.tsx.
+function sectionPath(section: string, type: string, questionId: string) {
+  return `/practice/${section.toLowerCase()}/${type.toLowerCase()}?q=${questionId}`;
 }
 
 export default function MyFlagsPage() {
@@ -89,21 +94,25 @@ export default function MyFlagsPage() {
                 const cfg = FLAG_CONFIG[flag];
                 const Icon = cfg.icon;
                 return (
-                  <div key={question.id} className="flex items-center gap-4 p-4">
-                    <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${cfg.color}`}>
-                      <Icon className="h-4 w-4" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="truncate font-medium text-gray-900 dark:text-slate-100">{question.title}</p>
-                      <div className="mt-1 flex items-center gap-2">
-                        <Badge variant="secondary" className="text-xs">{question.section}</Badge>
-                        <Badge variant="secondary" className="text-xs">{question.type.replace(/_/g, " ")}</Badge>
-                        <Badge variant={question.difficulty === "EASY" ? "success" : question.difficulty === "HARD" ? "destructive" : "secondary"} className="text-xs">{question.difficulty}</Badge>
+                  <div key={question.id} className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:gap-4">
+                    <div className="flex min-w-0 flex-1 items-center gap-4">
+                      <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border ${cfg.color}`}>
+                        <Icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate font-medium text-gray-900 dark:text-slate-100">{question.title}</p>
+                        {/* flex-wrap — three badges plus a long question type
+                            name don't fit one line on a phone-width card. */}
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5">
+                          <Badge variant="secondary" className="text-xs">{question.section}</Badge>
+                          <Badge variant="secondary" className="text-xs">{question.type.replace(/_/g, " ")}</Badge>
+                          <Badge variant={question.difficulty === "EASY" ? "success" : question.difficulty === "HARD" ? "destructive" : "secondary"} className="text-xs">{question.difficulty}</Badge>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex shrink-0 items-center gap-2">
+                    <div className="flex shrink-0 items-center justify-end gap-3 sm:justify-start sm:gap-2">
                       <button onClick={() => remove(question.id)} className="text-xs text-gray-400 hover:text-red-500 dark:hover:text-red-400">Remove</button>
-                      <Link href={sectionPath(question.section, question.type)}>
+                      <Link href={sectionPath(question.section, question.type, question.id)}>
                         <Button size="sm" variant="outline" className="gap-1.5 rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">
                           Practice <ArrowRight className="h-3.5 w-3.5" />
                         </Button>

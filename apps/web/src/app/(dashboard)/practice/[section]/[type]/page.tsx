@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,8 +23,11 @@ type PracticeQuestionData = QuestionData & {
 
 export default function PracticeQuestionPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const section = (params.section as string)?.toUpperCase();
   const type = (params.type as string)?.toUpperCase().replace(/-/g, "_");
+  const targetQuestionId = searchParams.get("q");
+  const jumpedToTargetRef = useRef<string | null>(null);
 
   const [questions, setQuestions] = useState<PracticeQuestionData[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -115,6 +118,23 @@ export default function PracticeQuestionPage() {
     setFlags({});
     fetchQuestionPage(1, true);
   }, [section, type, selectedSource, fetchQuestionPage]);
+
+  // Deep-link from My Flagged Questions (?q=<questionId>) — without this the
+  // "Practice" button there always landed on page 1 / question 0 of the
+  // type's whole list, never the specific question the student flagged.
+  // Paginates forward until the target turns up or the list is exhausted.
+  useEffect(() => {
+    if (!targetQuestionId || jumpedToTargetRef.current === targetQuestionId) return;
+    const idx = questions.findIndex((q) => q.id === targetQuestionId);
+    if (idx !== -1) {
+      jumpedToTargetRef.current = targetQuestionId;
+      setCurrentIndex(idx);
+      return;
+    }
+    if (!loading && !loadingMore && questions.length > 0 && questions.length < totalQuestions) {
+      fetchQuestionPage(questionPage + 1);
+    }
+  }, [targetQuestionId, questions, loading, loadingMore, totalQuestions, questionPage, fetchQuestionPage]);
 
   useEffect(() => {
     if (!currentQuestion?.id) return;
@@ -354,9 +374,9 @@ export default function PracticeQuestionPage() {
   const filteredQuestions = selectedTopic === "all" ? questions : questions.filter((q: any) => (q.tags || []).includes(selectedTopic));
 
   const FLAG_OPTIONS = [
-    { key: "WEAK", label: "Weak", icon: ThumbsDown, color: "text-red-600 bg-red-50 border-red-200 hover:bg-red-100" },
-    { key: "REVIEW_AGAIN", label: "Review Again", icon: RefreshCw, color: "text-amber-600 bg-amber-50 border-amber-200 hover:bg-amber-100" },
-    { key: "STRONG", label: "Strong", icon: ThumbsUp, color: "text-green-600 bg-green-50 border-green-200 hover:bg-green-100" },
+    { key: "WEAK", label: "Weak", icon: ThumbsDown },
+    { key: "REVIEW_AGAIN", label: "Review Again", icon: RefreshCw },
+    { key: "STRONG", label: "Strong", icon: ThumbsUp },
   ];
 
   return (
@@ -722,7 +742,7 @@ export default function PracticeQuestionPage() {
       <div className="flex flex-wrap items-center justify-center gap-3 border-t border-muted-foreground/10 pt-6 mt-8">
         <Flag className="h-4 w-4 text-muted-foreground/50" />
         <span className="text-sm font-bold text-muted-foreground/50 uppercase tracking-wider mr-2">Mark as:</span>
-        {FLAG_OPTIONS.map(({ key, label, icon: Icon, color }) => {
+        {FLAG_OPTIONS.map(({ key, label, icon: Icon }) => {
           const isActive = flags[currentQuestion?.id] === key;
           // Simplify color mapping for high-end design
           const baseStyle = "flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold shadow-sm transition-all duration-500 ease-fluid hover:shadow-md active:scale-[0.98]";
