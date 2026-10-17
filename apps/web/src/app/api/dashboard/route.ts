@@ -6,10 +6,24 @@ import { weightedSectionAverage, pickWeakStrong, attemptWeightedAverage } from "
 
 export const dynamic = "force-dynamic";
 
-// GET /api/dashboard — student dashboard stats
+// GET /api/dashboard — student dashboard stats, or a centre/platform
+// overview for staff (CENTRE_ADMIN, TEACHER, SUPER_ADMIN), who don't take
+// PTE attempts themselves and got an empty, irrelevant copy of the
+// student page otherwise.
 export async function GET() {
   const { user, error } = await requireAuth();
   if (error) return error;
+
+  // TEACHER is intentionally excluded: it still gets the student sidebar nav
+  // (see Sidebar's studentNav fallback), so a centre-ops dashboard with links
+  // to admin-only pages would be a mismatched, partly-broken experience for it.
+  if (user!.role === "CENTRE_ADMIN" || user!.role === "SUPER_ADMIN") {
+    const data = await staffDashboard(user!.role, (user as any).centreId ?? null);
+    const res = NextResponse.json({ success: true, data });
+    res.headers.set("Cache-Control", "private, max-age=0, stale-while-revalidate=300");
+    res.headers.set("Vary", "Cookie");
+    return res;
+  }
 
   const userId = user!.id;
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -211,4 +225,80 @@ export async function GET() {
   res.headers.set("Cache-Control", "private, max-age=0, stale-while-revalidate=300");
   res.headers.set("Vary", "Cookie");
   return res;
+}
+
+// Centre/platform overview for staff. CENTRE_ADMIN and TEACHER see their own
+// centre's students; SUPER_ADMIN sees the whole platform.
+async function staffDashboard(role: string, centreId: string | null) {
+  const isSuperAdmin = role === "SUPER_ADMIN";
+  const centreWhere = isSuperAdmin ? {} : { centreId };
+
+  const [centre, students] = await Promise.all([
+    !isSuperAdmin && centreId
+      ? db.centre.findUnique({ where: { id: centreId }, select: { name: true } })
+      : null,
+    db.user.findMany({ where: { role: "STUDENT", ...centreWhere }, select: { id: true } }),
+  ]);
+  const studentIds = students.map((s) => s.id);
+
+  const empty = {
+    scope: isSuperAdmin ? ("platform" as const) : ("centre" as const),
+    centreName: centre?.name ?? null,
+    totalStudents: 0,
+    activeStudents7d: 0,
+    attemptsToday: 0,
+    attemptsThisWeek: 0,
+    avgScore30d: null as number | null,
+    batchCount: 0,
+    recentActivity: [] as Array<{
+      id: string; studentName: string; questionType: string; section: string; title: string; score: number | null; createdAt: string;
+    }>,
+  };
+  if (studentIds.length === 0) return empty;
+
+  const todayStart = istDayStart();
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  const [attemptsToday, attemptsThisWeek, activeRows, avgAgg, recentAttempts, batchCount] = await Promise.all([
+    db.attempt.count({ where: { userId: { in: studentIds }, createdAt: { gte: todayStart } } }),
+    db.attempt.count({ where: { userId: { in: studentIds }, createdAt: { gte: sevenDaysAgo } } }),
+    db.attempt.groupBy({ by: ["userId"], where: { userId: { in: studentIds }, createdAt: { gte: sevenDaysAgo } } }),
+    db.attempt.aggregate({
+      where: { userId: { in: studentIds }, overallScore: { not: null }, createdAt: { gte: thirtyDaysAgo } },
+      _avg: { overallScore: true },
+    }),
+    db.attempt.findMany({
+      where: { userId: { in: studentIds } },
+      select: {
+        id: true,
+        overallScore: true,
+        createdAt: true,
+        user: { select: { name: true } },
+        question: { select: { type: true, section: true, title: true } },
+      },
+      orderBy: { createdAt: "desc" },
+      take: 10,
+    }),
+    isSuperAdmin ? db.batch.count() : db.batch.count({ where: { centreId: centreId! } }),
+  ]);
+
+  return {
+    ...empty,
+    totalStudents: studentIds.length,
+    activeStudents7d: activeRows.length,
+    attemptsToday,
+    attemptsThisWeek,
+    avgScore30d: avgAgg._avg.overallScore != null ? Math.round(avgAgg._avg.overallScore) : null,
+    batchCount,
+    recentActivity: recentAttempts.map((a) => ({
+      id: a.id,
+      studentName: a.user.name,
+      questionType: a.question.type,
+      section: a.question.section,
+      title: a.question.title,
+      score: a.overallScore,
+      createdAt: a.createdAt.toISOString(),
+    })),
+  };
 }
