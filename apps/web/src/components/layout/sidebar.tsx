@@ -29,6 +29,7 @@ import {
   Flag,
   IndianRupee,
   Trophy,
+  Gauge,
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -81,6 +82,7 @@ const superAdminNav: NavItem[] = [
   { label: "Reports", href: "/super-admin/reports", icon: AlertTriangle },
   { label: "Coupons", href: "/super-admin/coupons", icon: CreditCard },
   { label: "Pricing", href: "/super-admin/pricing", icon: IndianRupee },
+  { label: "AI Usage & Cost", href: "/super-admin/usage", icon: Gauge },
   { label: "Analytics", href: "/super-admin/analytics", icon: BarChart3 },
   { label: "Practice Tracker", href: "/super-admin/practice-tracker", icon: Activity },
 ];

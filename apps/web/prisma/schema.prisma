@@ -177,6 +177,7 @@ model User {
   centreSeats      CentreStudentSeat[]
   questionFlags    QuestionFlag[]
   questionReports  QuestionReport[]
+  aiUsageLogs      AiUsageLog[]
 
   @@index([email])
   @@index([centreId])
@@ -496,6 +497,28 @@ model Attempt {
   @@index([userId, createdAt]) // for daily scoring count + recent activity
   @@index([mockTestId])
   @@index([createdAt])
+}
+
+// ============================================================================
+// AI USAGE LOG — one row per billed OpenAI call (score-writing, score-speaking,
+// tts), for the super-admin cost dashboard. Centre is derived via user.centreId
+// at query time rather than denormalized here, same as the practice tracker.
+// ============================================================================
+model AiUsageLog {
+  id               String   @id @default(cuid())
+  userId           String
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint         String   // "score-writing" | "score-speaking" | "tts"
+  model            String   // "gpt-4o-mini" | "whisper-1" | "tts-1"
+  promptTokens     Int      @default(0)
+  completionTokens Int      @default(0)
+  units            Float    @default(0) // audio seconds (whisper) or characters (tts); 0 for token-only calls
+  costInrPaise     Int      // cost converted to INR at log time (see lib/ai-pricing.ts)
+  createdAt        DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([userId, createdAt])
 }
 
 // ============================================================================

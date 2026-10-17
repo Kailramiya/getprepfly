@@ -3,6 +3,7 @@ import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { enforceRateLimit, reserveAiCall } from "@/lib/rate-limit";
 import { canAccessQuestion } from "@/lib/access";
+import { recordAiUsage } from "@/lib/ai-pricing";
 
 export const maxDuration = 60;
 
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
     // exposes it); everything else uses the fixed PTE-standard range.
     const minWords = question.type === "WRITE_ESSAY" ? (c.minWords || 200) : undefined;
     const maxWords = question.type === "WRITE_ESSAY" ? (c.maxWords || 300) : undefined;
-    const scores = await scoreWriting(responseText.slice(0, MAX_RESPONSE_CHARS), question.type, questionPrompt, minWords, maxWords);
+    const scores = await scoreWriting(responseText.slice(0, MAX_RESPONSE_CHARS), question.type, questionPrompt, minWords, maxWords, user!.id);
 
     // Save attempt + compute percentile in parallel (same two-COUNT approach as
     // the objective score route) — the client used to make a second round trip
@@ -103,8 +104,9 @@ async function scoreWriting(
   responseText: string,
   questionType: string,
   questionPrompt: string,
-  minWords?: number,
-  maxWords?: number
+  minWords: number | undefined,
+  maxWords: number | undefined,
+  userId: string
 ): Promise<any> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OpenAI API key not configured");
@@ -246,6 +248,11 @@ Required Output JSON structure for "sst":
   if (!response.ok) throw new Error(`GPT API error: ${response.statusText}`);
 
   const data = await response.json();
+  await recordAiUsage(userId, "score-writing", {
+    model: "gpt-4o-mini",
+    promptTokens: data?.usage?.prompt_tokens ?? 0,
+    completionTokens: data?.usage?.completion_tokens ?? 0,
+  });
   let result: any;
   try {
     result = JSON.parse(data?.choices?.[0]?.message?.content ?? "");
