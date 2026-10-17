@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AnnouncementsBanner } from "@/components/dashboard/announcements-banner";
+import { StaffDashboard } from "@/components/dashboard/staff-dashboard";
 import { useAuth } from "@/hooks/use-auth";
 import { istDateKey } from "@/lib/utils";
 import { Card, CardContent } from "@/components/ui/card";
@@ -112,17 +113,24 @@ function formatType(t: string): string {
 }
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, isCentreAdmin, isSuperAdmin } = useAuth();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Centre admins and super admins don't take PTE attempts themselves —
+  // they get a centre/platform ops overview instead of the student page.
+  const isStaff = isCentreAdmin || isSuperAdmin;
+
   useEffect(() => {
+    if (isStaff) return;
     fetch("/api/dashboard")
       .then((r) => r.json())
       .then((res) => { if (res.success) setData(res.data); })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, []);
+  }, [isStaff]);
+
+  if (isStaff) return <StaffDashboard name={user?.name || "there"} />;
 
   const stats = [
     {
