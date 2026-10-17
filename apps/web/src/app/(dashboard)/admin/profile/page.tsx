@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Building2, CheckCircle2, Loader2 } from "lucide-react";
+import { Building2, CheckCircle2, Loader2, Upload } from "lucide-react";
+import { useUpload } from "@/hooks/use-upload";
 
 interface CentreData {
   id: string; name: string; slug: string; logo: string | null; primaryColor: string;
@@ -23,6 +24,8 @@ export default function CentreProfilePage() {
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({ name: "", primaryColor: "#4F46E5", address: "", city: "", state: "", phone: "", email: "", website: "" });
+  const [logo, setLogo] = useState<string | null>(null);
+  const { uploadImage, uploading: uploadingLogo } = useUpload();
 
   useEffect(() => {
     if (!user?.centreId) return;
@@ -33,6 +36,7 @@ export default function CentreProfilePage() {
           const c = data.data;
           setCentre(c);
           setForm({ name: c.name || "", primaryColor: c.primaryColor || "#4F46E5", address: c.address || "", city: c.city || "", state: c.state || "", phone: c.phone || "", email: c.email || "", website: c.website || "" });
+          setLogo(c.logo || null);
         }
       })
       .finally(() => setLoading(false));
@@ -45,13 +49,25 @@ export default function CentreProfilePage() {
       const res = await fetch("/api/centres/branding", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, logo }),
       });
       const data = await res.json();
       if (data.success) { setSaved(true); setTimeout(() => setSaved(false), 3000); }
       else setError(data.error || "Save failed");
     } catch { setError("Something went wrong"); }
     finally { setSaving(false); }
+  };
+
+  // Logo field is fully supported end-to-end by the branding PATCH route and
+  // the Centre.logo schema field, but this page never had a control for it —
+  // uploads immediately on pick; the actual save still happens on submit.
+  const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setError("");
+    const result = await uploadImage(file);
+    if (result) setLogo(result.fileUrl);
+    else setError("Logo upload failed. Please try again.");
   };
 
   if (loading) return <div className="flex justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-indigo-600" /></div>;
@@ -65,9 +81,14 @@ export default function CentreProfilePage() {
 
       {centre && (
         <div className="flex items-center gap-4 rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 p-6 mb-6 hover:shadow-float transition-all duration-700 ease-fluid group">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl text-white text-xl font-extrabold shadow-inner group-hover:scale-105 transition-transform duration-700 ease-fluid" style={{ backgroundColor: form.primaryColor }}>
-            {form.name.charAt(0).toUpperCase()}
-          </div>
+          {logo ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={logo} alt="Centre logo" className="h-14 w-14 rounded-2xl object-cover shadow-inner group-hover:scale-105 transition-transform duration-700 ease-fluid" />
+          ) : (
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl text-white text-xl font-extrabold shadow-inner group-hover:scale-105 transition-transform duration-700 ease-fluid" style={{ backgroundColor: form.primaryColor }}>
+              {form.name.charAt(0).toUpperCase()}
+            </div>
+          )}
           <div>
             <p className="text-xl font-bold text-foreground">{form.name}</p>
             <p className="text-sm font-medium text-muted-foreground mt-1">Slug: <span className="font-mono bg-white/10 px-2 py-0.5 rounded-md ml-1">{centre.slug}</span></p>
@@ -130,7 +151,25 @@ export default function CentreProfilePage() {
 
         <Card className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 overflow-hidden">
           <CardHeader><CardTitle className="text-lg font-bold">Branding</CardTitle></CardHeader>
-          <CardContent>
+          <CardContent className="space-y-5">
+            <div>
+              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Logo</label>
+              <div className="flex items-center gap-4">
+                {logo ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={logo} alt="Centre logo" className="h-14 w-14 rounded-2xl object-cover shadow-inner" />
+                ) : (
+                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl text-white text-xl font-extrabold shadow-inner" style={{ backgroundColor: form.primaryColor }}>
+                    {form.name.charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <label className="flex cursor-pointer items-center gap-2 rounded-full border border-border bg-background/60 px-4 py-2 text-sm font-semibold text-muted-foreground transition-colors hover:text-foreground">
+                  {uploadingLogo ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  {uploadingLogo ? "Uploading…" : "Upload logo"}
+                  <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} disabled={uploadingLogo} />
+                </label>
+              </div>
+            </div>
             <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-300">Brand Color</label>
             <div className="flex items-center gap-3">
               <input type="color" value={form.primaryColor} onChange={e => setForm({ ...form, primaryColor: e.target.value })} className="h-10 w-20 cursor-pointer rounded border" />

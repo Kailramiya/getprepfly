@@ -45,6 +45,14 @@ export async function POST(req: NextRequest) {
 
   const global = user!.role === "SUPER_ADMIN" && isGlobal === true;
 
+  // A non-global announcement with no centreId matches neither isGlobal:true
+  // nor any centre's filter in GET above, so it would be permanently
+  // invisible to everyone, including its own creator — reject it instead of
+  // silently creating that orphan.
+  if (!global && !user!.centreId) {
+    return NextResponse.json({ success: false, error: "You must be associated with a centre to post an announcement" }, { status: 400 });
+  }
+
   const announcement = await db.announcement.create({
     data: {
       title: title.trim(),
@@ -55,6 +63,35 @@ export async function POST(req: NextRequest) {
   });
 
   return NextResponse.json({ success: true, data: announcement }, { status: 201 });
+}
+
+// PATCH — edit an announcement's title/message (same ownership rule as DELETE)
+export async function PATCH(req: NextRequest) {
+  const { user, error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN"]);
+  if (error) return error;
+
+  const { id, title, message } = await req.json();
+  if (!id || typeof id !== "string") {
+    return NextResponse.json({ success: false, error: "id is required" }, { status: 400 });
+  }
+  if (!title?.trim() || !message?.trim()) {
+    return NextResponse.json({ success: false, error: "Title and message are required" }, { status: 400 });
+  }
+
+  const ann = await db.announcement.findUnique({ where: { id } });
+  if (!ann) return NextResponse.json({ success: false, error: "Not found" }, { status: 404 });
+
+  // Centre admins may only edit their own centre's announcements (never global ones).
+  if (user!.role !== "SUPER_ADMIN" && (!ann.centreId || ann.centreId !== user!.centreId)) {
+    return NextResponse.json({ success: false, error: "Not authorized" }, { status: 403 });
+  }
+
+  const updated = await db.announcement.update({
+    where: { id },
+    data: { title: title.trim(), message: message.trim() },
+  });
+
+  return NextResponse.json({ success: true, data: updated });
 }
 
 // DELETE

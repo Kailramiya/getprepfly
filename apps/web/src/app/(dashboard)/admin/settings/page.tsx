@@ -77,7 +77,7 @@ const MONTHLY_PLANS = [
       "AI scoring — all question types",
       "Student progress tracking",
       "Batch management",
-      "30 days access",
+      "180 days access",
     ],
   },
   {
@@ -95,7 +95,7 @@ const MONTHLY_PLANS = [
       "Advanced analytics dashboard",
       "Batch management + leaderboard",
       "Priority support",
-      "30 days access",
+      "180 days access",
     ],
   },
   {
@@ -113,7 +113,7 @@ const MONTHLY_PLANS = [
       "Full analytics + centre branding",
       "Unlimited batches",
       "Dedicated support",
-      "30 days access",
+      "180 days access",
     ],
   },
 ];

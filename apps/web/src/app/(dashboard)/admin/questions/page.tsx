@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -126,7 +126,9 @@ export default function QuestionsPage() {
   };
 
   const handleDelete = async (questionId: string, title: string) => {
-    const ok = await confirm({ title: "Delete question?", description: `"${title}" will be permanently removed.`, confirmLabel: "Delete", variant: "danger" });
+    // This is a soft delete (isActive: false) — the question stops showing up
+    // for practice, but its data and any past student attempts are kept.
+    const ok = await confirm({ title: "Delete question?", description: `"${title}" will be hidden from practice. Past student attempts are kept.`, confirmLabel: "Delete", variant: "danger" });
     if (!ok) return;
     setDeleting(questionId);
     try {
@@ -167,31 +169,35 @@ export default function QuestionsPage() {
     }
   };
 
+  const fetchQuestions = useCallback(async () => {
+    setLoading(true);
+    const params = new URLSearchParams({
+      page: String(page),
+      pageSize: "20",
+      ...(search && { search }),
+      ...(section && { section }),
+      ...(questionType && { type: questionType }),
+    });
+    const res = await fetch(`/api/questions?${params}`);
+    const data = await res.json();
+    if (data.success) {
+      setQuestions(data.data.items);
+      setTotal(data.data.total);
+    }
+    setLoading(false);
+  }, [page, search, section, questionType]);
+
+  useEffect(() => { fetchQuestions(); }, [fetchQuestions]);
+
+  // setPage(1) alone is a no-op re-render whenever the admin is already on
+  // page 1 (the common case after creating/editing a question), so the
+  // effect above never re-fires and the list is stuck showing stale data
+  // with loading spinning forever. Call fetchQuestions directly instead of
+  // relying on a state change to trigger it.
   const refreshQuestions = () => {
     setPage(1);
-    setLoading(true);
-  };
-
-  useEffect(() => {
-    const fetchQuestions = async () => {
-      setLoading(true);
-      const params = new URLSearchParams({
-        page: String(page),
-        pageSize: "20",
-        ...(search && { search }),
-        ...(section && { section }),
-        ...(questionType && { type: questionType }),
-      });
-      const res = await fetch(`/api/questions?${params}`);
-      const data = await res.json();
-      if (data.success) {
-        setQuestions(data.data.items);
-        setTotal(data.data.total);
-      }
-      setLoading(false);
-    };
     fetchQuestions();
-  }, [page, search, section, questionType]);
+  };
 
   const formatType = (type: string) =>
     type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());

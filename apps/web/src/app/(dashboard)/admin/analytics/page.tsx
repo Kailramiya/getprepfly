@@ -19,29 +19,18 @@ export default function AdminAnalyticsPage() {
     if (!user?.centreId) return;
     const fetchData = async () => {
       try {
-        const [studentsRes] = await Promise.all([
-          fetch(`/api/centres/${user.centreId}/students?pageSize=100`),
-        ]);
+        // The leaderboard below only needs a reasonably-sized page to rank;
+        // the real centre-wide totals now come from the server's own
+        // `centreStats` (see api/centres/[centreId]/students/route.ts),
+        // computed via DB aggregates over every student, not just this page.
+        // Previously this page used items.length / a reduce over this same
+        // capped page as "Total Students" etc., silently under-reporting
+        // everything for any centre over 100 students.
+        const studentsRes = await fetch(`/api/centres/${user.centreId}/students?pageSize=100`);
         const studentsData = await studentsRes.json();
         if (studentsData.success) {
-          const items = studentsData.data.items || [];
-          setStudents(items);
-
-          // Calculate stats from student data
-          const totalStudents = items.length;
-          const activeStudents = items.filter((s: any) => s._count.attempts > 0).length;
-          const totalAttempts = items.reduce((sum: number, s: any) => sum + s._count.attempts, 0);
-          const totalMockTests = items.reduce((sum: number, s: any) => sum + s._count.mockTests, 0);
-          const vipStudents = items.filter((s: any) => s.studentPlan?.planType !== "FREE").length;
-
-          setStats({
-            totalStudents,
-            activeStudents,
-            totalAttempts,
-            totalMockTests,
-            vipStudents,
-            inactiveStudents: totalStudents - activeStudents,
-          });
+          setStudents(studentsData.data.items || []);
+          setStats(studentsData.data.centreStats);
         }
       } catch (err) {
         console.error("Failed to fetch analytics:", err);
@@ -67,12 +56,13 @@ export default function AdminAnalyticsPage() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
         {[
           { label: "Total Students", value: stats?.totalStudents || 0, icon: Users, color: "text-indigo-500", bg: "bg-indigo-50 dark:bg-indigo-950/40" },
           { label: "Active Students", value: stats?.activeStudents || 0, icon: TrendingUp, color: "text-green-500", bg: "bg-green-50 dark:bg-green-950/40" },
           { label: "Total Practice", value: stats?.totalAttempts || 0, icon: BarChart3, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-950/40" },
           { label: "Mock Tests Taken", value: stats?.totalMockTests || 0, icon: Clock, color: "text-purple-500", bg: "bg-purple-50 dark:bg-purple-950/40" },
+          { label: "Avg Score", value: stats?.avgScore != null ? `${stats.avgScore}/90` : "—", icon: Trophy, color: "text-amber-500", bg: "bg-amber-50 dark:bg-amber-950/40" },
         ].map((stat) => (
           <Card key={stat.label} className="rounded-[2rem] border-none shadow-glass bg-background/50 backdrop-blur-xl ring-1 ring-white/10 hover:-translate-y-2 hover:shadow-float transition-all duration-700 ease-fluid">
             <CardContent className="flex items-center gap-4 p-4">

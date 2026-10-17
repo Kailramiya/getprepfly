@@ -3,8 +3,13 @@ import { requireRole } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 
 // PATCH /api/vocabulary/:id — update a vocabulary word
+//
+// Super admin only — same reasoning as DELETE below: Vocabulary has no
+// per-centre scoping, so any centre admin editing a word silently rewrites
+// what every other centre's students see. This was previously open to
+// CENTRE_ADMIN, inconsistent with DELETE's own documented restriction.
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const { error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN"]);
+  const { error } = await requireRole(["SUPER_ADMIN"]);
   if (error) return error;
 
   const existing = await db.vocabulary.findUnique({ where: { id: params.id } });

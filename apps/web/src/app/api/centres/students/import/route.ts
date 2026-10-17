@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { sendEmail, centreInvitationEmailTemplate } from "@/lib/email";
-import { grantCentreSeat, getCentreActiveSeats } from "@/lib/centre-access";
+import { grantCentreSeat, getCentreActiveSeats, withCentreSeatLock } from "@/lib/centre-access";
 
 export const dynamic = "force-dynamic";
 
@@ -69,7 +69,10 @@ export async function POST(req: NextRequest) {
       continue;
     }
 
-    // Seat limit check (skip if unlimited)
+    // Fast-path skip once at/over the limit, for both branches below (an
+    // invite also eventually consumes a seat on registration). This is just
+    // an early exit for a slow bulk import — the real grant below re-checks
+    // the limit atomically under the centre's seat lock.
     if (latestSub && latestSub.maxStudents !== -1) {
       const activeSeats = await getCentreActiveSeats(centreId);
       if (activeSeats >= latestSub.maxStudents) {
@@ -101,8 +104,24 @@ export async function POST(req: NextRequest) {
           continue;
         }
 
-        await db.user.update({ where: { id: existingUser.id }, data: { centreId } });
-        await grantCentreSeat(centreId, existingUser.id);
+        // Check-then-grant inside one locked transaction — see withCentreSeatLock's
+        // doc comment. Each row still runs sequentially within this loop, but
+        // another request (a concurrent invite/import/renew) for this same
+        // centre could otherwise interleave between the check and the grant.
+        const result = await withCentreSeatLock(centreId, async (tx) => {
+          if (latestSub && latestSub.maxStudents !== -1) {
+            const activeSeats = await getCentreActiveSeats(centreId, tx);
+            if (activeSeats >= latestSub.maxStudents) return { ok: false as const };
+          }
+          await tx.user.update({ where: { id: existingUser.id }, data: { centreId } });
+          await grantCentreSeat(centreId, existingUser.id, tx);
+          return { ok: true as const };
+        });
+        if (!result.ok) {
+          errors.push({ email, reason: "Seat limit reached" });
+          skipped++;
+          continue;
+        }
         sendEmail({
           to: email,
           subject: `You've been added to ${centre.name} on Prepfly`,

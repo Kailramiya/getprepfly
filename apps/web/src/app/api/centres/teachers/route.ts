@@ -87,6 +87,13 @@ export async function DELETE(req: NextRequest) {
   if (!teacher || teacher.centreId !== user!.centreId || teacher.role !== "TEACHER") {
     return NextResponse.json({ success: false, error: "Teacher not found in your centre" }, { status: 404 });
   }
-  await db.user.update({ where: { id: teacherId }, data: { centreId: null } });
+  // Also deactivate — centreId: null alone left an orphaned TEACHER account:
+  // still a live login, still role TEACHER, but centreId null fails every
+  // centre-scoped route's ownership check, so there was no way for anyone
+  // (including SUPER_ADMIN via the UI) to reclaim or reuse the account.
+  // isActive: false blocks login outright (see lib/auth.ts), same as any
+  // other deactivated user; a super admin can reassign/reactivate via the
+  // users admin tools if the person should keep access elsewhere.
+  await db.user.update({ where: { id: teacherId }, data: { centreId: null, isActive: false } });
   return NextResponse.json({ success: true });
 }

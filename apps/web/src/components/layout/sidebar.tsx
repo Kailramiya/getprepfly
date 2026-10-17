@@ -60,9 +60,14 @@ const studentNav: NavItem[] = [
 const centreAdminNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Students", href: "/admin/students", icon: Users },
+  // "Mock Tests" used to link to /mock-test, the self-service take-a-test
+  // screen with zero role branching — a centre admin clicking it expecting
+  // to manage/assign tests landed on a page to take one themselves. The
+  // real assign-to-batch flow only exists inside a batch's own progress
+  // tab, so Batches is the actual entry point; removed the dead-end link
+  // rather than duplicate it.
   { label: "Batches", href: "/admin/batches", icon: Building2 },
   { label: "Questions", href: "/admin/questions", icon: Database },
-  { label: "Mock Tests", href: "/mock-test", icon: ClipboardList },
   { label: "Templates", href: "/admin/templates", icon: BookOpen },
   { label: "Vocabulary", href: "/admin/vocabulary", icon: BookMarked },
   { label: "Teachers", href: "/admin/teachers", icon: GraduationCap },

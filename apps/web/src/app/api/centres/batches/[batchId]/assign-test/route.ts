@@ -55,8 +55,13 @@ export async function POST(req: NextRequest, { params }: { params: { batchId: st
 
 // GET — list assigned tests for a batch
 export async function GET(_req: NextRequest, { params }: { params: { batchId: string } }) {
-  const { error } = await requireRole(["CENTRE_ADMIN", "TEACHER"]);
+  const { user, error } = await requireRole(["CENTRE_ADMIN", "TEACHER"]);
   if (error) return error;
+
+  // Same ownership check POST already does — without it, any centre admin
+  // could pass another centre's batchId and see that centre's assigned tests.
+  const batch = await db.batch.findFirst({ where: { id: params.batchId, centreId: user!.centreId! } });
+  if (!batch) return NextResponse.json({ success: false, error: "Batch not found" }, { status: 404 });
 
   const tests = await db.mockTest.findMany({
     where: { assignedBatchId: params.batchId, isTemplate: true },
