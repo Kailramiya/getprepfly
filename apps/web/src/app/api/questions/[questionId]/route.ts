@@ -81,13 +81,17 @@ export async function PATCH(
     section, type, isPublic,
   } = body;
 
-  // Centre admin can only edit their own questions
+  // Centre admin/teacher can only edit their own centre's questions — not
+  // another centre's, and not the global question bank (centreId: null).
+  // A truthy-only check here let `question.centreId === null` (global) slip
+  // through unguarded, since `null && ...` is falsy regardless of the rest
+  // of the condition.
   if (user!.role !== "SUPER_ADMIN") {
     const question = await db.question.findUnique({
       where: { id: params.questionId },
       select: { centreId: true },
     });
-    if (question?.centreId && question.centreId !== user!.centreId) {
+    if (question?.centreId !== user!.centreId) {
       return NextResponse.json(
         { success: false, error: "You can only edit your own questions" },
         { status: 403 }
@@ -123,8 +127,23 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { questionId: string } }
 ) {
-  const { error: deleteError } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN"]);
+  const { user, error: deleteError } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN"]);
   if (deleteError) return deleteError;
+
+  // Same ownership rule as PATCH: a centre admin can only delete their own
+  // centre's questions, never another centre's or the global question bank.
+  if (user!.role !== "SUPER_ADMIN") {
+    const question = await db.question.findUnique({
+      where: { id: params.questionId },
+      select: { centreId: true },
+    });
+    if (question?.centreId !== user!.centreId) {
+      return NextResponse.json(
+        { success: false, error: "You can only delete your own questions" },
+        { status: 403 }
+      );
+    }
+  }
 
   await db.question.update({
     where: { id: params.questionId },

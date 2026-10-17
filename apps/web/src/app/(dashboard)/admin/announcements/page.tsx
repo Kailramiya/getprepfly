@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
-import { Megaphone, Plus, Trash2 } from "lucide-react";
+import { Megaphone, Plus, Trash2, Pencil } from "lucide-react";
 
 interface Announcement { id: string; title: string; message: string; isGlobal: boolean; createdAt: string }
 
@@ -20,23 +20,51 @@ export default function AnnouncementsPage() {
   const [title, setTitle] = useState("");
   const [message, setMessage] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  // Set while editing an existing announcement instead of creating a new
+  // one — previously the only way to fix a typo was delete + recreate,
+  // which loses the original post's position/date.
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const fetchList = () => {
     fetch("/api/announcements").then(r => r.json()).then(d => { if (d.success) setList(d.data); }).finally(() => setLoading(false));
   };
   useEffect(() => { fetchList(); }, []);
 
-  const handleCreate = async (e: React.FormEvent) => {
+  const closeForm = () => {
+    setShowForm(false);
+    setEditingId(null);
+    setTitle("");
+    setMessage("");
+  };
+
+  const openEdit = (a: Announcement) => {
+    setEditingId(a.id);
+    setTitle(a.title);
+    setMessage(a.message);
+    setShowForm(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
-    const res = await fetch("/api/announcements", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title, message }),
-    });
-    const data = await res.json();
-    if (data.success) { setList(prev => [data.data, ...prev]); setTitle(""); setMessage(""); setShowForm(false); }
-    setSubmitting(false);
+    try {
+      const res = await fetch("/api/announcements", {
+        method: editingId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(editingId ? { id: editingId, title, message } : { title, message }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setList(prev => editingId ? prev.map(a => a.id === editingId ? data.data : a) : [data.data, ...prev]);
+        closeForm();
+      } else {
+        toast("error", data.error || `Failed to ${editingId ? "update" : "post"} announcement`);
+      }
+    } catch {
+      toast("error", "Network error. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -58,13 +86,13 @@ export default function AnnouncementsPage() {
           <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Announcements</h1>
           <p className="text-base font-medium text-muted-foreground mt-2">Send messages to all your students</p>
         </div>
-        <Button onClick={() => setShowForm(!showForm)} size="lg" className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide"><Plus className="h-5 w-5" /> New</Button>
+        <Button onClick={() => (showForm ? closeForm() : setShowForm(true))} size="lg" className="rounded-full shadow-glass hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid gap-2 font-bold tracking-wide"><Plus className="h-5 w-5" /> New</Button>
       </div>
 
       {showForm && (
         <Card className="rounded-[2rem] border-none shadow-glass bg-indigo-500/10 backdrop-blur-xl ring-1 ring-indigo-500/20">
           <CardContent className="p-5">
-            <form onSubmit={handleCreate} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-4">
               <Input className="w-full rounded-2xl border-none bg-background/40 py-2.5 px-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground" placeholder="Title (e.g. Holiday schedule)" value={title} onChange={e => setTitle(e.target.value)} required />
               <textarea
                 className="min-h-[80px] w-full rounded-2xl border-none bg-background/40 p-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 backdrop-blur-md shadow-inner transition-all duration-700 ease-fluid text-foreground placeholder:text-slate-500"
@@ -72,8 +100,8 @@ export default function AnnouncementsPage() {
                 value={message} onChange={e => setMessage(e.target.value)} required
               />
               <div className="flex gap-2">
-                <Button type="submit" loading={submitting} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">Post Announcement</Button>
-                <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Cancel</Button>
+                <Button type="submit" loading={submitting} className="rounded-full shadow-sm hover:-translate-y-1 hover:shadow-float active:scale-[0.98] transition-all duration-700 ease-fluid">{editingId ? "Save Changes" : "Post Announcement"}</Button>
+                <Button type="button" variant="outline" onClick={closeForm} className="rounded-full hover:-translate-y-1 active:scale-[0.98] transition-all duration-700 ease-fluid bg-transparent border-white/10">Cancel</Button>
               </div>
             </form>
           </CardContent>
@@ -99,7 +127,10 @@ export default function AnnouncementsPage() {
                     <p className="mt-4 text-xs font-bold tracking-widest uppercase text-muted-foreground/60">{new Date(a.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</p>
                   </div>
                   {!a.isGlobal && (
-                    <button onClick={() => handleDelete(a.id)} className="shrink-0 flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-500 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner"><Trash2 className="h-5 w-5" /></button>
+                    <div className="shrink-0 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-fluid">
+                      <button onClick={() => openEdit(a)} className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10 text-blue-500 hover:scale-110 transition-all duration-700 ease-fluid shadow-inner"><Pencil className="h-5 w-5" /></button>
+                      <button onClick={() => handleDelete(a.id)} className="flex h-10 w-10 items-center justify-center rounded-full bg-red-500/10 text-red-500 hover:scale-110 transition-all duration-700 ease-fluid shadow-inner"><Trash2 className="h-5 w-5" /></button>
+                    </div>
                   )}
                 </div>
               ))}

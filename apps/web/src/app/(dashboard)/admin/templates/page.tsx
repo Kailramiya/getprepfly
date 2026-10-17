@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Plus, BookOpen, Trash2, Edit2, X, Star,
 } from "lucide-react";
@@ -57,6 +58,10 @@ interface Template {
 export default function AdminTemplatesPage() {
   const confirm = useConfirm();
   const { toast } = useToast();
+  // Templates are a single shared pool with no per-centre ownership — the
+  // backend now restricts edit/delete to SUPER_ADMIN (see api/templates/[templateId]/route.ts),
+  // so hide the controls here too rather than show a button that 403s.
+  const { isSuperAdmin } = useAuth();
   const [templates, setTemplates] = useState<Template[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -217,20 +222,22 @@ export default function AdminTemplatesPage() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={(e) => { e.stopPropagation(); openEdit(t); }}
-                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-blue-500/20 hover:text-blue-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100"
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); handleDelete(t.id, t.title); }}
-                          className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
+                      {isSuperAdmin && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); openEdit(t); }}
+                            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-blue-500/20 hover:text-blue-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDelete(t.id, t.title); }}
+                            className="flex h-10 w-10 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-red-500/20 hover:text-red-400 transition-all duration-700 ease-fluid hover:scale-110 shadow-inner opacity-0 group-hover:opacity-100"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      )}
                     </div>
 
                     {isExpanded && (

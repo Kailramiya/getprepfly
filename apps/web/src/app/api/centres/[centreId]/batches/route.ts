@@ -47,13 +47,26 @@ export async function POST(
     return NextResponse.json({ success: false, error: "Batch name is required" }, { status: 400 });
   }
 
+  // Only students actually in this centre may be seeded into the new batch —
+  // without this, a client-supplied studentIds array could add another
+  // centre's students, same cross-tenant leak the members route already guards against.
+  let memberIds: string[] = [];
+  if (studentIds?.length) {
+    const ids = studentIds.filter((id: unknown): id is string => typeof id === "string");
+    const inCentre = await db.user.findMany({
+      where: { id: { in: ids }, centreId: params.centreId },
+      select: { id: true },
+    });
+    memberIds = inCentre.map((u) => u.id);
+  }
+
   const batch = await db.batch.create({
     data: {
       name: name.trim(),
       centreId: params.centreId,
-      ...(studentIds?.length && {
+      ...(memberIds.length && {
         members: {
-          create: studentIds.map((userId: string) => ({ userId })),
+          create: memberIds.map((userId) => ({ userId })),
         },
       }),
     },

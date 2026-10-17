@@ -37,7 +37,14 @@ export async function GET(
     }),
   };
 
-  const [students, total, seats] = await Promise.all([
+  // Centre-wide, unfiltered by search/batchId — the admin analytics page
+  // used to compute these from whatever page of students it happened to
+  // fetch (capped at 100), silently under-reporting totals for any centre
+  // over that size. Plain centre-scoped aggregates here are correct
+  // regardless of how many students there are or what page/search is active.
+  const centreWhere = { centreId: params.centreId, role: "STUDENT" as const };
+
+  const [students, total, seats, totalStudents, activeStudents, totalAttempts, totalMockTests, vipStudents, avgScoreAgg] = await Promise.all([
     db.user.findMany({
       where,
       select: {
@@ -65,6 +72,14 @@ export async function GET(
       where: { centreId: params.centreId, user: where },
       select: { userId: true, status: true, startDate: true, endDate: true },
     }),
+    db.user.count({ where: centreWhere }),
+    db.user.count({ where: { ...centreWhere, attempts: { some: {} } } }),
+    db.attempt.count({ where: { user: centreWhere } }),
+    db.mockTest.count({ where: { user: centreWhere } }),
+    db.user.count({ where: { ...centreWhere, studentPlan: { planType: { not: "FREE" } } } }),
+    // A plain AVG over individual attempt rows is already attempt-weighted
+    // by construction — no need to average per-type averages and recombine.
+    db.attempt.aggregate({ where: { user: centreWhere, overallScore: { not: null } }, _avg: { overallScore: true } }),
   ]);
 
   const seatMap: Record<string, { status: string; startDate: Date; endDate: Date } | null> = {};
@@ -78,6 +93,15 @@ export async function GET(
       page,
       pageSize,
       totalPages: Math.ceil(total / pageSize),
+      centreStats: {
+        totalStudents,
+        activeStudents,
+        inactiveStudents: totalStudents - activeStudents,
+        totalAttempts,
+        totalMockTests,
+        vipStudents,
+        avgScore: avgScoreAgg._avg.overallScore != null ? Math.round(avgScoreAgg._avg.overallScore * 10) / 10 : null,
+      },
     },
   });
 }

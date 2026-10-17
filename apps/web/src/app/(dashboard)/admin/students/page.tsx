@@ -81,6 +81,14 @@ export default function StudentsPage() {
   const confirm = useConfirm();
   const { toast } = useToast();
   const [students, setStudents] = useState<Student[]>([]);
+  // Backend is paginated (pageSize capped at 200 per request), but this page
+  // used to only ever fetch page 1 — any centre over 200 students silently
+  // never saw the rest in the list, search, or bulk-select, with nothing
+  // telling the admin more existed. loadedPage/hasMore track that for the
+  // "Load more" button below the list.
+  const [loadedPage, setLoadedPage] = useState(1);
+  const [hasMore, setHasMore] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [search, setSearch] = useState("");
   const [expiryFilter, setExpiryFilter] = useState<ExpiryFilter>("all");
   const [loading, setLoading] = useState(true);
@@ -122,10 +130,30 @@ export default function StudentsPage() {
       if (data.success) {
         setStudents(data.data.items);
         setSelectedIds(new Set());
+        setLoadedPage(1);
+        setHasMore(data.data.page < data.data.totalPages);
       }
     } catch { /* AbortError — ignore */ }
     finally { setLoading(false); }
   }, []);
+
+  const loadMoreStudents = useCallback(async () => {
+    if (!centreId) return;
+    setLoadingMore(true);
+    try {
+      const nextPage = loadedPage + 1;
+      const params = new URLSearchParams({ search, page: String(nextPage), pageSize: "200" });
+      const res = await fetch(`/api/centres/${centreId}/students?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        setStudents((prev) => [...prev, ...data.data.items]);
+        setLoadedPage(nextPage);
+        setHasMore(data.data.page < data.data.totalPages);
+      }
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [centreId, search, loadedPage]);
 
   const fetchPendingInvites = useCallback(async (signal: AbortSignal) => {
     try {
@@ -230,6 +258,11 @@ export default function StudentsPage() {
         setShowBatchModal(false);
         setSelectedBatchId(null);
         setSelectedIds(new Set());
+        // bulkRenew already refetches after its mutation; this one didn't,
+        // so the page kept showing stale batch membership until a manual reload.
+        const c = new AbortController();
+        fetchStudents(centreId!, search, c.signal);
+        fetchBatches(centreId!);
       } else {
         toast("error", data.error || "Failed to add students to batch");
       }
@@ -828,6 +861,13 @@ export default function StudentsPage() {
               </table>
             </div>
             </>
+          )}
+          {hasMore && (
+            <div className="flex justify-center pt-4">
+              <Button variant="outline" onClick={loadMoreStudents} disabled={loadingMore}>
+                {loadingMore ? "Loading…" : "Load more students"}
+              </Button>
+            </div>
           )}
         </CardContent>
       </Card>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAuth } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { sendEmail, centreInvitationEmailTemplate } from "@/lib/email";
-import { grantCentreSeat, getCentreActiveSeats } from "@/lib/centre-access";
+import { grantCentreSeat, getCentreActiveSeats, withCentreSeatLock } from "@/lib/centre-access";
 
 // POST /api/centres/invite-student
 // Centre admin invites a student by email.
@@ -66,9 +66,28 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, error: "This student is already associated with another centre" }, { status: 409 });
     }
 
-    // Link to centre + grant 30-day (1 month) seat
-    await db.user.update({ where: { id: existingUser.id }, data: { centreId } });
-    await grantCentreSeat(centreId, existingUser.id);
+    // Link to centre + grant 30-day (1 month) seat. Re-check the limit inside
+    // the same advisory-locked transaction as the grant itself — the earlier
+    // check above is just an early-exit for the invite-only path below; doing
+    // check-then-grant as two separate statements let two concurrent requests
+    // both pass the check and both succeed, exceeding maxStudents.
+    const result = await withCentreSeatLock(centreId, async (tx) => {
+      if (latestSub && latestSub.maxStudents !== -1) {
+        const activeSeats = await getCentreActiveSeats(centreId, tx);
+        if (activeSeats >= latestSub.maxStudents) {
+          return { ok: false as const };
+        }
+      }
+      await tx.user.update({ where: { id: existingUser.id }, data: { centreId } });
+      await grantCentreSeat(centreId, existingUser.id, tx);
+      return { ok: true as const };
+    });
+    if (!result.ok) {
+      return NextResponse.json({
+        success: false,
+        error: `Seat limit reached. Your ${latestSub!.planName} allows ${latestSub!.maxStudents} students. Upgrade to add more.`,
+      }, { status: 403 });
+    }
 
     await sendEmail({
       to: normalizedEmail,

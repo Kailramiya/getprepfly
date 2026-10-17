@@ -328,6 +328,13 @@ export async function activateCentrePlan(
       where: { id: centreId },
       data: { isPremiumCentre: true, premiumUntil: newPremiumUntil },
     }),
+    // Supersede any prior ACTIVE rows — this was never done before, so a
+    // centre that renewed or upgraded more than once saw every past plan
+    // still tagged "ACTIVE" in its billing history, not just the current one.
+    db.centreSubscription.updateMany({
+      where: { centreId, status: "ACTIVE" },
+      data: { status: "EXPIRED" },
+    }),
     // Create subscription record (-1 stored as-is for unlimited plans)
     db.centreSubscription.create({
       data: {
