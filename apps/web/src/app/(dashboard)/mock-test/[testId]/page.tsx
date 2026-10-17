@@ -237,35 +237,48 @@ export default function MockTestSessionPage() {
 
 
 
+  // Advancing used to fire the auto-submit and immediately change currentIdx
+  // without waiting for it — QuestionRenderer is keyed on currentIdx, so the
+  // moment it changed, the question (and, for Speaking, its still-recording
+  // AudioRecorder) was unmounted mid-flight. useAudioRecorder has no unmount
+  // cleanup, so an in-progress recording's MediaRecorder kept running
+  // detached from React: its eventual onstop still fired, but into state
+  // setters on an already-unmounted component, which React silently drops.
+  // The blob — and therefore the whole answer — never reached anywhere. That
+  // raced hardest on questions with the least buffer before an answer can
+  // exist (Repeat Sentence's 3s pre-record delay, Write From Dictation only
+  // being typeable after its one-shot audio finishes), which is why those
+  // were the ones most often found "skipped" with no attempt ever saved —
+  // but the same race could drop any type's answer if Next landed at the
+  // wrong moment. Mirrors finishTest's already-correct pattern: await the
+  // submit (giving a recording in flight its full chance to stop and flush)
+  // before the question is allowed to unmount, and refuse to advance — same
+  // as finishTest already does — if the save genuinely fails, rather than
+  // silently losing the answer and moving on anyway.
   const goNext = useCallback(async () => {
-    if (currentIdx < totalQuestions - 1) {
-      stopAllAudio();
-      setNavigating(true);
-      if (!submitted) {
-        if (autoSubmitRef.current) {
-          const submitPromise = track(Promise.resolve(autoSubmitRef.current()));
-          
-          if (submitPromise && typeof (submitPromise as any).then === 'function') {
-            (submitPromise as Promise<any>).then((_res) => {
-              // If the renderer returned the response directly instead of calling onSubmit
-              // we can handle it here, but QuestionRenderer usually calls onSubmit itself.
-            }).catch((e) => {
-              console.error("Background auto-submit failed", e);
-            });
-          }
-        }
+    if (navigating || currentIdx >= totalQuestions - 1) return;
+    stopAllAudio();
+    setNavigating(true);
+    if (!submitted && autoSubmitRef.current) {
+      try {
+        await track(Promise.resolve(autoSubmitRef.current()));
+      } catch (e) {
+        console.error("Auto-submit before Next failed", e);
+        alert("Network error: Could not save your answer. Please check your connection and try again.");
+        setNavigating(false);
+        return;
       }
-      const nextIdx = currentIdx + 1;
-      setSubmitted(false);
-      setNavigating(false);
-      setCurrentIdx(nextIdx);
-      fetch(`/api/mock-tests/${testId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ currentIndex: nextIdx, currentSection: test?.questions[nextIdx]?.question?.section }),
-      });
     }
-  }, [currentIdx, totalQuestions, testId, test, submitted]);
+    const nextIdx = currentIdx + 1;
+    setSubmitted(false);
+    setCurrentIdx(nextIdx);
+    setNavigating(false);
+    fetch(`/api/mock-tests/${testId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ currentIndex: nextIdx, currentSection: test?.questions[nextIdx]?.question?.section }),
+    });
+  }, [currentIdx, totalQuestions, testId, test, submitted, navigating]);
 
   // Called by QuestionRenderer when student explicitly submits (or via background auto-submit)
   const handleQuestionSubmit = async (response: any, questionIdOverride?: string) => {
