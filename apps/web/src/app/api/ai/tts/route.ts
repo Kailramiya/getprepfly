@@ -2,13 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireRole } from "@/lib/auth-utils";
 import { db } from "@/lib/db";
 import { putToR2 } from "@/lib/r2";
+import { recordAiUsage } from "@/lib/ai-pricing";
 
 export const maxDuration = 30;
 
 // POST /api/ai/tts — generate audio for a question using OpenAI TTS
 // Admin-only. Calls OpenAI TTS, uploads to Cloudflare R2, saves URL to question.
 export async function POST(req: NextRequest) {
-  const { error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"]);
+  const { user, error } = await requireRole(["SUPER_ADMIN", "CENTRE_ADMIN", "TEACHER"]);
   if (error) return error;
 
   const { questionId, text, voice = "nova" } = await req.json();
@@ -30,6 +31,8 @@ export async function POST(req: NextRequest) {
     const err = await ttsRes.text();
     return NextResponse.json({ success: false, error: `TTS failed: ${err}` }, { status: 500 });
   }
+
+  await recordAiUsage(user!.id, "tts", { model: "tts-1", characters: text.length });
 
   // Upload audio to Cloudflare R2 (fixed key — overwrites any previous TTS for this question)
   const audioBuffer = Buffer.from(await ttsRes.arrayBuffer());

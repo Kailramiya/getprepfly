@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { getUserAccess, canAccessQuestion, FREE_DAILY_SPEAKING_SCORINGS } from "@/lib/access";
 import { enforceRateLimit, isRateLimited, reserveAiCall } from "@/lib/rate-limit";
 import { diffWords, diffStats, toWords, UNCLEAR_MATCH_RATIO } from "@/lib/word-diff";
+import { recordAiUsage } from "@/lib/ai-pricing";
 
 export const maxDuration = 60; // seconds — required for Whisper + GPT pipeline
 
@@ -66,7 +67,7 @@ export async function POST(req: NextRequest) {
 
   try {
     // Step 1: Transcribe audio using OpenAI Whisper (verbose_json)
-    const transcriptionObj = await transcribeAudio(audioFile);
+    const transcriptionObj = await transcribeAudio(audioFile, user!.id);
     const transcriptionText = transcriptionObj.text || "";
 
     // Silence or noise comes back from Whisper as made-up words. If a Read Aloud / Repeat
@@ -90,7 +91,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Step 2: Score using programmatic methods + GPT for content
-    const scores = await scoreSpeaking(transcriptionObj, expectedText, questionType);
+    const scores = await scoreSpeaking(transcriptionObj, expectedText, questionType, user!.id);
 
     // Step 3: Save attempt + compute percentile in parallel (same two-COUNT
     // approach as the objective score route) — the client used to make a
@@ -133,7 +134,7 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function transcribeAudio(audioFile: File): Promise<any> {
+async function transcribeAudio(audioFile: File, userId: string): Promise<any> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("OpenAI API key not configured");
@@ -159,13 +160,19 @@ async function transcribeAudio(audioFile: File): Promise<any> {
     throw new Error(`Whisper API error: ${response.statusText}`);
   }
 
-  return await response.json();
+  const result = await response.json();
+  await recordAiUsage(userId, "score-speaking", {
+    model: "whisper-1",
+    audioSeconds: result?.duration ?? 0,
+  });
+  return result;
 }
 
 async function scoreSpeaking(
   transcriptionObj: any,
   expectedText: string,
-  questionType: string
+  questionType: string,
+  userId: string
 ): Promise<any> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
@@ -252,6 +259,11 @@ Return ONLY a JSON object: { "content": int, "feedback": "1-2 sentences" }
   }
 
   const data = await response.json();
+  await recordAiUsage(userId, "score-speaking", {
+    model: "gpt-4o-mini",
+    promptTokens: data?.usage?.prompt_tokens ?? 0,
+    completionTokens: data?.usage?.completion_tokens ?? 0,
+  });
   let result: any;
   try {
     result = JSON.parse(data?.choices?.[0]?.message?.content ?? "");
