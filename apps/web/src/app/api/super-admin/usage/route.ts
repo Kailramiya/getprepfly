@@ -119,14 +119,14 @@ export async function GET(req: NextRequest) {
     users: [],
   };
 
-  for (const [userId, a] of aggByUser) {
+  aggByUser.forEach((a, userId) => {
     const s = studentById.get(userId);
-    if (!s) continue; // usage from a since-deleted user
+    if (!s) return; // usage from a since-deleted user
     const bucket = (s.centreId && centreById.get(s.centreId)) || unassigned;
     bucket.users.push({ id: s.id, name: s.name, email: s.email, role: s.role, isActive: s.isActive, ...a });
     bucket.calls += a.calls;
     bucket.costInrPaise += a.costInrPaise;
-  }
+  });
 
   const centresOut = Array.from(centreById.values());
   if (unassigned.users.length > 0) centresOut.push(unassigned);
